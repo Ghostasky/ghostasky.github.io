@@ -65,7 +65,7 @@
 
 <h2 id="0x9-ACTF2020-新生赛-Exec"><a href="#0x9-ACTF2020-新生赛-Exec" class="headerlink" title="0x9.[ACTF2020 新生赛]Exec"></a>0x9.[ACTF2020 新生赛]Exec</h2><p>就是连接命令，可以管道符||，也可以分号，或者&amp;这个符号。</p>
 <p>但是经过测试，之后分号可以多个命令一起执行（在这道题）</p>
-<p><img src="/.com//image-20210415165001140.png" alt="image-20210415165001140"></p>
+<p><img src="/2021/04/17/BUU-WEB-0x1-0xF/image-20210415165001140.png" alt="image-20210415165001140"></p>
 <p>找到flag.</p>
 <h2 id="0xA-GXYCTF2019-Ping-Ping-Ping"><a href="#0xA-GXYCTF2019-Ping-Ping-Ping" class="headerlink" title="0xA.[GXYCTF2019]Ping Ping Ping"></a>0xA.[GXYCTF2019]Ping Ping Ping</h2><p>打开后发现无论是cat flag.php还是index.php都打不开，经过测试发现可能是过滤了空格。</p>
 <blockquote>
@@ -95,7 +95,7 @@
 <p><strong>可以先查看根目录下文件：</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?%20num=1;var_dump(scandir(chr(47)))</span><br></pre></td></tr></table></figure>
 
-<p><img src="/.com//image-20210415181858484.png" alt="image-20210415181858484"></p>
+<p><img src="/2021/04/17/BUU-WEB-0x1-0xF/image-20210415181858484.png" alt="image-20210415181858484"></p>
 <p>为什么要在num前加空格？</p>
 <p>​    假如waf不允许num变量传递字母，可以在num前加个空格，这样waf就找不到num这个变量了，因为现在的变量叫“ num”，而不是“num”。但php在解析的时候，会先把空格给去掉，这样我们的代码还能正常运行，还上传了非法字符。</p>
 <p>如果发现过滤，可以使用chr()转ascii之后拼接。</p>

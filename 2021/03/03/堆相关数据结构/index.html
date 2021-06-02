@@ -18,7 +18,7 @@ libumem   – "><meta name="keywords" content="郁涛丶博客,博客,郁涛丶"
 <h1 id="堆概述"><a href="#堆概述" class="headerlink" title="堆概述"></a>堆概述</h1><h2 id="内存分配后的系统调用"><a href="#内存分配后的系统调用" class="headerlink" title="内存分配后的系统调用"></a>内存分配后的系统调用</h2><p>在我们动态申请和释放内存时，无论是malloc还是free函数，都不是真正与系统交互的函数</p>
 <p>这些函数的背后系统调用主要是(s)brk和mmap、munmap函数</p>
 <p>如下图：</p>
-<p><img src="/.com//1614781158558.png"></p>
+<p><img src="/2021/03/03/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781158558.png"></p>
 <h3 id="s-brk"><a href="#s-brk" class="headerlink" title="(s)brk"></a>(s)brk</h3><p>对于堆来说，操作系统提供了brk函数，glibc库提供了sbrk函数，我们也可通过增加brk的大小来向操作系统申请内存。</p>
 <p>在一开始，堆的起始位置(start_brk)和堆的当前结尾地址(brk)指向同一地址。根据是否开启ASLR，指的位置不同</p>
 <ul>
@@ -108,7 +108,7 @@ libumem   – "><meta name="keywords" content="郁涛丶博客,博客,郁涛丶"
 <p>ptmalloc一共维护了128个bin，并使用一个数组来存储这些bin。</p>
 <p>数组中<strong>bin 1为unsorted bin</strong>；<strong>bin 2到63为small bin</strong>；<strong>bin 64到126为large bin</strong></p>
 <p>具体的实现中，ptmalloc采用分箱式的方法对空闲的chunk进行管理。</p>
-<p>首先，他会根据空闲chunk的大小及使用状态将chunk初步分为4类：fast bins，small bins，large bins，unsorted bin。每一类中仍有更详细的划分。相似大小的chunk会使用双向链表链接起来。也就是说，在每一类bin的内部仍有多个互不相关的链表来保存不同大小的chunk.<br><img src="/.com//1614781245754.png"></p>
+<p>首先，他会根据空闲chunk的大小及使用状态将chunk初步分为4类：fast bins，small bins，large bins，unsorted bin。每一类中仍有更详细的划分。相似大小的chunk会使用双向链表链接起来。也就是说，在每一类bin的内部仍有多个互不相关的链表来保存不同大小的chunk.<br><img src="/2021/03/03/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781245754.png"></p>
 <p>对于 small bins，large bins，unsorted bin 来说，ptmalloc 将它们维护在同一个数组中。这些 bin 对应的数据结构在 malloc_state 中，如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NBINS 128</span></span><br><span class="line"><span class="comment">/* Normal bins packed as described above */</span></span><br><span class="line">mchunkptr bins[ NBINS * <span class="number">2</span> - <span class="number">2</span> ];</span><br></pre></td></tr></table></figure>
 
