@@ -1,0 +1,246 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="郁涛丶"><title>汇编笔记 · 郁涛丶's Blog</title><meta name="description" content="[TOC]
+菜鸟最近才刚刚开始学习逆向，做了一些汇编的笔记，如下：1 . 32位通用寄存器
+数据寄存器EAX, EBX, ECX, EDX.
+
+EAX:累加寄存器，是很多加法乘法指令的缺省寄存器EBX:基址寄存器，在内存寻址时存放基地址ECX:计数寄存器，是重复(REP)前缀指令和LOOP指令的内定"><meta name="keywords" content="郁涛丶博客,博客,郁涛丶"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"><script src="/js/jquery.js"></script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">郁涛丶's Blog</a></h3><div class="description"><p>怕什么真理无穷， 进一寸有一寸的欢喜。</p></div></div></div><ul class="social-links"><li><a target="_blank" rel="noopener" href="https://github.com/ghostasky"><i class="fa fa-github"></i></a></li><li><a href="mailto:2992721672@qq.com"><i class="fa fa-envelope"></i></a></li><li><a target="_blank" rel="noopener" href="http://sighttp.qq.com/authd?IDKEY=2992721672"><i class="fa fa-qq"></i></a></li></ul><div class="footer"><div class="p"> <span>© 2017 - 2020 </span><i class="fa fa-star"></i><span> 郁涛丶</span></div><div class="by_farbox"><span>Powered by </span><a href="https://hexo.io/zh-cn/" target="_blank">Hexo </a><span> & </span><a href="https://github.com/mrcore/hexo-theme-Anatole-Core" target="_blank">Anatole-Core  </a></div><div class="beian"><a href="http://www.beian.miit.gov.cn/" target="_blank">粤ICP备15011643号</a><span style="height:10px;margin-left: 10px;">|</span><img src="/images/gongan.png" style="height:10px;margin-left: 10px;position: relative;top: 1px;"><span style="margin-left: 2px;">粤公网安备 44030402003967号</span></div></div></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a href="/">首页</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li><li><a href="/about">关于</a></li><li><a href="/guestbook">随笔小记</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)"> </a></li></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post-page"><div class="post animated fadeInDown"><div class="post-title"><h3><a>汇编笔记</a></h3></div><div class="post-content"><p>[TOC]</p>
+<h6 id="菜鸟最近才刚刚开始学习逆向，做了一些汇编的笔记，如下："><a href="#菜鸟最近才刚刚开始学习逆向，做了一些汇编的笔记，如下：" class="headerlink" title="菜鸟最近才刚刚开始学习逆向，做了一些汇编的笔记，如下："></a>菜鸟最近才刚刚开始学习逆向，做了一些汇编的笔记，如下：</h6><h1 id="1-32位通用寄存器"><a href="#1-32位通用寄存器" class="headerlink" title="1 . 32位通用寄存器"></a>1 . 32位通用寄存器</h1><ul>
+<li><p>数据寄存器EAX, EBX, ECX, EDX.</p>
+<blockquote>
+<p>EAX:累加寄存器，是很多加法乘法指令的缺省寄存器<br>EBX:基址寄存器，在内存寻址时存放基地址<br>ECX:计数寄存器，是重复(REP)前缀指令和LOOP指令的内定计数器<br>EDX:数据寄存器，总是被用来放整数除法产生的余数.</p>
+</blockquote>
+</li>
+<li><p>段寄存器</p>
+<blockquote>
+<p>CS：代码段寄存器  ES：附加段寄存器<br>DS：数据段寄存器  FS：附加段寄存器<br>SS：堆栈段寄存器  GS：附加段寄存器</p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>索引寄存器ESI, EDI</p>
+<blockquote>
+<p>ESI:源索引寄存器<br>EDI:目的索引寄存器<br>在很多字符串操作指令中，DS:ESI指向源串，而ES:EDI指向目标串</p>
+</blockquote>
+</li>
+<li><p>指令指针寄存器</p>
+<blockquote>
+<p>EIP：指令指针寄存器，存储的是CPU下次要执行的指令的地址.</p>
+</blockquote>
+</li>
+<li><p>指针寄存器</p>
+<blockquote>
+<p>EBP为基指针寄存器，用它可直接存取堆栈中的数据。<br>ESP为堆栈指针寄存器，用它只可访问栈顶。</p>
+</blockquote>
+</li>
+<li><p>标志寄存器</p>
+<img src="/.com//校\blog笔记\img\dishuihuibian.png" alt="dishuihuibian" style="zoom:50%;"></li>
+</ul>
+<p>进位标志CF(Carry Flag):</p>
+<blockquote>
+<p>进位标志CF主要用来反映运算是否产生进位或借位。如果运算结果的最高位产生了一个进位或借位，那么，其值为1，否则其值为0。 </p>
+</blockquote>
+<p>奇偶标志PF(Parity Flag)：</p>
+<blockquote>
+<p>奇偶标志PF用于反映运算结果中“1”的个数(二进制)的奇偶性。如果“1”的个数为偶数，则PF的值为1，否则其值为0。</p>
+</blockquote>
+<p>辅助进位标志AF(Auxiliary Carry Flag)</p>
+<blockquote>
+<p>在发生下列情况时，辅助进位标志AF的值被置为1，否则其值为0：<br>(1)、在字操作时，发生低字节向高字节进位或借位时；<br>(2)、在字节操作时，发生低4位向高4位进位或借位时。</p>
+</blockquote>
+<p>零标志ZF(Zero Flag)</p>
+<blockquote>
+<p>零标志ZF用来反映运算结果是否为0。如果运算结果为0，则其值为1，否则其值为0。在判断运算结果是否为0时，可使用此标志位。</p>
+</blockquote>
+<p>符号标志SF(Sign Flag)</p>
+<blockquote>
+<p>符号标志SF用来反映运算结果的符号位，它与运算结果的最高位相同。在微机系统中，有符号数采用补码表示法，所以，SF也就反映运算结果的正负号。运算结果为正数时，SF的值为0，否则其值为1。</p>
+</blockquote>
+<p>溢出标志OF(Overflow Flag)</p>
+<blockquote>
+<p>溢出标志OF用于反映有符号数加减运算所得结果是否溢出。如果运算结果超过当前运算位数所能表示的范围，则称为溢出，OF的值被置为1，否则，OF的值被清为0。</p>
+</blockquote>
+<p>追踪标志TF(Trap Flag)</p>
+<blockquote>
+<p> 当追踪标志TF被置为1时，CPU进入单步执行方式，即每执行一条指令，产生一个单步中断请求。这种方式主要用于程序的调试。<br>指令系统中没有专门的指令来改变标志位TF的值，但程序员可用其它办法来改变其值。</p>
+</blockquote>
+<p>中断允许标志IF(Interrupt-enable Flag)</p>
+<blockquote>
+<p>中断允许标志IF是用来决定CPU是否响应CPU外部的可屏蔽中断发出的中断请求。但不管该标志为何值，CPU都必须响应CPU外部的不可屏蔽中断所发出的中断请求，以及CPU内部产生的中断请求。具体规定如下：<br>(1)、当IF=1时，CPU可以响应CPU外部的可屏蔽中断发出的中断请求；<br>(2)、当IF=0时，CPU不响应CPU外部的可屏蔽中断发出的中断请求。</p>
+</blockquote>
+<p>方向标志DF(Direction Flag)</p>
+<blockquote>
+<p>方向标志DF用来决定在串操作指令执行时有关指针寄存器发生调整的方向。具体规定在第5.2.11节——字符串操作指令——中给出。在微机的指令系统中，还提供了专门的指令来改变标志位DF的值。</p>
+</blockquote>
+<hr>
+<h1 id="2-常用的32汇编指令"><a href="#2-常用的32汇编指令" class="headerlink" title="2. 常用的32汇编指令"></a>2. 常用的32汇编指令</h1><ul>
+<li><p>ADD  ：加法</p>
+</li>
+<li><p>ADC  ：带位加法</p>
+</li>
+<li><p>SBB ：带位减法</p>
+</li>
+<li><p>SUB：减法.</p>
+</li>
+<li><p>INC ：加法.</p>
+</li>
+<li><p>CMP  ：比较.(两操作数作减法,仅修改标志位,不回送结果). </p>
+</li>
+<li><p>AND ：与运算. </p>
+</li>
+<li><p>OR ：或运算. </p>
+</li>
+<li><p>XOR ：异或运算. </p>
+</li>
+<li><p>NOT ：取反. </p>
+</li>
+<li><p>MOV：传送字或字节. </p>
+</li>
+<li><p>MOVSX：先符号扩展,再传送. </p>
+</li>
+<li><p>PUSH：把字压入堆栈. </p>
+</li>
+<li><p>POP：把字弹出堆栈. </p>
+</li>
+<li><p>PUSHA：把AX,CX,DX,BX,SP,BP,SI,DI依次压入堆栈. </p>
+</li>
+<li><p>POPA ：    把DI,SI,BP,SP,BX,DX,CX,AX依次弹出堆栈. </p>
+</li>
+<li><p>PUSHAD ： 把EAX,ECX,EDX,EBX,ESP,EBP,ESI,EDI依次压入堆栈. </p>
+</li>
+<li><p>POPAD ： 把EDI,ESI,EBP,ESP,EBX,EDX,ECX,EAX依次弹出堆栈.</p>
+</li>
+<li><p>LEA  :  装入有效地址.  例: LEA DX,0xAA  //把0xAA地址存到DX. </p>
+</li>
+<li><p>JMP ：无条件转移指令 </p>
+</li>
+<li><p>CALL：过程调用 .</p>
+</li>
+<li><p>RET/RETF : 过程返回. </p>
+</li>
+<li><p>JCC指令：</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>JCC指令</th>
+<th>含义</th>
+<th>英文</th>
+<th>检查符号位</th>
+<th>C语句</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>JZ/JE</td>
+<td>若为0则跳转；若相等则跳转</td>
+<td>jump if zero;jump if equal</td>
+<td>ZF=1</td>
+<td>if (i == j);if (i == 0);</td>
+</tr>
+<tr>
+<td>JNZ/JNE</td>
+<td>若不为0则跳转；若不相等则跳转</td>
+<td>jump if not zero;jump if not equal</td>
+<td>ZF=0</td>
+<td>if (i != j);if (i != 0);</td>
+</tr>
+<tr>
+<td>JS</td>
+<td>若为负则跳转</td>
+<td>jump if sign</td>
+<td>SF=1</td>
+<td>if (i &lt; 0);</td>
+</tr>
+<tr>
+<td>JNS</td>
+<td>若为正则跳转</td>
+<td>jump if not sign</td>
+<td>SF=0</td>
+<td>if (i &gt; 0);</td>
+</tr>
+<tr>
+<td>JP/JPE</td>
+<td>若1出现次数为偶数则跳转</td>
+<td>jump if Parity (Even)</td>
+<td>PF=1</td>
+<td>(null)</td>
+</tr>
+<tr>
+<td>JNP/JPO</td>
+<td>若1出现次数为奇数则跳转</td>
+<td>jump if not parity (odd)</td>
+<td>PF=0</td>
+<td>(null)</td>
+</tr>
+<tr>
+<td>JO</td>
+<td>若溢出则跳转</td>
+<td>jump if overflow</td>
+<td>OF=1</td>
+<td>(null)</td>
+</tr>
+<tr>
+<td>JNO</td>
+<td>若无溢出则跳转</td>
+<td>jump if not overflow</td>
+<td>OF=0</td>
+<td>(null)</td>
+</tr>
+<tr>
+<td>JC/JB/JNAE</td>
+<td>若进位则跳转；若低于则跳转；若不高于等于则跳转</td>
+<td>jump if carry;jump if below;jump if not above equal</td>
+<td>CF=1</td>
+<td>if (i &lt; j);</td>
+</tr>
+<tr>
+<td>JNC/JNB/JAE</td>
+<td>若无进位则跳转；若不低于则跳转；若高于等于则跳转；</td>
+<td>jump if not carry;jump if not below;jump if above equal</td>
+<td>CF=0</td>
+<td>if (i &gt;= j);</td>
+</tr>
+<tr>
+<td>JBE/JNA</td>
+<td>若低于等于则跳转；若不高于则跳转</td>
+<td>jump if below equal;jump if not above</td>
+<td>ZF=1或CF=1</td>
+<td>if (i &lt;= j);</td>
+</tr>
+<tr>
+<td>JNBE/JA</td>
+<td>若不低于等于则跳转；若高于则跳转</td>
+<td>jump if not below equal;jump if above</td>
+<td>ZF=0或CF=0</td>
+<td>if (i &gt; j);</td>
+</tr>
+<tr>
+<td>JL/JNGE</td>
+<td>若小于则跳转；若不大于等于则跳转</td>
+<td>jump if less;jump if not greater equal jump</td>
+<td>SF != OF</td>
+<td>if (si &lt; sj);</td>
+</tr>
+<tr>
+<td>JNL/JGE</td>
+<td>若不小于则跳转；若大于等于则跳转；</td>
+<td>jump if not less;jump if greater equal</td>
+<td>SF = OF</td>
+<td>if (si &gt;= sj);</td>
+</tr>
+<tr>
+<td>JLE/JNG</td>
+<td>若小于等于则跳转；若不大于则跳转</td>
+<td>jump if less equal;jump if not greater</td>
+<td>ZF != OF 或 ZF=1</td>
+<td>if (si &lt;= sj);</td>
+</tr>
+<tr>
+<td>JNLE/JG</td>
+<td>若不小于等于则跳转；若大于则跳转</td>
+<td>jump if not less equal;jump if greater</td>
+<td>SF=0F 且 ZF=0</td>
+<td>if(si&gt;sj)</td>
+</tr>
+</tbody></table>
+<p>目前就学了这么多<br>（○｀ 3′○）</p>
+</div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2020-10-11</span><i class="fa fa-tag"></i><a class="tag" href="/tags/汇编/" title="汇编">汇编 </a><span class="leancloud_visitors"></span></div></div></div></div><div class="share"><div class="evernote"><a class="fa fa-bookmark" href="" onclick="javascript:join_favorite()" ref="sidebar"></a></div><div class="weibo"><a class="fa fa-weibo" href="javascript:void((function(s,d,e){try{}catch(e){}var f='http://service.weibo.com/share/share.php?',u=d.location.href,p=['url=',e(u),'&amp;title=',e(d.title),'&amp;appkey=2924220432'].join('');function a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=620,height=450,left=',(s.width-620)/2,',top=',(s.height-450)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent)){setTimeout(a,0)}else{a()}})(screen,document,encodeURIComponent));"></a></div><div class="twitter"><a class="fa fa-twitter" target="_blank" rel="noopener" href="http://twitter.com/home?status=,http://example.com/2020/10/11/汇编笔记/,郁涛丶's Blog,汇编笔记,;"></a></div></div><div class="pagination"><ul class="clearfix"><li class="pre pagbuttons"><a class="btn" role="navigation" href="/2020/10/20/pe%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/" title="PE文件结构">上一篇</a></li></ul></div><script src="/js/visitors.js"></script></div></div></div></div><script src="/js/jquery-migrate-1.2.1.min.js"></script><script src="/js/jquery.appear.js"></script><script src="/js/add-bookmark.js"></script></body></html>
