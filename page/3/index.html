@@ -1,14 +1,536 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="郁涛丶"><title>郁涛丶's Blog</title><meta name="description" content="怕什么真理无穷， 进一寸有一寸的欢喜。"><meta name="keywords" content="郁涛丶博客,博客,郁涛丶"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"><script src="/js/jquery.js"></script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">郁涛丶's Blog</a></h3><div class="description"><p>怕什么真理无穷， 进一寸有一寸的欢喜。</p></div></div></div><ul class="social-links"><li><a target="_blank" rel="noopener" href="https://github.com/ghostasky"><i class="fa fa-github"></i></a></li><li><a href="mailto:2992721672@qq.com"><i class="fa fa-envelope"></i></a></li><li><a target="_blank" rel="noopener" href="http://sighttp.qq.com/authd?IDKEY=2992721672"><i class="fa fa-qq"></i></a></li></ul><div class="footer"><div class="p"> <span>© 2017 - 2020 </span><i class="fa fa-star"></i><span> 郁涛丶</span></div><div class="by_farbox"><span>Powered by </span><a href="https://hexo.io/zh-cn/" target="_blank">Hexo </a><span> & </span><a href="https://github.com/mrcore/hexo-theme-Anatole-Core" target="_blank">Anatole-Core  </a></div><div class="beian"><a href="http://www.beian.miit.gov.cn/" target="_blank">粤ICP备15011643号</a><span style="height:10px;margin-left: 10px;">|</span><img src="/images/gongan.png" style="height:10px;margin-left: 10px;position: relative;top: 1px;"><span style="margin-left: 2px;">粤公网安备 44030402003967号</span></div></div></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a class="current" href="/">首页</a></li><li><a href="/archives">归档</a></li><li><a href="/tags">标签</a></li><li><a href="/about">关于</a></li><li><a href="/guestbook">随笔小记</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)" style="display:none;"> </a></li></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2021/01/28/pwn_ret2libc/">PWN_Ret2libc</a></h3></div><div class="post-content"><p>1.ret2libc1 先讲几个知识点：
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="郁涛丶">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="郁涛丶">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta property="og:type" content="website">
+<meta property="og:title" content="郁涛丶&#39;s Blog">
+<meta property="og:url" content="http://example.com/page/3/index.html">
+<meta property="og:site_name" content="郁涛丶&#39;s Blog">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="郁涛丶">
+<meta name="twitter:card" content="summary">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>郁涛丶&#39;s Blog</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=202107" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=202107" as="style">
+    <link rel="stylesheet" href="/css/mobile.css?v=202107" media="(max-width: 980px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=202107" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=202107" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/js/all.min.js" data-auto-replace-svg="nest"></script>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
+</head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="home-body">
+    
+        <!-- header -->
+        <header class="header header-mobile index-header">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>郁涛丶's Blog.</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+</header>
+
+        <!-- dark mode -->
+        <script src="/scripts/dark.js"></script>
+        <!-- fixed footer -->
+        <footer class="footer-fixed index-footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 文章页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/index-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                郁涛丶's Blog.
+            <!-- 文章页  -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+                    怕什么真理无穷，进一寸有进一寸的欢喜
+                
+            <!-- 文章页  -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+        
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main index-page">
+    
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2021/01/28/pwn_ret2libc/">
+                
+                <span class="abstract-title-text">PWN_Ret2libc</span>
+            </a>
+            <div class="abstract-content">
+                1.ret2libc1 先讲几个知识点：
 
 system函数属于libc，并且libc.so动态链接库中的函数之间相对偏移是固定的，即使打开ASLR也是如此。
 PLT(Procedure Linkage Table)表中的数据不是函数的真实地址，带有@plt的函数起个过渡作用。
-GOT(Global Offset...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2021-01-28</span><i class="fa fa-tag"></i><a class="tag" href="/tags/PWN/" title="PWN">PWN </a><span class="leancloud_visitors"></span></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2021/01/27/pwn_ret2textret2syscallret2shellcode/">PWN_ret2text,ret2syscall,ret2shellcode</a></h3></div><div class="post-content"><p>1.Ret2text首先file和checksec一下：
+GOT(Global Offset Table)表中的数据才是函数最终的地址，plt表中的数据是got表的地址，可...
+            </div>
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2021/01/28</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="PWN">PWN</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2021/01/27/pwn_ret2textret2syscallret2shellcode/">
+                
+                <span class="abstract-title-text">PWN_ret2text,ret2syscall,ret2shellcode</span>
+            </a>
+            <div class="abstract-content">
+                1.Ret2text首先file和checksec一下：
 ida打开：
 观察到有个vulnerable()函数：
 还有个后门函数：get_shell()
 gdb打开，main处下断点后跟进，输入12345678后查看stack：
 此时ebp= 0xffffd108,
-将黄色与红色全部覆盖后填入get_shell(...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2021-01-27</span><i class="fa fa-tag"></i><a class="tag" href="/tags/PWN/" title="PWN">PWN </a><span class="leancloud_visitors"></span></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2021/01/23/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/">pip下载过慢解决办法</a></h3></div><div class="post-content"><p>1pip install packet
+将黄色与红色全部覆盖后填入get_shell()的地址。
+exp如下：
+getshell：
+
+2.Ret2syscall首先f...
+            </div>
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2021/01/27</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="PWN">PWN</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2021/01/23/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/">
+                
+                <span class="abstract-title-text">pip下载过慢解决办法</span>
+            </a>
+            <div class="abstract-content">
+                1pip install packet
 
 以上命令安装时过慢，可以加入：
 1-i https://pypi.tuna.tsinghua.edu.cn/simple
@@ -18,11 +540,76 @@ gdb打开，main处下断点后跟进，输入12345678后查看stack：
 1pip -V
 
 如果版本在10.0.0以上需要如下：
-123python -m pip install -...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2021-01-23</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Python/" title="Python">Python </a><span class="leancloud_visitors"></span></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2020/11/25/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/">文件包含漏洞</a></h3></div><div class="post-content"><p>[TOC]
+123python -m pip install --upgrade pippip install pip -Upip config...
+            </div>
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2021/01/23</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Python">Python</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2020/11/25/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/">
+                
+                <span class="abstract-title-text">文件包含漏洞</span>
+            </a>
+            <div class="abstract-content">
+                [TOC]
 1.文件包含相关函数​    include()，include_once()，require()，require_once()
 
 require()函数如果在包含的时候有错，如文件不存在，会直接退出，不执行后面的语句
-include()函数如果在包含的时候有错，如文件不存在，不会直接退出，会执行后面...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2020-11-25</span><i class="fa fa-tag"></i><a class="tag" href="/tags/WEB/" title="WEB">WEB </a><span class="leancloud_visitors"></span></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2020/11/23/python__requestsocket%E6%A8%A1%E5%9D%97/">Python__request，socket模块</a></h3></div><div class="post-content"><p>[TOC]
+include()函数如果在包含的时候有错，如文件不存在，不会直接退出，会执行后面的语句
+*_once()与*()的作用类似，如果一个文件已经被包含，则*_onc...
+            </div>
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2020/11/25</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="WEB">WEB</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2020/11/23/python__requestsocket%E6%A8%A1%E5%9D%97/">
+                
+                <span class="abstract-title-text">Python__request，socket模块</span>
+            </a>
+            <div class="abstract-content">
+                [TOC]
 
 一、requests库基本使用请求方式：
 ​    get，post，head，put，delete，options。
@@ -30,25 +617,1016 @@ include()函数如果在包含的时候有错，如文件不存在，不会直�
 
 params：字典或字节序列，作为参数加到URL中
 data：字典、字节序列或文件对象，作为request的内容
-json：json格式的数据，作...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2020-11-23</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Python/" title="Python">Python </a><span class="leancloud_visitors"></span></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2020/11/22/BUU-RE-1/">BUU_RE_1</a></h3></div><div class="post-content"><p>刚入RE，话不多说，BUU简单RE题目WP如下：
+json：json格式的数据，作为request的内容
+headers：字典，http定制头
+cookies：字...
+            </div>
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2020/11/23</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Python">Python</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2020/11/22/BUU-RE-1/">
+                
+                <span class="abstract-title-text">BUU_RE_1</span>
+            </a>
+            <div class="abstract-content">
+                刚入RE，话不多说，BUU简单RE题目WP如下：
 1.easyrecmd打开，输入，发现输出错误，拖入IDA查看
 其实直接看到flag，但还是具体来分析一下
-首先输入两个输入两个int类型的数，然后比较，如果不相等，则跳转到loc_40152F，并输出sorry,youcan’t get flag；如果相等，则继...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2020-11-22</span><i class="fa fa-tag"></i><a class="tag" href="/tags/RE/" title="RE">RE </a><a class="tag" href="/tags/BUU刷题/" title="BUU刷题">BUU刷题 </a><span class="leancloud_visitors"></span></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2020/11/21/python__re%E6%A8%A1%E5%9D%97%E4%B8%8E%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">Python__RE模块与正则表达式</a></h3></div><div class="post-content"><p>[TOC]
+首先输入两个输入两个int类型的数，然后比较，如果不相等，则跳转到loc_40152F，并输出sorry,youcan’t get flag；如果相等，则继续执行，输出flag。
+反汇编代码如下：
+与之前分析的还是如出一辙。
+2.rev...
+            </div>
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2020/11/22</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="RE">RE</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="BUU刷题">BUU刷题</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2020/11/21/python__re%E6%A8%A1%E5%9D%97%E4%B8%8E%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">
+                
+                <span class="abstract-title-text">Python__RE模块与正则表达式</span>
+            </a>
+            <div class="abstract-content">
+                [TOC]
 
 一Python模块之RE模块一些可选值：
 
 re.I（全拼：ignorecase）：忽略大小写
 re.M（全拼：multiline）：多行模式，改变^和$的行为
 re.S（全拼：datall）：点任意匹配模式，改变.的行为
-re.L（全拼locale）：是预定字符串类\w \W \b \B \s \...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2020-11-21</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Python/" title="Python">Python </a><span class="leancloud_visitors"></span></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2020/11/19/SQL%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/">SQL注入小结</a></h3></div><div class="post-content"><p>[TOC]
+re.L（全拼locale）：是预定字符串类\w \W \b \B \s \S取决于当前区域设定
+re.U（全拼：UNICODE）: 使预定字符类 \w \...
+            </div>
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2020/11/21</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Python">Python</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2020/11/19/SQL%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/">
+                
+                <span class="abstract-title-text">SQL注入小结</span>
+            </a>
+            <div class="abstract-content">
+                [TOC]
 
 1.联合查询注入：1http://xxxx.xx/?id=1&#x27;
 
 12http://xxxx.xx/?id=1&#x27; order by 4#	union前后的字段数要一致，所以要order by
 
 
-12345678http://xxxx.xx/?id=1&#x27; union 1...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2020-11-19</span><i class="fa fa-tag"></i><a class="tag" href="/tags/WEB/" title="WEB">WEB </a><span class="leancloud_visitors"></span></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2020/10/11/%E6%B1%87%E7%BC%96%E7%AC%94%E8%AE%B0/">汇编笔记</a></h3></div><div class="post-content"><p>[TOC]
+12345678http://xxxx.xx/?id=1&#x27; union 1,2,3,database()#​		假设当前数据库:bugku​		user(...
+            </div>
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2020/11/19</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="WEB">WEB</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2020/10/11/%E6%B1%87%E7%BC%96%E7%AC%94%E8%AE%B0/">
+                
+                <span class="abstract-title-text">汇编笔记</span>
+            </a>
+            <div class="abstract-content">
+                [TOC]
 菜鸟最近才刚刚开始学习逆向，做了一些汇编的笔记，如下：1 . 32位通用寄存器
 数据寄存器EAX, EBX, ECX, EDX.
 
-EAX:累加寄存器，是很多加法乘法指令的缺省寄存器EBX:基址寄存器，在内存寻址时存放基地址ECX:计数寄存器，是重复(REP)前缀指令和LOOP指令的内定计数器EDX:...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2020-10-11</span><i class="fa fa-tag"></i><a class="tag" href="/tags/汇编/" title="汇编">汇编 </a><span class="leancloud_visitors"></span></div></div></div></div><div class="pagination"><ul class="clearfix"><li class="pre pagbuttons"><a class="btn" role="navigation" href="/page/2/">上一页</a></li></ul></div></div></div></div><script src="/js/jquery-migrate-1.2.1.min.js"></script><script src="/js/jquery.appear.js"></script><script src="/js/add-bookmark.js"></script></body></html>
+EAX:累加寄存器，是很多加法乘法指令的缺省寄存器EBX:基址寄存器，在内存寻址时存放基地址ECX:计数寄存器，是重复(REP)前缀指令和LOOP指令的内定计数器EDX:数据寄存器，总是被用来放整数除法产生的余数.
+
+
+段寄存器
+
+CS：代码段寄存器...
+            </div>
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2020/10/11</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="汇编">汇编</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+    <!-- paginator  -->
+    
+        <nav class="page-nav">
+            <a class="extend prev" rel="prev" href="/page/2/">&lt; PREV</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+        </nav>
+    
+</main>
+
+                <!-- profile -->
+                
+                    <div class="profile profile-sticky">
+    <img class="profile-avatar" alt="avatar" src= /avatar/1.png />
+    <div class="profile-name">郁涛丶</div>
+    
+        <div class="profile-signature">
+            怕什么真理无穷，进一寸有进一寸的欢喜
+        </div>
+    
+    
+        <div class="profile-social">
+            
+    
+        
+            
+                <a href="mailto:2992721672@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/Ghostasky" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                    
+                    <img class="profile-qr" src="/assets/wechat.png" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    
+    
+        <div class="about-me">
+            <a href="/about">ABOUT ME</a>
+        </div>
+    
+</div>
+
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:2992721672@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/Ghostasky" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                    
+                    <img class="profile-qr" src="/assets/wechat.png" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 29
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2021 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/18</span>
+            <a class="archive-post-title" href="/2021/07/18/BUU-PWN-0x30-0x3f/">BUU_PWN刷题_0x30-0x3F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/11</span>
+            <a class="archive-post-title" href="/2021/07/11/BUU-PWN-0x20-0x2F/">BUU_PWN刷题_0x21-0x2F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/01</span>
+            <a class="archive-post-title" href="/2021/06/01/BUU-PWN-0x01-0x0F/">BUU_PWN刷题_0x01-0x0F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/01</span>
+            <a class="archive-post-title" href="/2021/06/01/BUU-PWN-0x10-0x1F/">BUU_PWN刷题_0x10-0x1F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/03</span>
+            <a class="archive-post-title" href="/2021/05/03/BUU-WEB-0x10-0x1F/">BUU_WEB刷题_0x10-0x1F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/17</span>
+            <a class="archive-post-title" href="/2021/04/17/BUU-WEB-0x1-0xF/">BUU_WEB刷题_0x01-0x0F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2021/04/08/64%E4%B8%BApayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/">在64位的glibc上payload调用system导致crash的问题</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2021/04/08/CISCN-PWN/">CISCN_PWN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/23</span>
+            <a class="archive-post-title" href="/2021/03/23/pwndbg%E5%92%8CLinux%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E5%8F%8A%E5%AF%86%E7%A0%81%E8%B8%A9%E5%9D%91/">pwndbg和Linux改用户名及密码踩坑</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/22</span>
+            <a class="archive-post-title" href="/2021/03/22/chunk-extend-and-overlapping/">Chunk Extend and Overlapping</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/21</span>
+            <a class="archive-post-title" href="/2021/03/21/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/">堆中的off-by-one</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/14</span>
+            <a class="archive-post-title" href="/2021/03/14/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/">简单堆溢出介绍</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/03</span>
+            <a class="archive-post-title" href="/2021/03/03/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">堆概述及其相关数据结构</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/03</span>
+            <a class="archive-post-title" href="/2021/03/03/%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA/">整数溢出</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/27</span>
+            <a class="archive-post-title" href="/2021/02/27/json%E7%9B%B8%E5%85%B3/">JSON相关</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/12</span>
+            <a class="archive-post-title" href="/2021/02/12/2020%E5%B9%B4%E9%83%BD%E5%B9%B2%E4%BA%86%E5%95%A5/">2020年都干了啥</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/10</span>
+            <a class="archive-post-title" href="/2021/02/10/ret2csu/">Ret2csu</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/06</span>
+            <a class="archive-post-title" href="/2021/02/06/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/">格式化字符串漏洞举例</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/02</span>
+            <a class="archive-post-title" href="/2021/02/02/Linux%E4%BF%9D%E6%8A%A4%E6%8A%80%E6%9C%AF/">Linux保护技术</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/01</span>
+            <a class="archive-post-title" href="/2021/02/01/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D%E5%8F%8A%E5%88%A9%E7%94%A8/">格式化字符串原理介绍及利用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/28</span>
+            <a class="archive-post-title" href="/2021/01/28/pwn_ret2libc/">PWN_Ret2libc</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/27</span>
+            <a class="archive-post-title" href="/2021/01/27/pwn_ret2textret2syscallret2shellcode/">PWN_ret2text,ret2syscall,ret2shellcode</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/23</span>
+            <a class="archive-post-title" href="/2021/01/23/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/">pip下载过慢解决办法</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2020 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/25</span>
+            <a class="archive-post-title" href="/2020/11/25/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/">文件包含漏洞</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span>
+            <a class="archive-post-title" href="/2020/11/23/python__requestsocket%E6%A8%A1%E5%9D%97/">Python__request，socket模块</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/22</span>
+            <a class="archive-post-title" href="/2020/11/22/BUU-RE-1/">BUU_RE_1</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/21</span>
+            <a class="archive-post-title" href="/2020/11/21/python__re%E6%A8%A1%E5%9D%97%E4%B8%8E%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">Python__RE模块与正则表达式</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/19</span>
+            <a class="archive-post-title" href="/2020/11/19/SQL%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/">SQL注入小结</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/11</span>
+            <a class="archive-post-title" href="/2020/10/11/%E6%B1%87%E7%BC%96%E7%AC%94%E8%AE%B0/">汇编笔记</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="Life">
+                <span class="iconfont-archer">&#xe606;</span>
+                Life
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="PWN">
+                <span class="iconfont-archer">&#xe606;</span>
+                PWN
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="RE">
+                <span class="iconfont-archer">&#xe606;</span>
+                RE
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="BUU刷题">
+                <span class="iconfont-archer">&#xe606;</span>
+                BUU刷题
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Python">
+                <span class="iconfont-archer">&#xe606;</span>
+                Python
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Linux">
+                <span class="iconfont-archer">&#xe606;</span>
+                Linux
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="汇编">
+                <span class="iconfont-archer">&#xe606;</span>
+                汇编
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMeta = {
+        root: "/",
+        author: "郁涛丶"
+    }
+</script>
+
+        <!-- main func -->
+        <script src="/scripts/main.js"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>
