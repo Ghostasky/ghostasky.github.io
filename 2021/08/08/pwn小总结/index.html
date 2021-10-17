@@ -29,7 +29,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://bbs.pediy.com/upload/attach/202108/906508_BQAUCW64WPUTJ8N.png">
 <meta property="article:published_time" content="2021-08-07T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-10-07T07:06:25.191Z">
+<meta property="article:modified_time" content="2021-10-12T07:08:58.574Z">
 <meta property="article:author" content="郁涛丶">
 <meta property="article:tag" content="PWN">
 <meta name="twitter:card" content="summary">
@@ -340,7 +340,7 @@
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">853</span>阅读时长: <span class="post-count reading-time">4 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">932</span>阅读时长: <span class="post-count reading-time">4 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -527,8 +527,7 @@
 <h2 id="关闭aslr"><a href="#关闭aslr" class="headerlink" title="关闭aslr"></a>关闭aslr</h2><p><strong>echo 0 &gt; /proc/sys/kernel/randomize_va_space</strong></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gwt@ubuntu:~$ cyclic <span class="number">50</span></span><br><span class="line">aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaama</span><br><span class="line">gwt@ubuntu:~$ cyclic -l <span class="number">0x61616166</span></span><br><span class="line"><span class="number">20</span></span><br></pre></td></tr></table></figure>
 
-<p>关于recv地址</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">如果直接返回地址：%p这种：</span><br><span class="line">stack_addr = int(io.recvuntil(&#x27;\n&#x27;,drop=True),16)</span><br><span class="line"></span><br><span class="line">如果是这种：</span><br><span class="line">[DEBUG] Received 0x2c bytes:</span><br><span class="line">    00000000  42 79 65 62  79 65 7e 0a  a0 8a 14 5c  7e 7f 0a 57  │Byeb│ye~·│···\│~··W│</span><br><span class="line">    00000010  65 6c 63 6f  6d 65 20 74  6f 20 41 43  54 46 27 73  │elco│me t│o AC│TF&#x27;s│</span><br><span class="line">    00000020  20 62 61 62  79 73 74 61  63 6b 21 0a               │ bab│ysta│ck!·│</span><br><span class="line">那么</span><br><span class="line">puts_addr = io.recvuntil(&#x27;\x7f&#x27;)[-6:]</span><br><span class="line">puts_addr = puts_addr.ljust(8,&#x27;\x00&#x27;)</span><br><span class="line">print hex(u64(puts_addr))</span><br></pre></td></tr></table></figure>
+<h2 id="关于recv地址"><a href="#关于recv地址" class="headerlink" title="关于recv地址"></a>关于recv地址</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">如果直接返回地址：%p这种：</span><br><span class="line">stack_addr = int(io.recvuntil(&#x27;\n&#x27;,drop=True),16)</span><br><span class="line"></span><br><span class="line">如果是这种：</span><br><span class="line">[DEBUG] Received 0x2c bytes:</span><br><span class="line">    00000000  42 79 65 62  79 65 7e 0a  a0 8a 14 5c  7e 7f 0a 57  │Byeb│ye~·│···\│~··W│</span><br><span class="line">    00000010  65 6c 63 6f  6d 65 20 74  6f 20 41 43  54 46 27 73  │elco│me t│o AC│TF&#x27;s│</span><br><span class="line">    00000020  20 62 61 62  79 73 74 61  63 6b 21 0a               │ bab│ysta│ck!·│</span><br><span class="line">那么</span><br><span class="line">puts_addr = io.recvuntil(&#x27;\x7f&#x27;)[-6:]</span><br><span class="line">puts_addr = puts_addr.ljust(8,&#x27;\x00&#x27;)</span><br><span class="line">print hex(u64(puts_addr))</span><br></pre></td></tr></table></figure>
 
 
 
@@ -547,7 +546,15 @@
 
 
 
-<h1 id="3-Heap"><a href="#3-Heap" class="headerlink" title="3.Heap"></a>3.Heap</h1>
+<h1 id="3-Heap"><a href="#3-Heap" class="headerlink" title="3.Heap"></a>3.Heap</h1><h2 id="1-Tchache"><a href="#1-Tchache" class="headerlink" title="1.Tchache"></a>1.Tchache</h2><p>每条链最多7个，满了后放入fastbin与unsortedbin。</p>
+<p>malloc时优先去tcache中找。</p>
+<p>tcache最大为0x400，大于就会放入unsortedbin。</p>
+<p><strong>一些利用姿势</strong></p>
+<h3 id="tcache-dup"><a href="#tcache-dup" class="headerlink" title="tcache dup"></a>tcache dup</h3><p>double free</p>
+<h3 id="house-of-spirit"><a href="#house-of-spirit" class="headerlink" title="house_of_spirit"></a>house_of_spirit</h3><p>free掉伪造的chunk，这里不会对size前后的chunk进行检查</p>
+<h3 id="overlapping"><a href="#overlapping" class="headerlink" title="overlapping"></a>overlapping</h3><p>修改需要被free的size位，（包含其他chunk</p>
+<h3 id="perthread-corruption"><a href="#perthread-corruption" class="headerlink" title="perthread_corruption"></a>perthread_corruption</h3><p>控制tcache的管理结构。</p>
+
     </article>
     <!-- license -->
     
@@ -696,7 +703,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E6%9D%82"><span class="toc-number">1.</span> <span class="toc-text">1.杂</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#sys-write-puts-printf"><span class="toc-number">1.1.</span> <span class="toc-text">sys,write,puts,printf</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%A0%E5%8F%82"><span class="toc-number">1.2.</span> <span class="toc-text">传参</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%97%ADaslr"><span class="toc-number">1.3.</span> <span class="toc-text">关闭aslr</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Stack"><span class="toc-number">2.</span> <span class="toc-text">1.Stack</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%A0%88%E8%BF%81%E7%A7%BB"><span class="toc-number">2.1.</span> <span class="toc-text">1.栈迁移</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-mprotect"><span class="toc-number">2.2.</span> <span class="toc-text">2.mprotect</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Heap"><span class="toc-number">3.</span> <span class="toc-text">3.Heap</span></a></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E6%9D%82"><span class="toc-number">1.</span> <span class="toc-text">1.杂</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#sys-write-puts-printf"><span class="toc-number">1.1.</span> <span class="toc-text">sys,write,puts,printf</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%A0%E5%8F%82"><span class="toc-number">1.2.</span> <span class="toc-text">传参</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%97%ADaslr"><span class="toc-number">1.3.</span> <span class="toc-text">关闭aslr</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8Erecv%E5%9C%B0%E5%9D%80"><span class="toc-number">1.4.</span> <span class="toc-text">关于recv地址</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Stack"><span class="toc-number">2.</span> <span class="toc-text">1.Stack</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%A0%88%E8%BF%81%E7%A7%BB"><span class="toc-number">2.1.</span> <span class="toc-text">1.栈迁移</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-mprotect"><span class="toc-number">2.2.</span> <span class="toc-text">2.mprotect</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Heap"><span class="toc-number">3.</span> <span class="toc-text">3.Heap</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Tchache"><span class="toc-number">3.1.</span> <span class="toc-text">1.Tchache</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#tcache-dup"><span class="toc-number">3.1.1.</span> <span class="toc-text">tcache dup</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#house-of-spirit"><span class="toc-number">3.1.2.</span> <span class="toc-text">house_of_spirit</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#overlapping"><span class="toc-number">3.1.3.</span> <span class="toc-text">overlapping</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#perthread-corruption"><span class="toc-number">3.1.4.</span> <span class="toc-text">perthread_corruption</span></a></li></ol></li></ol></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -968,224 +975,6 @@
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
     
     
     
@@ -1202,6 +991,21 @@
     
         
             
+            
+            <div class="archive-year"> Invalid date </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">Invalid date</span>
+            <a class="archive-post-title" href="/2021/10/07/TOP/">【置顶】:防健忘，一些乱七八糟的东西</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
             
             <div class="archive-year"> 2021 </div>
             <ul class="year-list">
@@ -1429,21 +1233,6 @@
         <li class="archive-post-item">
             <span class="archive-post-date">10/11</span>
             <a class="archive-post-title" href="/2020/10/11/%E6%B1%87%E7%BC%96%E7%AC%94%E8%AE%B0/">汇编笔记</a>
-        </li>
-    
-        
-            
-            
-                
-                </ul>
-            
-            <div class="archive-year"> Invalid date </div>
-            <ul class="year-list">
-            
-        
-        <li class="archive-post-item">
-            <span class="archive-post-date">Invalid date</span>
-            <a class="archive-post-title" href="/2021/10/07/TOP/">【置顶】:防健忘，一些乱七八糟的东西</a>
         </li>
     
     </div>
