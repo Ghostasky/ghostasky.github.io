@@ -39,8 +39,9 @@
 <meta property="og:image" content="http://example.com/2021/11/27/6.s081/image-20211128230803818.png">
 <meta property="og:image" content="http://example.com/2021/11/27/6.s081/image-20211128230837614.png">
 <meta property="og:image" content="http://example.com/2021/11/27/6.s081/image-20211129172038380.png">
+<meta property="og:image" content="http://example.com/2021/11/27/6.s081/image-20211130133930561.png">
 <meta property="article:published_time" content="2021-11-26T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-11-29T15:54:25.672Z">
+<meta property="article:modified_time" content="2021-11-30T09:31:13.139Z">
 <meta property="article:author" content="郁涛丶">
 <meta property="article:tag" content="OS">
 <meta name="twitter:card" content="summary">
@@ -351,7 +352,7 @@
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">4.4k</span>阅读时长: <span class="post-count reading-time">18 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">6.8k</span>阅读时长: <span class="post-count reading-time">26 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -761,7 +762,9 @@
 <p>kernel stack被映射了两次，在靠后的虚拟地址映射了一次，在PHYSTOP下的Kernel data中又映射了一次，但是实际使用的时候用的是上面的部分，因为有Guard page会更加安全。每一个用户进程都有一个对应的kernel stack。</p>
 <p>该跟着调4.6了</p>
 <p>这里应该先跳过了，先干后面的。</p>
-<h1 id="Chapter5"><a href="#Chapter5" class="headerlink" title="Chapter5"></a>Chapter5</h1><p>导读：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2020/readings/riscv-calling.pdf">https://pdos.csail.mit.edu/6.828/2020/readings/riscv-calling.pdf</a></p>
+<h1 id="Chapter5"><a href="#Chapter5" class="headerlink" title="Chapter5"></a>Chapter5</h1><blockquote>
+<p>  导读：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2020/readings/riscv-calling.pdf">https://pdos.csail.mit.edu/6.828/2020/readings/riscv-calling.pdf</a></p>
+</blockquote>
 <p>这里用到的asm不是x86而是RISC-V，精简指令集（诞生于uc berkeley），而x86是复杂是复杂指令集CISC。</p>
 <p>RISC指令集开源相关文档在课程页可找到，包含特殊权限指令和普通指令。相比x86的文档小了很多。</p>
 <blockquote>
@@ -777,6 +780,85 @@
 <p>  【3】<a target="_blank" rel="noopener" href="https://github.com/mit-pdos/xv6-riscv/blob/riscv/kernel/trampoline.S">https://github.com/mit-pdos/xv6-riscv/blob/riscv/kernel/trampoline.S</a></p>
 <p>  【4】<a target="_blank" rel="noopener" href="https://github.com/mit-pdos/xv6-riscv/blob/riscv/kernel/trap.c">https://github.com/mit-pdos/xv6-riscv/blob/riscv/kernel/trap.c</a></p>
 </blockquote>
+<h2 id="xv6-3"><a href="#xv6-3" class="headerlink" title="xv6"></a>xv6</h2><blockquote>
+<p>  陷入，中断和驱动程序</p>
+</blockquote>
+<p>术语<code>exception</code>指产生中断的非法程序操作，例如除以0，尝试访问 PTE 不存在的内存等等。术语<code>interrupt</code>指硬件产生的希望引起操作系统注意的信号，例如时钟芯片可能每100毫秒产生一个中断，以此来实现分时。</p>
+<p>所有的中断都由内核管理，而不是进程。</p>
+<p>x86中，程序通过 int 指令产生一个中断来进行系统调用。</p>
+<p>x86的术语叫中断，xv6叫<code>陷入</code>。（陷入是由在 cpu 上运行的当前进程导致的，而中断是由设备导致的，可能与当前进程毫无关系）</p>
+<h3 id="x86保护机制"><a href="#x86保护机制" class="headerlink" title="x86保护机制"></a>x86保护机制</h3><p>x86 有四个特权级，从 0（特权最高）编号到 3。在实际使用中，大多数的操作系统都使用两个特权级，0 和 3，他们被称为内核模式和用户模式。<code>当前执行指令的特权级</code>存在于<code>%cs寄存器中的CPL域</code>中。</p>
+<p>x86 中，中断处理程序的入口在<code>中断描述符表（IDT）</code>中被定义。这个表有256个表项，每一个都提供了相应的 %cs 和 %eip。</p>
+<p>在x86上进行一个系统调用，需要调用int n指令，n是IDT的索引。int指令进行下面一些步骤：</p>
+<ul>
+<li>  从 IDT 中获得第 n 个描述符</li>
+<li>  检查 %cs 的域 CPL &lt;= DPL，DPL 是描述符中记录的特权级。</li>
+<li>  如果目标段选择符的 PL &lt; CPL，就在 CPU 内部的寄存器中保存 %esp 和 %ss 的值。</li>
+<li>  从一个任务段描述符中加载 %ss 和 %esp。</li>
+<li>  将 %ss 压栈。</li>
+<li>  将 %esp 压栈。</li>
+<li>  将 %eflags 压栈。</li>
+<li>  将 %cs 压栈。</li>
+<li>  将 %eip 压栈。</li>
+<li>  清除 %eflags 的一些位。</li>
+<li>  设置 %cs 和 %eip 为描述符中的值。</li>
+</ul>
+<p>下面是一个int中断后kernel stack中的情况，（因为user stack可能还未建立，所以中断产生的stack在内核中建立）</p>
+<p><img src="/2021/11/27/6.s081/image-20211130133930561.png" alt="image-20211130133930561"></p>
+<p>操作系统使用<code>iret</code>指令来从一个int指令中返回。它从栈中弹出int指令保存的值，然后通过恢复保存的%eip的值来继续用户程序的执行。</p>
+<h3 id="xv6-4"><a href="#xv6-4" class="headerlink" title="xv6"></a>xv6</h3><p>x86 允许 256 个不同的中断。中断 0-31 被定义为软件异常，比如除 0 错误和访问非法的内存页。xv6 将中断号 32-63 映射给硬件中断，并且用 64 作为系统调用的中断号。</p>
+<h2 id="6-s081-3"><a href="#6-s081-3" class="headerlink" title="6.s081"></a>6.s081</h2><p>用户空间和内核空间的切换通常被称为trap。</p>
+<p>一些常用寄存器：</p>
+<ul>
+<li>  在硬件中还有一个寄存器叫做程序计数器<code>（Program Counter Register）</code>。</li>
+<li>  表明当前mode的标志位，这个标志位表明了当前是supervisor mode还是user mode。当我们在运行Shell的时候，自然是在user mode。</li>
+<li>  还有一堆控制CPU工作方式的寄存器，比如<code>SATP（Supervisor Address Translation and Protection）</code>寄存器，它包含了指向page table的物理内存地址（详见4.3）。</li>
+<li>  还有一些对于今天讨论非常重要的寄存器，比如<code>STVEC（Supervisor Trap Vector Base Address Register）</code>寄存器，它指向了内核中处理trap的指令的起始地址。</li>
+<li>  <code>SEPC（Supervisor Exception Program Counter）</code>寄存器，在trap的过程中保存程序计数器的值。</li>
+<li>  <code>SSRATCH（Supervisor Scratch Register）</code>寄存器，这也是个非常重要的寄存器（详见6.5）。</li>
+</ul>
+<p>在supervisor mode我们可以做到的事情：</p>
+<ul>
+<li>  可以读写控制寄存器了。比如说，当你在supervisor mode时，你可以：读写SATP寄存器，也就是page table的指针；STVEC，也就是处理trap的内核指令地址；SEPC，保存当发生trap时的程序计数器；SSCRATCH等等。</li>
+<li>  可以使用PTE_U标志位为0的PTE。当PTE_U标志位为1的时候，表明用户代码可以使用这个页表；如果这个标志位为0，则只有supervisor mode可以使用这个页表。</li>
+</ul>
+<p>supervisor mode中的代码并不能读写任意物理地址。在supervisor mode中，就像普通的用户代码一样，也需要通过page table来访问内存。如果一个虚拟地址并不在当前由SATP指向的page table中，又或者SATP指向的page table中PTE_U=1，那么supervisor mode不能使用那个地址。</p>
+<h3 id="trap的执行流程"><a href="#trap的执行流程" class="headerlink" title="trap的执行流程"></a>trap的执行流程</h3><blockquote>
+<p>  user     | kernel                                  </p>
+<p>  write() -&gt; uservec() -&gt; usertrap() -&gt; syscall() -&gt; sys_write()</p>
+<p>  ​                                         |</p>
+<p>  user mode   &lt;–userret()&lt;-usertrapret()&lt;-|</p>
+</blockquote>
+<blockquote>
+<p>  gdb跟shell中write的系统调用，write使用ECALL来实现系统调用，ECALL指令会切换到具有supervisor mode的内核中。在这个过程中，内核中执行的第一个指令是一个由汇编语言写的函数，叫做uservec。这个函数是内核代码trampoline.s文件的一部分。所以会先执行uservec函数。</p>
+<p>之后跳到由c实现的usertrap函数(trap.c)中，在这个函数中执行了syscall函数，这个函数会在一个表单中，根据传入的代表系统调用的数字进行查找，并在内核中执行具体实现了系统调用功能的函数，也就是sys_write()，这个函数打印内容到console，然后返回到syscall中，为了恢复到user代码部分，在syscall中有个usertrapret函数(trap.c)，这个函数完成了部分方便在C代码中实现的返回到用户空间的工作。除此之外，最终还有一些工作只能在汇编语言中完成。这部分工作通过汇编语言实现，并且存在于trampoline.s文件中的userret函数中。在这个汇编函数中会调用机器指令返回到用户空间，并且恢复ECALL之后的用户程序的执行。</p>
+</blockquote>
+<p>vm.c运行在kernel mode下。</p>
+<p>这章看的比较潦草，之后细看</p>
+<h1 id="Chapter8"><a href="#Chapter8" class="headerlink" title="Chapter8"></a>Chapter8</h1><p>有点无聊，跳过</p>
+<h1 id="Chapter9"><a href="#Chapter9" class="headerlink" title="Chapter9"></a>Chapter9</h1><p>产生中断后，操作系统需要做的是，保存当前的工作，处理中断，处理完成之后再恢复之前的工作。</p>
+<p>中断与系统调用主要有3个小的差别：</p>
+<ol>
+<li> 异步（asynchronous）。当硬件生成中断时，Interrupt handler与当前运行的进程在CPU上没有任何关联。但如果是系统调用的话，系统调用发生在运行进程的context下。</li>
+<li> 并发（concurrency）。对于中断来说，CPU和生成中断的设备是并行的在运行。网卡自己独立的处理来自网络的packet，然后在某个时间点产生中断，但是同时，CPU也在运行。所以我们在CPU和设备之间是真正的并行的，我们必须管理这里的并行。</li>
+<li> program device。我们这节主要关注外部设备，例如网卡，UART，而这些设备需要被编程。每个设备都有一个编程手册，就像RISC-V有一个包含了指令和寄存器的手册一样。设备的编程手册包含了它有什么样的寄存器，它能执行什么样的操作，在读写控制寄存器的时候，设备会如何响应。不过通常来说，设备的手册不如RISC-V的手册清晰，这会使得对于设备的编程会更加复杂。</li>
+</ol>
+<p>接下来讨论终端中的$与按下键盘后ls是怎样在console显示出来的。</p>
+<p>首先是中断的硬件部分。拿UART0举例，UART0会映射到内核内存地址的某处，而所有的物理内存都映射在地址空间的0x80000000之上。</p>
+<p>下面是中断的软件部分。管理设备的代码称为驱动，所有的驱动都在内核中。</p>
+<p>大部分的驱动都有bottom/top两个部分：</p>
+<ul>
+<li>  bottom部分通常是Interrupt handler。当一个中断送到了CPU，并且CPU设置接收这个中断，CPU会调用相应的Interrupt handler。Interrupt handler并不运行在任何特定进程的context中，它只是处理中断。</li>
+<li>  top部分是用户部分或者内核调用的接口</li>
+</ul>
+<p>通常情况下，驱动中会有一些队列（或者说buffer），top部分的代码会从队列中读写数据，而Interrupt handler（bottom部分）同时也会向队列中读写数据。</p>
+<p>也没啥想看的，都在跟源码，，passpass</p>
+<h1 id="Chapter10"><a href="#Chapter10" class="headerlink" title="Chapter10"></a>Chapter10</h1><p>本章内容为锁相关。</p>
+<blockquote>
+<p>  首先，我们来看一下为什么我们需要锁？故事要从应用程序想要使用多个CPU核开始。使用多个CPU核可以带来性能的提升，如果一个应用程序运行在多个CPU核上，并且执行了系统调用，那么内核需要能够处理并行的系统调用。如果系统调用并行的运行在多个CPU核上，那么它们可能会并行的访问内核中共享的数据结构。到目前为止，你们也看到了XV6有很多共享的数据结构，例如proc、ticks和我们之后会看到的buffer cache等等。当并行的访问数据结构时，例如一个核在读取数据，另一个核在写入数据，我们需要使用锁来协调对于共享数据的更新，以确保数据的一致性。所以，我们需要锁来控制并确保共享的数据是正确的。</p>
+<p>  但是实际的情况有些令人失望，因为我们想要通过并行来获得高性能，我们想要并行的在不同的CPU核上执行系统调用，但是如果这些系统调用使用了共享的数据，我们又需要使用锁，而锁又会使得这些系统调用串行执行，所以最后锁反过来又限制了性能。</p>
+</blockquote>
+<p>使用锁为了保证正确性，一个共享数据同时被读写时，如果没有锁，可能会出现race condition，条件竞争，进而导致程序出错。</p>
 
     </article>
     <!-- license -->
@@ -926,7 +1008,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter1"><span class="toc-number">1.</span> <span class="toc-text">Chapter1</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#6-s081"><span class="toc-number">1.1.</span> <span class="toc-text">6.s081</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%EF%BC%9A"><span class="toc-number">1.1.1.</span> <span class="toc-text">环境搭建：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fork"><span class="toc-number">1.1.2.</span> <span class="toc-text">fork</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#xv6"><span class="toc-number">1.2.</span> <span class="toc-text">xv6</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter3"><span class="toc-number">2.</span> <span class="toc-text">Chapter3</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#6-s081-1"><span class="toc-number">2.1.</span> <span class="toc-text">6.s081</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E8%BF%90%E8%A1%8Ckernel"><span class="toc-number">2.1.1.</span> <span class="toc-text">编译运行kernel</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xv6%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B"><span class="toc-number">2.1.2.</span> <span class="toc-text">xv6启动过程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#xv6-1"><span class="toc-number">2.2.</span> <span class="toc-text">xv6</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter4"><span class="toc-number">3.</span> <span class="toc-text">Chapter4</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#xv6-2"><span class="toc-number">3.1.</span> <span class="toc-text">xv6</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-s081-2"><span class="toc-number">3.2.</span> <span class="toc-text">6.s081</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter5"><span class="toc-number">4.</span> <span class="toc-text">Chapter5</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter6"><span class="toc-number">5.</span> <span class="toc-text">Chapter6</span></a></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter1"><span class="toc-number">1.</span> <span class="toc-text">Chapter1</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#6-s081"><span class="toc-number">1.1.</span> <span class="toc-text">6.s081</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%EF%BC%9A"><span class="toc-number">1.1.1.</span> <span class="toc-text">环境搭建：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fork"><span class="toc-number">1.1.2.</span> <span class="toc-text">fork</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#xv6"><span class="toc-number">1.2.</span> <span class="toc-text">xv6</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter3"><span class="toc-number">2.</span> <span class="toc-text">Chapter3</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#6-s081-1"><span class="toc-number">2.1.</span> <span class="toc-text">6.s081</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E8%BF%90%E8%A1%8Ckernel"><span class="toc-number">2.1.1.</span> <span class="toc-text">编译运行kernel</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xv6%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B"><span class="toc-number">2.1.2.</span> <span class="toc-text">xv6启动过程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#xv6-1"><span class="toc-number">2.2.</span> <span class="toc-text">xv6</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter4"><span class="toc-number">3.</span> <span class="toc-text">Chapter4</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#xv6-2"><span class="toc-number">3.1.</span> <span class="toc-text">xv6</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-s081-2"><span class="toc-number">3.2.</span> <span class="toc-text">6.s081</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter5"><span class="toc-number">4.</span> <span class="toc-text">Chapter5</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter6"><span class="toc-number">5.</span> <span class="toc-text">Chapter6</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#xv6-3"><span class="toc-number">5.1.</span> <span class="toc-text">xv6</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#x86%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6"><span class="toc-number">5.1.1.</span> <span class="toc-text">x86保护机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xv6-4"><span class="toc-number">5.1.2.</span> <span class="toc-text">xv6</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-s081-3"><span class="toc-number">5.2.</span> <span class="toc-text">6.s081</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#trap%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-number">5.2.1.</span> <span class="toc-text">trap的执行流程</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter8"><span class="toc-number">6.</span> <span class="toc-text">Chapter8</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter9"><span class="toc-number">7.</span> <span class="toc-text">Chapter9</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter10"><span class="toc-number">8.</span> <span class="toc-text">Chapter10</span></a></li></ol>
             </div>
         
         <!-- sidebar -->
