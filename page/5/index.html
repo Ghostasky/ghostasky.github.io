@@ -447,6 +447,84 @@
             
         
         <article class="index-post">
+            <a class="abstract-title" href="/2021/03/21/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/">
+                
+                <span class="abstract-title-text">堆中的off-by-one</span>
+            </a>
+            <div class="abstract-content">
+                [TOC]
+介绍off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。
+漏洞原理这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常包括：
+
+  使用循环写入时，循环的次数设置有误。
+  字符串操作不合适
+
+一般来说，单字节溢出很难利用，但是因为Linux的堆管理机制ptm...
+            </div>
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2021/03/21</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="PWN">PWN</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2021/03/14/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/">
+                
+                <span class="abstract-title-text">简单堆溢出介绍</span>
+            </a>
+            <div class="abstract-content">
+                [TOC]
+介绍​    堆溢出是指程序向某个堆块中写入的字节数超过了堆块本身可用的字节数，因而导致了数据的溢出，并覆盖到了物理相邻的高地址的下一个堆块。
+​    so，堆溢出漏洞发生的前提：
+
+写入的数据写到了堆上
+写入数据的大小没有被控制
+
+堆溢出是一种特定的缓冲区溢出（还有栈溢出，bss段溢出等）。但是堆溢出并不会像栈溢出那样覆盖ret地址进而控制程序执行流。一般来说，利用堆溢出的策...
+            </div>
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2021/03/14</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="PWN">PWN</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+            
+        
+        <article class="index-post">
             <a class="abstract-title" href="/2021/03/03/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
                 
                 <span class="abstract-title-text">堆概述及其相关数据结构</span>
@@ -761,84 +839,6 @@ fprintf
                 <!-- date -->
                 <div class="abstract-date">
                     <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2021/02/01</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="PWN">PWN</a>
-    
-</div>
-
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2021/01/28/pwn_ret2libc/">
-                
-                <span class="abstract-title-text">PWN_Ret2libc</span>
-            </a>
-            <div class="abstract-content">
-                1.ret2libc1 先讲几个知识点：
-
-system函数属于libc，并且libc.so动态链接库中的函数之间相对偏移是固定的，即使打开ASLR也是如此。
-PLT(Procedure Linkage Table)表中的数据不是函数的真实地址，带有@plt的函数起个过渡作用。
-GOT(Global Offset Table)表中的数据才是函数最终的地址，plt表中的数据是got表的地址，可...
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2021/01/28</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="PWN">PWN</a>
-    
-</div>
-
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2021/01/27/pwn_ret2textret2syscallret2shellcode/">
-                
-                <span class="abstract-title-text">PWN_ret2text,ret2syscall,ret2shellcode</span>
-            </a>
-            <div class="abstract-content">
-                1.Ret2text首先file和checksec一下：
-ida打开：
-观察到有个vulnerable()函数：
-还有个后门函数：get_shell()
-gdb打开，main处下断点后跟进，输入12345678后查看stack：
-此时ebp= 0xffffd108,
-将黄色与红色全部覆盖后填入get_shell()的地址。
-exp如下：
-getshell：
-
-2.Ret2syscall首先f...
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2021/01/27</span>
                 </div>
                 <!-- tags -->
                 
@@ -1319,7 +1319,21 @@ getshell：
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
         
         
         
@@ -1438,7 +1452,7 @@ getshell：
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 57
+        Total : 59
         </div>
         <!-- search  -->
         
@@ -1467,6 +1481,18 @@ getshell：
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/27</span>
+            <a class="archive-post-title" href="/2022/04/27/ShellCodeLoader/">ShellCode Loader(持续更新)</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/27</span>
+            <a class="archive-post-title" href="/2022/04/27/msfvenom%E8%AF%A6%E8%A7%A3/">msfvenom参数详解</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/01</span>
@@ -1905,6 +1931,11 @@ getshell：
             <span class="sidebar-tag-name" data-tags="Win32">
                 <span class="iconfont-archer">&#xe606;</span>
                 Win32
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="免杀">
+                <span class="iconfont-archer">&#xe606;</span>
+                免杀
             </span>
         
     </div>

