@@ -1,0 +1,2520 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="郁涛丶">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="郁涛丶">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="[toc] NTLM的东西在github之前写过，但是不够详细，这里重新再过一遍。 NTLM使用在Windows的工作组环境中，而kerberos则使用在域的情况下。 LM hash &amp; NTLM hash在写NTLM认证之前先写下LM和NTLM。 hash密码格式： 12Administrator:500:AAD3B435B51404EEAAD3B435B51404EE:31D6CFE0">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NTLM认证">
+<meta property="og:url" content="http://example.com/2022/05/23/NTML/index.html">
+<meta property="og:site_name" content="郁涛丶&#39;s Blog">
+<meta property="og:description" content="[toc] NTLM的东西在github之前写过，但是不够详细，这里重新再过一遍。 NTLM使用在Windows的工作组环境中，而kerberos则使用在域的情况下。 LM hash &amp; NTLM hash在写NTLM认证之前先写下LM和NTLM。 hash密码格式： 12Administrator:500:AAD3B435B51404EEAAD3B435B51404EE:31D6CFE0">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/05/23/NTML/image-20220523145537700.png">
+<meta property="og:image" content="http://example.com/2022/05/23/NTML/t017f0ae4b36b11e5ae.png">
+<meta property="og:image" content="http://example.com/2022/05/23/NTML/2-3.png">
+<meta property="og:image" content="http://example.com/2022/05/23/NTML/2-4.png">
+<meta property="og:image" content="http://example.com/2022/05/23/NTML/2-5.png">
+<meta property="og:image" content="http://example.com/2022/05/23/NTML/6308e85c-09ca-4a40-9c2b-3e310e1f2a69.jpg">
+<meta property="article:published_time" content="2022-05-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-05-25T05:35:14.444Z">
+<meta property="article:author" content="郁涛丶">
+<meta property="article:tag" content="内网">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/05/23/NTML/image-20220523145537700.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>NTLM认证 · 郁涛丶&#39;s Blog</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=202107" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=202107" as="style">
+    <link rel="stylesheet" href="/css/mobile.css?v=202107" media="(max-width: 980px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=202107" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=202107" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/js/all.min.js" data-auto-replace-svg="nest"></script>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
+</head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>郁涛丶's Blog.</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">郁涛丶&#39;s Blog.</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">NTLM认证</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- dark mode -->
+        <script src="/scripts/dark.js"></script>
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                NTLM认证
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="内网">内网</a>
+    
+</div>
+
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">3k</span>阅读时长: <span class="post-count reading-time">12 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2022/05/23</span>
+                    <!-- busuanzi -->
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+        
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <p>[toc]</p>
+<p>NTLM的东西在github之前写过，但是不够详细，这里重新再过一遍。</p>
+<p>NTLM使用在Windows的工作组环境中，而kerberos则使用在域的情况下。</p>
+<h1 id="LM-hash-amp-NTLM-hash"><a href="#LM-hash-amp-NTLM-hash" class="headerlink" title="LM hash &amp; NTLM hash"></a>LM hash &amp; NTLM hash</h1><p>在写NTLM认证之前先写下LM和NTLM。</p>
+<p>hash密码格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Administrator:500:AAD3B435B51404EEAAD3B435B51404EE:31D6CFE0D16AE931B73C59D7E0C089C0:::</span><br><span class="line">用户名:SID:LM-Hash:NTML-Hash:::</span><br></pre></td></tr></table></figure>
+
+<h2 id="LM-Hash"><a href="#LM-Hash" class="headerlink" title="LM Hash"></a>LM Hash</h2><p>全称LAN Manager Hash, windows最早使用的加密算法。</p>
+<p>LM Hash计算步骤：</p>
+<ol>
+<li> 密码全部转换为大写，转换为16进制，14字节，不足用0补全。</li>
+<li> 分成两个7字节，每部分为56bit</li>
+<li> 每7bit分组，在后面加一个0bit，即每组8bit</li>
+<li> 上述两组，使用DES分别加密，key为：<code>KGS!@#$%</code></li>
+<li> 完成后，两组拼接，得到LM Hash</li>
+</ol>
+<p>代码实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding=utf-8</span></span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> binascii</span><br><span class="line"><span class="keyword">from</span> pyDes <span class="keyword">import</span> *</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">DesEncrypt</span>(<span class="params"><span class="built_in">str</span>, Des_Key</span>):</span></span><br><span class="line">    k = des(binascii.a2b_hex(Des_Key), ECB, pad=<span class="literal">None</span>)</span><br><span class="line">    EncryptStr = k.encrypt(<span class="built_in">str</span>)</span><br><span class="line">    <span class="keyword">return</span> binascii.b2a_hex(EncryptStr)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">group_just</span>(<span class="params">length,text</span>):</span></span><br><span class="line">    <span class="comment"># text 00110001001100100011001100110100001101010011011000000000</span></span><br><span class="line">    text_area = re.findall(<span class="string">r&#x27;.&#123;%d&#125;&#x27;</span> % <span class="built_in">int</span>(length), text) <span class="comment"># [&#x27;0011000&#x27;, &#x27;1001100&#x27;, &#x27;1000110&#x27;, &#x27;0110011&#x27;, &#x27;0100001&#x27;, &#x27;1010100&#x27;, &#x27;1101100&#x27;, &#x27;0000000&#x27;]</span></span><br><span class="line">    text_area_padding = [i + <span class="string">&#x27;0&#x27;</span> <span class="keyword">for</span> i <span class="keyword">in</span> text_area] <span class="comment">#[&#x27;00110000&#x27;, &#x27;10011000&#x27;, &#x27;10001100&#x27;, &#x27;01100110&#x27;, &#x27;01000010&#x27;, &#x27;10101000&#x27;, &#x27;11011000&#x27;, &#x27;00000000&#x27;]</span></span><br><span class="line">    hex_str = <span class="string">&#x27;&#x27;</span>.join(text_area_padding) <span class="comment"># 0011000010011000100011000110011001000010101010001101100000000000</span></span><br><span class="line">    hex_int = <span class="built_in">hex</span>(<span class="built_in">int</span>(hex_str, <span class="number">2</span>))[<span class="number">2</span>:].rstrip(<span class="string">&quot;L&quot;</span>) <span class="comment">#30988c6642a8d800</span></span><br><span class="line">    <span class="keyword">if</span> hex_int == <span class="string">&#x27;0&#x27;</span>:</span><br><span class="line">        hex_int = <span class="string">&#x27;0000000000000000&#x27;</span></span><br><span class="line">    <span class="keyword">return</span> hex_int</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lm_hash</span>(<span class="params">password</span>):</span></span><br><span class="line">    <span class="comment"># 1. 用户的密码转换为大写，密码转换为16进制字符串，不足14字节将会用0来再后面补全。</span></span><br><span class="line">    pass_hex = password.upper().encode(<span class="string">&quot;hex&quot;</span>).ljust(<span class="number">28</span>,<span class="string">&#x27;0&#x27;</span>) <span class="comment">#3132333435360000000000000000</span></span><br><span class="line">    <span class="built_in">print</span>(pass_hex) </span><br><span class="line">    <span class="comment"># 2. 密码的16进制字符串被分成两个7byte部分。每部分转换成比特流，并且长度位56bit，长度不足使用0在左边补齐长度</span></span><br><span class="line">    left_str = pass_hex[:<span class="number">14</span>] <span class="comment">#31323334353600</span></span><br><span class="line">    right_str = pass_hex[<span class="number">14</span>:] <span class="comment">#00000000000000</span></span><br><span class="line">    left_stream = <span class="built_in">bin</span>(<span class="built_in">int</span>(left_str, <span class="number">16</span>)).lstrip(<span class="string">&#x27;0b&#x27;</span>).rjust(<span class="number">56</span>, <span class="string">&#x27;0&#x27;</span>) <span class="comment"># 00110001001100100011001100110100001101010011011000000000</span></span><br><span class="line">    right_stream = <span class="built_in">bin</span>(<span class="built_in">int</span>(right_str, <span class="number">16</span>)).lstrip(<span class="string">&#x27;0b&#x27;</span>).rjust(<span class="number">56</span>, <span class="string">&#x27;0&#x27;</span>) <span class="comment"># 00000000000000000000000000000000000000000000000000000000</span></span><br><span class="line">    <span class="comment"># 3. 再分7bit为一组,每组末尾加0，再组成一组</span></span><br><span class="line">    left_stream = group_just(<span class="number">7</span>,left_stream) <span class="comment"># 30988c6642a8d800</span></span><br><span class="line">    right_stream = group_just(<span class="number">7</span>,right_stream) <span class="comment"># 0000000000000000</span></span><br><span class="line">    <span class="comment"># 4. 上步骤得到的二组，分别作为key 为 &quot;KGS!@#$%&quot;进行DES加密。</span></span><br><span class="line">    left_lm = DesEncrypt(<span class="string">&#x27;KGS!@#$%&#x27;</span>,left_stream) <span class="comment">#44efce164ab921ca</span></span><br><span class="line">    right_lm = DesEncrypt(<span class="string">&#x27;KGS!@#$%&#x27;</span>,right_stream) <span class="comment"># aad3b435b51404ee</span></span><br><span class="line">    <span class="comment"># 5. 将加密后的两组拼接在一起，得到最终LM HASH值。</span></span><br><span class="line">    <span class="keyword">return</span> left_lm + right_lm</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="built_in">hash</span> = lm_hash(<span class="string">&quot;aaaaa&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>上述LM Hash有一些问题：</p>
+<ol>
+<li> 密码长度不超过14字节</li>
+<li> 不区分大小写</li>
+<li> 长度小于7位的话，后半部分唯一确定:<code>aad3b435b51404ee</code></li>
+<li> 14字节转化为2*7，降低了复杂度，即7字节DES的2倍</li>
+<li> DES强度低</li>
+<li> key固定</li>
+</ol>
+<h2 id="NTLM-Hash"><a href="#NTLM-Hash" class="headerlink" title="NTLM Hash"></a>NTLM Hash</h2><p>为解决上述问题，微软在1993年的Windows NT 3.1引入NTLM Hash，下面为各Windows对LM和NTLM的支持：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>2000</th>
+<th>XP</th>
+<th>2003</th>
+<th>Vista</th>
+<th>Win7</th>
+<th>2008</th>
+<th>Win8</th>
+<th>2012</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LM</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>NTLM</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+</tbody></table>
+<p>其中，在Win 2000/XP/2003中，长度不超过14的话，依旧使用LM，超过的话使用NTLM。</p>
+<p>在Vista开始，默认只存储NTLM Hash，不存LM Hash(LM Hash固定<code>AAD3B435B51404EEAAD3B435B51404EE</code>，NULL之后运算的结果)，有些工具的格式固定，需要填写LM Hash，0填充即可。LM Hash的位置依旧存在，只不过没有价值。</p>
+<p>NTLM Hash计算步骤：</p>
+<ol>
+<li> 转16进制</li>
+<li> Unicode编码，就是加00</li>
+<li> 使用MD4对Unicode进行hash</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&#x27;import hashlib,binascii; print binascii.hexlify(hashlib.new(&quot;md4&quot;, &quot;p@Assword!123&quot;.encode(&quot;utf-16le&quot;)).digest())&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="NTLM身份认证"><a href="#NTLM身份认证" class="headerlink" title="NTLM身份认证"></a>NTLM身份认证</h1><p>分为本地认证和网络认证</p>
+<h2 id="本地认证"><a href="#本地认证" class="headerlink" title="本地认证"></a>本地认证</h2><p>Windows在保存密码的时候，保存的不是密码的明文，而是密码的hash。</p>
+<p>保存的位置：<code>%SystemRoot%\system32\config\sam</code></p>
+<p>SAM文件中保留了计算机本地所有用户的凭证信息，可以理解为是一个数据库</p>
+<p><img src="/2022/05/23/NTML/image-20220523145537700.png" alt="image-20220523145537700"></p>
+<p>当登陆的时候，系统读SAM文件中内容与输入的比较，相同则认证成功。</p>
+<p>认证流程：<code>winlogon.exe --&gt; 用户输入 --&gt; lsass.exe（认证）</code></p>
+<p>用户注销、重启、锁屏后，系统会让<code>winlogon.exe</code>显示登陆界面，之后用户输入，得到输入后交给lsass进程，将明文加密为NTLM后，与SAM中的内容进行比较。</p>
+<p>lsass：用于微软Windows系统的安全机制，用于本地安全和登陆策略。</p>
+<h2 id="网络认证"><a href="#网络认证" class="headerlink" title="网络认证"></a>网络认证</h2><p>上面是本地认证，下面这里来写网络认证。</p>
+<p>NTLM是一种网络认证协议，它是基于挑战（Challenge）/响应（Response）认证机制的一种认证模式。这个协议只支持Windows。</p>
+<p>由三种消息组成，即三步：</p>
+<ol>
+<li> 协商type1：协商确定协议版本，重要的是用户名</li>
+<li> 质询type2：挑战/响应起作用的范畴，重要的是challenge，服务端生成</li>
+<li> 身份验证type3：质询完成后的验证，重要的是response，客户端生成，又称为<code>Net NTLM Hash</code>，用户NTLM Hash计算challenge的结果</li>
+</ol>
+<p>在工作组中完整流程：</p>
+<ol>
+<li><p> 用户名/密码登陆客户端</p>
+</li>
+<li><p> 客户端将密码进行hash存储，丢弃密码明文。客户端发送协商消息type1(NEGOTIATE)，包含客户端支持和服务端请求的功能列表，请求还包含用户名、机器以及需要使用的安全服务等信息。</p>
+</li>
+<li><p> 服务端使用type2(质询)消息进行响应，包含服务端支持和同意的功能列表。其中最重要的是服务端生成的challenge，即服务端随机生成的16位随机数。</p>
+</li>
+<li><p>客户端收到上述响应后，发送type3(验证)消息。用户收到上述响应后，使用用户NTLM Hash加密challenge，得到response，发送的验证消息包含[response，username，challenge]。</p>
+<p> 这里NTLM Hash计算challenge的结果在网络协议中成为<code>Net NTLM Hash</code>。</p>
+</li>
+<li><p> 服务端拿到type3(验证)消息后，服务端使用用户的NTLM Hash加密challenge，得到response1，将其与客户端发送的response进行比较验证。</p>
+</li>
+</ol>
+<p>上述是在工作组中的流程，下面是在域中的流程，前4步是一样的，只有最后一步不一样，分为两步：</p>
+<ol start="5">
+<li> 服务端拿到type3(验证)消息后，服务端使用用户的NTLM Hash(如果服务端有的话)加密challenge，得到response1，将其与客户端发送的response进行比较验证。如果服务端本地没有该用户NTLM Hash的话，也就计算不了response1，这时服务端使用netlogon协议联系域控，建立好安全通道后，将type1,type2,type3一起发送给域控(这个过程也叫作Pass Through Authentication认证流程)</li>
+<li> 域控使用challenge和用户NTLM Hash计算并与response比较验证。</li>
+</ol>
+<h2 id="三个过程"><a href="#三个过程" class="headerlink" title="三个过程"></a>三个过程</h2><h3 id="协商type1"><a href="#协商type1" class="headerlink" title="协商type1"></a>协商type1</h3><p>每个字段的含义见微软文档：<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nlmp/b34032e5-3aae-4bc6-84c3-c6d80eadf7f2">https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nlmp/b34032e5-3aae-4bc6-84c3-c6d80eadf7f2</a></p>
+<table>
+<thead>
+<tr>
+<th align="left">字段</th>
+<th align="left">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Signature</td>
+<td align="left">签名，一个 8 字节字符数组，必须包含 ASCII 字符串（’N’、’T’、’L’、’M’、’S’、’S’、’P’、’\0 ‘）</td>
+</tr>
+<tr>
+<td align="left">MessageType</td>
+<td align="left">消息类型，必须为0x00000001</td>
+</tr>
+<tr>
+<td align="left">NegotiateFlags</td>
+<td align="left">包含一组<strong>NEGOTIATE</strong>结构</td>
+</tr>
+<tr>
+<td align="left">DomainNameFields</td>
+<td align="left">包含域名信息字段。</td>
+</tr>
+<tr>
+<td align="left">WorkstationFields</td>
+<td align="left">包含<strong>WorkstationName</strong>信息字段</td>
+</tr>
+<tr>
+<td align="left">Version</td>
+<td align="left">版本</td>
+</tr>
+<tr>
+<td align="left">Payload (variable)</td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<h3 id="质询type2"><a href="#质询type2" class="headerlink" title="质询type2"></a>质询type2</h3><p>详细字段信息见微软文档：<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nlmp/801a4681-8809-4be9-ab0d-61dcfe762786">https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nlmp/801a4681-8809-4be9-ab0d-61dcfe762786</a></p>
+<p>质询的信息重要的就是服务端产生的challenge</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Signature</td>
+<td>签名，同上</td>
+</tr>
+<tr>
+<td>MessageType</td>
+<td>消息类型，必须为0x00000002</td>
+</tr>
+<tr>
+<td>TargetNameFields</td>
+<td>包含<strong>TargetName</strong>信息的字段</td>
+</tr>
+<tr>
+<td>NegotiateFlags</td>
+<td>包含一组<strong>NEGOTIATE</strong>结构</td>
+</tr>
+<tr>
+<td>ServerChallenge</td>
+<td>包含NTLM质询的8字节</td>
+</tr>
+<tr>
+<td>Reserved</td>
+<td>一个 8 字节数组，其元素在发送时必须为零，并且在接收时必须被忽略。</td>
+</tr>
+<tr>
+<td>TargetInfoFields</td>
+<td>包含<strong>TargetInfo</strong>信息的字段</td>
+</tr>
+<tr>
+<td>Version</td>
+<td>版本</td>
+</tr>
+<tr>
+<td>Payload (variable)</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>示例：</p>
+<p><img src="/2022/05/23/NTML/t017f0ae4b36b11e5ae.png" alt="img"></p>
+<h3 id="身份验证type3"><a href="#身份验证type3" class="headerlink" title="身份验证type3"></a>身份验证type3</h3><p>详细字段信息见微软文档：<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nlmp/033d32cc-88f9-4483-9bf2-b273055038ce">https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nlmp/033d32cc-88f9-4483-9bf2-b273055038ce</a></p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Signature</td>
+<td>签名，同上</td>
+</tr>
+<tr>
+<td>MessageType</td>
+<td>消息类型，必须为0x00000003</td>
+</tr>
+<tr>
+<td>LmChallengeResponseFields</td>
+<td>包含<strong>LmChallengeResponse</strong>信息的字段</td>
+</tr>
+<tr>
+<td>NtChallengeResponseFields</td>
+<td>包含<strong>NtChallengeResponse</strong>信息的字段</td>
+</tr>
+<tr>
+<td>DomainNameFields</td>
+<td>包含<strong>DomainName</strong>信息的字段</td>
+</tr>
+<tr>
+<td>UserNameFields</td>
+<td>包含<strong>UserName</strong> 信息的字段</td>
+</tr>
+<tr>
+<td>WorkstationFields</td>
+<td>包含<strong>Workstation</strong>信息的字段</td>
+</tr>
+<tr>
+<td>EncryptedRandomSessionKeyFields</td>
+<td>包含<strong>EncryptedRandomSessionKey</strong>信息的字段</td>
+</tr>
+<tr>
+<td>NegotiateFlags</td>
+<td></td>
+</tr>
+<tr>
+<td>Version</td>
+<td></td>
+</tr>
+<tr>
+<td>MIC (16 bytes)</td>
+<td>NTLM NEGOTIATE_MESSAGE、CHALLENGE_MESSAGE 和 AUTHENTICATE_MESSAGE 的消息完整性</td>
+</tr>
+<tr>
+<td>Payload (variable)</td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="NTLM-v1-v2协议"><a href="#NTLM-v1-v2协议" class="headerlink" title="NTLM v1/v2协议"></a>NTLM v1/v2协议</h1><h2 id="NTLM与NTLM-v1-v2与Net-NTLM-v1-v2区别"><a href="#NTLM与NTLM-v1-v2与Net-NTLM-v1-v2区别" class="headerlink" title="NTLM与NTLM v1/v2与Net NTLM v1/v2区别"></a>NTLM与NTLM v1/v2与Net NTLM v1/v2区别</h2><p>首先是NTLM，就是最上面的那个，例子：<code>AAD3B435B51404EEAAD3B435B51404EE:31D6CFE0D16AE931B73C59D7E0C089C0</code></p>
+<p>而<code>NTLM v1/v2</code>与NTLM不一样，<code>NTLM v1/v2</code>是<code>Net NTLM v1/v2</code>的缩写，也就是说他俩才是一回事。Net NTLM用于网络身份验证，就是上面那个challenge/response认证的那个，下面举个NTLM v2的例子，来源<a target="_blank" rel="noopener" href="https://hashcat.net/wiki/doku.php?id=example_hashes">hashcat</a>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">admin::N46iSNekpT:08ca45b7d7ea58ee:88dcbe4446168966a153a0064958dac6:5c7830315c7830310000000000000b45c67103d07d7b95acd12ffa11230e0000000052920b85f78d013c31cdb3b92f5d765c783030 </span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="NTLM-v1-v2"><a href="#NTLM-v1-v2" class="headerlink" title="NTLM v1/v2"></a>NTLM v1/v2</h2><p>NTLM v2是在Windows NT4.0 SP4中引入的，与NTLM v1的区别是challenge和hash算法不同，相同点是使用的都是NTLM Hash</p>
+<ul>
+<li>challenge<ul>
+<li>  NTLM v1：8byte</li>
+<li>  NTLM v2：16byte</li>
+</ul>
+</li>
+<li>Net NTLM Hash<ul>
+<li>  v1：DES</li>
+<li>  v2：HMAC-MD5</li>
+</ul>
+</li>
+</ul>
+<p>NTLM  v1格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username::hostname:LM response:NTLM response:challenge</span><br></pre></td></tr></table></figure>
+
+<p>NTML v2格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username::domain:challenge:HMAC-MD5:blob</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># NTLM</span><br><span class="line"></span><br><span class="line">C = 8-byte server challenge, random</span><br><span class="line">K1 | K2 | K3 = NTLM-Hash | 5-bytes-0</span><br><span class="line">response = DES(K1,C) | DES(K2,C) | DES(K3,C)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># NTLM v2</span><br><span class="line"></span><br><span class="line">SC = 8-byte server challenge, random</span><br><span class="line">CC = 8-byte client challenge, random</span><br><span class="line">CC* = (X, time, CC2, domain name)</span><br><span class="line">v2-Hash = HMAC-MD5(NT-Hash, user name, domain name)</span><br><span class="line">LMv2 = HMAC-MD5(v2-Hash, SC, CC)</span><br><span class="line">NTv2 = HMAC-MD5(v2-Hash, SC, CC*)</span><br><span class="line">response = LMv2 | CC | NTv2 | CC*</span><br></pre></td></tr></table></figure>
+
+<h2 id="Response提取NTLM-v2"><a href="#Response提取NTLM-v2" class="headerlink" title="Response提取NTLM v2"></a>Response提取NTLM v2</h2><p>这里就不搭建了，使用的<a target="_blank" rel="noopener" href="https://3gstudent.github.io/Windows%E4%B8%8B%E7%9A%84%E5%AF%86%E7%A0%81hash-NTLM-hash%E5%92%8CNet-NTLM-hash%E4%BB%8B%E7%BB%8D">3gstudent师傅</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Server</span><br><span class="line">	IP:192.168.62.139</span><br><span class="line">	username:a</span><br><span class="line">	password:test123</span><br><span class="line">Client</span><br><span class="line">	IP:192.168.62.130</span><br></pre></td></tr></table></figure>
+
+<p>客户端连接服务端：</p>
+<p><code>net use \\192.168.52.139 /u:a test123</code></p>
+<p>抓包：</p>
+<p><img src="/2022/05/23/NTML/2-3.png" alt="Alt text"></p>
+<p>前4个对应的就是NTLM认证的几个步骤，第二个查看数据包，其中的challenge：<code>c0b5429111f9c5f4</code></p>
+<p><img src="/2022/05/23/NTML/2-4.png" alt="Alt text"></p>
+<p>查看第三个数据包得到客户端加密的challenge：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">challenge:a9134eee81ca25de</span><br><span class="line"></span><br><span class="line">response:a5f1c47844e5b3b9c6f67736a2e1916d:0101000000000000669dae86ba8bd301a9134eee81ca25de0000000002001e00570049004e002d003100550041004200430047004200470049005500330001001e00570049004e002d003100550041004200430047004200470049005500330004001e00570049004e002d003100550041004200430047004200470049005500330003001e00570049004e002d003100550041004200430047004200470049005500330007000800669dae86ba8bd30106000400020000000800300030000000000000000000000000300000e9d9e613613097d1e2f47c1fd97fa099f65dfd78075d8bdb5ca162492ea5d2990a001000000000000000000000000000000000000900260063006900660073002f003100390032002e003100360038002e00360032002e00310033003900000000000000000000000000</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/05/23/NTML/2-5.png" alt="Alt text"></p>
+<p>其中NTLM v2格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username::domain:challenge:HMAC-MD5:blob</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>  domain可由数据包获得</p>
+</li>
+<li><p>  HMAC-MD5对应数据包中的NTProofStr，见上图。</p>
+</li>
+<li><p>  blob对应数据包中Response去掉NTProofStr的后半部分</p>
+</li>
+</ul>
+<p>完整NTLM v2的数据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a::192.168.62.139:c0b5429111f9c5f4:a5f1c47844e5b3b9c6f67736a2e1916d:0101000000000000669dae86ba8bd301a9134eee81ca25de0000000002001e00570049004e002d003100550041004200430047004200470049005500330001001e00570049004e002d003100550041004200430047004200470049005500330004001e00570049004e002d003100550041004200430047004200470049005500330003001e00570049004e002d003100550041004200430047004200470049005500330007000800669dae86ba8bd30106000400020000000800300030000000000000000000000000300000e9d9e613613097d1e2f47c1fd97fa099f65dfd78075d8bdb5ca162492ea5d2990a001000000000000000000000000000000000000900260063006900660073002f003100390032002e003100360038002e00360032002e00310033003900000000000000000000000000</span><br></pre></td></tr></table></figure>
+
+<p>可以使用Hashcat对该Net-NTLM hash进行破解</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hashcat -m 5600 a::192.168.62.139:c0b5429111f9c5f4:a5f1c47844e5b3b9c6f67736a2e1916d:0101000000000000669dae86ba8bd301a9134eee81ca25de0000000002001e00570049004e002d003100550041004200430047004200470049005500330001001e00570049004e002d003100550041004200430047004200470049005500330004001e00570049004e002d003100550041004200430047004200470049005500330003001e00570049004e002d003100550041004200430047004200470049005500330007000800669dae86ba8bd30106000400020000000800300030000000000000000000000000300000e9d9e613613097d1e2f47c1fd97fa099f65dfd78075d8bdb5ca162492ea5d2990a001000000000000000000000000000000000000900260063006900660073002f003100390032002e003100360038002e00360032002e00310033003900000000000000000000000000 /tmp/password.list -o found.txt --force</span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<ul>
+<li>  -m：hash-type，其中Net NTLM v2对应5600</li>
+<li>  -o：输出文件</li>
+<li>  -force：强制执行</li>
+</ul>
+<h1 id="SSP-amp-SSPI"><a href="#SSP-amp-SSPI" class="headerlink" title="SSP &amp;SSPI"></a>SSP &amp;SSPI</h1><p><img src="/2022/05/23/NTML/6308e85c-09ca-4a40-9c2b-3e310e1f2a69.jpg" alt="img"></p>
+<p>SSPI(Security Support Provider Interface)：这是 Windows 定义的一套接口，此接口定义了与安全有关的功能函数， 用来获得验证、信息完整性、信息隐私等安全功能，就是定义了一套接口函数用来身份验证，签名等，但是没有具体的实现。</p>
+<p>SSP(Security Support Provider)：SSPI 的实现者，对SSPI相关功能函数的具体实现。微软自己实现了如下的 SSP，用于提供安全功能：</p>
+<ul>
+<li>  NTLM SSP ( Challenge/Response 验证机制 )</li>
+<li>  Kerberos ( 基于 ticket 的身份验证机制 )</li>
+<li>  Cred SSP (CredSSP 凭据安全支持提供程序 )</li>
+<li>  Digest SSP (摘要式安全支持提供程序)</li>
+<li>  Negotiate SSP(协商安全支持提供程序)</li>
+<li>  Schannel SSP</li>
+<li>  Negotiate Extensions SSP</li>
+<li>  PKU2U SSP</li>
+</ul>
+<p>系统层面，SSP其实就是一个dll，来实现身份验证等安全功能。NTLM是基于Challenge/Response机制，Kerberos是基于ticket的身份验证。所以，我们也可以实现自己的SSP，让系统实现更多的身份验证方法，Mimikatz就自己实现了一个利用SSP机制的记录密码。</p>
+<p>抓包的时候可以看到啊NTLMSSp是在GSSAPI下面的。</p>
+<blockquote>
+<p>  <strong>因为sspi是gssapi的变体，这里出现gssapi是为了兼容。注册为SSP的好处就是，SSP实现了了与安全有关的功能函数，那上层协议(比如SMB)在进行身份认证等功能的时候，就可以不用考虑协议细节，只需要调用相关的函数即可。而认证过程中的流量嵌入在上层协议里面。不像kerbreos，既可以镶嵌在上层协议里面，也可以作为独立的应用层协议。ntlm是只能镶嵌在上层协议里面，消息的传输依赖于使用ntlm的上层协议。</strong></p>
+</blockquote>
+<h1 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h1><blockquote>
+<p>  <a target="_blank" rel="noopener" href="https://daiker.gitbook.io/windows-protocol/ntlm-pian/4">https://daiker.gitbook.io/windows-protocol/ntlm-pian/4</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://byt3bl33d3r.github.io/practical-guide-to-ntlm-relaying-in-2017-aka-getting-a-foothold-in-under-5-minutes.html">https://byt3bl33d3r.github.io/practical-guide-to-ntlm-relaying-in-2017-aka-getting-a-foothold-in-under-5-minutes.html</a></p>
+<p>  <a target="_blank" rel="noopener" href="http://davenport.sourceforge.net/ntlm.html">http://davenport.sourceforge.net/ntlm.html</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://1sparrow.com/2019/12/04/Windows%20%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/">https://1sparrow.com/2019/12/04/Windows%20%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://atsud0.me/2022/03/07/%E3%80%90%E5%9F%9F%E6%B8%97%E9%80%8F%E3%80%91%E6%B5%85%E6%B7%A1NTLM-%E5%86%85%E7%BD%91%E5%B0%8F%E7%99%BD%E7%9A%84NTLM%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">https://atsud0.me/2022/03/07/%E3%80%90%E5%9F%9F%E6%B8%97%E9%80%8F%E3%80%91%E6%B5%85%E6%B7%A1NTLM-%E5%86%85%E7%BD%91%E5%B0%8F%E7%99%BD%E7%9A%84NTLM%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</a></p>
+</blockquote>
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2099/12/31/TOP/" title="胡言乱语&自言自语">
+                    <div class="nextTitle">胡言乱语&自言自语</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2022/05/15/%E5%9F%9F%E5%A7%94%E6%B4%BE/" title="kerberos认证&PAC">
+                    <div class="prevTitle">kerberos认证&PAC</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+     
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:2992721672@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/Ghostasky" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                    
+                    <img class="profile-qr" src="/assets/wechat.png" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#LM-hash-amp-NTLM-hash"><span class="toc-number">1.</span> <span class="toc-text">LM hash &amp; NTLM hash</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#LM-Hash"><span class="toc-number">1.1.</span> <span class="toc-text">LM Hash</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NTLM-Hash"><span class="toc-number">1.2.</span> <span class="toc-text">NTLM Hash</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#NTLM%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81"><span class="toc-number">2.</span> <span class="toc-text">NTLM身份认证</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E8%AE%A4%E8%AF%81"><span class="toc-number">2.1.</span> <span class="toc-text">本地认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E8%AE%A4%E8%AF%81"><span class="toc-number">2.2.</span> <span class="toc-text">网络认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E4%B8%AA%E8%BF%87%E7%A8%8B"><span class="toc-number">2.3.</span> <span class="toc-text">三个过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%8F%E5%95%86type1"><span class="toc-number">2.3.1.</span> <span class="toc-text">协商type1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B4%A8%E8%AF%A2type2"><span class="toc-number">2.3.2.</span> <span class="toc-text">质询type2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81type3"><span class="toc-number">2.3.3.</span> <span class="toc-text">身份验证type3</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#NTLM-v1-v2%E5%8D%8F%E8%AE%AE"><span class="toc-number">3.</span> <span class="toc-text">NTLM v1&#x2F;v2协议</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#NTLM%E4%B8%8ENTLM-v1-v2%E4%B8%8ENet-NTLM-v1-v2%E5%8C%BA%E5%88%AB"><span class="toc-number">3.1.</span> <span class="toc-text">NTLM与NTLM v1&#x2F;v2与Net NTLM v1&#x2F;v2区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NTLM-v1-v2"><span class="toc-number">3.2.</span> <span class="toc-text">NTLM v1&#x2F;v2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Response%E6%8F%90%E5%8F%96NTLM-v2"><span class="toc-number">3.3.</span> <span class="toc-text">Response提取NTLM v2</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SSP-amp-SSPI"><span class="toc-number">4.</span> <span class="toc-text">SSP &amp;SSPI</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%95%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">引用</span></a></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 64
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2099 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/31</span>
+            <a class="archive-post-title" href="/2099/12/31/TOP/">胡言乱语&自言自语</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/23</span>
+            <a class="archive-post-title" href="/2022/05/23/NTML/">NTLM认证</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/15</span>
+            <a class="archive-post-title" href="/2022/05/15/%E5%9F%9F%E5%A7%94%E6%B4%BE/">kerberos认证&PAC</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/20</span>
+            <a class="archive-post-title" href="/2022/04/20/Java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/">Java-类加载器</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/09</span>
+            <a class="archive-post-title" href="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/">WinDbg使用及双机调试</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/09</span>
+            <a class="archive-post-title" href="/2022/04/09/%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E5%8A%A0%E8%BD%BDshellcode/">回调函数加载shellcode</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2022/04/08/ShellCodeLoader/">ShellCode Loader(持续更新)</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/msfvenom%E8%AF%A6%E8%A7%A3/">msfvenom参数详解</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/01</span>
+            <a class="archive-post-title" href="/2022/04/01/%E9%87%8D%E6%8B%BEWin32/">重拾Win32</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/31</span>
+            <a class="archive-post-title" href="/2022/03/31/SpringMVC%E5%88%9D%E6%8E%A2/">Spring MVC初探</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/29</span>
+            <a class="archive-post-title" href="/2022/03/29/SSTI/">SSTI payload记录</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/28</span>
+            <a class="archive-post-title" href="/2022/03/28/VulnHub04/">VulnHub_04_Holynix: v1</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/20</span>
+            <a class="archive-post-title" href="/2022/03/20/CSLearn/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/">dompdf 0day(RCE)复现</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/">内网渗透&横向移动&····</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/08</span>
+            <a class="archive-post-title" href="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/">Windows权限维持学习</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/01</span>
+            <a class="archive-post-title" href="/2022/03/01/Nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">Nodejs原型链污染</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/19</span>
+            <a class="archive-post-title" href="/2022/02/19/VulnHub03/">VulnHub_03_LAMPSECURITY: CTF7</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/17</span>
+            <a class="archive-post-title" href="/2022/02/17/VulnHub02/">VulnHub_02_LAMPSECURITY: CTF5</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/16</span>
+            <a class="archive-post-title" href="/2022/02/16/VulnHub01/">VulnHub_01_LAMPSECURITY: CTF4</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/10</span>
+            <a class="archive-post-title" href="/2022/02/10/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/">内网渗透-隧道隐藏</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/05</span>
+            <a class="archive-post-title" href="/2022/02/05/2021%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">2021年终总结</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2021 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/08</span>
+            <a class="archive-post-title" href="/2021/12/08/BUU-PWN-0x50-0x5F/">BUU_PWN刷题_0x50-0x5F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span>
+            <a class="archive-post-title" href="/2021/12/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/">编译原理Note</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/27</span>
+            <a class="archive-post-title" href="/2021/11/27/6.s081/">MIT6.S081+XV6 Note</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/15</span>
+            <a class="archive-post-title" href="/2021/11/15/%E9%99%87%E5%8E%9F%E6%88%98%E7%96%AB2021%E9%83%A8%E5%88%86wp/">陇原战疫杯2021部分WP</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/07</span>
+            <a class="archive-post-title" href="/2021/11/07/BUU-RE-0x01-0x1F/">BUU_RE刷题</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/23</span>
+            <a class="archive-post-title" href="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/">再战PE结构</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/17</span>
+            <a class="archive-post-title" href="/2021/10/17/BUU-PWN-0x40-0x4F/">BUU_PWN刷题_0x40-0x4F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/05</span>
+            <a class="archive-post-title" href="/2021/10/05/PHP%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%95%B4%E7%90%86/">PHP反序列化整理</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/24</span>
+            <a class="archive-post-title" href="/2021/09/24/IO_FILE/">IO_FILE调试+详解</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/16</span>
+            <a class="archive-post-title" href="/2021/09/16/BUU-WEB-0x30-0x3F/">BUU_WEB刷题_0x30-0x3F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/12</span>
+            <a class="archive-post-title" href="/2021/09/12/BUU-WEB-0x20-0x2F/">BUU_WEB刷题_0x20-0x2F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/01</span>
+            <a class="archive-post-title" href="/2021/09/01/tcache_stashing_unlink_atack%E8%B0%83%E8%AF%95/">Tcache_stashing_unlink_atack调试记录</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/08</span>
+            <a class="archive-post-title" href="/2021/08/08/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/">PWN刷题小结</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/18</span>
+            <a class="archive-post-title" href="/2021/07/18/BUU-PWN-0x30-0x3f/">BUU_PWN刷题_0x30-0x3F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/11</span>
+            <a class="archive-post-title" href="/2021/07/11/BUU-PWN-0x20-0x2F/">BUU_PWN刷题_0x21-0x2F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/01</span>
+            <a class="archive-post-title" href="/2021/06/01/BUU-PWN-0x01-0x0F/">BUU_PWN刷题_0x01-0x0F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/01</span>
+            <a class="archive-post-title" href="/2021/06/01/BUU-PWN-0x10-0x1F/">BUU_PWN刷题_0x10-0x1F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/03</span>
+            <a class="archive-post-title" href="/2021/05/03/BUU-WEB-0x10-0x1F/">BUU_WEB刷题_0x10-0x1F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/17</span>
+            <a class="archive-post-title" href="/2021/04/17/BUU-WEB-0x1-0xF/">BUU_WEB刷题_0x01-0x0F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2021/04/08/64%E4%B8%BApayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/">在64位的glibc上payload调用system导致crash的问题</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2021/04/08/CISCN-PWN/">CISCN_PWN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/23</span>
+            <a class="archive-post-title" href="/2021/03/23/pwndbg%E5%92%8CLinux%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E5%8F%8A%E5%AF%86%E7%A0%81%E8%B8%A9%E5%9D%91/">pwndbg和Linux改用户名及密码踩坑</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/22</span>
+            <a class="archive-post-title" href="/2021/03/22/chunk-extend-and-overlapping/">Chunk Extend and Overlapping</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/21</span>
+            <a class="archive-post-title" href="/2021/03/21/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/">堆中的off-by-one</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/14</span>
+            <a class="archive-post-title" href="/2021/03/14/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/">简单堆溢出介绍</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/03</span>
+            <a class="archive-post-title" href="/2021/03/03/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">堆概述及其相关数据结构</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/03</span>
+            <a class="archive-post-title" href="/2021/03/03/%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA/">整数溢出</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/27</span>
+            <a class="archive-post-title" href="/2021/02/27/json%E7%9B%B8%E5%85%B3/">JSON相关</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/12</span>
+            <a class="archive-post-title" href="/2021/02/12/2020%E5%B9%B4%E9%83%BD%E5%B9%B2%E4%BA%86%E5%95%A5/">2020年都干了啥</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/10</span>
+            <a class="archive-post-title" href="/2021/02/10/ret2csu/">Ret2csu</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/06</span>
+            <a class="archive-post-title" href="/2021/02/06/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/">格式化字符串漏洞举例</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/02</span>
+            <a class="archive-post-title" href="/2021/02/02/Linux%E4%BF%9D%E6%8A%A4%E6%8A%80%E6%9C%AF/">Linux保护技术</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/01</span>
+            <a class="archive-post-title" href="/2021/02/01/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D%E5%8F%8A%E5%88%A9%E7%94%A8/">格式化字符串原理介绍及利用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/28</span>
+            <a class="archive-post-title" href="/2021/01/28/pwn_ret2libc/">PWN_Ret2libc</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/27</span>
+            <a class="archive-post-title" href="/2021/01/27/pwn_ret2textret2syscallret2shellcode/">PWN_ret2text,ret2syscall,ret2shellcode</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/23</span>
+            <a class="archive-post-title" href="/2021/01/23/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/">pip下载过慢解决办法</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2020 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/25</span>
+            <a class="archive-post-title" href="/2020/11/25/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/">文件包含漏洞</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span>
+            <a class="archive-post-title" href="/2020/11/23/python__requestsocket%E6%A8%A1%E5%9D%97/">Python__request，socket模块</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/22</span>
+            <a class="archive-post-title" href="/2020/11/22/BUU-RE-1/">BUU_RE_1</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/21</span>
+            <a class="archive-post-title" href="/2020/11/21/python__re%E6%A8%A1%E5%9D%97%E4%B8%8E%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">Python__RE模块与正则表达式</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/19</span>
+            <a class="archive-post-title" href="/2020/11/19/SQL%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/">SQL注入小结</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/11</span>
+            <a class="archive-post-title" href="/2020/10/11/%E6%B1%87%E7%BC%96%E7%AC%94%E8%AE%B0/">汇编笔记</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="Life">
+                <span class="iconfont-archer">&#xe606;</span>
+                Life
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="PWN">
+                <span class="iconfont-archer">&#xe606;</span>
+                PWN
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="RE">
+                <span class="iconfont-archer">&#xe606;</span>
+                RE
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="BUU刷题">
+                <span class="iconfont-archer">&#xe606;</span>
+                BUU刷题
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Java">
+                <span class="iconfont-archer">&#xe606;</span>
+                Java
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="免杀">
+                <span class="iconfont-archer">&#xe606;</span>
+                免杀
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="VulnHub">
+                <span class="iconfont-archer">&#xe606;</span>
+                VulnHub
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内核">
+                <span class="iconfont-archer">&#xe606;</span>
+                内核
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="渗透">
+                <span class="iconfont-archer">&#xe606;</span>
+                渗透
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="漏洞复现">
+                <span class="iconfont-archer">&#xe606;</span>
+                漏洞复现
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Python">
+                <span class="iconfont-archer">&#xe606;</span>
+                Python
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Linux">
+                <span class="iconfont-archer">&#xe606;</span>
+                Linux
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="汇编">
+                <span class="iconfont-archer">&#xe606;</span>
+                汇编
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="WriteUp">
+                <span class="iconfont-archer">&#xe606;</span>
+                WriteUp
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="web,java">
+                <span class="iconfont-archer">&#xe606;</span>
+                web,java
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Win32">
+                <span class="iconfont-archer">&#xe606;</span>
+                Win32
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMeta = {
+        root: "/",
+        author: "郁涛丶"
+    }
+</script>
+
+        <!-- main func -->
+        <script src="/scripts/main.js"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js" async></script>    
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>
