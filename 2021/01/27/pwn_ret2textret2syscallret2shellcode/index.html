@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="1.Ret2text首先file和checksec一下： ida打开： 观察到有个vulnerable()函数： 还有个后门函数：get_shell() gdb打开，main处下断点后跟进，输入12345678后查看stack： 此时ebp&#x3D; 0xffffd108, 将黄色与红色全部覆盖后填入get_shell()的地址。 exp如下： getshell：  2.Ret2syscall首先file">
+    <meta name="description" content="1.Ret2text 首先file和checksec一下：  ida打开：  观察到有个vulnerable()函数：  还有个后门函数：get_shell()  gdb打开，main处下断点后跟进，输入12345678后查看stack：  此时ebp&#x3D; 0xffffd108,  将黄色与红色全部覆盖后填入get_shell()的地址。 exp如下：  getshell：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PWN_ret2text,ret2syscall,ret2shellcode">
 <meta property="og:url" content="http://example.com/2021/01/27/pwn_ret2textret2syscallret2shellcode/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="1.Ret2text首先file和checksec一下： ida打开： 观察到有个vulnerable()函数： 还有个后门函数：get_shell() gdb打开，main处下断点后跟进，输入12345678后查看stack： 此时ebp&#x3D; 0xffffd108, 将黄色与红色全部覆盖后填入get_shell()的地址。 exp如下： getshell：  2.Ret2syscall首先file">
+<meta property="og:description" content="1.Ret2text 首先file和checksec一下：  ida打开：  观察到有个vulnerable()函数：  还有个后门函数：get_shell()  gdb打开，main处下断点后跟进，输入12345678后查看stack：  此时ebp&#x3D; 0xffffd108,  将黄色与红色全部覆盖后填入get_shell()的地址。 exp如下：  getshell：">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006337251.png">
 <meta property="og:image" content="http://example.com/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006341593.png">
@@ -234,7 +234,11 @@
     
     <!-- 谷歌统计  -->
     
-<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
 </head>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
@@ -358,7 +362,7 @@
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">369</span>阅读时长: <span class="post-count reading-time">1 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">373</span>阅读时长: <span class="post-count reading-time">1 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -514,37 +518,38 @@
             <div class="container container-unloaded">
                 <main class="main post-page">
     <article class="article-entry">
-        <h1 id="1-Ret2text"><a href="#1-Ret2text" class="headerlink" title="1.Ret2text"></a>1.Ret2text</h1><p>首先file和checksec一下：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006337251.png"><br>ida打开：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006341593.png"><br>观察到有个vulnerable()函数：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006345522.png"><br>还有个后门函数：get_shell()</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006350472.png"><br>gdb打开，main处下断点后跟进，输入12345678后查看stack：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006355117.png"><br>此时ebp= 0xffffd108,</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006367240.png"><br>将黄色与红色全部覆盖后填入get_shell()的地址。</p>
+        <h1 id="ret2text">1.Ret2text</h1>
+<p>首先file和checksec一下：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006337251.png"> ida打开：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006341593.png"> 观察到有个vulnerable()函数：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006345522.png"> 还有个后门函数：get_shell()</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006350472.png"> gdb打开，main处下断点后跟进，输入12345678后查看stack：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006355117.png"> 此时ebp= 0xffffd108,</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006367240.png"> 将黄色与红色全部覆盖后填入get_shell()的地址。</p>
 <p>exp如下：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006371609.png"><br>getshell：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006371609.png"> getshell：</p>
 <p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006375698.png"></p>
-<h1 id="2-Ret2syscall"><a href="#2-Ret2syscall" class="headerlink" title="2.Ret2syscall"></a>2.Ret2syscall</h1><p>首先file和checksec一下：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006456214.png"><br>这题是静态链接的，所以比较大，</p>
+<h1 id="ret2syscall">2.Ret2syscall</h1>
+<p>首先file和checksec一下：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006456214.png"> 这题是静态链接的，所以比较大，</p>
 <p>ida查看，有/bin/sh，但是没有system函数，</p>
 <p>Linux的系统调用通过int 80h和寄存器来实现，其中eax存放系统调用号，过程如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.先将系统调用号放入eax</span><br><span class="line">2.将该函数需要的其他参数存入其他寄存器</span><br><span class="line">3.出发0x80中断（int 0x80h）</span><br></pre></td></tr></table></figure>
-
 <p>所以我们需要一些pop和ret指令，这些小片段叫gadget，可以使用ROPgadget这个工具，</p>
-<p>本次要用到的：execve(“/bin/sh”,0,0)</p>
+<p>本次要用到的：execve("/bin/sh",0,0)</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">eax = 0xb  ---&gt;系统调用号</span><br><span class="line">ebx = address of &quot;/bin/sh&quot;</span><br><span class="line">ecx = 0</span><br><span class="line">edx = 0</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006463285.png"><br>可以看到有许多gadget，选一些有用的就OK。</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006463285.png"> 可以看到有许多gadget，选一些有用的就OK。</p>
 <p>gdb调试，ebp：0xffffd128</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006467187.png"><br>exp如下：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006470792.png"><br>画图来说就是：（下图并不是上面exp的图)</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006467187.png"> exp如下：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006470792.png"> 画图来说就是：（下图并不是上面exp的图)</p>
 <p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006474606.png"></p>
-<h1 id="3-Ret2shellcode"><a href="#3-Ret2shellcode" class="headerlink" title="3.Ret2shellcode"></a>3.Ret2shellcode</h1><p>首先file和checksec一下：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006531616.png"><br>发现rwx并且没有开NX保护，所以代码在堆，栈上可以执行</p>
+<h1 id="ret2shellcode">3.Ret2shellcode</h1>
+<p>首先file和checksec一下：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006531616.png"> 发现rwx并且没有开NX保护，所以代码在堆，栈上可以执行</p>
 <p>进入IDA查看，发现这题并没有后门函数，将gets到的s拷贝到buf2.</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006537837.png"><br>查看buf2所在的bss段是否可执行</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006543090.png"><br>main处下断点后run起来，此时ebp=0xffffd118<br><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006547168.png"><br>exp如下：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006551135.png"><br>shellcraft.sh()是一段shellcode，ljust()是左对齐，不足处用a填充，画图来说就是这样：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006537837.png"> 查看buf2所在的bss段是否可执行</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006543090.png"> main处下断点后run起来，此时ebp=0xffffd118 <img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006547168.png"> exp如下：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006551135.png"> shellcraft.sh()是一段shellcode，ljust()是左对齐，不足处用a填充，画图来说就是这样：</p>
 <p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006554886.png"></p>
 
     </article>
@@ -695,7 +700,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Ret2text"><span class="toc-number">1.</span> <span class="toc-text">1.Ret2text</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Ret2syscall"><span class="toc-number">2.</span> <span class="toc-text">2.Ret2syscall</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Ret2shellcode"><span class="toc-number">3.</span> <span class="toc-text">3.Ret2shellcode</span></a></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ret2text"><span class="toc-number">1.</span> <span class="toc-text">1.Ret2text</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ret2syscall"><span class="toc-number">2.</span> <span class="toc-text">2.Ret2syscall</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ret2shellcode"><span class="toc-number">3.</span> <span class="toc-text">3.Ret2shellcode</span></a></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1029,487 +1034,17 @@
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
         
         
@@ -1646,7 +1181,7 @@
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 64
+        Total : 66
         </div>
         <!-- search  -->
         
@@ -1675,6 +1210,18 @@
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/28</span>
+            <a class="archive-post-title" href="/2022/06/28/Latex/">Latex使用笔记</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/25</span>
+            <a class="archive-post-title" href="/2022/05/25/Powershell/">Powershell</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">05/23</span>
@@ -2107,6 +1654,11 @@
                 Java
             </span>
         
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="免杀">
                 <span class="iconfont-archer">&#xe606;</span>
                 免杀
@@ -2142,19 +1694,14 @@
                 Linux
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内网">
+            <span class="sidebar-tag-name" data-tags="OS">
                 <span class="iconfont-archer">&#xe606;</span>
-                内网
+                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">
@@ -2170,6 +1717,16 @@
             <span class="sidebar-tag-name" data-tags="Win32">
                 <span class="iconfont-archer">&#xe606;</span>
                 Win32
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="ML">
+                <span class="iconfont-archer">&#xe606;</span>
+                ML
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Math">
+                <span class="iconfont-archer">&#xe606;</span>
+                Math
             </span>
         
     </div>

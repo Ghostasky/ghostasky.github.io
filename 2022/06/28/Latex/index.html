@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="郁涛丶">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="郁涛丶">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="今天不学习明天变垃圾，hvv应该是不去了，抓紧这个暑假学点东西吧，想看看ML的东西的，先把Latex看一遍。 太多了，慢慢写，不急 [toc] 首先安装Latex相关插件，用于在网页上渲染数学表达式 进入博客所在文件夹： 12## 安装 hexo ； --save 参数会让 npm 在安装 hexo-math 之后自动将它写入 package.json 文件里，以便之后多电脑同步时使用$">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Latex使用笔记">
+<meta property="og:url" content="http://example.com/2022/06/28/Latex/index.html">
+<meta property="og:site_name" content="郁涛丶&#39;s Blog">
+<meta property="og:description" content="今天不学习明天变垃圾，hvv应该是不去了，抓紧这个暑假学点东西吧，想看看ML的东西的，先把Latex看一遍。 太多了，慢慢写，不急 [toc] 首先安装Latex相关插件，用于在网页上渲染数学表达式 进入博客所在文件夹： 12## 安装 hexo ； --save 参数会让 npm 在安装 hexo-math 之后自动将它写入 package.json 文件里，以便之后多电脑同步时使用$">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-06-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-28T12:47:44.754Z">
+<meta property="article:author" content="郁涛丶">
+<meta property="article:tag" content="ML">
+<meta property="article:tag" content="Math">
+<meta name="twitter:card" content="summary">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>Latex使用笔记 · 郁涛丶&#39;s Blog</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=202107" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=202107" as="style">
+    <link rel="stylesheet" href="/css/mobile.css?v=202107" media="(max-width: 980px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=202107" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=202107" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/js/all.min.js" data-auto-replace-svg="nest"></script>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
+</head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>郁涛丶's Blog.</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">郁涛丶&#39;s Blog.</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">Latex使用笔记</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- dark mode -->
+        <script src="/scripts/dark.js"></script>
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                Latex使用笔记
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="ML">ML</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Math">Math</a>
+    
+</div>
+
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">2.1k</span>阅读时长: <span class="post-count reading-time">9 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2022/06/28</span>
+                    <!-- busuanzi -->
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+        
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <p>今天不学习明天变垃圾，hvv应该是不去了，抓紧这个暑假学点东西吧，想看看ML的东西的，先把Latex看一遍。</p>
+<p>太多了，慢慢写，不急</p>
+<p>[toc]</p>
+<p>首先安装Latex相关插件，用于在网页上渲染数学表达式</p>
+<p>进入博客所在文件夹：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 安装 hexo ； --save 参数会让 npm 在安装 hexo-math 之后自动将它写入 package.json 文件里，以便之后多电脑同步时使用</span></span><br><span class="line">$ npm install hexo-math --save</span><br></pre></td></tr></table></figure>
+<p>hexo默认的markdown渲染引擎是<a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo-renderer-marked">hexo-renderer-marked</a>，更换为 <a target="_blank" rel="noopener" href="https://github.com/sun11/hexo-renderer-kramed">hexo-renderer-kramed</a>，</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 卸载默认 markdown 渲染引擎 hexo-renderer-marked；若不卸载，会和新的引擎发生冲突（conflict）</span></span><br><span class="line">$ npm uninstall hexo-renderer-marked --save</span><br><span class="line"></span><br><span class="line"><span class="comment">## 安装新引擎 hexo-renderer-kramed </span></span><br><span class="line">$ npm install hexo-renderer-kramed --save</span><br></pre></td></tr></table></figure>
+<p>修改主题下的配置文件：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># MathJax Support</span></span><br><span class="line"><span class="attr">mathjax:</span></span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">per_page:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>之后在要写的文档的标题tags里加<code>mathjax: true</code></p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$$ J_\alpha(x) = \sum_&#123;m=0&#125;^\infty \frac&#123;(-1)^m&#125;&#123;m! \Gamma (m + \alpha + 1)&#125; &#123;\left(&#123; \frac&#123;x&#125;&#123;2&#125; &#125;\right)&#125;^&#123;2m + \alpha&#125; \text &#123;，独立公式示例&#125; $$</span><br></pre></td></tr></table></figure>
+<p><span class="math display">\[ J_\alpha(x) = \sum_{m=0}^\infty \frac{(-1)^m}{m! \Gamma (m + \alpha + 1)} {\left({ \frac{x}{2} }\right)}^{2m + \alpha} \text {，独立公式示例} \]</span></p>
+<h1 id="一公式相关">一、公式相关</h1>
+<h2 id="插入公式">1.插入公式</h2>
+<p>Latex中数学公式有两种，分为行中公式和独立公式</p>
+<ul>
+<li><p>行中公式表示方法：<code>$ 数学公式 $</code>，行内的这种在hexo显示不出来，markdown本地可以</p></li>
+<li><p>独立公式表示方法：<code>$$ 数学公式 $$</code></p>
+<p><span class="math display">\[ J_\alpha(x) = \sum_{m=0}^\infty \frac{(-1)^m}{m! \Gamma (m + \alpha + 1)} {\left({ \frac{x}{2} }\right)}^{2m + \alpha} \text {，独立公式示例} \]</span></p></li>
+<li><p>自动编号的公式可以施一公如下方法表示，自动编号后的公式可在全文任意处使用 <code>\eqref&#123;eq:公式名&#125;</code> 语句引用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">\begin&#123;equation&#125;</span><br><span class="line">    数学公式</span><br><span class="line">    \label&#123;eq:当前公式名&#125;</span><br><span class="line">\end&#123;equation&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">\begin&#123;equation&#125;</span><br><span class="line">    E=mc^2 \text&#123;，自动编号公式示例&#125;</span><br><span class="line">    \tag&#123;tag1&#125;</span><br><span class="line">\end&#123;equation&#125;</span><br><span class="line">这种可以随便给公式取名字，后面的就是只能按照顺序走</span><br></pre></td></tr></table></figure>
+<p><span class="math display">\[
+\begin{equation}
+    E=mc^2 \text{，自动编号公式示例}
+    \tag{tag1}
+\end{equation}
+\]</span></p>
+<p><span class="math display">\[
+\begin{equation} \sum_{i=0}^n F_i \cdot \phi (H, p_i) - \sum_{i=1}^n a_i \cdot ( \tilde{x_i}, \tilde{y_i}) + b_i \cdot ( \tilde{x_i}^2 , \tilde{y_i}^2 ) \end{equation}
+\]</span></p>
+<p><span class="math display">\[
+\begin{equation} \beta^*(D) = \mathop{argmin} \limits_{\beta} \lambda {||\beta||}^2 + \sum_{i=1}^n max(0, 1 - y_i f_{\beta}(x_i)) \end{equation}
+\]</span></p>
+<p>自动编号这种在hexo显示还是有问题，可能我配置的有问题，就这样吧，github和markdown显示没问题就行，ML的东西都会写到github。</p>
+<h2 id="上下标">2.上下标</h2>
+<p><code>^</code> 表示上标，<code>_</code>表示下标，使用<code>&#123;&#125;</code>括成一个整体，可以嵌套也可以同时使用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x^&#123;y^z&#125;=(1+&#123;\rm e&#125;^x)^&#123;-2xy^w&#125;</span><br></pre></td></tr></table></figure>
+<p><span class="math display">\[
+x^{y^z}=(1+{\rm e}^x)^{-2xy^w}
+\]</span></p>
+<p>另外，如果要在左右两边都有上下标，可以使用 <code>\sideset</code> 命令；也可以简单地在符号前面多打一个上下标，此时会以行内公式渲染。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\sideset&#123;^1_2&#125;&#123;^3_4&#125; \quad or \quad &#123;^1_2&#125;\bigotimes &#123;^3_4&#125; </span><br></pre></td></tr></table></figure>
+<p><span class="math display">\[
+\sideset{^1_2}{^3_4} \quad or \quad {^1_2}\bigotimes {^3_4}
+\]</span></p>
+<h2 id="括号和分隔符">3.括号和分隔符</h2>
+<p><code>()</code>、<code>[]</code> 和 <code>|</code> 表示符号本身，使用 <code>\&#123;\&#125;</code> 来表示 <code>&#123;&#125;</code> 。当要显示大号的括号或分隔符时，要用 <code>\left</code> 和 <code>\right</code> 命令(自适应括号大小)。</p>
+<p>一些特殊的括号：</p>
+<table>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><code>输入</code></td>
+<td style="text-align: center;"><code>显示</code></td>
+<td style="text-align: center;"><code>输入</code></td>
+<td style="text-align: center;"><code>显示</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\langle</code></td>
+<td style="text-align: center;"><span class="math inline">\(\langle\)</span></td>
+<td style="text-align: center;"><code>\rangle</code></td>
+<td style="text-align: center;"><span class="math inline">\(\rangle\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>\lceil</code></td>
+<td style="text-align: center;"><span class="math display">\[\lceil\]</span></td>
+<td style="text-align: center;"><code>\rceil</code></td>
+<td style="text-align: center;"><span class="math inline">\(\rceil\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\lfloor</code></td>
+<td style="text-align: center;"><span class="math inline">\(\lfloor\)</span></td>
+<td style="text-align: center;"><code>\rfloor</code></td>
+<td style="text-align: center;"><span class="math inline">\(\rfloor\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>\lbrace</code></td>
+<td style="text-align: center;"><span class="math inline">\(\lbrace\)</span></td>
+<td style="text-align: center;"><code>\rbrace</code></td>
+<td style="text-align: center;"><span class="math inline">\(\rbrace\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\lvert</code></td>
+<td style="text-align: center;"><span class="math inline">\(\lvert\)</span></td>
+<td style="text-align: center;"><code>\rvert</code></td>
+<td style="text-align: center;"><span class="math inline">\(\rvert\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>\lVert</code></td>
+<td style="text-align: center;"><span class="math inline">\(\lVert\)</span></td>
+<td style="text-align: center;"><code>\rVert</code></td>
+<td style="text-align: center;"><span class="math inline">\(\rVert\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f(x,y,z)=3y^2z \left( 3+\frac&#123;7x+5&#125;&#123;1+y^2&#125; \right)</span><br></pre></td></tr></table></figure>
+<p><span class="math display">\[
+f(x,y,z)=3y^2z \left( 3+\frac{7x+5}{1+y^2} \right)
+\]</span> 可以看一下差距不使用left和right的话 <span class="math display">\[
+f(x,y,z)=3y^2z ( 3+\frac{7x+5}{1+y^2} )
+\]</span></p>
+<h2 id="分数">4.分数</h2>
+<p>通常使用 <code>\frac &#123;分子&#125; &#123;分母&#125;</code> 来生成一个分数，分数可多层嵌套。如果分式较为复杂，亦可使用 <code>分子 \over 分母</code> 此时分数仅有一层。只有两个字母时可以：<code>\frac ab</code>快速生成</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\frac&#123;a-1&#125;&#123;b-1&#125; \quad or \quad &#123;a+1 \over b+1&#125;</span><br></pre></td></tr></table></figure>
+<p><span class="math display">\[
+\frac{a-1}{b-1} \quad or \quad {a+1\over b+1}
+\]</span></p>
+<h2 id="开方">5.开方</h2>
+<p>使用 <code>\sqrt [根指数，省略时为2] &#123;被开方数&#125;</code> 命令输入开方。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\sqrt&#123;2&#125;\quad or \quad \sqrt[3]&#123;2&#125;</span><br></pre></td></tr></table></figure>
+<p><span class="math display">\[
+\sqrt{2}\quad or \quad \sqrt[3]{2}
+\]</span></p>
+<h2 id="省略号">6.省略号</h2>
+<p><code>\ldots</code> 表示与 <strong>文本底线</strong> 对齐的省略号，<code>\cdots</code> 表示与 <strong>文本中线</strong> 对齐的省略号。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f(x_1,x_2,\underbrace&#123;\ldots&#125;_&#123;\rm ldots&#125; ,x_n) = x_1^2 + x_2^2 + \underbrace&#123;\cdots&#125;_&#123;\rm cdots&#125; + x_n^2 </span><br></pre></td></tr></table></figure>
+<p><span class="math display">\[
+f(x_1,x_2,\underbrace{\ldots}_{\rm ldots},x_n)=x_1^2+x_2^2+\underbrace{\cdots}_{\rm cdots}+ x_n^2
+\]</span></p>
+<h2 id="向量">7.向量</h2>
+<p>使用 <code>\vec&#123;向量&#125;</code> 来自动产生一个向量。也可以使用 <code>\overrightarrow</code> 等命令自定义字母上方的符号。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\vec&#123;a&#125; \cdot \vec&#123;b&#125;=0 </span><br></pre></td></tr></table></figure>
+<p><span class="math display">\[
+ \vec{a} \cdot \vec{b}=0 
+\]</span></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xy \text&#123; with arrows:&#125; \quad \overleftarrow&#123;xy&#125; \; \mid \; \overleftrightarrow&#123;xy&#125; \; \mid \; \overrightarrow&#123;xy&#125;</span><br></pre></td></tr></table></figure>
+<p><span class="math display">\[
+xy \text{ with arrows:} \quad \overleftarrow{xy}\mid \overrightarrow{xy}\mid\overleftrightarrow{xy}
+\]</span></p>
+<h2 id="积分">8.积分</h2>
+<p>使用 <code>\int_积分下限^积分上限 &#123;被积表达式&#125;</code> 来输入一个积分。</p>
+<p>下面的<code>\</code>和<code>&#123;\rm d&#125;</code>可以省略，加入可以使式子更加美观</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\int_0^1 &#123;x^2&#125; \,&#123;\rm d&#125;x</span><br></pre></td></tr></table></figure>
+<p><span class="math display">\[
+\int_0^1{x^2} \,{\rm d}x
+\]</span></p>
+<h2 id="极限运算">9.极限运算</h2>
+<p>使用 <code>\lim_&#123;变量 \to 表达式&#125; 表达式</code> 来输入一个极限。如有需求，可以更改 <code>\to</code> 符号至任意符号。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\lim_&#123;n \to \infty&#125; \frac&#123;1&#125;&#123;n(n+1)&#125; \quad and \quad \lim_&#123;x\leftarrow&#123;示例&#125;&#125; \frac&#123;1&#125;&#123;n(n+1)&#125;</span><br></pre></td></tr></table></figure>
+<p><span class="math display">\[
+\lim_{n \to \infty} \frac1{n(n+1)}\quad and \quad \lim_{x\leftarrow{示例}}\frac1n(n+1)
+\]</span></p>
+<h2 id="累加累乘">10.累加累乘</h2>
+<p>使用 <code>\sum_&#123;下标表达式&#125;^&#123;上标表达式&#125; &#123;累加表达式&#125;</code> 来输入一个累加。与之类似，使用 <code>\prod</code> <code>\bigcup</code> <code>\bigcap</code> 来分别输入累乘、并集和交集，更多符号可参考“<a target="_blank" rel="noopener" href="https://www.zybuluo.com/codeep/note/163962#12如何输入其它特殊字符">其它特殊字符</a>”。 此类符号在行内显示时上下标表达式将会移至右上角和右下角</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\sum_&#123;i=1&#125;^n \frac&#123;1&#125;&#123;i^2&#125; \quad and \quad \prod_&#123;i=1&#125;^n \frac&#123;1&#125;&#123;i^2&#125; \quad and \quad \bigcup_&#123;i=1&#125;^&#123;2&#125; \Bbb&#123;R&#125;</span><br></pre></td></tr></table></figure>
+<p><span class="math display">\[
+\sum_{i=1}^n \frac1{i^2}\quad and \quad \prod_{i=1}^n\frac1{i^2}\quad and \quad \bigcup_{i=1}^2\Bbb{R}
+\]</span></p>
+<h2 id="希腊字母">11.希腊字母</h2>
+<p>输入 <code>\小写希腊字母英文全称</code> 和 <code>\首字母大写希腊字母英文全称</code> 来分别输入小写和大写希腊字母。 对于大写希腊字母与现有字母相同的，直接输入大写字母即可。</p>
+<table>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">输入</td>
+<td style="text-align: center;">显示</td>
+<td style="text-align: center;">输入</td>
+<td style="text-align: center;">显示</td>
+<td style="text-align: center;">输入</td>
+<td style="text-align: center;">显示</td>
+<td style="text-align: center;">输入</td>
+<td style="text-align: center;">显示</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\alpha</code></td>
+<td style="text-align: center;"><span class="math inline">\(\alpha\)</span></td>
+<td style="text-align: center;"><code>A</code></td>
+<td style="text-align: center;"><span class="math inline">\(A\)</span></td>
+<td style="text-align: center;"><code>\beta</code></td>
+<td style="text-align: center;"><span class="math inline">\(\beta\)</span></td>
+<td style="text-align: center;"><code>B</code></td>
+<td style="text-align: center;"><span class="math inline">\(B\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>\alpha</code></td>
+<td style="text-align: center;"><span class="math inline">\(\alpha\)</span></td>
+<td style="text-align: center;"><code>\Gamma</code></td>
+<td style="text-align: center;"><span class="math inline">\(\Gamma\)</span></td>
+<td style="text-align: center;"><code>\delta</code></td>
+<td style="text-align: center;"><span class="math inline">\(\delta\)</span></td>
+<td style="text-align: center;"><code>\Delta</code></td>
+<td style="text-align: center;"><span class="math inline">\(\Delta\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\epsilon</code></td>
+<td style="text-align: center;"><span class="math inline">\(\epsilon\)</span></td>
+<td style="text-align: center;"><code>E</code></td>
+<td style="text-align: center;"><span class="math inline">\(E\)</span></td>
+<td style="text-align: center;"><code>\zeta</code></td>
+<td style="text-align: center;"><span class="math inline">\(\zeta\)</span></td>
+<td style="text-align: center;"><code>Z</code></td>
+<td style="text-align: center;"><span class="math inline">\(Z\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>\eta</code></td>
+<td style="text-align: center;"><span class="math inline">\(\eta\)</span></td>
+<td style="text-align: center;"><code>H</code></td>
+<td style="text-align: center;"><span class="math inline">\(H\)</span></td>
+<td style="text-align: center;"><code>\theta</code></td>
+<td style="text-align: center;"><span class="math inline">\(\theta\)</span></td>
+<td style="text-align: center;"><code>\Theta</code></td>
+<td style="text-align: center;"><span class="math inline">\(\Theta\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\iota</code></td>
+<td style="text-align: center;"><span class="math inline">\(\iota\)</span></td>
+<td style="text-align: center;"><code>I</code></td>
+<td style="text-align: center;"><span class="math inline">\(I\)</span></td>
+<td style="text-align: center;"><code>\kappa</code></td>
+<td style="text-align: center;"><span class="math inline">\(\kappa\)</span></td>
+<td style="text-align: center;"><code>K</code></td>
+<td style="text-align: center;"><span class="math inline">\(K\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>\lambda</code></td>
+<td style="text-align: center;"><span class="math inline">\(\lambda\)</span></td>
+<td style="text-align: center;"><code>\Lambda</code></td>
+<td style="text-align: center;"><span class="math inline">\(\Lambda\)</span></td>
+<td style="text-align: center;"><code>\mu</code></td>
+<td style="text-align: center;"><span class="math inline">\(\mu\)</span></td>
+<td style="text-align: center;"><code>M</code></td>
+<td style="text-align: center;"><span class="math inline">\(M\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\nu</code></td>
+<td style="text-align: center;"><span class="math inline">\(\nu\)</span></td>
+<td style="text-align: center;"><code>N</code></td>
+<td style="text-align: center;"><span class="math inline">\(N\)</span></td>
+<td style="text-align: center;"><code>\xi</code></td>
+<td style="text-align: center;"><span class="math inline">\(\xi\)</span></td>
+<td style="text-align: center;"><code>\Xi</code></td>
+<td style="text-align: center;"><span class="math inline">\(\Xi\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>o</code></td>
+<td style="text-align: center;">$o $</td>
+<td style="text-align: center;"><code>O</code></td>
+<td style="text-align: center;"><span class="math inline">\(O\)</span></td>
+<td style="text-align: center;"><code>\pi</code></td>
+<td style="text-align: center;"><span class="math inline">\(\pi\)</span></td>
+<td style="text-align: center;"><code>\Pi</code></td>
+<td style="text-align: center;"><span class="math inline">\(\Pi\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\rho</code></td>
+<td style="text-align: center;"><span class="math inline">\(\rho\)</span></td>
+<td style="text-align: center;"><code>P</code></td>
+<td style="text-align: center;"><span class="math inline">\(P\)</span></td>
+<td style="text-align: center;"><code>\sigma</code></td>
+<td style="text-align: center;"><span class="math inline">\(\sigma\)</span></td>
+<td style="text-align: center;"><code>\Sigma</code></td>
+<td style="text-align: center;"><span class="math inline">\(\Sigma\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>\tau</code></td>
+<td style="text-align: center;"><span class="math inline">\(\tau\)</span></td>
+<td style="text-align: center;"><code>T</code></td>
+<td style="text-align: center;"><span class="math inline">\(T\)</span></td>
+<td style="text-align: center;"><code>\upsilon</code></td>
+<td style="text-align: center;"><span class="math inline">\(\upsilon\)</span></td>
+<td style="text-align: center;"><code>\Upsilon</code></td>
+<td style="text-align: center;"><span class="math inline">\(\Upsilon\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\phi</code></td>
+<td style="text-align: center;"><span class="math inline">\(\phi\)</span></td>
+<td style="text-align: center;"><code>\Phi</code></td>
+<td style="text-align: center;"><span class="math inline">\(\Phi\)</span></td>
+<td style="text-align: center;"><code>\chi</code></td>
+<td style="text-align: center;"><span class="math inline">\(`\chi`\)</span></td>
+<td style="text-align: center;"><code>X</code></td>
+<td style="text-align: center;"><span class="math inline">\(X\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>\psi</code></td>
+<td style="text-align: center;"><span class="math inline">\(\psi\)</span></td>
+<td style="text-align: center;"><code>\Psi</code></td>
+<td style="text-align: center;"><span class="math inline">\(\Psi\)</span></td>
+<td style="text-align: center;"><code>\omega</code></td>
+<td style="text-align: center;"><span class="math inline">\(\Psi\)</span></td>
+<td style="text-align: center;"><code>\omega</code></td>
+<td style="text-align: center;"><span class="math inline">\(\Omega\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>部分字母有变量专用形式，以 <code>\var-</code> 开头。</p>
+<table>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">小写形式</td>
+<td style="text-align: center;">大写形式</td>
+<td style="text-align: center;">变量形式</td>
+<td style="text-align: center;">显示</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\epsilon</code></td>
+<td style="text-align: center;"><code>E</code></td>
+<td style="text-align: center;"><code>\varepsilon</code></td>
+<td style="text-align: center;"><span class="math inline">\(\epsilon\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>\theta</code></td>
+<td style="text-align: center;"><code>\Theta</code></td>
+<td style="text-align: center;"><code>\vartheta</code></td>
+<td style="text-align: center;"><span class="math inline">\(\theta\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\rho</code></td>
+<td style="text-align: center;"><code>P</code></td>
+<td style="text-align: center;"><code>\varrho</code></td>
+<td style="text-align: center;"><span class="math inline">\(\rho\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>\sigma</code></td>
+<td style="text-align: center;"><code>\Sigma</code></td>
+<td style="text-align: center;"><code>\varsigma</code></td>
+<td style="text-align: center;"><span class="math inline">\(\sigma\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\phi</code></td>
+<td style="text-align: center;"><code>\Phi</code></td>
+<td style="text-align: center;"><code>\varphi</code></td>
+<td style="text-align: center;"><span class="math inline">\(\phi\)</span></td>
+</tr>
+</tbody>
+</table>
+<h2 id="其他特殊字符未完">12.其他特殊字符(未完)</h2>
+<p>完整的Latex可用符号列表见(极多)： https://mirror.its.dal.ca/ctan/info/symbols/comprehensive/symbols-a4.pdf</p>
+<p>精简版：https://pic.plover.com/MISC/symbols.pdf</p>
+<h2 id="字体转换">13.字体转换</h2>
+<p>若要对公式的某一部分字符进行字体转换，可以用 <code>&#123;\字体 &#123;需转换的部分字符&#125;&#125;</code> 命令，其中 <code>\字体</code> 部分可以参照下表选择合适的字体。一般情况下，公式默认为斜体字 。</p>
+<p>示例中 <strong>全部大写</strong> 的字体仅大写可用。</p>
+<p>示例中 <strong>全部大写</strong> 的字体仅大写可用。</p>
+<table>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">输入</td>
+<td style="text-align: center;">全字母可用</td>
+<td style="text-align: center;">显示</td>
+<td style="text-align: center;">输入</td>
+<td style="text-align: center;">仅大写可用</td>
+<td style="text-align: center;">显示</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\rm</code></td>
+<td style="text-align: center;">罗马体</td>
+<td style="text-align: center;"><span class="math inline">\(\rm Test\)</span></td>
+<td style="text-align: center;"><code>\mathcal</code></td>
+<td style="text-align: center;"><strong>花体（数学符号等）</strong></td>
+<td style="text-align: center;"><span class="math inline">\(\mathcal TEST\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>\it</code></td>
+<td style="text-align: center;">斜体</td>
+<td style="text-align: center;"><span class="math inline">\(\it Test\)</span></td>
+<td style="text-align: center;"><code>\mathbb</code></td>
+<td style="text-align: center;"><strong>黑板粗体（定义域等）</strong></td>
+<td style="text-align: center;"><span class="math inline">\(\mathbb TEST\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\bf</code></td>
+<td style="text-align: center;">粗体</td>
+<td style="text-align: center;"><span class="math inline">\(\bf Test\)</span></td>
+<td style="text-align: center;"><code>\mit</code></td>
+<td style="text-align: center;">数学斜体</td>
+<td style="text-align: center;"><span class="math inline">\(\mit TEST\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>\sf</code></td>
+<td style="text-align: center;">等线体</td>
+<td style="text-align: center;"><span class="math inline">\(\sf Test\)</span></td>
+<td style="text-align: center;"><code>\scr</code></td>
+<td style="text-align: center;">手写体</td>
+<td style="text-align: center;"><span class="math inline">\(\scr TEST\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><code>\tt</code></td>
+<td style="text-align: center;">打字机体</td>
+<td style="text-align: center;"><span class="math inline">\(\tt Test\)</span></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><code>\frak</code></td>
+<td style="text-align: center;">旧德式字体</td>
+<td style="text-align: center;"><span class="math inline">\(\frak Test\)</span></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+<h1 id="高亮显示">14.高亮显示</h1>
+<blockquote>
+<p>参考：</p>
+<p>https://math.meta.stackexchange.com/questions/5020/mathjax-basic-tutorial-and-quick-reference</p>
+<p>https://utensil-site.github.io/available-in-katex/</p>
+<p>https://www.zybuluo.com/codeep/note/163962，看的这个</p>
+</blockquote>
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2099/12/31/TOP/" title="胡言乱语&自言自语">
+                    <div class="nextTitle">胡言乱语&自言自语</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2022/05/25/Powershell/" title="Powershell">
+                    <div class="prevTitle">Powershell</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+     
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+        
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js"></script>
+
+
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:2992721672@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/Ghostasky" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                    
+                    <img class="profile-qr" src="/assets/wechat.png" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E5%85%AC%E5%BC%8F%E7%9B%B8%E5%85%B3"><span class="toc-number">1.</span> <span class="toc-text">一、公式相关</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%92%E5%85%A5%E5%85%AC%E5%BC%8F"><span class="toc-number">1.1.</span> <span class="toc-text">1.插入公式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8A%E4%B8%8B%E6%A0%87"><span class="toc-number">1.2.</span> <span class="toc-text">2.上下标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8B%AC%E5%8F%B7%E5%92%8C%E5%88%86%E9%9A%94%E7%AC%A6"><span class="toc-number">1.3.</span> <span class="toc-text">3.括号和分隔符</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%95%B0"><span class="toc-number">1.4.</span> <span class="toc-text">4.分数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E6%96%B9"><span class="toc-number">1.5.</span> <span class="toc-text">5.开方</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9C%81%E7%95%A5%E5%8F%B7"><span class="toc-number">1.6.</span> <span class="toc-text">6.省略号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%91%E9%87%8F"><span class="toc-number">1.7.</span> <span class="toc-text">7.向量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A7%AF%E5%88%86"><span class="toc-number">1.8.</span> <span class="toc-text">8.积分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%81%E9%99%90%E8%BF%90%E7%AE%97"><span class="toc-number">1.9.</span> <span class="toc-text">9.极限运算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B4%AF%E5%8A%A0%E7%B4%AF%E4%B9%98"><span class="toc-number">1.10.</span> <span class="toc-text">10.累加累乘</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%8C%E8%85%8A%E5%AD%97%E6%AF%8D"><span class="toc-number">1.11.</span> <span class="toc-text">11.希腊字母</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E7%89%B9%E6%AE%8A%E5%AD%97%E7%AC%A6%E6%9C%AA%E5%AE%8C"><span class="toc-number">1.12.</span> <span class="toc-text">12.其他特殊字符(未完)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E4%BD%93%E8%BD%AC%E6%8D%A2"><span class="toc-number">1.13.</span> <span class="toc-text">13.字体转换</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%AB%98%E4%BA%AE%E6%98%BE%E7%A4%BA"><span class="toc-number">2.</span> <span class="toc-text">14.高亮显示</span></a></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 66
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2099 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/31</span>
+            <a class="archive-post-title" href="/2099/12/31/TOP/">胡言乱语&自言自语</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/28</span>
+            <a class="archive-post-title" href="/2022/06/28/Latex/">Latex使用笔记</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/25</span>
+            <a class="archive-post-title" href="/2022/05/25/Powershell/">Powershell</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/23</span>
+            <a class="archive-post-title" href="/2022/05/23/NTML/">NTLM认证</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/15</span>
+            <a class="archive-post-title" href="/2022/05/15/%E5%9F%9F%E5%A7%94%E6%B4%BE/">kerberos认证&PAC</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/20</span>
+            <a class="archive-post-title" href="/2022/04/20/Java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/">Java-类加载器</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/09</span>
+            <a class="archive-post-title" href="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/">WinDbg使用及双机调试</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/09</span>
+            <a class="archive-post-title" href="/2022/04/09/%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E5%8A%A0%E8%BD%BDshellcode/">回调函数加载shellcode</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2022/04/08/ShellCodeLoader/">ShellCode Loader(持续更新)</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/07</span>
+            <a class="archive-post-title" href="/2022/04/07/msfvenom%E8%AF%A6%E8%A7%A3/">msfvenom参数详解</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/01</span>
+            <a class="archive-post-title" href="/2022/04/01/%E9%87%8D%E6%8B%BEWin32/">重拾Win32</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/31</span>
+            <a class="archive-post-title" href="/2022/03/31/SpringMVC%E5%88%9D%E6%8E%A2/">Spring MVC初探</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/29</span>
+            <a class="archive-post-title" href="/2022/03/29/SSTI/">SSTI payload记录</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/28</span>
+            <a class="archive-post-title" href="/2022/03/28/VulnHub04/">VulnHub_04_Holynix: v1</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/20</span>
+            <a class="archive-post-title" href="/2022/03/20/CSLearn/">[Untitled Post]</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/">dompdf 0day(RCE)复现</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/19</span>
+            <a class="archive-post-title" href="/2022/03/19/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F&%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/">内网渗透&横向移动&····</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/08</span>
+            <a class="archive-post-title" href="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/">Windows权限维持学习</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/01</span>
+            <a class="archive-post-title" href="/2022/03/01/Nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">Nodejs原型链污染</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/19</span>
+            <a class="archive-post-title" href="/2022/02/19/VulnHub03/">VulnHub_03_LAMPSECURITY: CTF7</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/17</span>
+            <a class="archive-post-title" href="/2022/02/17/VulnHub02/">VulnHub_02_LAMPSECURITY: CTF5</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/16</span>
+            <a class="archive-post-title" href="/2022/02/16/VulnHub01/">VulnHub_01_LAMPSECURITY: CTF4</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/10</span>
+            <a class="archive-post-title" href="/2022/02/10/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/">内网渗透-隧道隐藏</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/05</span>
+            <a class="archive-post-title" href="/2022/02/05/2021%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">2021年终总结</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2021 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/08</span>
+            <a class="archive-post-title" href="/2021/12/08/BUU-PWN-0x50-0x5F/">BUU_PWN刷题_0x50-0x5F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span>
+            <a class="archive-post-title" href="/2021/12/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/">编译原理Note</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/27</span>
+            <a class="archive-post-title" href="/2021/11/27/6.s081/">MIT6.S081+XV6 Note</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/15</span>
+            <a class="archive-post-title" href="/2021/11/15/%E9%99%87%E5%8E%9F%E6%88%98%E7%96%AB2021%E9%83%A8%E5%88%86wp/">陇原战疫杯2021部分WP</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/07</span>
+            <a class="archive-post-title" href="/2021/11/07/BUU-RE-0x01-0x1F/">BUU_RE刷题</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/23</span>
+            <a class="archive-post-title" href="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/">再战PE结构</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/17</span>
+            <a class="archive-post-title" href="/2021/10/17/BUU-PWN-0x40-0x4F/">BUU_PWN刷题_0x40-0x4F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/05</span>
+            <a class="archive-post-title" href="/2021/10/05/PHP%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%95%B4%E7%90%86/">PHP反序列化整理</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/24</span>
+            <a class="archive-post-title" href="/2021/09/24/IO_FILE/">IO_FILE调试+详解</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/16</span>
+            <a class="archive-post-title" href="/2021/09/16/BUU-WEB-0x30-0x3F/">BUU_WEB刷题_0x30-0x3F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/12</span>
+            <a class="archive-post-title" href="/2021/09/12/BUU-WEB-0x20-0x2F/">BUU_WEB刷题_0x20-0x2F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/01</span>
+            <a class="archive-post-title" href="/2021/09/01/tcache_stashing_unlink_atack%E8%B0%83%E8%AF%95/">Tcache_stashing_unlink_atack调试记录</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/08</span>
+            <a class="archive-post-title" href="/2021/08/08/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/">PWN刷题小结</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/18</span>
+            <a class="archive-post-title" href="/2021/07/18/BUU-PWN-0x30-0x3f/">BUU_PWN刷题_0x30-0x3F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/11</span>
+            <a class="archive-post-title" href="/2021/07/11/BUU-PWN-0x20-0x2F/">BUU_PWN刷题_0x21-0x2F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/01</span>
+            <a class="archive-post-title" href="/2021/06/01/BUU-PWN-0x01-0x0F/">BUU_PWN刷题_0x01-0x0F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/01</span>
+            <a class="archive-post-title" href="/2021/06/01/BUU-PWN-0x10-0x1F/">BUU_PWN刷题_0x10-0x1F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/03</span>
+            <a class="archive-post-title" href="/2021/05/03/BUU-WEB-0x10-0x1F/">BUU_WEB刷题_0x10-0x1F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/17</span>
+            <a class="archive-post-title" href="/2021/04/17/BUU-WEB-0x1-0xF/">BUU_WEB刷题_0x01-0x0F</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2021/04/08/64%E4%B8%BApayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/">在64位的glibc上payload调用system导致crash的问题</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/08</span>
+            <a class="archive-post-title" href="/2021/04/08/CISCN-PWN/">CISCN_PWN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/23</span>
+            <a class="archive-post-title" href="/2021/03/23/pwndbg%E5%92%8CLinux%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E5%8F%8A%E5%AF%86%E7%A0%81%E8%B8%A9%E5%9D%91/">pwndbg和Linux改用户名及密码踩坑</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/22</span>
+            <a class="archive-post-title" href="/2021/03/22/chunk-extend-and-overlapping/">Chunk Extend and Overlapping</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/21</span>
+            <a class="archive-post-title" href="/2021/03/21/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/">堆中的off-by-one</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/14</span>
+            <a class="archive-post-title" href="/2021/03/14/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/">简单堆溢出介绍</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/03</span>
+            <a class="archive-post-title" href="/2021/03/03/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">堆概述及其相关数据结构</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/03</span>
+            <a class="archive-post-title" href="/2021/03/03/%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA/">整数溢出</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/27</span>
+            <a class="archive-post-title" href="/2021/02/27/json%E7%9B%B8%E5%85%B3/">JSON相关</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/12</span>
+            <a class="archive-post-title" href="/2021/02/12/2020%E5%B9%B4%E9%83%BD%E5%B9%B2%E4%BA%86%E5%95%A5/">2020年都干了啥</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/10</span>
+            <a class="archive-post-title" href="/2021/02/10/ret2csu/">Ret2csu</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/06</span>
+            <a class="archive-post-title" href="/2021/02/06/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/">格式化字符串漏洞举例</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/02</span>
+            <a class="archive-post-title" href="/2021/02/02/Linux%E4%BF%9D%E6%8A%A4%E6%8A%80%E6%9C%AF/">Linux保护技术</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/01</span>
+            <a class="archive-post-title" href="/2021/02/01/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D%E5%8F%8A%E5%88%A9%E7%94%A8/">格式化字符串原理介绍及利用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/28</span>
+            <a class="archive-post-title" href="/2021/01/28/pwn_ret2libc/">PWN_Ret2libc</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/27</span>
+            <a class="archive-post-title" href="/2021/01/27/pwn_ret2textret2syscallret2shellcode/">PWN_ret2text,ret2syscall,ret2shellcode</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/23</span>
+            <a class="archive-post-title" href="/2021/01/23/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/">pip下载过慢解决办法</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2020 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/25</span>
+            <a class="archive-post-title" href="/2020/11/25/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/">文件包含漏洞</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span>
+            <a class="archive-post-title" href="/2020/11/23/python__requestsocket%E6%A8%A1%E5%9D%97/">Python__request，socket模块</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/22</span>
+            <a class="archive-post-title" href="/2020/11/22/BUU-RE-1/">BUU_RE_1</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/21</span>
+            <a class="archive-post-title" href="/2020/11/21/python__re%E6%A8%A1%E5%9D%97%E4%B8%8E%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">Python__RE模块与正则表达式</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/19</span>
+            <a class="archive-post-title" href="/2020/11/19/SQL%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/">SQL注入小结</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/11</span>
+            <a class="archive-post-title" href="/2020/10/11/%E6%B1%87%E7%BC%96%E7%AC%94%E8%AE%B0/">汇编笔记</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="Life">
+                <span class="iconfont-archer">&#xe606;</span>
+                Life
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="PWN">
+                <span class="iconfont-archer">&#xe606;</span>
+                PWN
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="RE">
+                <span class="iconfont-archer">&#xe606;</span>
+                RE
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="BUU刷题">
+                <span class="iconfont-archer">&#xe606;</span>
+                BUU刷题
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Java">
+                <span class="iconfont-archer">&#xe606;</span>
+                Java
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="免杀">
+                <span class="iconfont-archer">&#xe606;</span>
+                免杀
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="VulnHub">
+                <span class="iconfont-archer">&#xe606;</span>
+                VulnHub
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内核">
+                <span class="iconfont-archer">&#xe606;</span>
+                内核
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="渗透">
+                <span class="iconfont-archer">&#xe606;</span>
+                渗透
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="漏洞复现">
+                <span class="iconfont-archer">&#xe606;</span>
+                漏洞复现
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Python">
+                <span class="iconfont-archer">&#xe606;</span>
+                Python
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Linux">
+                <span class="iconfont-archer">&#xe606;</span>
+                Linux
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="汇编">
+                <span class="iconfont-archer">&#xe606;</span>
+                汇编
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="WriteUp">
+                <span class="iconfont-archer">&#xe606;</span>
+                WriteUp
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="web,java">
+                <span class="iconfont-archer">&#xe606;</span>
+                web,java
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Win32">
+                <span class="iconfont-archer">&#xe606;</span>
+                Win32
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="ML">
+                <span class="iconfont-archer">&#xe606;</span>
+                ML
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Math">
+                <span class="iconfont-archer">&#xe606;</span>
+                Math
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMeta = {
+        root: "/",
+        author: "郁涛丶"
+    }
+</script>
+
+        <!-- main func -->
+        <script src="/scripts/main.js"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js" async></script>    
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>

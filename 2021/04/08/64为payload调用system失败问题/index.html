@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="[TOC] 在64位的glibc上payload调用system导致crash的问题在一些64位的pwn题中，调用system后会导致程序crash掉 首先小讲下原因： 1234.text:000000000040F93C                 mov     [rsp+198h+var_190], rax.text:000000000040F941                 mo">
+    <meta name="description" content="[TOC] 在64位的glibc上payload调用system导致crash的问题 在一些64位的pwn题中，调用system后会导致程序crash掉 首先小讲下原因： 1234.text:000000000040F93C                 mov     [rsp+198h+var_190], rax.text:000000000040F941">
 <meta property="og:type" content="article">
 <meta property="og:title" content="在64位的glibc上payload调用system导致crash的问题">
 <meta property="og:url" content="http://example.com/2021/04/08/64%E4%B8%BApayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="[TOC] 在64位的glibc上payload调用system导致crash的问题在一些64位的pwn题中，调用system后会导致程序crash掉 首先小讲下原因： 1234.text:000000000040F93C                 mov     [rsp+198h+var_190], rax.text:000000000040F941                 mo">
+<meta property="og:description" content="[TOC] 在64位的glibc上payload调用system导致crash的问题 在一些64位的pwn题中，调用system后会导致程序crash掉 首先小讲下原因： 1234.text:000000000040F93C                 mov     [rsp+198h+var_190], rax.text:000000000040F941">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-04-07T16:00:00.000Z">
 <meta property="article:modified_time" content="2021-06-01T16:07:44.074Z">
@@ -214,7 +214,11 @@
     
     <!-- 谷歌统计  -->
     
-<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
 </head>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
@@ -495,46 +499,37 @@
                 <main class="main post-page">
     <article class="article-entry">
         <p>[TOC]</p>
-<h1 id="在64位的glibc上payload调用system导致crash的问题"><a href="#在64位的glibc上payload调用system导致crash的问题" class="headerlink" title="在64位的glibc上payload调用system导致crash的问题"></a>在64位的glibc上payload调用system导致crash的问题</h1><p>在一些64位的pwn题中，调用system后会导致程序crash掉</p>
+<h1 id="在64位的glibc上payload调用system导致crash的问题">在64位的glibc上payload调用system导致crash的问题</h1>
+<p>在一些64位的pwn题中，调用system后会导致程序crash掉</p>
 <p>首先小讲下原因：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.text:000000000040F93C                 mov     [rsp+198h+var_190], rax</span><br><span class="line">.text:000000000040F941                 movhps  xmm0, [rsp+198h+var_190]</span><br><span class="line">.text:000000000040F946                 movaps  [rsp+198h+var_158], xmm0</span><br><span class="line">.text:000000000040F94B                 call    sigaction</span><br></pre></td></tr></table></figure>
-
 <p>是<code>movaps  [rsp+198h+var_158], xmm0</code>指令要求<code>rsp+198h+var_158</code>的值是对其16byte(0x10)，否则的话会直接出发中断从而导致crash。</p>
 <blockquote>
-<p>  Movaps：<br>  <code>movaps XMM,XMM/m128 movaps XMM/128,XMM</code><br>  把源存储器内容值送入目的寄存器,当有m128时,必须对齐内存16字节,也就是内存地址低4位为0.</p>
+<p>Movaps： <code>movaps XMM,XMM/m128 movaps XMM/128,XMM</code> 把源存储器内容值送入目的寄存器,当有m128时,必须对齐内存16字节,也就是内存地址低4位为0.</p>
 </blockquote>
-<h2 id="演示"><a href="#演示" class="headerlink" title="演示"></a>演示</h2><p>示例程序</p>
+<h2 id="演示">演示</h2>
+<p>示例程序</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	system(<span class="string">&quot;/bin/sh&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>断在：<code>movaps  [rsp+198h+var_158], xmm0</code></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; </span><br><span class="line">131	in ../sysdeps/posix/system.c</span><br><span class="line">LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA</span><br><span class="line">─────────────────────────────────────────[ REGISTERS ]──────────────────────────────────────────</span><br><span class="line"> RAX  0x7ffff7b95e17 ◂— sub    eax, 0x622f0063 /* &#x27;-c&#x27; */</span><br><span class="line"> RBX  0x0</span><br><span class="line"> RCX  0x7ffff7b95e1f ◂— jae    0x7ffff7b95e89 /* &#x27;sh&#x27; */</span><br><span class="line"> RDX  0x0</span><br><span class="line"> RDI  0x2</span><br><span class="line"> RSI  0x7ffff7dcf6a0 (intr) ◂— 0x0</span><br><span class="line"> R8   0x7ffff7dcf600 (quit) ◂— 0x0</span><br><span class="line"> R9   0x7ffff7dced80 (initial) ◂— 0x0</span><br><span class="line"> R10  0x8</span><br><span class="line"> R11  0x346</span><br><span class="line"> R12  0x5555555546f4 ◂— 0x68732f6e69622f /* &#x27;/bin/sh&#x27; */</span><br><span class="line"> R13  0x7fffffffe080 ◂— 0x1</span><br><span class="line"> R14  0x0</span><br><span class="line"> R15  0x0</span><br><span class="line"> RBP  0x7fffffffde60 ◂— 0x0</span><br><span class="line"> RSP  0x7fffffffde00 ◂— 0x7fff00000002</span><br><span class="line">*RIP  0x7ffff7a3140b (do_system+1099) ◂— call   0x7ffff7a21230</span><br><span class="line">───────────────────────────────────────────────────[ DISASM ]───────────────────────────────────────────────────</span><br><span class="line">   0x7ffff7a313ed &lt;do_system+1069&gt;    mov    qword ptr [rsp + 0x58], 0</span><br><span class="line">   0x7ffff7a313f6 &lt;do_system+1078&gt;    movq   xmm0, qword ptr [rsp + 8]</span><br><span class="line">   0x7ffff7a313fc &lt;do_system+1084&gt;    mov    qword ptr [rsp + 8], rax</span><br><span class="line">   0x7ffff7a31401 &lt;do_system+1089&gt;    movhps xmm0, qword ptr [rsp + 8]</span><br><span class="line">   0x7ffff7a31406 &lt;do_system+1094&gt;    movaps xmmword ptr [rsp + 0x40], xmm0</span><br><span class="line"> ► 0x7ffff7a3140b &lt;do_system+1099&gt;    call   sigaction &lt;sigaction&gt;</span><br><span class="line">        sig: 0x2</span><br><span class="line">        act: 0x7ffff7dcf6a0 (intr) ◂— 0x0</span><br><span class="line">        oact: 0x0</span><br><span class="line"> </span><br><span class="line">   0x7ffff7a31410 &lt;do_system+1104&gt;    lea    rsi, [rip + 0x39e1e9] &lt;0x7ffff7dcf600&gt;</span><br><span class="line">   0x7ffff7a31417 &lt;do_system+1111&gt;    xor    edx, edx</span><br><span class="line">   0x7ffff7a31419 &lt;do_system+1113&gt;    mov    edi, 3</span><br><span class="line">   0x7ffff7a3141e &lt;do_system+1118&gt;    call   sigaction &lt;sigaction&gt;</span><br><span class="line"> </span><br><span class="line">   0x7ffff7a31423 &lt;do_system+1123&gt;    xor    edx, edx</span><br><span class="line">───────────────────────────────────────────────────[ STACK ]────────────────────────────────────────────────────</span><br><span class="line">00:0000│ rsp  0x7fffffffde00 ◂— 0x7fff00000002</span><br><span class="line">01:0008│      0x7fffffffde08 —▸ 0x7ffff7b95e17 ◂— sub    eax, 0x622f0063 /* &#x27;-c&#x27; */</span><br><span class="line">02:0010│      0x7fffffffde10 —▸ 0x7fffffffdf10 ◂— 0x0</span><br><span class="line">03:0018│      0x7fffffffde18 ◂— 0x3</span><br><span class="line">04:0020│      0x7fffffffde20 —▸ 0x7ffff7a31470 (cancel_handler) ◂— push   rbx</span><br><span class="line">05:0028│      0x7fffffffde28 —▸ 0x7fffffffde1c ◂— 0xf7a3147000000000</span><br><span class="line">06:0030│      0x7fffffffde30 —▸ 0x7ffff7ffe738 —▸ 0x7ffff7ffe710 —▸ 0x7ffff7ffb000 ◂— jg     0x7ffff7ffb047</span><br><span class="line">07:0038│      0x7fffffffde38 ◂— 0x0</span><br><span class="line">─────────────────────────────────────────────────[ BACKTRACE ]──────────────────────────────────────────────────</span><br><span class="line"> ► f 0     7ffff7a3140b do_system+1099</span><br><span class="line">   f 1     55555555465a main+16</span><br><span class="line">   f 2     7ffff7a03bf7 __libc_start_main+231</span><br><span class="line">────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
 <p>然后查看$rsp+0x40:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p/x $rsp+0x40</span><br><span class="line">$2 = 0x7fffffffde40</span><br></pre></td></tr></table></figure>
-
 <p>可以看到是对齐的，也就是内存地址的低位为0。</p>
 <p>下面对$rsp+1：<code>set $rsp=$rsp+1</code></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; set $rsp=$rsp+1</span><br><span class="line">LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA</span><br><span class="line">─────────────────────────────────────────[ REGISTERS ]──────────────────────────────────────────</span><br><span class="line"> RAX  0x7ffff7b95e17 ◂— sub    eax, 0x622f0063 /* &#x27;-c&#x27; */</span><br><span class="line"> RBX  0x0</span><br><span class="line"> RCX  0x7ffff7b95e1f ◂— jae    0x7ffff7b95e89 /* &#x27;sh&#x27; */</span><br><span class="line"> RDX  0x0</span><br><span class="line"> RDI  0x2</span><br><span class="line"> RSI  0x7ffff7dcf6a0 (intr) ◂— 0x0</span><br><span class="line"> R8   0x7ffff7dcf600 (quit) ◂— 0x0</span><br><span class="line"> R9   0x7ffff7dced80 (initial) ◂— 0x0</span><br><span class="line"> R10  0x8</span><br><span class="line"> R11  0x346</span><br><span class="line"> R12  0x5555555546f4 ◂— 0x68732f6e69622f /* &#x27;/bin/sh&#x27; */</span><br><span class="line"> R13  0x7fffffffe080 ◂— 0x1</span><br><span class="line"> R14  0x0</span><br><span class="line"> R15  0x0</span><br><span class="line"> RBP  0x7fffffffde60 ◂— 0x0</span><br><span class="line">*RSP  0x7fffffffde01 ◂— 0x1700007fff000000</span><br><span class="line">*RIP  0x7ffff7a3140b (do_system+1099) ◂— call   0x7ffff7a21230</span><br><span class="line">───────────────────────────────────────────────────[ DISASM ]───────────────────────────────────────────────────</span><br><span class="line">   0x7ffff7a313ed &lt;do_system+1069&gt;    mov    qword ptr [rsp + 0x58], 0</span><br><span class="line">   0x7ffff7a313f6 &lt;do_system+1078&gt;    movq   xmm0, qword ptr [rsp + 8]</span><br><span class="line">   0x7ffff7a313fc &lt;do_system+1084&gt;    mov    qword ptr [rsp + 8], rax</span><br><span class="line">   0x7ffff7a31401 &lt;do_system+1089&gt;    movhps xmm0, qword ptr [rsp + 8]</span><br><span class="line">   0x7ffff7a31406 &lt;do_system+1094&gt;    movaps xmmword ptr [rsp + 0x40], xmm0</span><br><span class="line"> ► 0x7ffff7a3140b &lt;do_system+1099&gt;    call   sigaction &lt;sigaction&gt;</span><br><span class="line">        sig: 0x2</span><br><span class="line">        act: 0x7ffff7dcf6a0 (intr) ◂— 0x0</span><br><span class="line">        oact: 0x0</span><br><span class="line"> </span><br><span class="line">   0x7ffff7a31410 &lt;do_system+1104&gt;    lea    rsi, [rip + 0x39e1e9] &lt;0x7ffff7dcf600&gt;</span><br><span class="line">   0x7ffff7a31417 &lt;do_system+1111&gt;    xor    edx, edx</span><br><span class="line">   0x7ffff7a31419 &lt;do_system+1113&gt;    mov    edi, 3</span><br><span class="line">   0x7ffff7a3141e &lt;do_system+1118&gt;    call   sigaction &lt;sigaction&gt;</span><br><span class="line"> </span><br><span class="line">   0x7ffff7a31423 &lt;do_system+1123&gt;    xor    edx, edx</span><br><span class="line">───────────────────────────────────────────────────[ STACK ]────────────────────────────────────────────────────</span><br><span class="line">00:0000│ rsp  0x7fffffffde01 ◂— 0x1700007fff000000</span><br><span class="line">01:0008│      0x7fffffffde09 ◂— 0x1000007ffff7b95e</span><br><span class="line">02:0010│      0x7fffffffde11 ◂— 0x300007fffffffdf</span><br><span class="line">03:0018│      0x7fffffffde19 ◂— 0x7000000000000000</span><br><span class="line">04:0020│      0x7fffffffde21 ◂— 0x1c00007ffff7a314</span><br><span class="line">05:0028│      0x7fffffffde29 ◂— 0x3800007fffffffde</span><br><span class="line">06:0030│      0x7fffffffde31 ◂— 0x7ffff7ffe7</span><br><span class="line">07:0038│      0x7fffffffde39 ◂— 0x1f00000000000000</span><br><span class="line">─────────────────────────────────────────────────[ BACKTRACE ]──────────────────────────────────────────────────</span><br><span class="line"> ► f 0     7ffff7a3140b do_system+1099</span><br><span class="line">   f 1 7000005555555546</span><br><span class="line">   f 2 f700005555555546</span><br><span class="line">   f 3       7ffff7a03b</span><br><span class="line">   f 4 8800000020000000</span><br><span class="line">   f 5       7fffffffe0</span><br><span class="line">   f 6 4a00000001000000</span><br><span class="line">   f 7       5555555546</span><br><span class="line">────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
 <p>然后查看$rsp+0x40的位置：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p/x $rsp+0x40</span><br><span class="line">$3 = 0x7fffffffde41</span><br></pre></td></tr></table></figure>
-
 <p>已经未对齐了，继续执行。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; c</span><br><span class="line">Continuing.</span><br><span class="line"></span><br><span class="line">Thread 2.1 &quot;a.out&quot; received signal SIGSEGV, Segmentation fault.</span><br><span class="line">0x000000000040f946 in do_system ()</span><br><span class="line">LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA</span><br><span class="line">─────────────────────────────────────────────────[ REGISTERS ]──────────────────────────────────────────────────</span><br><span class="line"> RAX  0x492be5 ◂— sub    eax, 0x622f0063 /* &#x27;-c&#x27; */</span><br><span class="line"> RBX  0x0</span><br><span class="line"> RCX  0x492bed ◂— jae    0x492c57 /* &#x27;sh&#x27; */</span><br><span class="line"> RDX  0x0</span><br><span class="line"> RDI  0x2</span><br><span class="line"> RSI  0x6bbdc0 (intr) ◂— 0x0</span><br><span class="line"> R8   0x6bbd20 (quit) ◂— 0x0</span><br><span class="line"> R9   0x6bb8e0 (initial) ◂— 0x0</span><br><span class="line"> R10  0x8</span><br><span class="line"> R11  0x346</span><br><span class="line"> R12  0x492444 ◂— 0x68732f6e69622f /* &#x27;/bin/sh&#x27; */</span><br><span class="line"> R13  0x0</span><br><span class="line"> R14  0x6b9018 (_GLOBAL_OFFSET_TABLE_+24) —▸ 0x440670 (__strcpy_ssse3) ◂— mov    rcx, rsi</span><br><span class="line"> R15  0x0</span><br><span class="line"> RBP  0x7fffffffde20 ◂— 0x0</span><br><span class="line"> RSP  0x7fffffffddc1 ◂— 0xe500007fffffffe3</span><br><span class="line"> RIP  0x40f946 (do_system+1062) ◂— movaps xmmword ptr [rsp + 0x40], xmm0</span><br><span class="line">───────────────────────────────────────────────────[ DISASM ]───────────────────────────────────────────────────</span><br><span class="line">   0x40f928 &lt;do_system+1032&gt;    mov    qword ptr [rsp + 8], rcx</span><br><span class="line">   0x40f92d &lt;do_system+1037&gt;    mov    qword ptr [rsp + 0x58], 0</span><br><span class="line">   0x40f936 &lt;do_system+1046&gt;    movq   xmm0, qword ptr [rsp + 8]</span><br><span class="line">   0x40f93c &lt;do_system+1052&gt;    mov    qword ptr [rsp + 8], rax</span><br><span class="line">   0x40f941 &lt;do_system+1057&gt;    movhps xmm0, qword ptr [rsp + 8]</span><br><span class="line"> ► 0x40f946 &lt;do_system+1062&gt;    movaps xmmword ptr [rsp + 0x40], xmm0</span><br><span class="line">   0x40f94b &lt;do_system+1067&gt;    call   sigaction &lt;sigaction&gt;</span><br><span class="line"> </span><br><span class="line">   0x40f950 &lt;do_system+1072&gt;    lea    rsi, [rip + 0x2ac3c9] &lt;0x6bbd20&gt;</span><br><span class="line">   0x40f957 &lt;do_system+1079&gt;    xor    edx, edx</span><br><span class="line">   0x40f959 &lt;do_system+1081&gt;    mov    edi, 3</span><br><span class="line">   0x40f95e &lt;do_system+1086&gt;    call   sigaction &lt;sigaction&gt;</span><br><span class="line">───────────────────────────────────────────────────[ STACK ]────────────────────────────────────────────────────</span><br><span class="line">00:0000│ rsp  0x7fffffffddc1 ◂— 0xe500007fffffffe3</span><br><span class="line">01:0008│      0x7fffffffddc9 ◂— 0xb0000000000492b /* &#x27;+I&#x27; */</span><br><span class="line">02:0010│      0x7fffffffddd1 ◂— 0x700000015004a4f /* &#x27;OJ&#x27; */</span><br><span class="line">03:0018│      0x7fffffffddd9 ◂— 0x4000000000000000</span><br><span class="line">04:0020│      0x7fffffffdde1 ◂— 0xdc000000000040f4</span><br><span class="line">05:0028│      0x7fffffffdde9 ◂— 0x6800007fffffffdd</span><br><span class="line">06:0030│      0x7fffffffddf1 ◂— 0x7000000000006be2</span><br><span class="line">07:0038│      0x7fffffffddf9 ◂— 0x500000000000001</span><br><span class="line">─────────────────────────────────────────────────[ BACKTRACE ]──────────────────────────────────────────────────</span><br><span class="line"> ► f 0           40f946 do_system+1062</span><br><span class="line">   f 1 700000000000400b</span><br><span class="line">   f 2  900000000004018</span><br><span class="line">   f 3             4011</span><br><span class="line">   f 4                0</span><br><span class="line">────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span><br></pre></td></tr></table></figure>
-
 <p>已经crash掉。</p>
-<h2 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h2><p>1.改变payload的长度</p>
-<p>​    直接更改payload的长度，在栈溢出的时候栈的地址会不同，将栈地址+1，不行的话，继续增加，最多16次就一定会遇到栈对齐的长度。</p>
+<h2 id="解决办法">解决办法</h2>
+<p>1.改变payload的长度</p>
+<p>​ 直接更改payload的长度，在栈溢出的时候栈的地址会不同，将栈地址+1，不行的话，继续增加，最多16次就一定会遇到栈对齐的长度。</p>
 <p>2.栈转移</p>
-<p>​    当有些payload有长度限制时，可以使用栈转移，之后如果栈的地址还是不同的话，继续+1，对齐。</p>
+<p>​ 当有些payload有长度限制时，可以使用栈转移，之后如果栈的地址还是不同的话，继续+1，对齐。</p>
 <p>3.execve</p>
-<p>​    调用system的话可能会crash掉，那么可以使用execve函数，只不过这个函数的参数比system的参数多，在之前的ret2syscall 中也有讲到，之前讲的是32位，那64位的话就是参数构造不一样而已：rdi,rsi,rdx。</p>
+<p>​ 调用system的话可能会crash掉，那么可以使用execve函数，只不过这个函数的参数比system的参数多，在之前的ret2syscall 中也有讲到，之前讲的是32位，那64位的话就是参数构造不一样而已：rdi,rsi,rdx。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">execve</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> * filename,<span class="keyword">char</span> * <span class="keyword">const</span> argv[ ],<span class="keyword">char</span> * <span class="keyword">const</span> envp[ ])</span></span>;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
 
     </article>
     <!-- license -->
@@ -1018,487 +1013,17 @@
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
         
         
@@ -1635,7 +1160,7 @@
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 64
+        Total : 66
         </div>
         <!-- search  -->
         
@@ -1664,6 +1189,18 @@
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/28</span>
+            <a class="archive-post-title" href="/2022/06/28/Latex/">Latex使用笔记</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/25</span>
+            <a class="archive-post-title" href="/2022/05/25/Powershell/">Powershell</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">05/23</span>
@@ -2096,6 +1633,11 @@
                 Java
             </span>
         
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="免杀">
                 <span class="iconfont-archer">&#xe606;</span>
                 免杀
@@ -2131,19 +1673,14 @@
                 Linux
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内网">
+            <span class="sidebar-tag-name" data-tags="OS">
                 <span class="iconfont-archer">&#xe606;</span>
-                内网
+                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">
@@ -2159,6 +1696,16 @@
             <span class="sidebar-tag-name" data-tags="Win32">
                 <span class="iconfont-archer">&#xe606;</span>
                 Win32
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="ML">
+                <span class="iconfont-archer">&#xe606;</span>
+                ML
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Math">
+                <span class="iconfont-archer">&#xe606;</span>
+                Math
             </span>
         
     </div>

