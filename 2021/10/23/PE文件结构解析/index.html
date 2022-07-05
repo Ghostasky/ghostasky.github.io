@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="[toc] PE文件结构解析 0.总述 大致结构如下：  DOS头（占位），仅适用于映像文件 DOS存根（又叫签名），仅适用于映像文件 COFF文件头，适用于映像文件和目标文件 NT（可选文件头），仅适用于映像文件 节表（节区头） 节  其中，PE头包含DOS头、DOS存根、NT头、节表。 用到的结构体都在winnt.h头文件中。 1.DOS头 Mz那里 12345">
+    <meta name="description" content="[toc] PE文件结构解析0.总述大致结构如下：  DOS头（占位），仅适用于映像文件 DOS存根（又叫签名），仅适用于映像文件 COFF文件头，适用于映像文件和目标文件 NT（可选文件头），仅适用于映像文件 节表（节区头） 节  其中，PE头包含DOS头、DOS存根、NT头、节表。 用到的结构体都在winnt.h头文件中。 1.DOS头Mz那里 123456789101112131415161">
 <meta property="og:type" content="article">
 <meta property="og:title" content="再战PE结构">
 <meta property="og:url" content="http://example.com/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="[toc] PE文件结构解析 0.总述 大致结构如下：  DOS头（占位），仅适用于映像文件 DOS存根（又叫签名），仅适用于映像文件 COFF文件头，适用于映像文件和目标文件 NT（可选文件头），仅适用于映像文件 节表（节区头） 节  其中，PE头包含DOS头、DOS存根、NT头、节表。 用到的结构体都在winnt.h头文件中。 1.DOS头 Mz那里 12345">
+<meta property="og:description" content="[toc] PE文件结构解析0.总述大致结构如下：  DOS头（占位），仅适用于映像文件 DOS存根（又叫签名），仅适用于映像文件 COFF文件头，适用于映像文件和目标文件 NT（可选文件头），仅适用于映像文件 节表（节区头） 节  其中，PE头包含DOS头、DOS存根、NT头、节表。 用到的结构体都在winnt.h头文件中。 1.DOS头Mz那里 123456789101112131415161">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211019192747065.png">
 <meta property="og:image" content="http://example.com/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211020202318348.png">
@@ -517,10 +517,8 @@
                 <main class="main post-page">
     <article class="article-entry">
         <p>[toc]</p>
-<h1 id="pe文件结构解析">PE文件结构解析</h1>
-<h2 id="总述">0.总述</h2>
-<p>大致结构如下：</p>
-<ol type="1">
+<h1 id="PE文件结构解析"><a href="#PE文件结构解析" class="headerlink" title="PE文件结构解析"></a>PE文件结构解析</h1><h2 id="0-总述"><a href="#0-总述" class="headerlink" title="0.总述"></a>0.总述</h2><p>大致结构如下：</p>
+<ol>
 <li>DOS头（占位），仅适用于映像文件</li>
 <li>DOS存根（又叫签名），仅适用于映像文件</li>
 <li>COFF文件头，适用于映像文件和目标文件</li>
@@ -530,36 +528,33 @@
 </ol>
 <p>其中，PE头包含DOS头、DOS存根、NT头、节表。</p>
 <p>用到的结构体都在<code>winnt.h</code>头文件中。</p>
-<h2 id="dos头">1.DOS头</h2>
-<p>Mz那里</p>
+<h2 id="1-DOS头"><a href="#1-DOS头" class="headerlink" title="1.DOS头"></a>1.DOS头</h2><p>Mz那里</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_DOS_HEADER</span> &#123;</span>      <span class="comment">// DOS .EXE header</span></span><br><span class="line">    WORD   e_magic;                     <span class="comment">// Magic number</span></span><br><span class="line">    WORD   e_cblp;                      <span class="comment">// Bytes on last page of file</span></span><br><span class="line">    WORD   e_cp;                        <span class="comment">// Pages in file</span></span><br><span class="line">    WORD   e_crlc;                      <span class="comment">// Relocations</span></span><br><span class="line">    WORD   e_cparhdr;                   <span class="comment">// Size of header in paragraphs</span></span><br><span class="line">    WORD   e_minalloc;                  <span class="comment">// Minimum extra paragraphs needed</span></span><br><span class="line">    WORD   e_maxalloc;                  <span class="comment">// Maximum extra paragraphs needed</span></span><br><span class="line">    WORD   e_ss;                        <span class="comment">// Initial (relative) SS value</span></span><br><span class="line">    WORD   e_sp;                        <span class="comment">// Initial SP value</span></span><br><span class="line">    WORD   e_csum;                      <span class="comment">// Checksum</span></span><br><span class="line">    WORD   e_ip;                        <span class="comment">// Initial IP value</span></span><br><span class="line">    WORD   e_cs;                        <span class="comment">// Initial (relative) CS value</span></span><br><span class="line">    WORD   e_lfarlc;                    <span class="comment">// File address of relocation table</span></span><br><span class="line">    WORD   e_ovno;                      <span class="comment">// Overlay number</span></span><br><span class="line">    WORD   e_res[<span class="number">4</span>];                    <span class="comment">// Reserved words</span></span><br><span class="line">    WORD   e_oemid;                     <span class="comment">// OEM identifier (for e_oeminfo)</span></span><br><span class="line">    WORD   e_oeminfo;                   <span class="comment">// OEM information; e_oemid specific</span></span><br><span class="line">    WORD   e_res2[<span class="number">10</span>];                  <span class="comment">// Reserved words</span></span><br><span class="line">    LONG   e_lfanew;                    <span class="comment">// File address of new exe header</span></span><br><span class="line">  &#125; IMAGE_DOS_HEADER, *PIMAGE_DOS_HEADER;</span><br></pre></td></tr></table></figure>
+
 <p>重要的只有最后的：<code>e_lfanew</code>，表示NT头的偏移</p>
-<h2 id="dos存根">2.DOS存根</h2>
-<p>就是<code>This program cannot be run in DOS mode.</code>那里，</p>
-<h2 id="nt头">4.NT头</h2>
-<p>以下为<code>notepad.exe</code>的NT头：</p>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211019192747065.png" alt="image-20211019192747065"><figcaption aria-hidden="true">image-20211019192747065</figcaption>
-</figure>
+<h2 id="2-DOS存根"><a href="#2-DOS存根" class="headerlink" title="2.DOS存根"></a>2.DOS存根</h2><p>就是<code>This program cannot be run in DOS mode.</code>那里，</p>
+<h2 id="4-NT头"><a href="#4-NT头" class="headerlink" title="4.NT头"></a>4.NT头</h2><p>以下为<code>notepad.exe</code>的NT头：</p>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211019192747065.png" alt="image-20211019192747065"></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_NT_HEADERS64</span> &#123;</span></span><br><span class="line">    DWORD Signature;</span><br><span class="line">    IMAGE_FILE_HEADER FileHeader;</span><br><span class="line">    IMAGE_OPTIONAL_HEADER64 OptionalHeader;</span><br><span class="line">&#125; IMAGE_NT_HEADERS64, *PIMAGE_NT_HEADERS64;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_NT_HEADERS</span> &#123;</span></span><br><span class="line">    DWORD Signature;</span><br><span class="line">    IMAGE_FILE_HEADER FileHeader;</span><br><span class="line">    IMAGE_OPTIONAL_HEADER32 OptionalHeader;</span><br><span class="line">&#125; IMAGE_NT_HEADERS32, *PIMAGE_NT_HEADERS32;</span><br></pre></td></tr></table></figure>
+
 <p>由3部分构成：签名，文件头，可选头</p>
 <p>其中Signature就是上面的PE:<code>504B</code>。</p>
 <p>下面是文件头<code>IMAGE_FILE_HEADER</code>:</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_FILE_HEADER</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    WORD Machine;</span><br><span class="line">    WORD NumberOfSections; <span class="comment">//节的数目</span></span><br><span class="line">    DWORD TimeDateStamp;</span><br><span class="line">    DWORD PointerToSymbolTable; <span class="comment">//符号表的文件offset</span></span><br><span class="line">    DWORD NumberOfSymbols;      <span class="comment">//符号表中元素数目</span></span><br><span class="line">    WORD SizeOfOptionalHeader;  <span class="comment">//指出下面结构体IMAGE_OPTIONAL_HEADER32（32位系统）的长度</span></span><br><span class="line">    WORD Characteristics;       <span class="comment">//标识文件属性，文件是否是可运行形态、是否为DLL等，以bit OR形式进行组合</span></span><br><span class="line">&#125; IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;</span><br></pre></td></tr></table></figure>
+
 <p>接下来是可选头：</p>
 <p>前几个是标准，后面的是可选</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_OPTIONAL_HEADER</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// Standard fields.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line"></span><br><span class="line">    WORD Magic; <span class="comment">//32位为0x10B,64位为0x20B</span></span><br><span class="line">    BYTE MajorLinkerVersion;</span><br><span class="line">    BYTE MinorLinkerVersion;</span><br><span class="line">    DWORD SizeOfCode;              <span class="comment">//代码节(.test)大小，有多个的话是总和</span></span><br><span class="line">    DWORD SizeOfInitializedData;   <span class="comment">//已初始化数据节的大小，有多个的话是总和</span></span><br><span class="line">    DWORD SizeOfUninitializedData; <span class="comment">//未初始化数据节的大小，有多个的话是总和</span></span><br><span class="line">    DWORD AddressOfEntryPoint;     <span class="comment">//EP的RVA值</span></span><br><span class="line">    DWORD BaseOfCode;              <span class="comment">//内存中代码节的开头相对于映像基址的偏移地址。</span></span><br><span class="line">    DWORD BaseOfData;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// NT additional fields.</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line"></span><br><span class="line">    DWORD ImageBase;        <span class="comment">//载入内存时优先装载的地址</span></span><br><span class="line">    DWORD SectionAlignment; <span class="comment">//节区在内存中的最小单位</span></span><br><span class="line">    DWORD FileAlignment;    <span class="comment">//节区在磁盘文件中的最小单位</span></span><br><span class="line">    WORD MajorOperatingSystemVersion;</span><br><span class="line">    WORD MinorOperatingSystemVersion;</span><br><span class="line">    WORD MajorImageVersion;</span><br><span class="line">    WORD MinorImageVersion;</span><br><span class="line">    WORD MajorSubsystemVersion;</span><br><span class="line">    WORD MinorSubsystemVersion;</span><br><span class="line">    DWORD Win32VersionValue;</span><br><span class="line">    DWORD SizeOfImage;   <span class="comment">//指定了PE Image在虚拟内存中所占空间的大小，包含所有头</span></span><br><span class="line">    DWORD SizeOfHeaders; <span class="comment">//整个PE头的大小</span></span><br><span class="line">    DWORD CheckSum;</span><br><span class="line">    WORD Subsystem;</span><br><span class="line">    WORD DllCharacteristics;</span><br><span class="line">    DWORD SizeOfStackReserve;</span><br><span class="line">    DWORD SizeOfStackCommit;</span><br><span class="line">    DWORD SizeOfHeapReserve;</span><br><span class="line">    DWORD SizeOfHeapCommit;</span><br><span class="line">    DWORD LoaderFlags;</span><br><span class="line">    DWORD NumberOfRvaAndSizes;                                            <span class="comment">//下面数组的个数</span></span><br><span class="line">    IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES]; <span class="comment">//16个</span></span><br><span class="line">&#125; IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_DATA_DIRECTORY</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    DWORD VirtualAddress; <span class="comment">//表的RVA</span></span><br><span class="line">    DWORD Size;</span><br><span class="line">&#125; IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;</span><br></pre></td></tr></table></figure>
-<h2 id="节表">5.节表</h2>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_SECTION_HEADER</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    BYTE Name[IMAGE_SIZEOF_SHORT_NAME]; <span class="comment">//8</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        DWORD PhysicalAddress;</span><br><span class="line">        DWORD VirtualSize; <span class="comment">//载入内存时此节区的大小</span></span><br><span class="line">    &#125; Misc;</span><br><span class="line">    DWORD VirtualAddress;   <span class="comment">//内存中节区起始地址(RVA)</span></span><br><span class="line">    DWORD SizeOfRawData;    <span class="comment">//磁盘中节区所占大小</span></span><br><span class="line">    DWORD PointerToRawData; <span class="comment">//磁盘中本节对于文件头的距离</span></span><br><span class="line">    DWORD PointerToRelocations;</span><br><span class="line">    DWORD PointerToLinenumbers;</span><br><span class="line">    WORD NumberOfRelocations;</span><br><span class="line">    WORD NumberOfLinenumbers;</span><br><span class="line">    DWORD Characteristics;</span><br><span class="line">&#125; IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;</span><br></pre></td></tr></table></figure>
-<h2 id="rva与raw地址转换">6.RVA与RAW地址转换</h2>
-<p><strong>RAW - PointerToRawData = RVA - VirtualAddress</strong></p>
-<p><strong>RAW = RVA - VirtualAddress + PointerToRawData</strong></p>
-<p>rva = RAW - PointerToRawData + VirtualAddress</p>
-<h1 id="iat表分析">IAT表分析</h1>
-<p>首先是INT和IAT导入的步骤：</p>
-<ol type="1">
-<li>读<code>IMAGE_IMPORT_DESCRIPTOR</code>的<code>Name</code>成员获取库名称的字符串(比如'kernel32.dll')</li>
-<li>装载相应的库，LoadLibrary("kernel32.dll")</li>
+
+<h2 id="5-节表"><a href="#5-节表" class="headerlink" title="5.节表"></a>5.节表</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_SECTION_HEADER</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    BYTE Name[IMAGE_SIZEOF_SHORT_NAME]; <span class="comment">//8</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        DWORD PhysicalAddress;</span><br><span class="line">        DWORD VirtualSize; <span class="comment">//载入内存时此节区的大小</span></span><br><span class="line">    &#125; Misc;</span><br><span class="line">    DWORD VirtualAddress;   <span class="comment">//内存中节区起始地址(RVA)</span></span><br><span class="line">    DWORD SizeOfRawData;    <span class="comment">//磁盘中节区所占大小</span></span><br><span class="line">    DWORD PointerToRawData; <span class="comment">//磁盘中本节对于文件头的距离</span></span><br><span class="line">    DWORD PointerToRelocations;</span><br><span class="line">    DWORD PointerToLinenumbers;</span><br><span class="line">    WORD NumberOfRelocations;</span><br><span class="line">    WORD NumberOfLinenumbers;</span><br><span class="line">    DWORD Characteristics;</span><br><span class="line">&#125; IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-RVA与RAW地址转换"><a href="#6-RVA与RAW地址转换" class="headerlink" title="6.RVA与RAW地址转换"></a>6.RVA与RAW地址转换</h2><p><strong>RAW - PointerToRawData &#x3D; RVA - VirtualAddress</strong></p>
+<p><strong>RAW &#x3D; RVA - VirtualAddress + PointerToRawData</strong></p>
+<p>rva &#x3D; RAW - PointerToRawData + VirtualAddress</p>
+<h1 id="IAT表分析"><a href="#IAT表分析" class="headerlink" title="IAT表分析"></a>IAT表分析</h1><p>首先是INT和IAT导入的步骤：</p>
+<ol>
+<li>读<code>IMAGE_IMPORT_DESCRIPTOR</code>的<code>Name</code>成员获取库名称的字符串(比如’kernel32.dll’)</li>
+<li>装载相应的库，LoadLibrary(“kernel32.dll”)</li>
 <li>读<code>IMAGE_IMPORT_DESCRIPTOR</code>的<code>OriginalFirstThunk</code>成员，获得INT表的地址</li>
 <li>逐一获取INT数组的<code>IMAGE_IMPORT_BY_NAME</code>地址</li>
 <li>使用<code>IMAGE_IMPORT_BY_NAME</code>的hint或者name项，获取相应函数的起始地址</li>
@@ -569,44 +564,32 @@
 </ol>
 <p>导入表、导入地址表(<code>IMPORT ADDRESS TABLE</code>)，导入表在上面16个数组的第2个。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_DATA_DIRECTORY</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    DWORD VirtualAddress; <span class="comment">//该表的RVA</span></span><br><span class="line">    DWORD Size;</span><br><span class="line">&#125; IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;</span><br></pre></td></tr></table></figure>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211020202318348.png" alt="image-20211020202318348"><figcaption aria-hidden="true">image-20211020202318348</figcaption>
-</figure>
+
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211020202318348.png" alt="image-20211020202318348"></p>
 <p>可以看出导入表的RVA为0x2647C，在.idata段，</p>
-<p>那么RAW= 0x2647C - 0x26000 + 0x23200 =0x2367C</p>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211021075308064.png" alt="image-20211021075308064"><figcaption aria-hidden="true">image-20211021075308064</figcaption>
-</figure>
+<p>那么RAW&#x3D; 0x2647C - 0x26000 + 0x23200 &#x3D;0x2367C</p>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211021075308064.png" alt="image-20211021075308064"></p>
 <p>有多少导入的库就有多少<code>IMAGE_IMPORT_DESCRIPTOR</code>结构体：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_IMPORT_DESCRIPTOR</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        DWORD Characteristics;    <span class="comment">// 0 for terminating null import descriptor</span></span><br><span class="line">        DWORD OriginalFirstThunk; <span class="comment">// INT address(RVA)，数组，指向IMAGE_IMPORT_BY_NAME结构体</span></span><br><span class="line">    &#125; DUMMYUNIONNAME;</span><br><span class="line">    DWORD TimeDateStamp;</span><br><span class="line">    DWORD ForwarderChain;</span><br><span class="line">    DWORD Name;       <span class="comment">//library name string address(RVA)</span></span><br><span class="line">    DWORD FirstThunk; <span class="comment">//IAT address(RVA)，数组，指向IMAGE_IMPORT_BY_NAME结构体</span></span><br><span class="line">&#125; IMAGE_IMPORT_DESCRIPTOR;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_IMPORT_BY_NAME</span> &#123;</span></span><br><span class="line">    WORD    Hint;<span class="comment">//可能为0，编译器决定，如果不为0，是函数在导出表中的索引</span></span><br><span class="line">    CHAR   Name[<span class="number">1</span>];</span><br><span class="line">&#125; IMAGE_IMPORT_BY_NAME, *PIMAGE_IMPORT_BY_NAME;</span><br></pre></td></tr></table></figure>
+
 <p>程序加载前IAT和INT都之指向同一个位置。</p>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/SouthEast.png" alt="这里写图片描述"><figcaption aria-hidden="true">这里写图片描述</figcaption>
-</figure>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/SouthEast.png" alt="这里写图片描述"></p>
 <p>每个库只有一个<code>IMAGE_IMPORT_DESCRIPTOR</code>，但是每个该结构体的<code>INT(OriginalFirstThunk)</code>和<code>IAT(FirstThunk)</code>为数组，表示该库所有导入的API的地址:</p>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211021075648706.png" alt="image-20211021075648706"><figcaption aria-hidden="true">image-20211021075648706</figcaption>
-</figure>
-<p>INT的RAW= 0x26700 - 0x26000 + 0x23200 = 0x23900</p>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211021080941861.png" alt="image-20211021080941861"><figcaption aria-hidden="true">image-20211021080941861</figcaption>
-</figure>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211021075648706.png" alt="image-20211021075648706"></p>
+<p>INT的RAW&#x3D; 0x26700 -  0x26000 + 0x23200  &#x3D; 0x23900</p>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211021080941861.png" alt="image-20211021080941861"></p>
 <p>上面都是需要导入的INT的<code>IMAGE_IMPORT_BY_NAME</code>的地址，比如第一个0x26D3C:</p>
-<p>RAW= 0x26D3C- 0x26000 + 0x23200 =0x23F3C</p>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211021081249113.png" alt="image-20211021081249113"><figcaption aria-hidden="true">image-20211021081249113</figcaption>
-</figure>
+<p>RAW&#x3D; 0x26D3C-  0x26000 + 0x23200 &#x3D;0x23F3C</p>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211021081249113.png" alt="image-20211021081249113"></p>
 <p>INT就是上面那样，IAT也是如此</p>
 <p>上面都是导入前，导入后INT不变，IAT为函数的地址：</p>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/SouthEast.png" alt="这里写图片描述"><figcaption aria-hidden="true">这里写图片描述</figcaption>
-</figure>
-<h1 id="导出表分析">导出表分析</h1>
-<p>在上面16个数组的第一个，这里拿kernel32.dll来测试（notepad没有导出表</p>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/SouthEast.png" alt="这里写图片描述"></p>
+<h1 id="导出表分析"><a href="#导出表分析" class="headerlink" title="导出表分析"></a>导出表分析</h1><p>在上面16个数组的第一个，这里拿kernel32.dll来测试（notepad没有导出表</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_EXPORT_DIRECTORY</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    DWORD Characteristics;</span><br><span class="line">    DWORD TimeDateStamp;</span><br><span class="line">    WORD MajorVersion;</span><br><span class="line">    WORD MinorVersion;</span><br><span class="line">    DWORD Name;                  <span class="comment">//要导出的名字的地址</span></span><br><span class="line">    DWORD Base;                  <span class="comment">//oridinal base</span></span><br><span class="line">    DWORD NumberOfFunctions;     <span class="comment">//实际导出函数个数</span></span><br><span class="line">    DWORD NumberOfNames;         <span class="comment">//导出函数中有名字的个数</span></span><br><span class="line">    DWORD AddressOfFunctions;    <span class="comment">//导出函数的地址(数组，RVA，元素个数=NumberOfFunctions )</span></span><br><span class="line">    DWORD AddressOfNames;        <span class="comment">//导出函数的名称的地址(数组，RVA，元素个数=NumberOfNames)</span></span><br><span class="line">    DWORD AddressOfNameOrdinals; <span class="comment">//导出函数序号表的地址(数组，RVA，元素个数=NumberOfNames)，函数序号表</span></span><br><span class="line">&#125; IMAGE_EXPORT_DIRECTORY, *PIMAGE_EXPORT_DIRECTORY;</span><br></pre></td></tr></table></figure>
+
 <p>获得函数地址的API为：<code>GetProcAddress</code>，原理：</p>
 <blockquote>
-<ol type="1">
+<ol>
 <li>利用adressofname转到函数名称的数组</li>
 <li>上面的数组存着的是地址，通过strcmp，查到指定的函数名，这时索引记为name_index</li>
 <li>用addressofnameordinals转到ordinal数组，</li>
@@ -616,46 +599,24 @@
 </ol>
 </blockquote>
 <p>图胜千言</p>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/1586953-20200217214947470-1447184500.png" alt="img"><figcaption aria-hidden="true">img</figcaption>
-</figure>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/779730_7HXD6CYRBH5QTP4.jpg" alt="eat3"><figcaption aria-hidden="true">eat3</figcaption>
-</figure>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/SouthEast.png" alt="img"><figcaption aria-hidden="true">img</figcaption>
-</figure>
-<h2 id="示例">示例</h2>
-<p>下面实际找一下，使用kernel32.dll，找AddConsoleAlisaA函数：</p>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211102123648075.png" alt="image-20211102123648075"><figcaption aria-hidden="true">image-20211102123648075</figcaption>
-</figure>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/1586953-20200217214947470-1447184500.png" alt="img"></p>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/779730_7HXD6CYRBH5QTP4.jpg" alt="eat3"></p>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/SouthEast.png" alt="img"></p>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p>下面实际找一下，使用kernel32.dll，找AddConsoleAlisaA函数：</p>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211102123648075.png" alt="image-20211102123648075"></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AddressOfFunctions :   RVA = <span class="number">0x2654</span>  FOA = <span class="number">0x1A54</span></span><br><span class="line">AddressOfNames:        RVA = <span class="number">0x3538</span>  FOA = <span class="number">0x2938</span></span><br><span class="line">AddressOfNameOrdinals: RVA = <span class="number">0x441C</span>  FOA = <span class="number">0x381C</span></span><br></pre></td></tr></table></figure>
-<h3 id="addressofname">AddressOfName</h3>
-<p>是一个个的RVA，个数为0x953，经过转换，FOA = 0x2938：</p>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211102123953820.png" alt="image-20211102123953820"><figcaption aria-hidden="true">image-20211102123953820</figcaption>
-</figure>
-<p>RVA = 4B9B ==&gt; FOA = 3F9B ：</p>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211102124237902.png" alt="image-20211102124237902"><figcaption aria-hidden="true">image-20211102124237902</figcaption>
-</figure>
-<p>是第4个，索引为3，</p>
-<h3 id="addressofnameordinals">AddressOfNameOrdinals</h3>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211102124406631.png" alt="image-20211102124406631"><figcaption aria-hidden="true">image-20211102124406631</figcaption>
-</figure>
-<p>索引和值是一样的，也是第4个，下面查地址：</p>
-<h3 id="addressoffunctions">AddressOfFunctions</h3>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211102124531765.png" alt="image-20211102124531765"><figcaption aria-hidden="true">image-20211102124531765</figcaption>
-</figure>
-<p>第4个是0x071cdf，kernel32.dll的imagebase是0x7c800000，加起来是'0x7c871cdf'</p>
-<figure>
-<img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211102124718782.png" alt="image-20211102124718782"><figcaption aria-hidden="true">image-20211102124718782</figcaption>
-</figure>
-<h1 id="重定位表">重定位表</h1>
 
+<h3 id="AddressOfName"><a href="#AddressOfName" class="headerlink" title="AddressOfName"></a>AddressOfName</h3><p>是一个个的RVA，个数为0x953，经过转换，FOA &#x3D; 0x2938：</p>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211102123953820.png" alt="image-20211102123953820"></p>
+<p>RVA &#x3D; 4B9B &#x3D;&#x3D;&gt; FOA &#x3D; 3F9B ：</p>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211102124237902.png" alt="image-20211102124237902"></p>
+<p>是第4个，索引为3，</p>
+<h3 id="AddressOfNameOrdinals"><a href="#AddressOfNameOrdinals" class="headerlink" title="AddressOfNameOrdinals"></a>AddressOfNameOrdinals</h3><p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211102124406631.png" alt="image-20211102124406631"></p>
+<p>索引和值是一样的，也是第4个，下面查地址：</p>
+<h3 id="AddressOfFunctions"><a href="#AddressOfFunctions" class="headerlink" title="AddressOfFunctions"></a>AddressOfFunctions</h3><p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211102124531765.png" alt="image-20211102124531765"></p>
+<p>第4个是0x071cdf，kernel32.dll的imagebase是0x7c800000，加起来是’0x7c871cdf’</p>
+<p><img src="/2021/10/23/PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90/image-20211102124718782.png" alt="image-20211102124718782"></p>
+<h1 id="重定位表"><a href="#重定位表" class="headerlink" title="重定位表"></a>重定位表</h1>
     </article>
     <!-- license -->
     
@@ -804,7 +765,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#pe%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">PE文件结构解析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E8%BF%B0"><span class="toc-number">1.1.</span> <span class="toc-text">0.总述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dos%E5%A4%B4"><span class="toc-number">1.2.</span> <span class="toc-text">1.DOS头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dos%E5%AD%98%E6%A0%B9"><span class="toc-number">1.3.</span> <span class="toc-text">2.DOS存根</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nt%E5%A4%B4"><span class="toc-number">1.4.</span> <span class="toc-text">4.NT头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8A%82%E8%A1%A8"><span class="toc-number">1.5.</span> <span class="toc-text">5.节表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rva%E4%B8%8Eraw%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2"><span class="toc-number">1.6.</span> <span class="toc-text">6.RVA与RAW地址转换</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#iat%E8%A1%A8%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">IAT表分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AF%BC%E5%87%BA%E8%A1%A8%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">导出表分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-number">3.1.</span> <span class="toc-text">示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#addressofname"><span class="toc-number">3.1.1.</span> <span class="toc-text">AddressOfName</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#addressofnameordinals"><span class="toc-number">3.1.2.</span> <span class="toc-text">AddressOfNameOrdinals</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#addressoffunctions"><span class="toc-number">3.1.3.</span> <span class="toc-text">AddressOfFunctions</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8"><span class="toc-number">4.</span> <span class="toc-text">重定位表</span></a></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#PE%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">PE文件结构解析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-%E6%80%BB%E8%BF%B0"><span class="toc-number">1.1.</span> <span class="toc-text">0.总述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-DOS%E5%A4%B4"><span class="toc-number">1.2.</span> <span class="toc-text">1.DOS头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-DOS%E5%AD%98%E6%A0%B9"><span class="toc-number">1.3.</span> <span class="toc-text">2.DOS存根</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-NT%E5%A4%B4"><span class="toc-number">1.4.</span> <span class="toc-text">4.NT头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%8A%82%E8%A1%A8"><span class="toc-number">1.5.</span> <span class="toc-text">5.节表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-RVA%E4%B8%8ERAW%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2"><span class="toc-number">1.6.</span> <span class="toc-text">6.RVA与RAW地址转换</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#IAT%E8%A1%A8%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">IAT表分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AF%BC%E5%87%BA%E8%A1%A8%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">导出表分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-number">3.1.</span> <span class="toc-text">示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AddressOfName"><span class="toc-number">3.1.1.</span> <span class="toc-text">AddressOfName</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AddressOfNameOrdinals"><span class="toc-number">3.1.2.</span> <span class="toc-text">AddressOfNameOrdinals</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AddressOfFunctions"><span class="toc-number">3.1.3.</span> <span class="toc-text">AddressOfFunctions</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8"><span class="toc-number">4.</span> <span class="toc-text">重定位表</span></a></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1738,6 +1699,11 @@
                 PWN
             </span>
         
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="RE">
                 <span class="iconfont-archer">&#xe606;</span>
                 RE
@@ -1748,24 +1714,19 @@
                 BUU刷题
             </span>
         
-            <span class="sidebar-tag-name" data-tags="WEB">
-                <span class="iconfont-archer">&#xe606;</span>
-                WEB
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="Java">
                 <span class="iconfont-archer">&#xe606;</span>
                 Java
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内网">
-                <span class="iconfont-archer">&#xe606;</span>
-                内网
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="免杀">
                 <span class="iconfont-archer">&#xe606;</span>
                 免杀
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
             </span>
         
             <span class="sidebar-tag-name" data-tags="VulnHub">
@@ -1798,14 +1759,14 @@
                 Linux
             </span>
         
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">

@@ -486,17 +486,17 @@
 好久之前的文章了，vt应该查杀挺多的，没测试
 need read：
 
-PE注入
-这个应该写过，win32那里...
+  PE注入
+  这个应该写过，win32那里…
 
 [toc]
-简介
-绕过AV的两大步骤：
+简介绕过AV的两大步骤：
 
 恶意代码的隐藏，通常使用加密完成
 对解密存根进行编码，使其不会被检测为病毒，也不会被病毒绕过沙箱
 
-本文主要是第二...
+本文主要是第二种，欺骗绕过沙箱。
+免杀原...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -529,11 +529,8 @@ PE注入
             </a>
             <div class="abstract-content">
                 [toc]
-基础
-变量
-以$开头，大小写不敏感。
-数组
-1234567891011121314$array = 1,2,3,4$array = 1..4$array=1,&quot;2017&quot;,([System.Guid]::NewGuid()),(get-date)$a=@()  # 空数组$a=,&quot;1&quot; # 一个元素的数组#访问$ip = ipco...
+基础变量以$开头，大小写不敏感。
+数组1234567891011121314$array = 1,2,3,4$array = 1..4$array=1,&quot;2017&quot;,([System.Guid]::NewGuid()),(get-date)$a=@()  # 空数组$a=,&quot;1&quot; # 一个元素的数组#访问$ip = ipconfig$ip[...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -568,10 +565,9 @@ PE注入
                 [toc]
 NTLM的东西在github之前写过，但是不够详细，这里重新再过一遍。
 NTLM使用在Windows的工作组环境中，而kerberos则使用在域的情况下。
-LM hash &amp; NTLM hash
-在写NTLM认证之前先写下LM和NTLM。
+LM hash &amp; NTLM hash在写NTLM认证之前先写下LM和NTLM。
 hash密码格式：
-12Administrator:500:AAD3B435B51404EEAAD3B435B51404E...
+12Administrator:500:AAD3B435B51404EEAAD3B435B51404EE:31D6C...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -604,11 +600,10 @@ hash密码格式：
             </a>
             <div class="abstract-content">
                 [toc]
-这个是鸽了好久好久的，一直没写，今天补一下。还有域委派的想写一直没写......
+这个是鸽了好久好久的，一直没写，今天补一下。还有域委派的想写一直没写……
 关于详细的可以RFC文档：https://datatracker.ietf.org/doc/html/rfc4120.html
-kerveros认证
-由三方来完成：Client,Server,KDC(密钥分发中心)。
-KDC 服务默认会安装在一个域的域控中，而 Client 和 Serve...
+kerveros认证由三方来完成：Client,Server,KDC(密钥分发中心)。
+KDC 服务默认会安装在一个域的域控中，而 Client 和 Server 为域内的用户或者...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -641,17 +636,12 @@ KDC 服务默认会安装在一个域的域控中，而 Client 和 Serve...
             </a>
             <div class="abstract-content">
                 [toc]
-前言+流程
-java语言依赖JVM，运行的时候，需要先编译成class文件，之后java类初始化的时候会调用java.lang.ClassLoader加载类字节码，ClassLoader会调用JVM的native方法来定义一个java.lang.Class实例。
-
-JVM
+前言+流程java语言依赖JVM，运行的时候，需要先编译成class文件，之后java类初始化的时候会调用java.lang.ClassLoader加载类字节码，ClassLoader会调用JVM的native方法来定义一个java.lang.Class实例。
 
 类文件编译流程：
 
-img
-
 示例：
-1234567package com.yuta...
+1234567package com.yutao.day1;public class Cl...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -684,17 +674,12 @@ img
             </a>
             <div class="abstract-content">
                 [toc]
-双机调试
-虚拟机添加串行端口：（如果发现建立的串行端口一直是串行端口2，则把虚拟机硬件中的打印机删除即可创建串行端口1）
+双机调试虚拟机添加串行端口：（如果发现建立的串行端口一直是串行端口2，则把虚拟机硬件中的打印机删除即可创建串行端口1）
 
-image-20220409155748490
-
-虚拟机中管理员打开powershell，bcdedit /enum查看启动的配置：
-
-image-20220409142848941
+虚拟机中管理员打开powershell，bcdedit &#x2F;enum查看启动的配置：
 
 执行以下命令：
-12345bcdedit  /se...
+12345bcdedit  /set  “&#123;current&#125;”  bootmenupolicy  Legacy         ...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -750,12 +735,10 @@ image-20220409142848941
                 <span class="abstract-title-text">ShellCode Loader(持续更新)</span>
             </a>
             <div class="abstract-content">
-                记录一些语言的shellcode 加载方式，持续更新...
+                记录一些语言的shellcode 加载方式，持续更新…
 [toc]
-C/C++
-首先是c的loader，分两种，指针直接执行和动态分配。
-指针执行
-12345678910111213141516171819#include &lt;stdio.h&gt;#include &lt;windows.h&gt;//设置入口地址，不弹出黑窗口# pragma comment(linke...
+C&#x2F;C++首先是c的loader，分两种，指针直接执行和动态分配。
+指针执行12345678910111213141516171819#include &lt;stdio.h&gt;#include &lt;windows.h&gt;//设置入口地址，不弹出黑窗口# pragma comment(linker,&q...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -788,12 +771,9 @@ C/C++
             </a>
             <div class="abstract-content">
                 [toc]
-常规参数
-所有参数
+常规参数所有参数
 
-image-20220407184834893
-
-1234567891011121314151617181920-p, –payload &lt; payload&gt; 指定需要使用的payload(攻击荷载)。也可以使用自定义payload,几乎是支持全平台的-l, –list [module_type] 列出指定模块的所有可用资源. 模块类...
+1234567891011121314151617181920-p, –payload &lt; payload&gt; 指定需要使用的payload(攻击荷载)。也可以使用自定义payload,几乎是支持全平台的-l, –list [module_type] 列出指定模块的所有可用资源. 模块类型包括: payloads, encoders, nops, p...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -1914,6 +1894,11 @@ image-20220407184834893
                 PWN
             </span>
         
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="RE">
                 <span class="iconfont-archer">&#xe606;</span>
                 RE
@@ -1924,24 +1909,19 @@ image-20220407184834893
                 BUU刷题
             </span>
         
-            <span class="sidebar-tag-name" data-tags="WEB">
-                <span class="iconfont-archer">&#xe606;</span>
-                WEB
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="Java">
                 <span class="iconfont-archer">&#xe606;</span>
                 Java
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内网">
-                <span class="iconfont-archer">&#xe606;</span>
-                内网
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="免杀">
                 <span class="iconfont-archer">&#xe606;</span>
                 免杀
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
             </span>
         
             <span class="sidebar-tag-name" data-tags="VulnHub">
@@ -1974,14 +1954,14 @@ image-20220407184834893
                 Linux
             </span>
         
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">

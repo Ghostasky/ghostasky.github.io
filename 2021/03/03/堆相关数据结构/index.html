@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="[TOC] 堆利用 目前堆的实现有很多种，具体如下：  dlmalloc – General purpose allocator ptmalloc2 – glibc jemalloc – FreeBSD and Firefox tcmalloc – Google libumem – Solaris  接下来主要以glibc中堆的实现为主进行介绍。 堆概述 内存分配后的系统调">
+    <meta name="description" content="[TOC] 堆利用目前堆的实现有很多种，具体如下：  dlmalloc  – General purpose allocator  ptmalloc2 – glibc  jemalloc  – FreeBSD and Firefox  tcmalloc  – Google  libumem   – Solaris  接下来主要以glibc中堆的实现为主进行介绍。 堆概述内存分配后的系统调用在我们动">
 <meta property="og:type" content="article">
 <meta property="og:title" content="堆概述及其相关数据结构">
 <meta property="og:url" content="http://example.com/2021/03/03/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="[TOC] 堆利用 目前堆的实现有很多种，具体如下：  dlmalloc – General purpose allocator ptmalloc2 – glibc jemalloc – FreeBSD and Firefox tcmalloc – Google libumem – Solaris  接下来主要以glibc中堆的实现为主进行介绍。 堆概述 内存分配后的系统调">
+<meta property="og:description" content="[TOC] 堆利用目前堆的实现有很多种，具体如下：  dlmalloc  – General purpose allocator  ptmalloc2 – glibc  jemalloc  – FreeBSD and Firefox  tcmalloc  – Google  libumem   – Solaris  接下来主要以glibc中堆的实现为主进行介绍。 堆概述内存分配后的系统调用在我们动">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2021/03/03/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781158558.png">
 <meta property="og:image" content="http://example.com/2021/03/03/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781245754.png">
@@ -502,258 +502,247 @@
                 <main class="main post-page">
     <article class="article-entry">
         <p>[TOC]</p>
-<h1 id="堆利用">堆利用</h1>
-<p>目前堆的实现有很多种，具体如下：</p>
+<h1 id="堆利用"><a href="#堆利用" class="headerlink" title="堆利用"></a>堆利用</h1><p>目前堆的实现有很多种，具体如下：</p>
 <blockquote>
-<p>dlmalloc – General purpose allocator</p>
-<p>ptmalloc2 – glibc</p>
-<p>jemalloc – FreeBSD and Firefox</p>
-<p>tcmalloc – Google</p>
-<p>libumem – Solaris</p>
+<p>dlmalloc  – General purpose allocator </p>
+<p>ptmalloc2 – glibc </p>
+<p>jemalloc  – FreeBSD and Firefox </p>
+<p>tcmalloc  – Google </p>
+<p>libumem   – Solaris</p>
 </blockquote>
 <p>接下来主要以glibc中堆的实现为主进行介绍。</p>
-<h1 id="堆概述">堆概述</h1>
-<h2 id="内存分配后的系统调用">内存分配后的系统调用</h2>
-<p>在我们动态申请和释放内存时，无论是malloc还是free函数，都不是真正与系统交互的函数</p>
+<h1 id="堆概述"><a href="#堆概述" class="headerlink" title="堆概述"></a>堆概述</h1><h2 id="内存分配后的系统调用"><a href="#内存分配后的系统调用" class="headerlink" title="内存分配后的系统调用"></a>内存分配后的系统调用</h2><p>在我们动态申请和释放内存时，无论是malloc还是free函数，都不是真正与系统交互的函数</p>
 <p>这些函数的背后系统调用主要是(s)brk和mmap、munmap函数</p>
 <p>如下图：</p>
 <p><img src="/2021/03/03/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781158558.png"></p>
-<h3 id="sbrk">(s)brk</h3>
-<p>对于堆来说，操作系统提供了brk函数，glibc库提供了sbrk函数，我们也可通过增加brk的大小来向操作系统申请内存。</p>
+<h3 id="s-brk"><a href="#s-brk" class="headerlink" title="(s)brk"></a>(s)brk</h3><p>对于堆来说，操作系统提供了brk函数，glibc库提供了sbrk函数，我们也可通过增加brk的大小来向操作系统申请内存。</p>
 <p>在一开始，堆的起始位置(start_brk)和堆的当前结尾地址(brk)指向同一地址。根据是否开启ASLR，指的位置不同</p>
 <ul>
-<li>未开启ASLR：start_brk和brk指向data/bss段的结尾</li>
-<li>开启ASLR：start_brk和brk会指向data/bss段结尾后的随机偏移的位置</li>
+<li>未开启ASLR：start_brk和brk指向data&#x2F;bss段的结尾</li>
+<li>开启ASLR：start_brk和brk会指向data&#x2F;bss段结尾后的随机偏移的位置</li>
 </ul>
 <p>举个小例子：(来自ctf-wiki)</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* sbrk and brk example */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">void</span> *curr_brk, *tmp_brk = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Welcome to sbrk example:%d\n&quot;</span>, getpid());</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* sbrk(0) gives current program break location */</span></span><br><span class="line">        tmp_brk = curr_brk = sbrk(<span class="number">0</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Program Break Location1:%p\n&quot;</span>, curr_brk);</span><br><span class="line">        getchar();</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* brk(addr) increments/decrements program break location */</span></span><br><span class="line">        brk(curr_brk+<span class="number">4096</span>);</span><br><span class="line"></span><br><span class="line">        curr_brk = sbrk(<span class="number">0</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Program break Location2:%p\n&quot;</span>, curr_brk);</span><br><span class="line">        getchar();</span><br><span class="line"></span><br><span class="line">        brk(tmp_brk);</span><br><span class="line"></span><br><span class="line">        curr_brk = sbrk(<span class="number">0</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Program Break Location3:%p\n&quot;</span>, curr_brk);</span><br><span class="line">        getchar();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>执行后3次分别如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ ./a.out </span><br><span class="line">Welcome to sbrk example:2552</span><br><span class="line">Program Break Location1:0x56c4d000</span><br><span class="line"></span><br><span class="line">Program break Location2:0x56c4e000</span><br><span class="line"></span><br><span class="line">Program Break Location3:0x56c4d000</span><br></pre></td></tr></table></figure>
+
+
+
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop$ cat /proc/2552/maps</span><br><span class="line">...</span><br><span class="line">56c2b000-56c4d000 rw-p 00000000 00:00 0                                  [heap]</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">yutao@pwnbaby:~/Desktop$ cat /proc/2552/maps</span><br><span class="line">...</span><br><span class="line">56c2b000-56c4e000 rw-p 00000000 00:00 0                                  [heap]</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">yutao@pwnbaby:~/Desktop$ cat /proc/2552/maps</span><br><span class="line">...</span><br><span class="line">56c2b000-56c4d000 rw-p 00000000 00:00 0                                  [heap]</span><br><span class="line">...</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h3 id="mmap">mmap</h3>
-<p>malloc会使用mmap来创建独立的匿名映射段。匿名映射的主要目的是可以申请以0填充的内存，并且这块内存仅被调用进程所使用。</p>
+
+
+
+<h3 id="mmap"><a href="#mmap" class="headerlink" title="mmap"></a>mmap</h3><p>malloc会使用mmap来创建独立的匿名映射段。匿名映射的主要目的是可以申请以0填充的内存，并且这块内存仅被调用进程所使用。</p>
 <p>例子：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Private anonymous mapping example using mmap syscall */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="keyword">static</span> <span class="keyword">inline</span> <span class="title">errExit</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* msg)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s failed. Exiting the process\n&quot;</span>, msg);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> ret = <span class="number">-1</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Welcome to private anonymous mapping example::PID:%d\n&quot;</span>, getpid());</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Before mmap\n&quot;</span>);</span><br><span class="line">        getchar();</span><br><span class="line">        <span class="keyword">char</span>* addr = <span class="literal">NULL</span>;</span><br><span class="line">        addr = mmap(<span class="literal">NULL</span>, (<span class="keyword">size_t</span>)<span class="number">132</span>*<span class="number">1024</span>, PROT_READ|PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, <span class="number">-1</span>, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span> (addr == MAP_FAILED)</span><br><span class="line">                errExit(<span class="string">&quot;mmap&quot;</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;After mmap\n&quot;</span>);</span><br><span class="line">        getchar();</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Unmap mapped region. */</span></span><br><span class="line">        ret = munmap(addr, (<span class="keyword">size_t</span>)<span class="number">132</span>*<span class="number">1024</span>);</span><br><span class="line">        <span class="keyword">if</span>(ret == <span class="number">-1</span>)</span><br><span class="line">                errExit(<span class="string">&quot;munmap&quot;</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;After munmap\n&quot;</span>);</span><br><span class="line">        getchar();</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>在执行mmap前：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~$ cat /proc/2412/maps</span><br><span class="line">5656c000-5656d000 r-xp 00000000 08:01 956125                             /home/yutao/Desktop/a.out</span><br><span class="line">5656d000-5656e000 r--p 00000000 08:01 956125                             /home/yutao/Desktop/a.out</span><br><span class="line">5656e000-5656f000 rw-p 00001000 08:01 956125                             /home/yutao/Desktop/a.out</span><br><span class="line">56fdf000-57001000 rw-p 00000000 00:00 0                                  [heap]</span><br><span class="line">f7d90000-f7f65000 r-xp 00000000 08:01 1195832                            /lib/i386-linux-gnu/libc-2.27.so</span><br><span class="line">f7f65000-f7f66000 ---p 001d5000 08:01 1195832                            /lib/i386-linux-gnu/libc-2.27.so</span><br><span class="line">f7f66000-f7f68000 r--p 001d5000 08:01 1195832                            /lib/i386-linux-gnu/libc-2.27.so</span><br><span class="line">f7f68000-f7f69000 rw-p 001d7000 08:01 1195832                            /lib/i386-linux-gnu/libc-2.27.so</span><br><span class="line">f7f69000-f7f6c000 rw-p 00000000 00:00 0 </span><br><span class="line">f7f82000-f7f84000 rw-p 00000000 00:00 0 </span><br><span class="line">f7f84000-f7f87000 r--p 00000000 00:00 0                                  [vvar]</span><br><span class="line">f7f87000-f7f88000 r-xp 00000000 00:00 0                                  [vdso]</span><br><span class="line">f7f88000-f7fae000 r-xp 00000000 08:01 1195828                            /lib/i386-linux-gnu/ld-2.27.so</span><br><span class="line">f7fae000-f7faf000 r--p 00025000 08:01 1195828                            /lib/i386-linux-gnu/ld-2.27.so</span><br><span class="line">f7faf000-f7fb0000 rw-p 00026000 08:01 1195828                            /lib/i386-linux-gnu/ld-2.27.so</span><br><span class="line">ffab0000-ffad1000 rw-p 00000000 00:00 0                                  [stack]</span><br></pre></td></tr></table></figure>
+
 <p>执行mmap后：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~$ cat /proc/2412/maps</span><br><span class="line">5656c000-5656d000 r-xp 00000000 08:01 956125                             /home/yutao/Desktop/a.out</span><br><span class="line">5656d000-5656e000 r--p 00000000 08:01 956125                             /home/yutao/Desktop/a.out</span><br><span class="line">5656e000-5656f000 rw-p 00001000 08:01 956125                             /home/yutao/Desktop/a.out</span><br><span class="line">56fdf000-57001000 rw-p 00000000 00:00 0                                  [heap]</span><br><span class="line">f7d6f000-f7d90000 rw-p 00000000 00:00 0 </span><br><span class="line">f7d90000-f7f65000 r-xp 00000000 08:01 1195832                            /lib/i386-linux-gnu/libc-2.27.so</span><br><span class="line">f7f65000-f7f66000 ---p 001d5000 08:01 1195832                            /lib/i386-linux-gnu/libc-2.27.so</span><br><span class="line">f7f66000-f7f68000 r--p 001d5000 08:01 1195832                            /lib/i386-linux-gnu/libc-2.27.so</span><br><span class="line">f7f68000-f7f69000 rw-p 001d7000 08:01 1195832                            /lib/i386-linux-gnu/libc-2.27.so</span><br><span class="line">f7f69000-f7f6c000 rw-p 00000000 00:00 0 </span><br><span class="line">f7f82000-f7f84000 rw-p 00000000 00:00 0 </span><br><span class="line">f7f84000-f7f87000 r--p 00000000 00:00 0                                  [vvar]</span><br><span class="line">f7f87000-f7f88000 r-xp 00000000 00:00 0                                  [vdso]</span><br><span class="line">f7f88000-f7fae000 r-xp 00000000 08:01 1195828                            /lib/i386-linux-gnu/ld-2.27.so</span><br><span class="line">f7fae000-f7faf000 r--p 00025000 08:01 1195828                            /lib/i386-linux-gnu/ld-2.27.so</span><br><span class="line">f7faf000-f7fb0000 rw-p 00026000 08:01 1195828                            /lib/i386-linux-gnu/ld-2.27.so</span><br><span class="line">ffab0000-ffad1000 rw-p 00000000 00:00 0                                  [stack]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
 <p>munmap：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~$ cat /proc/2412/maps</span><br><span class="line">5656c000-5656d000 r-xp 00000000 08:01 956125                             /home/yutao/Desktop/a.out</span><br><span class="line">5656d000-5656e000 r--p 00000000 08:01 956125                             /home/yutao/Desktop/a.out</span><br><span class="line">5656e000-5656f000 rw-p 00001000 08:01 956125                             /home/yutao/Desktop/a.out</span><br><span class="line">56fdf000-57001000 rw-p 00000000 00:00 0                                  [heap]</span><br><span class="line">f7d90000-f7f65000 r-xp 00000000 08:01 1195832                            /lib/i386-linux-gnu/libc-2.27.so</span><br><span class="line">f7f65000-f7f66000 ---p 001d5000 08:01 1195832                            /lib/i386-linux-gnu/libc-2.27.so</span><br><span class="line">f7f66000-f7f68000 r--p 001d5000 08:01 1195832                            /lib/i386-linux-gnu/libc-2.27.so</span><br><span class="line">f7f68000-f7f69000 rw-p 001d7000 08:01 1195832                            /lib/i386-linux-gnu/libc-2.27.so</span><br><span class="line">f7f69000-f7f6c000 rw-p 00000000 00:00 0 </span><br><span class="line">f7f82000-f7f84000 rw-p 00000000 00:00 0 </span><br><span class="line">f7f84000-f7f87000 r--p 00000000 00:00 0                                  [vvar]</span><br><span class="line">f7f87000-f7f88000 r-xp 00000000 00:00 0                                  [vdso]</span><br><span class="line">f7f88000-f7fae000 r-xp 00000000 08:01 1195828                            /lib/i386-linux-gnu/ld-2.27.so</span><br><span class="line">f7fae000-f7faf000 r--p 00025000 08:01 1195828                            /lib/i386-linux-gnu/ld-2.27.so</span><br><span class="line">f7faf000-f7fb0000 rw-p 00026000 08:01 1195828                            /lib/i386-linux-gnu/ld-2.27.so</span><br><span class="line">ffab0000-ffad1000 rw-p 00000000 00:00 0                                  [stack]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h1 id="堆相关的数据结构">堆相关的数据结构</h1>
-<p>glibc内部有精心设计的数据结构来管理它：</p>
+
+
+
+<h1 id="堆相关的数据结构"><a href="#堆相关的数据结构" class="headerlink" title="堆相关的数据结构"></a>堆相关的数据结构</h1><p>glibc内部有精心设计的数据结构来管理它：</p>
 <ul>
 <li>宏观结构：包含堆的宏观信息，可通过这些数据结构索引对的基本信息</li>
 <li>微观结构：用于处理堆分配与回收中的内存块</li>
 </ul>
-<h2 id="微观结构">微观结构</h2>
-<p>这里先讲微观结构，堆的漏洞利用和这些相关</p>
-<h3 id="malloc_chunk概述">malloc_chunk概述</h3>
-<p>我们成malloc申请的内存为chunk。这些内存在ptmalloc内部用malloc_chunk结构体来表示，</p>
+<h2 id="微观结构"><a href="#微观结构" class="headerlink" title="微观结构"></a>微观结构</h2><p>这里先讲微观结构，堆的漏洞利用和这些相关</p>
+<h3 id="malloc-chunk概述"><a href="#malloc-chunk概述" class="headerlink" title="malloc_chunk概述"></a>malloc_chunk概述</h3><p>我们成malloc申请的内存为chunk。这些内存在ptmalloc内部用malloc_chunk结构体来表示，</p>
 <p>当程序申请的chunk被free后，会被加入到响应的空闲管理列表中。</p>
 <p>无论一个chunk有多大，无论处于malloc状态还是free状态，他们的结构都是一样的。</p>
 <p>malloc_chunk结构：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">  This struct declaration is misleading (but accurate and necessary).</span></span><br><span class="line"><span class="comment">  It declares a &quot;view&quot; into memory allowing access to necessary</span></span><br><span class="line"><span class="comment">  fields at known offsets from a given base. See explanation below.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span> &#123;</span></span><br><span class="line"></span><br><span class="line">  INTERNAL_SIZE_T      prev_size;  <span class="comment">/* Size of previous chunk (if free).  */</span></span><br><span class="line">  INTERNAL_SIZE_T      size;       <span class="comment">/* Size in bytes, including overhead. */</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">fd</span>;</span>         <span class="comment">/* double links -- used only if free. */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">bk</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Only used for large blocks: pointer to next larger size.  */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">fd_nextsize</span>;</span> <span class="comment">/* double links -- used only if free. */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">bk_nextsize</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
 <p>这里有INTERNAL_SIZE_T，SIZE_SZ，MALLOC_ALIGN_MASK的解释：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">/ * INTERNAL_SIZE_T是用于内部记录块大小的。</span><br><span class="line">   默认版本与<span class="keyword">size_t</span>相同。</span><br><span class="line">   尽管不是绝对必要，但最好将其定义为无符号类型，即使<span class="keyword">size_t</span>是有符号类型也是如此。这可以避免某些系统的人为大小限制。</span><br><span class="line">   在<span class="number">64</span>位计算机上，通过将INTERNAL_SIZE_T定义为<span class="number">32</span>位“ <span class="keyword">unsigned</span> <span class="keyword">int</span>”，您可以减少<span class="built_in">malloc</span>开销。</span><br><span class="line">   不能处理超过<span class="number">2</span> ^ <span class="number">32</span>的已分配空间的开销。如果可以接受此限制，除非您在要求<span class="number">16</span>字节对齐的平台上，否则建议您进行设置。在这种情况下，对齐要求最终抵消了减小<span class="keyword">size_t</span>字大小的任何潜在优势。</span><br><span class="line">   实现者：谨防以下情况的可能组合：</span><br><span class="line">     -INTERNAL_SIZE_T可能是有符号的或无符号的，可能是<span class="number">32</span>位或<span class="number">64</span>位，并且宽度可能与<span class="keyword">int</span>相同或与<span class="keyword">long</span>相同</span><br><span class="line">     -<span class="keyword">size_t</span>的宽度和签名可能与INTERNAL_SIZE_T不同</span><br><span class="line">     -<span class="keyword">int</span>和<span class="keyword">long</span>可能是<span class="number">32</span>或<span class="number">64</span>位，并且可能是相同的宽度</span><br><span class="line">   为了解决这个问题，INTERNAL_SIZE_T之间的大多数比较和差值计算都应将它们强制转换为无符号长整数，并意识到将无符号<span class="keyword">int</span>强制转换为较宽长整数不会对符号进行扩展的事实。 （这也使检查负数变得很尴尬。）其中的某些强制转换在某些系统上会导致无害的编译器警告。 * /</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> INTERNAL_SIZE_T</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> INTERNAL_SIZE_T size_t</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* The corresponding word size.  */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE_SZ (sizeof (INTERNAL_SIZE_T))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* The corresponding bit mask value.  */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MALLOC_ALIGN_MASK (MALLOC_ALIGNMENT - 1)</span></span><br></pre></td></tr></table></figure>
+
 <p>一般来说，size_t在64位中是64位无符号整数，32位中是32位无符号整数。</p>
 <p>malloc_chunk的具体解释如下：</p>
 <ul>
 <li>prev_size：如果该chunk的 物理相邻的前一个chunk是空闲的话，那该处记录的是前一个chunk的大小(<strong>包含chunk头</strong>)。如果物理相邻的前一个chunk处于malloc状态，那么此处可以填写前一个chunk的数据。</li>
-<li>size：该chunk的大小(prev_size+size+user data)，必须是2*SIZE_SZ的整数倍。如果申请的内存不是2*SIZE_SZ的整数倍，那么向上取整。32位中SIZE_SZ是4；64位中是8。该字段的 低3bit位对chunk大小没有影响，依次为：
-<ul>
+<li>size：该chunk的大小(prev_size+size+user data)，必须是2*SIZE_SZ的整数倍。如果申请的内存不是2*SIZE_SZ的整数倍，那么向上取整。32位中SIZE_SZ是4；64位中是8。该字段的 低3bit位对chunk大小没有影响，依次为：<ul>
 <li>NON_MAIN_ARENA(A)：记录当前chunk是否属于主线程，1表示不属于，0表示属于。</li>
 <li>IS_MAPPED(M)：记录当前chunk是否是由mmap分配的。</li>
 <li>PREV_INUSE(P)：记录前一个chunk是否被分配。一般来说，堆中第一个被分配的内存块的该位都会被设为1，以便防止访问前面的非法内存；当该位是0时，可以通过prev_size字段来获取上一个chunk的大小和地址。也方便空闲chunk之间的合并。</li>
-</ul></li>
-<li>fd，dk：chunk处于分配状态时，从 fd 字段开始是用户的数据。chunk 空闲时，会被添加到对应的空闲管理链表中，其字段的含义如下：
-<ul>
+</ul>
+</li>
+<li>fd，dk：chunk处于分配状态时，从 fd 字段开始是用户的数据。chunk 空闲时，会被添加到对应的空闲管理链表中，其字段的含义如下：<ul>
 <li>fd指向下一个(<strong>非物理相邻</strong>)空闲的chunk。</li>
 <li>bk指向上一个(<strong>非物理相邻</strong>)空闲的chunk。</li>
 <li>通过bk和fd可以将空闲的chunk加入到空闲的chunk链表进行统一管理</li>
-</ul></li>
-<li>fd_nextsize，bk_nextsize：只有chunk空闲时候才使用，<strong>用于较大的chunk(large chunk)</strong>。
-<ul>
+</ul>
+</li>
+<li>fd_nextsize，bk_nextsize：只有chunk空闲时候才使用，**用于较大的chunk(large chunk)**。<ul>
 <li>fd_nextsize：指向前一个与当chunk大小不同的第一个空闲快，不含bin的头指针。</li>
 <li>k_nextsize 指向后一个与当前 chunk 大小不同的第一个空闲块，不包含 bin 的头指针。</li>
 <li>一般空闲的 large chunk 在 fd 的遍历顺序中，按照由大到小的顺序排列。这样做可以避免在寻找合适 chunk 时挨个遍历。</li>
-</ul></li>
+</ul>
+</li>
 </ul>
 <p>一个已经分配的 chunk 的样子如下。<strong>我们称前两个字段称为 chunk header，后面的部分称为 user data。每次 malloc 申请得到的内存指针，其实指向 user data 的起始处。</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">        |             Size of previous chunk, if unallocated (P clear)  |</span><br><span class="line">        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">        |             Size of chunk, in bytes                     |A|M|P|</span><br><span class="line">  mem-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">        |             User data starts here...                          |</span><br><span class="line">        .                                                               .</span><br><span class="line">        .             (malloc_usable_size() bytes)                      .</span><br><span class="line">next    .                                                               .</span><br><span class="line">chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">        |             (size of chunk, but used for application data)    |</span><br><span class="line">        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">        |             Size of next chunk, in bytes                |A|0|1|</span><br><span class="line">        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br></pre></td></tr></table></figure>
+
 <p>被free的 chunk 被记录在链表中（可能是循环双向链表，也可能是单向链表）。具体结构如下</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">        |             Size of previous chunk, if unallocated (P clear)  |</span><br><span class="line">        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">`head:&#x27; |             Size of chunk, in bytes                     |A|0|P|</span><br><span class="line">  mem-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">        |             Forward pointer to next chunk in list             |</span><br><span class="line">        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">        |             Back pointer to previous chunk in list            |</span><br><span class="line">        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">        |             Unused space (may be 0 bytes long)                .</span><br><span class="line">        .                                                               .</span><br><span class="line"> next   .                                                               |</span><br><span class="line">chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">`foot:&#x27; |             Size of chunk, in bytes                           |</span><br><span class="line">        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">        |             Size of next chunk, in bytes                |A|0|0|</span><br><span class="line">        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br></pre></td></tr></table></figure>
+
 <p>可以发现，如果一个 chunk 处于 free 状态，那么会有两个位置记录其相应的大小</p>
-<ol type="1">
+<ol>
 <li>本身的 size 字段会记录，</li>
 <li>它后面的 chunk 会记录。</li>
 </ol>
 <p>一般情况下，物理相邻的两个空闲 chunk 会被合并为一个 chunk 。堆管理器会通过 prev_size 字段以及 size 字段合并两个物理相邻的空闲 chunk 块。</p>
-<h3 id="bin">bin</h3>
-<h4 id="概述">概述</h4>
-<p>bin这个概念是与<strong>内存回收</strong>相关堆，也就是堆管理器会根据用户已经申请到堆内存空间大小进行释放，决定放入哪类bins当中去。</p>
+<h3 id="bin"><a href="#bin" class="headerlink" title="bin"></a>bin</h3><h4 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h4><p>bin这个概念是与<strong>内存回收</strong>相关堆，也就是堆管理器会根据用户已经申请到堆内存空间大小进行释放，决定放入哪类bins当中去。</p>
 <p>用户释放的chunk不会马上归还给系统，ptmalloc会统一管理heap和mmap映射区域中空闲的chunk。当用户再次malloc时，ptmalloc分配器会识图在空闲的chunk中挑选一块合适的给用户。这样可以避免频繁的系统调用，降低内存分配的开销。</p>
 <p><strong>ptmalloc将相似大小堆chunk用双向线标链接起来，这样的一个链表叫做一个bin</strong>。</p>
 <p>ptmalloc一共维护了128个bin，并使用一个数组来存储这些bin。</p>
 <p>数组中<strong>bin 1为unsorted bin</strong>；<strong>bin 2到63为small bin</strong>；<strong>bin 64到126为large bin</strong></p>
 <p>具体的实现中，ptmalloc采用分箱式的方法对空闲的chunk进行管理。</p>
-<p>首先，他会根据空闲chunk的大小及使用状态将chunk初步分为4类：fast bins，small bins，large bins，unsorted bin。每一类中仍有更详细的划分。相似大小的chunk会使用双向链表链接起来。也就是说，在每一类bin的内部仍有多个互不相关的链表来保存不同大小的chunk. <img src="/2021/03/03/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781245754.png"></p>
+<p>首先，他会根据空闲chunk的大小及使用状态将chunk初步分为4类：fast bins，small bins，large bins，unsorted bin。每一类中仍有更详细的划分。相似大小的chunk会使用双向链表链接起来。也就是说，在每一类bin的内部仍有多个互不相关的链表来保存不同大小的chunk.<br><img src="/2021/03/03/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781245754.png"></p>
 <p>对于 small bins，large bins，unsorted bin 来说，ptmalloc 将它们维护在同一个数组中。这些 bin 对应的数据结构在 malloc_state 中，如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NBINS 128</span></span><br><span class="line"><span class="comment">/* Normal bins packed as described above */</span></span><br><span class="line">mchunkptr bins[ NBINS * <span class="number">2</span> - <span class="number">2</span> ];</span><br></pre></td></tr></table></figure>
+
 <p>一个bin相当于一个chunk链表，每个链表的头结点chunk作为bins数组，但由于这个头结点作为bin表头，prev_size与size字段是没有任何实际作用的，因此在存储头结点chunk的时候仅仅只需存储头结点chunk的fd和bk即可，而其中的prev_size与size字段被重用为另一个bin的头结点的fd和bk，这样可节省空间，并提高可用性。。因此<strong>我们仅仅只需要 mchunkptr 类型的指针数组就足够存储这些头节点</strong>，那 prev_size 与 size 字段到底是怎么重用的呢？这里我们以 32 位系统为例：</p>
 <table>
-<colgroup>
-<col style="width: 7%">
-<col style="width: 25%">
-<col style="width: 20%">
-<col style="width: 25%">
-<col style="width: 20%">
-</colgroup>
 <thead>
-<tr class="header">
-<th style="text-align: left;">含义</th>
-<th style="text-align: left;">bin1 的 fd/bin2 的 prev_size</th>
-<th style="text-align: left;">bin1 的 bk/bin2 的 size</th>
-<th style="text-align: left;">bin2 的 fd/bin3 的 prev_size</th>
-<th style="text-align: left;">bin2 的 bk/bin3 的 size</th>
+<tr>
+<th align="left">含义</th>
+<th align="left">bin1 的 fd&#x2F;bin2 的 prev_size</th>
+<th align="left">bin1 的 bk&#x2F;bin2 的 size</th>
+<th align="left">bin2 的 fd&#x2F;bin3 的 prev_size</th>
+<th align="left">bin2 的 bk&#x2F;bin3 的 size</th>
 </tr>
 </thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">bin 下标</td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">1</td>
-<td style="text-align: left;">2</td>
-<td style="text-align: left;">3</td>
+<tbody><tr>
+<td align="left">bin 下标</td>
+<td align="left">0</td>
+<td align="left">1</td>
+<td align="left">2</td>
+<td align="left">3</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p>可以看出除了第一个 bin（unsorted bin）外，后面的每个 bin 的表头 chunk 会重用前面的 bin 表头 chunk 的 fd 与 bk 字段，将其视为其自身的 prev_size 和 size 字段。这里也说明了一个问题，<strong>bin 的下标和我们所说的第几个 bin 并不是一致的。同时，bin 表头的 chunk 头节点 的 prev_size 与 size 字段不能随便修改，因为这两个字段是其它 bin 表头 chunk 的 fd 和 bk 字段。</strong></p>
 <p>数组中的 bin 依次介绍如下：</p>
-<ol type="1">
+<ol>
 <li>第1个为 unsorted bin，这里面的 chunk 没有进行排序，存储的 chunk 比较杂。</li>
 <li>从 2 到 63 的 bin 称为 small bin，同一个 small bin 链表中的 chunk 的大小相同。两个相邻索引的 small bin 链表中的 chunk 大小相差的字节数为 <strong>2 个机器字长</strong>，即 32 位相差 8 字节，64 位相差 16 字节。</li>
 <li>small bins 后面的 bin 被称作 large bins。large bins 中的每一个 bin 都包含一定范围内的 chunk，其中的 chunk 按 fd 指针的顺序从大到小排列。相同大小的 chunk 同样按照最近使用顺序排列。</li>
 </ol>
 <p>此外，上述这些 bin 的排布都会遵循一个原则：<strong>任意两个物理相邻的空闲 chunk 不能在一起</strong>。</p>
 <p>需要注意的是，并不是所有的 chunk 被释放后就立即被放到 bin 中。ptmalloc 为了提高分配的速度，会把一些小的 chunk 先放到 fast bins 的容器内。<strong>而且，fastbin 容器中的 chunk 的使用标记总是被置位的，所以不满足上面的原则。</strong></p>
-<h4 id="fast-bin">Fast Bin</h4>
-<p>fast bin所包含chunk的大小为16 Bytes, 24 Bytes, 32 Bytes, … , 80 Bytes。当分配一块较小的内存(mem&lt;=64 Bytes)时，<strong>会首先检查对应大小的fastbin中是否包含未被使用的chunk，如果存在则直接将其从fastbin中移除并返回；否则通过其他方式（剪切top chunk）得到一块符合大小要求的chunk并返回。</strong></p>
+<h4 id="Fast-Bin"><a href="#Fast-Bin" class="headerlink" title="Fast Bin"></a>Fast Bin</h4><p>fast bin所包含chunk的大小为16 Bytes, 24 Bytes, 32 Bytes, … , 80 Bytes。当分配一块较小的内存(mem&lt;&#x3D;64 Bytes)时，<strong>会首先检查对应大小的fastbin中是否包含未被使用的chunk，如果存在则直接将其从fastbin中移除并返回；否则通过其他方式（剪切top chunk）得到一块符合大小要求的chunk并返回。</strong></p>
 <p>描述：</p>
-<ol type="1">
+<ol>
 <li>x86中，当用户释放堆堆块大小小于64B时使用fast bin进行管理，即chunk空间最大为80字节。</li>
 <li>fast bin只用了fd，是单链表。</li>
 <li>fast bin不会对P位进行操作，即它不会主动进行合并，只有在某些特定堆情况下，堆管理器才会对fast bin进行合并。</li>
 <li>fast binY为管理fast bin的数组，每个成员分别管理不同大小的fast bin链表，且均指向了当前链表的尾结点，当尾结点被分配时，通过fd指针指向前一个节点。</li>
 <li>当用户申请chunk的大小小于或等于<strong>MAX_FAST_SIZE</strong>时，优先从fast bin中查找相应的空闲块，且规则为LIFO。</li>
 </ol>
-<h4 id="small-bin">Small bin</h4>
-<p>small bins 中每个 chunk 的大小与其所在的 bin 的 index 的关系为：<code>chunk_size = 2 * SIZE_SZ *index</code>，具体如下：</p>
+<h4 id="Small-bin"><a href="#Small-bin" class="headerlink" title="Small bin"></a>Small bin</h4><p>small bins 中每个 chunk 的大小与其所在的 bin 的 index 的关系为：<code>chunk_size = 2 * SIZE_SZ *index</code>，具体如下：</p>
 <table>
 <thead>
-<tr class="header">
-<th style="text-align: left;">下标</th>
-<th style="text-align: left;">SIZE_SZ=4（32 位）</th>
-<th style="text-align: left;">SIZE_SZ=8（64 位）</th>
+<tr>
+<th align="left">下标</th>
+<th align="left">SIZE_SZ&#x3D;4（32 位）</th>
+<th align="left">SIZE_SZ&#x3D;8（64 位）</th>
 </tr>
 </thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">2</td>
-<td style="text-align: left;">16</td>
-<td style="text-align: left;">32</td>
+<tbody><tr>
+<td align="left">2</td>
+<td align="left">16</td>
+<td align="left">32</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">3</td>
-<td style="text-align: left;">24</td>
-<td style="text-align: left;">48</td>
+<tr>
+<td align="left">3</td>
+<td align="left">24</td>
+<td align="left">48</td>
 </tr>
-<tr class="odd">
-<td style="text-align: left;">4</td>
-<td style="text-align: left;">32</td>
-<td style="text-align: left;">64</td>
+<tr>
+<td align="left">4</td>
+<td align="left">32</td>
+<td align="left">64</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">5</td>
-<td style="text-align: left;">40</td>
-<td style="text-align: left;">80</td>
+<tr>
+<td align="left">5</td>
+<td align="left">40</td>
+<td align="left">80</td>
 </tr>
-<tr class="odd">
-<td style="text-align: left;">x</td>
-<td style="text-align: left;">2*4*x</td>
-<td style="text-align: left;">2*8*x</td>
+<tr>
+<td align="left">x</td>
+<td align="left">2*4*x</td>
+<td align="left">2*8*x</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">63</td>
-<td style="text-align: left;">504</td>
-<td style="text-align: left;">1008</td>
+<tr>
+<td align="left">63</td>
+<td align="left">504</td>
+<td align="left">1008</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p>small bins 中一共有 62 个循环双向链表，每个链表中存储的 chunk 大小都一致。</p>
 <p>描述：</p>
-<ol type="1">
+<ol>
 <li>small bin为双向链表，且使用FIFO,所以同一个链表中先被释放的 chunk 会先被分配出去。</li>
 <li>当满足small bin条件的chunk被释放后，会优先被放入unosrted bin，只有在一定情况下，才会被分配到small bin中。</li>
 </ol>
-<h4 id="large-bin">Large bin</h4>
-<p>large bins中一共包含63个bin，每个bin中的chunk的大小不一致，而是处于一定的区间范围没，此外，这63个bin被分为了6组，每个bin中的chunk大小之间的公差一致，如下：</p>
+<h4 id="Large-bin"><a href="#Large-bin" class="headerlink" title="Large bin"></a>Large bin</h4><p>large bins中一共包含63个bin，每个bin中的chunk的大小不一致，而是处于一定的区间范围没，此外，这63个bin被分为了6组，每个bin中的chunk大小之间的公差一致，如下：</p>
 <table>
 <thead>
-<tr class="header">
-<th style="text-align: left;">组</th>
-<th style="text-align: left;">数量</th>
-<th style="text-align: left;">公差</th>
+<tr>
+<th align="left">组</th>
+<th align="left">数量</th>
+<th align="left">公差</th>
 </tr>
 </thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">1</td>
-<td style="text-align: left;">32</td>
-<td style="text-align: left;">64B</td>
+<tbody><tr>
+<td align="left">1</td>
+<td align="left">32</td>
+<td align="left">64B</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">2</td>
-<td style="text-align: left;">16</td>
-<td style="text-align: left;">512B</td>
+<tr>
+<td align="left">2</td>
+<td align="left">16</td>
+<td align="left">512B</td>
 </tr>
-<tr class="odd">
-<td style="text-align: left;">3</td>
-<td style="text-align: left;">8</td>
-<td style="text-align: left;">4096B</td>
+<tr>
+<td align="left">3</td>
+<td align="left">8</td>
+<td align="left">4096B</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">4</td>
-<td style="text-align: left;">4</td>
-<td style="text-align: left;">32768B</td>
+<tr>
+<td align="left">4</td>
+<td align="left">4</td>
+<td align="left">32768B</td>
 </tr>
-<tr class="odd">
-<td style="text-align: left;">5</td>
-<td style="text-align: left;">2</td>
-<td style="text-align: left;">262144B</td>
+<tr>
+<td align="left">5</td>
+<td align="left">2</td>
+<td align="left">262144B</td>
 </tr>
-<tr class="even">
-<td style="text-align: left;">6</td>
-<td style="text-align: left;">1</td>
-<td style="text-align: left;">不限制</td>
+<tr>
+<td align="left">6</td>
+<td align="left">1</td>
+<td align="left">不限制</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p>这里以 32 位平台的 large bin 为例，第一个 large bin 的起始 chunk 大小为 512 字节，位于第一组，所以该 bin 可以存储的 chunk 的大小范围为 [512,512+64)</p>
-<h4 id="unsorted-bin">unsorted bin</h4>
-<ol type="1">
+<h4 id="unsorted-bin"><a href="#unsorted-bin" class="headerlink" title="unsorted bin"></a>unsorted bin</h4><ol>
 <li>unsorted bin可以视为空闲chunk回归其所属bin之前的缓冲区。</li>
 <li>当释放较小或较大的chunk的时候，为了增加分配效率，系统会先将最近释放的chunk添加到unsorted bin中</li>
 <li>unsorted bin 为一个双向循环链表，对chunk的大小没有限制，即任何大小的chunk都可以放入unsorted bin链表中</li>
 </ol>
-<h3 id="top-chunk">top chunk</h3>
-<p>程序在第一次进行malloc时，heap会分为两部分，一部分给用户，另一部分就是top chunk。</p>
+<h3 id="top-chunk"><a href="#top-chunk" class="headerlink" title="top chunk"></a>top chunk</h3><p>程序在第一次进行malloc时，heap会分为两部分，一部分给用户，另一部分就是top chunk。</p>
 <p>top chunk是处于当前堆的物理地址的最高的chunk，这个chunk不属于任何一个bin，当所有的 bin 都无法满足用户请求的内存大小时，如果其大小不小于指定的大小，就进行分配，并将剩下的部分作为新的 top chunk。否则，就对 heap 进行扩展后再进行分配。在 main arena 中通过 sbrk 扩展 heap，而在 thread arena 中通过 mmap 分配新的 heap。</p>
-<h2 id="宏观结构">宏观结构</h2>
-<h3 id="arena">arena</h3>
-<p>在之前介绍的例子中，无论是主线程还是新创建的线程，在第一次申请内存时，都会有独立的 arena。</p>
+<h2 id="宏观结构"><a href="#宏观结构" class="headerlink" title="宏观结构"></a>宏观结构</h2><h3 id="arena"><a href="#arena" class="headerlink" title="arena"></a>arena</h3><p>在之前介绍的例子中，无论是主线程还是新创建的线程，在第一次申请内存时，都会有独立的 arena。</p>
 <p>但不是每个线程都有独立的arena，对于不同的系统，arena数量的约束如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">For 32 bit systems:</span><br><span class="line">     Number of arena = 2 * number of cores.</span><br><span class="line">For 64 bit systems:</span><br><span class="line">     Number of arena = 8 * number of cores.</span><br></pre></td></tr></table></figure>
+
 
     </article>
     <!-- license -->
@@ -903,7 +892,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A0%86%E5%88%A9%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">堆利用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A0%86%E6%A6%82%E8%BF%B0"><span class="toc-number">2.</span> <span class="toc-text">堆概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E5%90%8E%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">2.1.</span> <span class="toc-text">内存分配后的系统调用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#sbrk"><span class="toc-number">2.1.1.</span> <span class="toc-text">(s)brk</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mmap"><span class="toc-number">2.1.2.</span> <span class="toc-text">mmap</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A0%86%E7%9B%B8%E5%85%B3%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-number">3.</span> <span class="toc-text">堆相关的数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%AE%E8%A7%82%E7%BB%93%E6%9E%84"><span class="toc-number">3.1.</span> <span class="toc-text">微观结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#malloc_chunk%E6%A6%82%E8%BF%B0"><span class="toc-number">3.1.1.</span> <span class="toc-text">malloc_chunk概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bin"><span class="toc-number">3.1.2.</span> <span class="toc-text">bin</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">3.1.2.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fast-bin"><span class="toc-number">3.1.2.2.</span> <span class="toc-text">Fast Bin</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#small-bin"><span class="toc-number">3.1.2.3.</span> <span class="toc-text">Small bin</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#large-bin"><span class="toc-number">3.1.2.4.</span> <span class="toc-text">Large bin</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#unsorted-bin"><span class="toc-number">3.1.2.5.</span> <span class="toc-text">unsorted bin</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#top-chunk"><span class="toc-number">3.1.3.</span> <span class="toc-text">top chunk</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8F%E8%A7%82%E7%BB%93%E6%9E%84"><span class="toc-number">3.2.</span> <span class="toc-text">宏观结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#arena"><span class="toc-number">3.2.1.</span> <span class="toc-text">arena</span></a></li></ol></li></ol></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A0%86%E5%88%A9%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">堆利用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A0%86%E6%A6%82%E8%BF%B0"><span class="toc-number">2.</span> <span class="toc-text">堆概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E5%90%8E%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-number">2.1.</span> <span class="toc-text">内存分配后的系统调用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#s-brk"><span class="toc-number">2.1.1.</span> <span class="toc-text">(s)brk</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mmap"><span class="toc-number">2.1.2.</span> <span class="toc-text">mmap</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A0%86%E7%9B%B8%E5%85%B3%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-number">3.</span> <span class="toc-text">堆相关的数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%AE%E8%A7%82%E7%BB%93%E6%9E%84"><span class="toc-number">3.1.</span> <span class="toc-text">微观结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#malloc-chunk%E6%A6%82%E8%BF%B0"><span class="toc-number">3.1.1.</span> <span class="toc-text">malloc_chunk概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bin"><span class="toc-number">3.1.2.</span> <span class="toc-text">bin</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">3.1.2.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Fast-Bin"><span class="toc-number">3.1.2.2.</span> <span class="toc-text">Fast Bin</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Small-bin"><span class="toc-number">3.1.2.3.</span> <span class="toc-text">Small bin</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Large-bin"><span class="toc-number">3.1.2.4.</span> <span class="toc-text">Large bin</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#unsorted-bin"><span class="toc-number">3.1.2.5.</span> <span class="toc-text">unsorted bin</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#top-chunk"><span class="toc-number">3.1.3.</span> <span class="toc-text">top chunk</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8F%E8%A7%82%E7%BB%93%E6%9E%84"><span class="toc-number">3.2.</span> <span class="toc-text">宏观结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#arena"><span class="toc-number">3.2.1.</span> <span class="toc-text">arena</span></a></li></ol></li></ol></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1837,6 +1826,11 @@
                 PWN
             </span>
         
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="RE">
                 <span class="iconfont-archer">&#xe606;</span>
                 RE
@@ -1847,24 +1841,19 @@
                 BUU刷题
             </span>
         
-            <span class="sidebar-tag-name" data-tags="WEB">
-                <span class="iconfont-archer">&#xe606;</span>
-                WEB
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="Java">
                 <span class="iconfont-archer">&#xe606;</span>
                 Java
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内网">
-                <span class="iconfont-archer">&#xe606;</span>
-                内网
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="免杀">
                 <span class="iconfont-archer">&#xe606;</span>
                 免杀
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内网">
+                <span class="iconfont-archer">&#xe606;</span>
+                内网
             </span>
         
             <span class="sidebar-tag-name" data-tags="VulnHub">
@@ -1897,14 +1886,14 @@
                 Linux
             </span>
         
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">
