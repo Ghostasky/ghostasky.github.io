@@ -123,7 +123,7 @@
 <!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
 
 
-  <!-- LaTex Display -->
+    <!-- LaTex Display -->
 
   
     <script async type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
@@ -137,10 +137,9 @@
   </script>
 
 
-
-
-
-  <!-- clipboard -->
+        
+            
+                <!-- clipboard -->
 
   
     <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
@@ -150,171 +149,162 @@
 
 
 
+                    
+                        
+                                
+                                        
+                                                
+                                                        
+                                                            <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+                                                            <div class="container post-details" id="post-details">
+                                                                <div class="post-content">
+                                                                    <div class="post-title">
+                                                                        WinDbg使用及双机调试
+                                                                    </div>
+                                                                    <div class="post-attach">
+                                                                        <span class="post-pubtime">
+        <i class="iconfont icon-updatetime" title="Update time"></i>
+        2022-04-09
+      </span>
 
+                                                                        <span class="post-pubtime"> 本文共417字 </span>
 
+                                                                        <span class="post-pubtime">
+        大约需要2min
+      </span>
 
-
-  
-
-  
-
-  
-
-  
-  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
-  <div class="container post-details" id="post-details">
-    <div class="post-content">
-      <div class="post-title">WinDbg使用及双机调试</div>
-      <div class="post-attach">
-        <span class="post-pubtime">
-          <i class="iconfont icon-updatetime" title="Update time"></i>
-          2022-04-09 00:00:00
-        </span>
+                                                                        
+                                                                                    <span class="post-categories">
+        <i class="iconfont icon-bookmark" title="Categories"></i>
         
-              <span class="post-categories">
-                <i class="iconfont icon-bookmark" title="Categories"></i>
-                
-                <span class="span--category">
-                  <a href="/categories/Technology/" title="Technology">
-                    <b>#</b> Technology
-                  </a>
-                </span>
-                
-              </span>
-          
-              <span class="post-tags">
-                <i class="iconfont icon-tags" title="Tags"></i>
-                
-                <span class="span--tag">
-                  <a href="/tags/%E5%86%85%E6%A0%B8/" title="内核">
-                    <b>#</b> 内核
-                  </a>
-                </span>
-                
-              </span>
-          
-      </div>
-      <div class="markdown-body">
-        <p>[toc]</p>
-<h1 id="双机调试">双机调试</h1>
-<p>虚拟机添加串行端口：（如果发现建立的串行端口一直是串行端口2，则把虚拟机硬件中的打印机删除即可创建串行端口1）</p>
-<figure>
-<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409155748490.png" alt="image-20220409155748490"><figcaption aria-hidden="true">image-20220409155748490</figcaption>
-</figure>
-<p>虚拟机中管理员打开powershell，bcdedit /enum查看启动的配置：</p>
-<figure>
-<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409142848941.png" alt="image-20220409142848941"><figcaption aria-hidden="true">image-20220409142848941</figcaption>
-</figure>
+        <span class="span--category">
+          <a href="/categories/Technology/" title="Technology">
+            <b>#</b> Technology
+          </a>
+        </span>
+                                                                                    
+                                                                                        </span>
+                                                                                        
+                                                                            <span class="post-tags">
+        <i class="iconfont icon-tags" title="Tags"></i>
+        
+        <span class="span--tag">
+          <a href="/tags/%E5%86%85%E6%A0%B8/" title="内核">
+            <b>#</b> 内核
+          </a>
+        </span>
+                                                                            
+                                                                                </span>
+                                                                                
+                                                                    </div>
+                                                                    <div class="markdown-body">
+                                                                        <p>[toc]</p>
+<h1 id="双机调试"><a href="#双机调试" class="headerlink" title="双机调试"></a>双机调试</h1><p>虚拟机添加串行端口：（如果发现建立的串行端口一直是串行端口2，则把虚拟机硬件中的打印机删除即可创建串行端口1）</p>
+<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409155748490.png" alt="image-20220409155748490"></p>
+<p>虚拟机中管理员打开powershell，bcdedit &#x2F;enum查看启动的配置：</p>
+<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409142848941.png" alt="image-20220409142848941"></p>
 <p>执行以下命令：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bcdedit  /set  “&#123;current&#125;”  bootmenupolicy  Legacy             //修改启动方式为Legacy</span><br><span class="line"></span><br><span class="line">bcdedit  /dbgsettings  SERIAL  DEBUGPORT:1  BAUDRATE:115200     //设置串口1为调试端口，波特率为115200</span><br><span class="line"></span><br><span class="line">bcdedit  /copy  “&#123;current&#125;”   /d  “Debug”      //将当前配置复制到 Debug 启动配置(新建了Debug启动配置)</span><br></pre></td></tr></table></figure>
-<figure>
-<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143101892.png" alt="image-20220409143101892"><figcaption aria-hidden="true">image-20220409143101892</figcaption>
-</figure>
+
+<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143101892.png" alt="image-20220409143101892"></p>
 <p>新建的启动配置：</p>
-<figure>
-<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143218989.png" alt="image-20220409143218989"><figcaption aria-hidden="true">image-20220409143218989</figcaption>
-</figure>
+<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143218989.png" alt="image-20220409143218989"></p>
 <p>继续执行</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bcdedit /debug &quot;&#123;38a233ff-a78b-11ec-a34b-fcc86d824bb2&#125;&quot; on      //打开调试开关</span><br><span class="line">//&#123;&#125;里面的是新建的启动配置的标识符</span><br></pre></td></tr></table></figure>
+
 <p>查看配置：</p>
-<figure>
-<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143417309.png" alt="image-20220409143417309"><figcaption aria-hidden="true">image-20220409143417309</figcaption>
-</figure>
+<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143417309.png" alt="image-20220409143417309"></p>
 <p>虚拟机重启后显示如下则成功：</p>
-<figure>
-<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143702060.png" alt="image-20220409143702060"><figcaption aria-hidden="true">image-20220409143702060</figcaption>
-</figure>
+<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143702060.png" alt="image-20220409143702060"></p>
 <p>可以选择这样连接：</p>
-<figure>
-<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409144421844.png" alt="image-20220409144421844"><figcaption aria-hidden="true">image-20220409144421844</figcaption>
-</figure>
+<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409144421844.png" alt="image-20220409144421844"></p>
 <p>也可以<code>-b -k com:pipe,port=\\.\pipe\com_1,resets=0,reconnect -y</code>，高级里面管理员运行：</p>
-<figure>
-<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409145103220.png" alt="image-20220409145103220"><figcaption aria-hidden="true">image-20220409145103220</figcaption>
-</figure>
+<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409145103220.png" alt="image-20220409145103220"></p>
 <p>成功：<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409145200846.png" alt="image-20220409145200846"></p>
 <p>下面是配置symbol：</p>
 <p>可以配置环境变量：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_NT_SYMBOL_PATH</span><br><span class="line">srv*E:\symbols*https://msdl.microsoft.com/download/symbols</span><br></pre></td></tr></table></figure>
+
 <p>也可以直接在Symbol Search Path中加：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">srv*E:\symbols*https://msdl.microsoft.com/download/symbols</span><br></pre></td></tr></table></figure>
-<h1 id="windbg命令">WinDbg命令</h1>
-<h2 id="ring3">ring3</h2>
-<ul>
-<li><p>version：显示调试器版本信息和已加载的调试器扩展</p></li>
-<li><p>vercommand： 显示调试器启动文件的路径</p></li>
+
+<h1 id="WinDbg命令"><a href="#WinDbg命令" class="headerlink" title="WinDbg命令"></a>WinDbg命令</h1><h2 id="ring3"><a href="#ring3" class="headerlink" title="ring3"></a>ring3</h2><ul>
+<li><p>version：显示调试器版本信息和已加载的调试器扩展</p>
+</li>
+<li><p>vercommand： 显示调试器启动文件的路径</p>
+</li>
 <li><p>.formats：显示数字的各种格式信息</p>
-<figure>
-<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409154225866.png" alt="image-20220409154225866"><figcaption aria-hidden="true">image-20220409154225866</figcaption>
-</figure></li>
-<li><p>.cls：清屏</p></li>
+<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409154225866.png" alt="image-20220409154225866"></p>
+</li>
+<li><p>.cls：清屏</p>
+</li>
 <li><p>ld：加载指定或者所有模块的符号</p>
-<figure>
-<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409154421965.png" alt="image-20220409154421965"><figcaption aria-hidden="true">image-20220409154421965</figcaption>
-</figure></li>
-<li><p>lm：显示所有加载和未加载的模块信息</p></li>
+<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409154421965.png" alt="image-20220409154421965"></p>
+</li>
+<li><p>lm：显示所有加载和未加载的模块信息</p>
+</li>
 </ul>
-<h2 id="ring0">ring0</h2>
-<p>额命令啥的先不写了，太多了，之后补充</p>
+<h2 id="ring0"><a href="#ring0" class="headerlink" title="ring0"></a>ring0</h2><p>额命令啥的先不写了，太多了，之后补充</p>
 <blockquote>
-<p>https://www.cnblogs.com/gaochundong/p/windbg_cheat_sheet.html</p>
-<p>https://www.cnblogs.com/kekec/archive/2012/12/02/2798020.html</p>
-<p>https://www.kanxue.com/book-8-62.htm#</p>
-<p>https://www.cnblogs.com/DarkBright/p/10843698.html</p>
+<p>  <a target="_blank" rel="noopener" href="https://www.cnblogs.com/gaochundong/p/windbg_cheat_sheet.html">https://www.cnblogs.com/gaochundong/p/windbg_cheat_sheet.html</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://www.cnblogs.com/kekec/archive/2012/12/02/2798020.html">https://www.cnblogs.com/kekec/archive/2012/12/02/2798020.html</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://www.kanxue.com/book-8-62.htm#">https://www.kanxue.com/book-8-62.htm#</a></p>
+<p>  <a target="_blank" rel="noopener" href="https://www.cnblogs.com/DarkBright/p/10843698.html">https://www.cnblogs.com/DarkBright/p/10843698.html</a></p>
 </blockquote>
 
-      </div>
-      
-        <div class="prev-or-next">
-          <div class="post-foot-next">
-            
-              <a href="/2022/04/09/%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E5%8A%A0%E8%BD%BDshellcode/" target="_self">
-                <i class="iconfont icon-chevronleft"></i>
-                <span>Prev</span>
-              </a>
-            
-          </div>
-          <div class="post-attach">
-            <span class="post-pubtime">
+                                                                    </div>
+                                                                    
+                                                                        <div class="prev-or-next">
+                                                                            <div class="post-foot-next">
+                                                                                
+                                                                                    <a href="/2022/04/09/%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E5%8A%A0%E8%BD%BDshellcode/" target="_self">
+                                                                                        <i class="iconfont icon-chevronleft"></i>
+                                                                                        <span>Prev</span>
+                                                                                    </a>
+                                                                                    
+                                                                            </div>
+                                                                            <div class="post-attach">
+                                                                                <!-- <span class="post-pubtime">
               <i class="iconfont icon-updatetime" title="Update time"></i>
-              2022-04-09 00:00:00
-            </span>
-            
-                  <span class="post-categories">
-                    <i class="iconfont icon-bookmark" title="Categories"></i>
-                    
-                    <span class="span--category">
-                      <a href="/categories/Technology/" title="Technology">
-                        <b>#</b> Technology
-                      </a>
-                    </span>
-                    
-                  </span>
-              
-                  <span class="post-tags">
-                    <i class="iconfont icon-tags" title="Tags"></i>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/%E5%86%85%E6%A0%B8/" title="内核">
-                        <b>#</b> 内核
-                      </a>
-                    </span>
-                    
-                  </span>
-              
-          </div>
-          <div class="post-foot-prev">
-            
-              <a href="/2022/04/20/Java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" target="_self">
-                <span>Next</span>
-                <i class="iconfont icon-chevronright"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-    </div>
-    
+              2022-04-09
+            </span> -->
+
+                                                                                
+                                                                                            <span class="post-categories">
+          <!-- <i class="iconfont icon-bookmark" title="Categories"></i> -->
+          
+          <!-- <span class="span--category">
+            <a href="/categories/Technology/" title="Technology">
+              <b>#</b> Technology
+            </a>
+          </span> -->
+                                                                                            
+                                                                                                </span>
+                                                                                                
+                                                                                    <span class="post-tags">
+          <!-- <i class="iconfont icon-tags" title="Tags"></i> -->
+          
+          <!-- <span class="span--tag">
+            <a href="/tags/%E5%86%85%E6%A0%B8/" title="内核">
+              <b>#</b> 内核
+            </a>
+          </span> -->
+                                                                                    
+                                                                                        </span>
+                                                                                        
+                                                                            </div>
+                                                                            <div class="post-foot-prev">
+                                                                                
+                                                                                    <a href="/2022/04/20/Java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" target="_self">
+                                                                                        <span>Next</span>
+                                                                                        <i class="iconfont icon-chevronright"></i>
+                                                                                    </a>
+                                                                                    
+                                                                            </div>
+                                                                        </div>
+                                                                        
+                                                                </div>
+                                                                
   <div id="btn-catalog" class="btn-catalog">
     <i class="iconfont icon-catalog"></i>
   </div>
@@ -322,7 +312,7 @@
     <div class="title">Contents</div>
     <div class="catalog-content">
       
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95"><span class="toc-text">双机调试</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#windbg%E5%91%BD%E4%BB%A4"><span class="toc-text">WinDbg命令</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ring3"><span class="toc-text">ring3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ring0"><span class="toc-text">ring0</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95"><span class="toc-text">双机调试</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#WinDbg%E5%91%BD%E4%BB%A4"><span class="toc-text">WinDbg命令</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ring3"><span class="toc-text">ring3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ring0"><span class="toc-text">ring0</span></a></li></ol></li></ol>
       
     </div>
   </div>
@@ -333,9 +323,9 @@
 
 
 
-    
-      <div class="comments-container">
-        
+                                                                    
+                                                                        <div class="comments-container">
+                                                                            
 
 
 
@@ -343,11 +333,10 @@
 
 
 
-      </div>
-    
-  </div>
-
-
+                                                                        </div>
+                                                                        
+                                                            </div>
+                                                            
         
 <div class="footer">
   <div class="social">

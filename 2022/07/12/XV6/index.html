@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-cn" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="郁涛丶" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      XV6阅读笔记 
+      
+      
+      |
+    
+     郁涛丶&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/color-scheme.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/comments.css">
+
+  <!-- 代码块风格 -->
+  
+    
+<link rel="stylesheet" href="/css/figcaption/mac-block.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="郁涛丶's Blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Ghostasky</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+    <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+        
+            
+                <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+                    
+                        
+                                
+                                        
+                                                
+                                                        
+                                                            <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+                                                            <div class="container post-details" id="post-details">
+                                                                <div class="post-content">
+                                                                    <div class="post-title">
+                                                                        XV6阅读笔记
+                                                                    </div>
+                                                                    <div class="post-attach">
+                                                                        <span class="post-pubtime">
+        <i class="iconfont icon-updatetime" title="Update time"></i>
+        2022-07-12
+      </span>
+
+                                                                        <span class="post-pubtime"> 本文共3k字 </span>
+
+                                                                        <span class="post-pubtime">
+        大约需要15min
+      </span>
+
+                                                                        
+                                                                                    <span class="post-categories">
+        <i class="iconfont icon-bookmark" title="Categories"></i>
+        
+        <span class="span--category">
+          <a href="/categories/Technology/" title="Technology">
+            <b>#</b> Technology
+          </a>
+        </span>
+                                                                                    
+                                                                                        </span>
+                                                                                        
+                                                                            <span class="post-tags">
+        <i class="iconfont icon-tags" title="Tags"></i>
+        
+        <span class="span--tag">
+          <a href="/tags/OS/" title="OS">
+            <b>#</b> OS
+          </a>
+        </span>
+                                                                            
+                                                                                </span>
+                                                                                
+                                                                    </div>
+                                                                    <div class="markdown-body">
+                                                                        <p>[toc]</p>
+<blockquote>
+<p>  英文版：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2020/xv6/book-riscv-rev1.pdf">https://pdos.csail.mit.edu/6.828/2020/xv6/book-riscv-rev1.pdf</a></p>
+<p>  中文版：<a target="_blank" rel="noopener" href="https://th0ar.gitbooks.io/xv6-chinese/content/index.html">https://th0ar.gitbooks.io/xv6-chinese/content/index.html</a></p>
+</blockquote>
+<h1 id="Chapter-1-Operating-system-interfaces"><a href="#Chapter-1-Operating-system-interfaces" class="headerlink" title="Chapter 1:Operating system interfaces"></a>Chapter 1:Operating system interfaces</h1><blockquote>
+<p>  xv6 是 MIT 开发的一个教学用的完整的类 Unix 操作系统，并且在 MIT 的操作系统课程 <a target="_blank" rel="noopener" href="http://pdos.csail.mit.edu/6.828/2012/xv6.html">6.828</a> 中使用</p>
+<p>  xv6 是 Dennis Ritchie 和 Ken Thompson 合著的 Unix Version 6（v6）操作系统的重新实现。xv6 在一定程度上遵守 v6 的结构和风格，但它是用 ANSI C 实现的，并且是基于 x86 多核处理器的。</p>
+</blockquote>
+<p>进程通过<strong>系统调用</strong>使用内核服务。系统调用会进入内核，让内核执行服务然后返回。所以进程总是在用户空间和内核空间之间交替运行。</p>
+<p>内核使用了CPU 的硬件保护机制来保证用户进程只能访问自己的内存空间。内核拥有实现保护机制所需的硬件权限(hardware privileges)，而用户程序没有这些权限。当一个用户程序进行一次系统调用时，硬件会提升特权级并且开始执行一些内核中预定义的功能。</p>
+<p>xv6中提供的系统调用(部分unix)：</p>
+<table>
+<thead>
+<tr>
+<th>系统调用</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>fork()</td>
+<td>创建进程</td>
+</tr>
+<tr>
+<td>exit()</td>
+<td>结束当前进程</td>
+</tr>
+<tr>
+<td>wait()</td>
+<td>等待子进程结束</td>
+</tr>
+<tr>
+<td>kill(pid)</td>
+<td>结束 pid 所指进程</td>
+</tr>
+<tr>
+<td>getpid()</td>
+<td>获得当前进程 pid</td>
+</tr>
+<tr>
+<td>sleep(n)</td>
+<td>睡眠 n 秒</td>
+</tr>
+<tr>
+<td>exec(filename, *argv)</td>
+<td>加载并执行一个文件</td>
+</tr>
+<tr>
+<td>sbrk(n)</td>
+<td>为进程内存空间增加 n 字节</td>
+</tr>
+<tr>
+<td>open(filename, flags)</td>
+<td>打开文件，flags 指定读&#x2F;写模式</td>
+</tr>
+<tr>
+<td>read(fd, buf, n)</td>
+<td>从文件中读 n 个字节到 buf</td>
+</tr>
+<tr>
+<td>write(fd, buf, n)</td>
+<td>从 buf 中写 n 个字节到文件</td>
+</tr>
+<tr>
+<td>close(fd)</td>
+<td>关闭打开的 fd</td>
+</tr>
+<tr>
+<td>dup(fd)</td>
+<td>复制 fd</td>
+</tr>
+<tr>
+<td>pipe( p)</td>
+<td>创建管道， 并把读和写的 fd 返回到p</td>
+</tr>
+<tr>
+<td>chdir(dirname)</td>
+<td>改变当前目录</td>
+</tr>
+<tr>
+<td>mkdir(dirname)</td>
+<td>创建新的目录</td>
+</tr>
+<tr>
+<td>mknod(name, major, minor)</td>
+<td>创建设备文件</td>
+</tr>
+<tr>
+<td>fstat(fd)</td>
+<td>返回文件信息</td>
+</tr>
+<tr>
+<td>link(f1, f2)</td>
+<td>给 f1 创建一个新名字(f2)</td>
+</tr>
+<tr>
+<td>unlink(filename)</td>
+<td>删除文件</td>
+</tr>
+</tbody></table>
+<p>xv6 shell的具体实现在<code>user/sh.c</code></p>
+<p>文件描述符：</p>
+<p><code>dup</code> 复制一个已有的文件描述符，返回一个指向同一个输入&#x2F;输出对象的新描述符</p>
+<p>管道是一个小的内核缓冲区，它以文件描述符对的形式提供给进程，一个用于写操作，一个用于读操作。从管道的一端写的数据可以从管道的另一端读取。管道提供了一种进程间交互的方式。</p>
+<h2 id="进程和内存"><a href="#进程和内存" class="headerlink" title="进程和内存"></a>进程和内存</h2><p><code>fork</code> 函数在父进程、子进程中都返回（一次调用两次返回），对于父进程它返回子进程的 pid，对于子进程它返回 0。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> pid;</span><br><span class="line">pid = fork();</span><br><span class="line"><span class="keyword">if</span>(pid &gt; <span class="number">0</span>)&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;parent: child=%d\n&quot;</span>, pid);</span><br><span class="line">    pid = wait();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;child %d is done\n&quot;</span>, pid);</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span>(pid == <span class="number">0</span>)&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;child: exiting\n&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>();</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;fork error\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>系统调用 <code>wait</code> 会返回一个<strong>当前进程已退出的子进程</strong>，如果没有子进程退出，<code>wait</code> 会等候直到有一个子进程退出。</p>
+<p>父子进程拥有不同的内存空间和寄存器，改变一个进程中的变量不会影响另一个进程，这一点在代码中有体现。</p>
+<p><code>exec</code>系统调用，从某个<em>文件</em>（通常是可执行文件）里读取内存镜像，并将其替换到调用它的进程的内存空间，这样的话，在执行<code>exec</code>系统调用后不返回，而是直接执行调用的elf文件：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *argv[<span class="number">3</span>];</span><br><span class="line">argv[<span class="number">0</span>] = <span class="string">&quot;echo&quot;</span>;</span><br><span class="line">argv[<span class="number">1</span>] = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">argv[<span class="number">2</span>] = <span class="number">0</span>;</span><br><span class="line">exec(<span class="string">&quot;/bin/echo&quot;</span>, argv);</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;exec error\n&quot;</span>);<span class="comment">//注意这里，不返回，走这一步说明出问题了</span></span><br></pre></td></tr></table></figure>
+
+<p>下面是xv6 shell的代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">static</span> <span class="keyword">char</span> buf[<span class="number">100</span>];</span><br><span class="line">	<span class="keyword">int</span> fd;</span><br><span class="line">	<span class="comment">// Ensure that three file descriptors are open.</span></span><br><span class="line">	<span class="keyword">while</span> ((fd = open(<span class="string">&quot;console&quot;</span>, O_RDWR)) &gt;= <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (fd &gt;= <span class="number">3</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			close(fd);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// Read and run input commands.</span></span><br><span class="line">	<span class="keyword">while</span> (getcmd(buf, <span class="keyword">sizeof</span>(buf)) &gt;= <span class="number">0</span>)<span class="comment">//getcmd 读取命令行的输入</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (buf[<span class="number">0</span>] == <span class="string">&#x27;c&#x27;</span> &amp;&amp; buf[<span class="number">1</span>] == <span class="string">&#x27;d&#x27;</span> &amp;&amp; buf[<span class="number">2</span>] == <span class="string">&#x27; &#x27;</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="comment">// Chdir must be called by the parent, not the child.</span></span><br><span class="line">			buf[<span class="built_in">strlen</span>(buf) - <span class="number">1</span>] = <span class="number">0</span>; <span class="comment">// chop \n</span></span><br><span class="line">			<span class="keyword">if</span> (chdir(buf + <span class="number">3</span>) &lt; <span class="number">0</span>)</span><br><span class="line">				<span class="built_in">fprintf</span>(<span class="number">2</span>, <span class="string">&quot;cannot cd %s\n&quot;</span>, buf + <span class="number">3</span>);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (fork1() == <span class="number">0</span>)<span class="comment">//调用fork</span></span><br><span class="line">			runcmd(parsecmd(buf));</span><br><span class="line">		wait(<span class="number">0</span>);<span class="comment">//父进程等待子进程退出</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>fork</code>的时候要拷贝elf的内容，空间不够的话：<code>sbrk(n)</code> 来增加 n 字节的数据内存。<code>sbrk</code> 返回新的内存的地址。</p>
+<h2 id="I-x2F-O-和文件描述符"><a href="#I-x2F-O-和文件描述符" class="headerlink" title="I&#x2F;O 和文件描述符"></a>I&#x2F;O 和文件描述符</h2><p><strong>文件描述符</strong>是一个整数，它代表了一个进程可以读写的被内核管理的对象。进程可以通过多种方式获得一个文件描述符，如打开文件、目录、设备，或者创建一个管道（pipe），或者复制已经存在的文件描述符。</p>
+<p>每个进程都有一张表，而 xv6 内核就以文件描述符作为这张表的索引，所以每个进程都有一个从0开始的文件描述符空间。见下图，但是这里不深究，也就看个大概，真想深究的话，去跟iofile的源码。</p>
+<p>文件描述符0读入（标准输入），从文件描述符1输出（标准输出），从文件描述符2输出错误（标准错误输出）。</p>
+<p><img src="/2022/07/12/XV6/image-20220707211016555.png"></p>
+<p>系统调用 <code>close</code> 会释放一个文件描述符，使得它之后可以被 <code>open</code>, <code>pipe</code>, <code>dup</code> 等调用重用。新分配的文件描述符始终是当前进程中编号最少的未使用描述符。</p>
+<p><code>fork</code> 会复制父进程的文件描述符和内存，所以子进程和父进程的文件描述符一模一样。</p>
+<p><code>exec</code> 会替换调用它的进程的内存但是会保留它的文件描述符表。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span>* argv[<span class="number">2</span>];</span><br><span class="line">argv[<span class="number">0</span>] = <span class="string">&quot;cat&quot;</span>;</span><br><span class="line">argv[<span class="number">1</span>] = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">if</span> (fork() == <span class="number">0</span>) &#123;</span><br><span class="line">    close(<span class="number">0</span>);</span><br><span class="line">    open(<span class="string">&quot;input.txt&quot;</span>, O_RDONLY);</span><br><span class="line">    exec(<span class="string">&quot;cat&quot;</span>, argv);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在子进程关闭文件描述符0之后，<code>open</code>使用新打开的input.txt(0文件描述符为0)。<code>cat</code>然后执行文件描述符0(标准输入)，但引用的是input.txt。父进程的文件描述符不会被这个序列改变，因为它只修改子进程的描述符。(这里还是挺有意思的)</p>
+<p><code>open</code>的第二个参数由一组标志组成，这些标志以位表示，用于控制打开的操作。在<code>kernel/fcntl.h</code>中</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> O_RDONLY  0x000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> O_WRONLY  0x001</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> O_RDWR    0x002</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> O_CREATE  0x200<span class="comment">//如果文件不存在则创建文件</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> O_TRUNC   0x400<span class="comment">//将文件截断为零长度</span></span></span><br></pre></td></tr></table></figure>
+
+<p><code>dup</code>系统调用复制一个现有的文件描述符，返回一个引用自同一个底层I&#x2F;O对象的新文件描述符。</p>
+<p>helloword的另一种写法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fd = dup(<span class="number">1</span>);</span><br><span class="line">write(<span class="number">1</span>, <span class="string">&quot;hello&quot;</span>, <span class="number">6</span>);</span><br><span class="line">write(fd, <span class="string">&quot;world\n&quot;</span>, <span class="number">6</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h2><p>管道是一个小的内核缓冲区，它以文件描述符对的形式提供给进程，一个用于写操作，一个用于读操作。从管道的一端写的数据可以从管道的另一端读取。提供了一种<strong>进程间</strong>交互的方式。就是队列，0是读，1是写。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> p[<span class="number">2</span>];</span><br><span class="line"><span class="keyword">char</span> *argv[<span class="number">2</span>];</span><br><span class="line">argv[<span class="number">0</span>] = <span class="string">&quot;wc&quot;</span>;</span><br><span class="line">argv[<span class="number">1</span>] = <span class="number">0</span>;</span><br><span class="line">pipe(p);</span><br><span class="line"><span class="keyword">if</span>(fork() == <span class="number">0</span>) &#123;</span><br><span class="line">    close(<span class="number">0</span>);</span><br><span class="line">    dup(p[<span class="number">0</span>]);<span class="comment">//调用close和dup使文件描述符0指向管道的读取端</span></span><br><span class="line">    close(p[<span class="number">0</span>]);</span><br><span class="line">    close(p[<span class="number">1</span>]);</span><br><span class="line">    exec(<span class="string">&quot;/bin/wc&quot;</span>, argv);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    write(p[<span class="number">1</span>], <span class="string">&quot;hello world\n&quot;</span>, <span class="number">12</span>);</span><br><span class="line">    close(p[<span class="number">0</span>]);</span><br><span class="line">    close(p[<span class="number">1</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>link</code>系统调用创建另一个文件名，该文件名指向与现有文件相同的inode。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">open(<span class="string">&quot;a&quot;</span>, O_CREATE | O_WRONLY);</span><br><span class="line">link(<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>);</span><br><span class="line"><span class="comment">// 创建了一个既叫做 a 又叫做 b 的新文件</span></span><br><span class="line">unlink(<span class="string">&quot;a&quot;</span>)，</span><br></pre></td></tr></table></figure>
+
+<p>读写 <code>a</code> 就相当于读写 <code>b</code>。每一个 inode 都由一个唯一的 <code>inode 号</code> 直接确定。在上面这段代码中，我们可以通过 <code>fstat</code> 知道 <code>a</code> 和 <code>b</code> 都指向同样的内容：<code>a</code> 和 <code>b</code> 都会返回同样的 inode 号（<code>ino</code>），并且 <code>nlink</code> 数会设置为2。</p>
+<p>系统调用 <code>unlink</code> 从文件系统移除一个文件名。一个文件的 inode 和磁盘空间只有当它的链接数变为 0 的时候才会被清空，也就是没有一个文件再指向它。</p>
+<h2 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h2><p>xv6 文件系统提供文件和目录，文件就是一个简单的字节数组，而目录包含指向文件和其他目录的引用。</p>
+<p>不从 <code>/</code> 开始的目录表示的是相对调用进程当前目录的目录，调用进程的当前目录可以通过 <code>chdir</code> 这个系统调用进行改变。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">chdir(<span class="string">&quot;/a&quot;</span>);</span><br><span class="line">chdir(<span class="string">&quot;b&quot;</span>);</span><br><span class="line">open(<span class="string">&quot;c&quot;</span>, O_RDONLY);</span><br><span class="line">open(<span class="string">&quot;/a/b/c&quot;</span>, O_RDONLY);</span><br></pre></td></tr></table></figure>
+
+<p><code>mknod</code>创建一个引用设备的特殊文件。与设备文件相关联的是主设备号和次设备号(<code>mknod</code>的两个参数)，它们唯一地标识了一个内核设备。当进程稍后打开设备文件时，内核将使用内核设备实现<code>read</code>和<code>write</code>系统调用，而不是使用文件系统。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir(<span class="string">&quot;/dir&quot;</span>);</span><br><span class="line">fd = open(<span class="string">&quot;/dir/file&quot;</span>, O_CREATE | O_WRONLY);</span><br><span class="line">close(fd);</span><br><span class="line">mknod(<span class="string">&quot;/console&quot;</span>, <span class="number">1</span>, <span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>同一个底层文件（叫做inode，索引结点）可以有多个名字（叫做link，链接）。每个链接都由目录中的一个条目组成;该条目包含一个文件名和一个inode引用。Inode保存有关文件的元数据（用于解释或帮助理解信息的数据），包括其类型(文件&#x2F;目录&#x2F;设备)、长度、文件内容在磁盘上的位置以及指向文件的链接数。</p>
+<p><code>fstat</code> 可以获取一个文件描述符指向的文件的信息。它填充一个名为 <code>stat</code> 的结构体，它在 <code>stat.h</code> 中定义为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> T_DIR     1   <span class="comment">// Directory</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> T_FILE    2   <span class="comment">// File</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> T_DEVICE  3   <span class="comment">// Device</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stat</span> &#123;</span></span><br><span class="line">  <span class="keyword">int</span> dev;     <span class="comment">// File system&#x27;s disk device</span></span><br><span class="line">  uint ino;    <span class="comment">// Inode number,Inode编号</span></span><br><span class="line">  <span class="keyword">short</span> type;  <span class="comment">// Type of file</span></span><br><span class="line">  <span class="keyword">short</span> nlink; <span class="comment">// Number of links to file，指向文件的链接数</span></span><br><span class="line">  uint64 size; <span class="comment">// Size of file in bytes</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h1 id="Chapter-2-Operating-system-organization"><a href="#Chapter-2-Operating-system-organization" class="headerlink" title="Chapter 2:Operating system organization"></a>Chapter 2:Operating system organization</h1><p>xv6 使用页表（由硬件实现）来为每个进程提供其独有的地址空间。页表将<em>虚拟地址</em>（x86 指令所使用的地址）翻译（或说“映射”）为<em>物理地址</em>（处理器芯片向主存发送的地址）。</p>
+<p><img src="/2022/07/12/XV6/image-20211127235250648.png"></p>
+<p>xv6 将内核映射到了地址空间的高地址处，即从 0x80100000 开始。</p>
+<p>xv6 使用结构体 <code>struct proc</code> 来维护一个进程的状态，其中最为重要的状态是进程的页表，内核栈，当前运行状态。接下来会用 <code>p-&gt;xxx</code> 来指代 <code>proc</code> 结构中的元素。</p>
+<p>每个进程都有一个运行线程（或简称为<em>线程</em>）来执行进程的指令。</p>
+<p>每个进程都有用户栈和内核栈（<code>p-&gt;kstack</code>）。</p>
+<p><code>p-&gt;state</code> 指示了进程的状态：新建、准备运行、运行、等待 I&#x2F;O 或退出状态中。</p>
+<p><code>p-&gt;pgdir</code> 以 x86 硬件要求的格式保存了进程的页表。xv6 让分页硬件在进程运行时使用 <code>p-&gt;pgdir</code>。进程的页表还记录了保存进程内存的物理页的地址。</p>
+<p>当 PC 开机时，它会初始化自己然后从磁盘中载入 <em>boot loader</em> 到内存并运行。然后，<em>boot loader</em> 把 xv6 内核从磁盘中载入并从 <code>entry</code>（1040）开始运行。x86 的分页硬件在此时还没有开始工作；所以这时的虚拟地址是<strong>直接映射</strong>到物理地址上的。</p>
+<p>boot loader 把 xv6 内核装载到物理地址 0x100000 处。之所以没有装载到内核指令和内核数据应该出现的 0x80100000，是因为小型机器上很可能没有这么大的物理内存。而之所以在 0x100000 而不是 0x0 则是因为地址 0xa0000 到 0x100000 是属于 I&#x2F;O 设备的。</p>
+
+                                                                    </div>
+                                                                    
+                                                                        <div class="prev-or-next">
+                                                                            <div class="post-foot-next">
+                                                                                
+                                                                                    <a href="/2022/07/10/2022-7-10-oslab/" target="_self">
+                                                                                        <i class="iconfont icon-chevronleft"></i>
+                                                                                        <span>Prev</span>
+                                                                                    </a>
+                                                                                    
+                                                                            </div>
+                                                                            <div class="post-attach">
+                                                                                <!-- <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="Update time"></i>
+              2022-07-12
+            </span> -->
+
+                                                                                
+                                                                                            <span class="post-categories">
+          <!-- <i class="iconfont icon-bookmark" title="Categories"></i> -->
+          
+          <!-- <span class="span--category">
+            <a href="/categories/Technology/" title="Technology">
+              <b>#</b> Technology
+            </a>
+          </span> -->
+                                                                                            
+                                                                                                </span>
+                                                                                                
+                                                                                    <span class="post-tags">
+          <!-- <i class="iconfont icon-tags" title="Tags"></i> -->
+          
+          <!-- <span class="span--tag">
+            <a href="/tags/OS/" title="OS">
+              <b>#</b> OS
+            </a>
+          </span> -->
+                                                                                    
+                                                                                        </span>
+                                                                                        
+                                                                            </div>
+                                                                            <div class="post-foot-prev">
+                                                                                
+                                                                                    <a href="/2022/07/12/2022-7-12/" target="_self">
+                                                                                        <span>Next</span>
+                                                                                        <i class="iconfont icon-chevronright"></i>
+                                                                                    </a>
+                                                                                    
+                                                                            </div>
+                                                                        </div>
+                                                                        
+                                                                </div>
+                                                                
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter-1-Operating-system-interfaces"><span class="toc-text">Chapter 1:Operating system interfaces</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E5%92%8C%E5%86%85%E5%AD%98"><span class="toc-text">进程和内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#I-x2F-O-%E5%92%8C%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6"><span class="toc-text">I&#x2F;O 和文件描述符</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%A1%E9%81%93"><span class="toc-text">管道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-text">文件系统</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Chapter-2-Operating-system-organization"><span class="toc-text">Chapter 2:Operating system organization</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+                                                                    
+                                                                        <div class="comments-container">
+                                                                            
+
+
+
+
+
+
+
+                                                                        </div>
+                                                                        
+                                                            </div>
+                                                            
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/Ghostasky">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/ghostasky">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/Ghostasky">怕什么真理无穷，进一寸有进一寸的欢喜。</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2022 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + XV6%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0 + '&url=' + https%3A%2F%2Fghostasky.github.io%2F2022%2F07%2F12%2FXV6%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://ghostasky.github.io/2022/07/12/XV6/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
