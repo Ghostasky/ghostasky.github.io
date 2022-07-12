@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="[TOC]  一、requests库基本使用请求方式： ​	get，post，head，put，delete，options。 **kwargs访问控制参数：  params：字典或字节序列，作为参数加到URL中 data：字典、字节序列或文件对象，作为request的内容 json：json格式的数据，作为request的内容 headers：字典，http定制头 cookies：字典或cook">
+    <meta name="description" content="[TOC]  一、requests库基本使用 请求方式： ​ get，post，head，put，delete，options。 **kwargs访问控制参数：  params：字典或字节序列，作为参数加到URL中 data：字典、字节序列或文件对象，作为request的内容 json：json格式的数据，作为request的内容 headers：字典，http定制头 coo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Python__request，socket模块">
 <meta property="og:url" content="http://example.com/2020/11/23/python__requestsocket%E6%A8%A1%E5%9D%97/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="[TOC]  一、requests库基本使用请求方式： ​	get，post，head，put，delete，options。 **kwargs访问控制参数：  params：字典或字节序列，作为参数加到URL中 data：字典、字节序列或文件对象，作为request的内容 json：json格式的数据，作为request的内容 headers：字典，http定制头 cookies：字典或cook">
+<meta property="og:description" content="[TOC]  一、requests库基本使用 请求方式： ​ get，post，head，put，delete，options。 **kwargs访问控制参数：  params：字典或字节序列，作为参数加到URL中 data：字典、字节序列或文件对象，作为request的内容 json：json格式的数据，作为request的内容 headers：字典，http定制头 coo">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-11-23T12:18:54.000Z">
 <meta property="article:modified_time" content="2021-06-01T16:16:29.624Z">
@@ -500,8 +500,9 @@
     <article class="article-entry">
         <p>[TOC]</p>
 <hr>
-<h1 id="一、requests库基本使用"><a href="#一、requests库基本使用" class="headerlink" title="一、requests库基本使用"></a>一、requests库基本使用</h1><p>请求方式：</p>
-<p>​	get，post，head，put，delete，options。</p>
+<h1 id="一requests库基本使用">一、requests库基本使用</h1>
+<p>请求方式：</p>
+<p>​ get，post，head，put，delete，options。</p>
 <p>**kwargs访问控制参数：</p>
 <ul>
 <li>params：字典或字节序列，作为参数加到URL中</li>
@@ -512,9 +513,9 @@
 <li>files：字典类型，传输文件</li>
 <li>timeout：设定超时时间，秒为单位、</li>
 <li>proxies：字典类型，设定访问代理服务器，可以增加登陆认证</li>
-<li>allow_redirects：true&#x2F;false，默认true，重定向开关</li>
-<li>stream：true&#x2F;false，默认true，获取内容立即下载开关</li>
-<li>verify：true&#x2F;false，默认true，认证SSL证书开关</li>
+<li>allow_redirects：true/false，默认true，重定向开关</li>
+<li>stream：true/false，默认true，获取内容立即下载开关</li>
+<li>verify：true/false，默认true，认证SSL证书开关</li>
 <li>cert：本地SSL证书</li>
 <li>auth：元组，支持http认证功能</li>
 </ul>
@@ -537,107 +538,127 @@
 <p>requests.Timeyout请求URL是，产生超时异常</p>
 <p>requests.raise_for_status()：如果不是200，产生requests.HTTPError</p>
 </blockquote>
-<h2 id="1-request-get-url-params-x3D-kwargs"><a href="#1-request-get-url-params-x3D-kwargs" class="headerlink" title="1.request.get(url,params&#x3D;*,**kwargs)"></a>1.request.get(url,params&#x3D;*,**kwargs)</h2><p>其中后两个参数可选</p>
+<h2 id="request.geturlparamskwargs">1.request.get(url,params=*,**kwargs)</h2>
+<p>其中后两个参数可选</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">response = requests.get(<span class="string">&#x27;http://xxxx.xx&#x27;</span>)</span><br><span class="line"></span><br><span class="line">response = requests.get(<span class="string">&#x27;http://xxxx.xx/?a=xxx&amp;b=sss&#x27;</span>)</span><br><span class="line"></span><br><span class="line">data = &#123;<span class="string">&#x27;a&#x27;</span>=<span class="string">&#x27;xxx&#x27;</span>,<span class="string">&#x27;b&#x27;</span>=<span class="string">&#x27;sss&#x27;</span>&#125;</span><br><span class="line">response = requests.get(<span class="string">&#x27;http://xxxx.xx&#x27;</span>,params=data)</span><br><span class="line"></span><br><span class="line">payload = &#123;<span class="string">&#x27;key1&#x27;</span>: <span class="string">&#x27;value1&#x27;</span>, <span class="string">&#x27;key2&#x27;</span>: <span class="string">&#x27;value2&#x27;</span>&#125;</span><br><span class="line">headers = &#123;<span class="string">&#x27;content-type&#x27;</span>: <span class="string">&#x27;application/json&#x27;</span>&#125;</span><br><span class="line">response = requests.get(<span class="string">&quot;http://xxx.xx&quot;</span>, params=payload, headers=headers)</span><br><span class="line"></span><br><span class="line"><span class="comment">#response的一些属性：</span></span><br><span class="line"></span><br><span class="line">r = requests.get(<span class="string">&quot;https://www.baidu.com&quot;</span>)</span><br><span class="line"><span class="built_in">print</span> r.status_code</span><br><span class="line"><span class="comment">#print r.text</span></span><br><span class="line"><span class="built_in">print</span> r.encoding</span><br><span class="line"><span class="built_in">print</span> r.apparent_encoding</span><br><span class="line"><span class="comment">#print r.content</span></span><br><span class="line"><span class="comment">#print r.json()</span></span><br><span class="line"><span class="built_in">print</span> r.reason</span><br><span class="line"><span class="built_in">print</span> r.headers</span><br><span class="line"><span class="built_in">print</span> r.cookies</span><br><span class="line"><span class="built_in">print</span> r.raw</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-requests-post-url-data-x3D-None-json-x3D-None-kwargs"><a href="#2-requests-post-url-data-x3D-None-json-x3D-None-kwargs" class="headerlink" title="2.*requests.post(url,data&#x3D;None,json&#x3D;None,*kwargs)"></a>2.*<em>requests.post(url,data&#x3D;None,json&#x3D;None,*<em>kwargs)</em></em></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line">data=&#123;&#x27;a&#x27;=&#x27;xxx&#x27;,&#x27;b&#x27;=&#x27;sss&#x27;&#125;</span><br><span class="line">response = requests.post(&#x27;http://xxx.xx&#x27;,data=data)</span><br><span class="line"></span><br><span class="line">url = &#x27;http://httpbin.org/post&#x27;</span><br><span class="line">files = &#123;&#x27;file&#x27;: open(&#x27;test.txt&#x27;, &#x27;rb&#x27;)&#125;</span><br><span class="line">r = requests.post(url, files=files)</span><br><span class="line">print r.text</span><br></pre></td></tr></table></figure>
-<h2 id="3-request-head-url-kwargs"><a href="#3-request-head-url-kwargs" class="headerlink" title="3.request.head(url,**kwargs)"></a>3.request.head(url,**kwargs)</h2><h2 id="4-requests-put-url-data-x3D-None-kwargs"><a href="#4-requests-put-url-data-x3D-None-kwargs" class="headerlink" title="4.requests.put(url,data&#x3D;None,**kwargs)"></a>4.requests.put(url,data&#x3D;None,**kwargs)</h2><h2 id="5-request-patch-url-data-x3D-None-kwargs"><a href="#5-request-patch-url-data-x3D-None-kwargs" class="headerlink" title="5.request.patch(url,data&#x3D;None,**kwargs)"></a>5.request.patch(url,data&#x3D;None,**kwargs)</h2><h2 id="6-request-delete-url-kwargs"><a href="#6-request-delete-url-kwargs" class="headerlink" title="6.request.delete(url,**kwargs)"></a>6.request.delete(url,**kwargs)</h2><p>以上都大同小异，就不写了。。。</p>
-<h1 id="二、socket库"><a href="#二、socket库" class="headerlink" title="二、socket库"></a>二、socket库</h1><ul>
+<h2 id="requests.posturldatanonejsonnonekwargs">2.**requests.post(url,data=None,json=None,**kwargs)**</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line">data=&#123;&#x27;a&#x27;=&#x27;xxx&#x27;,&#x27;b&#x27;=&#x27;sss&#x27;&#125;</span><br><span class="line">response = requests.post(&#x27;http://xxx.xx&#x27;,data=data)</span><br><span class="line"></span><br><span class="line">url = &#x27;http://httpbin.org/post&#x27;</span><br><span class="line">files = &#123;&#x27;file&#x27;: open(&#x27;test.txt&#x27;, &#x27;rb&#x27;)&#125;</span><br><span class="line">r = requests.post(url, files=files)</span><br><span class="line">print r.text</span><br></pre></td></tr></table></figure>
+<h2 id="request.headurlkwargs">3.request.head(url,**kwargs)</h2>
+<h2 id="requests.puturldatanonekwargs">4.requests.put(url,data=None,**kwargs)</h2>
+<h2 id="request.patchurldatanonekwargs">5.request.patch(url,data=None,**kwargs)</h2>
+<h2 id="request.deleteurlkwargs">6.request.delete(url,**kwargs)</h2>
+<p>以上都大同小异，就不写了。。。</p>
+<h1 id="二socket库">二、socket库</h1>
+<ul>
 <li><p>sk.socket.socket(socket.AF_INET,socket.SOCK_STREAM,0)</p>
 <p>参数一：</p>
-<p>​	默认为socket.AF_INET(IPv4)，还有socket.AF_INET6(IPv6),socket.AF_UNIX，其中最后一个只能用于单一的UNIX系统进程间通信</p>
+<p>​ 默认为socket.AF_INET(IPv4)，还有socket.AF_INET6(IPv6),socket.AF_UNIX，其中最后一个只能用于单一的UNIX系统进程间通信</p>
 <p>参数二：类型</p>
-<p>​	socket.SOCK_STREAM  &#x2F;&#x2F;流式socket，tcp（默认）</p>
-<p>​	socket.SOCK_DREAM  &#x2F;&#x2F;数据报式socket，udp</p>
+<p>​ socket.SOCK_STREAM //流式socket，tcp（默认）</p>
+<p>​ socket.SOCK_DREAM //数据报式socket，udp</p>
 <p>参数三：协议</p>
-<p>​	（默认）与特定的地址家族相关的协议,如果是 0 ，则系统就会根据地址格式和套接类别,自动选择一个合适的协议(非必填)</p>
+<p>​ （默认）与特定的地址家族相关的协议,如果是 0 ，则系统就会根据地址格式和套接类别,自动选择一个合适的协议(非必填)</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#创建socket：</span><br><span class="line">    #TCP socket</span><br><span class="line">    sk = socket.socket(socket.AF_INET,socket.SOCK_STREAM)</span><br><span class="line">    # UDP socke</span><br><span class="line">    sk = socket.socket(socket.AF_INET,socket.SOCK_DREAM)</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h2 id="1-socket常用函数介绍"><a href="#1-socket常用函数介绍" class="headerlink" title="1.socket常用函数介绍"></a>1.socket常用函数介绍</h2><pre><code>  因为TCP发送数据时已经建立好链接，所以不需要指定地，UDP是面向无链接的，每次发送需要指定。
-</code></pre>
+<h2 id="socket常用函数介绍">1.socket常用函数介绍</h2>
+<pre><code>因为TCP发送数据时已经建立好链接，所以不需要指定地，UDP是面向无链接的，每次发送需要指定。</code></pre>
 <ul>
-<li><h3 id="服务器端函数："><a href="#服务器端函数：" class="headerlink" title="服务器端函数："></a>服务器端函数：</h3><table>
+<li><h3 id="服务器端函数">服务器端函数：</h3>
+<table>
 <thead>
-<tr>
+<tr class="header">
 <th>函数名</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr class="odd">
 <td>sk.bind(address)</td>
 <td>将套接字绑定到地址，address是元组(host,port)</td>
 </tr>
-<tr>
+<tr class="even">
 <td>sk.listen(backlog)</td>
 <td>开始监听TCP传入链接，backlog指定在拒绝连接前，操作系统可以连接的最大连接数，最少为1</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>sk.accept()</td>
 <td>接收TCP连接并返回(conn,address)，其中conn是新的套接字对象</td>
 </tr>
-</tbody></table>
-</li>
-<li><h3 id="客户端函数："><a href="#客户端函数：" class="headerlink" title="客户端函数："></a>客户端函数：</h3><table>
+</tbody>
+</table></li>
+<li><h3 id="客户端函数">客户端函数：</h3>
+<table>
+<colgroup>
+<col style="width: 26%">
+<col style="width: 73%">
+</colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>函数名</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr class="odd">
 <td>sk.connect(address)</td>
 <td>连接到address处的套接字，address是元组(host,port)，如果连接出错，返回socket.error</td>
 </tr>
-<tr>
+<tr class="even">
 <td>sk.connect_ex(address)</td>
 <td>功能与上相同，但成功返回0，失败返回erron的值</td>
 </tr>
-</tbody></table>
-</li>
-<li><h3 id="公共函数："><a href="#公共函数：" class="headerlink" title="公共函数："></a>公共函数：</h3><table>
+</tbody>
+</table></li>
+<li><h3 id="公共函数">公共函数：</h3>
+<table>
+<colgroup>
+<col style="width: 34%">
+<col style="width: 65%">
+</colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>函数</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr class="odd">
 <td>sk.recv(bufsize[,flag])</td>
 <td>接收TCP套接字的数据，数据已字符串形式返回，bufsize指定接收最大数据量，flag提供有关消息的其他信息，可省略</td>
 </tr>
-<tr>
+<tr class="even">
 <td>sk.send(string[,flag])</td>
 <td>发送TCP数据，返回值是要发送的字节数量</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>sk.sendall(string[,flag])</td>
 <td>发送完整TCP数据，在返回之前尝试发送所有数据，成功返回none，失败跑出异常</td>
 </tr>
-<tr>
+<tr class="even">
 <td>sk.recvfro(bufsize[,flag])</td>
 <td>接收UDP套接字数据，返回值是(data,address)。data是包含接收数据的字符串，address是发送数据的套接字地址</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>sk.sendto(string[,flag],address)</td>
 <td>发送UDP数据，address是元组(host,port)，返回值是发送的字节数</td>
 </tr>
-<tr>
+<tr class="even">
 <td>sk.close()</td>
 <td>关闭套接字</td>
 </tr>
-<tr>
+<tr class="odd">
 <td>sk.getpeername()</td>
 <td>返回套接字的远程地址，返回值是(host,port)</td>
 </tr>
-<tr>
+<tr class="even">
 <td>sk.getsockname()</td>
 <td>返回套接字自己的地址</td>
 </tr>
-</tbody></table>
-</li>
+</tbody>
+</table></li>
 </ul>
-<h2 id="2-举例："><a href="#2-举例：" class="headerlink" title="2.举例："></a>2.举例：</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#服务器端</span></span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line">host = <span class="string">&#x27;192.168.1.123&#x27;</span></span><br><span class="line">port = <span class="number">4444</span></span><br><span class="line">sk = socket.socket(socket.AF_INET,socket_STREAM)</span><br><span class="line">sk.bind((host,port))</span><br><span class="line">sk.listen(<span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span> <span class="string">&#x27;Conn...&#x27;</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    <span class="built_in">print</span> <span class="string">&#x27;conn ok&#x27;</span></span><br><span class="line">    conn,addr = accept()</span><br><span class="line">    <span class="built_in">print</span> <span class="string">&#x27;conne form &#x27;</span>,addr</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        data = sk.soket.recv(<span class="number">1024</span>)</span><br><span class="line">        <span class="built_in">print</span> data</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&#x27;server received your msg&#x27;</span></span><br><span class="line">sk.close()</span><br><span class="line"></span><br><span class="line"><span class="comment">#客户端</span></span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line">host = <span class="string">&#x27;192.168.1.123&#x27;</span></span><br><span class="line">port = <span class="number">4444</span></span><br><span class="line">sk = socket.socket(socket.AF_INET,socket,STREAM)</span><br><span class="line">sk.connet((host,port))</span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    msg = <span class="built_in">input</span>(<span class="string">&#x27;input msg:&#x27;</span>)</span><br><span class="line">    sk.send(msg)</span><br><span class="line">    data = sk.recv(<span class="number">1024</span>)</span><br><span class="line">    <span class="built_in">print</span> data</span><br><span class="line">sk.close()</span><br></pre></td></tr></table></figure>
-
+<h2 id="举例">2.举例：</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#服务器端</span></span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line">host = <span class="string">&#x27;192.168.1.123&#x27;</span></span><br><span class="line">port = <span class="number">4444</span></span><br><span class="line">sk = socket.socket(socket.AF_INET,socket_STREAM)</span><br><span class="line">sk.bind((host,port))</span><br><span class="line">sk.listen(<span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span> <span class="string">&#x27;Conn...&#x27;</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    <span class="built_in">print</span> <span class="string">&#x27;conn ok&#x27;</span></span><br><span class="line">    conn,addr = accept()</span><br><span class="line">    <span class="built_in">print</span> <span class="string">&#x27;conne form &#x27;</span>,addr</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        data = sk.soket.recv(<span class="number">1024</span>)</span><br><span class="line">        <span class="built_in">print</span> data</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&#x27;server received your msg&#x27;</span></span><br><span class="line">sk.close()</span><br><span class="line"></span><br><span class="line"><span class="comment">#客户端</span></span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line">host = <span class="string">&#x27;192.168.1.123&#x27;</span></span><br><span class="line">port = <span class="number">4444</span></span><br><span class="line">sk = socket.socket(socket.AF_INET,socket,STREAM)</span><br><span class="line">sk.connet((host,port))</span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    msg = <span class="built_in">input</span>(<span class="string">&#x27;input msg:&#x27;</span>)</span><br><span class="line">    sk.send(msg)</span><br><span class="line">    data = sk.recv(<span class="number">1024</span>)</span><br><span class="line">    <span class="built_in">print</span> data</span><br><span class="line">sk.close()</span><br></pre></td></tr></table></figure>
 <p>查看socket状态： <code>netstart -an</code></p>
 <blockquote>
 <p>request和socket大致介绍就这样了，不是很全，但基本用法都在这了</p>
@@ -791,7 +812,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81requests%E5%BA%93%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">一、requests库基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-request-get-url-params-x3D-kwargs"><span class="toc-number">1.1.</span> <span class="toc-text">1.request.get(url,params&#x3D;*,**kwargs)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-requests-post-url-data-x3D-None-json-x3D-None-kwargs"><span class="toc-number">1.2.</span> <span class="toc-text">2.*requests.post(url,data&#x3D;None,json&#x3D;None,*kwargs)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-request-head-url-kwargs"><span class="toc-number">1.3.</span> <span class="toc-text">3.request.head(url,**kwargs)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-requests-put-url-data-x3D-None-kwargs"><span class="toc-number">1.4.</span> <span class="toc-text">4.requests.put(url,data&#x3D;None,**kwargs)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-request-patch-url-data-x3D-None-kwargs"><span class="toc-number">1.5.</span> <span class="toc-text">5.request.patch(url,data&#x3D;None,**kwargs)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-request-delete-url-kwargs"><span class="toc-number">1.6.</span> <span class="toc-text">6.request.delete(url,**kwargs)</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81socket%E5%BA%93"><span class="toc-number">2.</span> <span class="toc-text">二、socket库</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-socket%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.1.</span> <span class="toc-text">1.socket常用函数介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF%E5%87%BD%E6%95%B0%EF%BC%9A"><span class="toc-number">2.1.1.</span> <span class="toc-text">服务器端函数：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%87%BD%E6%95%B0%EF%BC%9A"><span class="toc-number">2.1.2.</span> <span class="toc-text">客户端函数：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AC%E5%85%B1%E5%87%BD%E6%95%B0%EF%BC%9A"><span class="toc-number">2.1.3.</span> <span class="toc-text">公共函数：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E4%B8%BE%E4%BE%8B%EF%BC%9A"><span class="toc-number">2.2.</span> <span class="toc-text">2.举例：</span></a></li></ol></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80requests%E5%BA%93%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">一、requests库基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#request.geturlparamskwargs"><span class="toc-number">1.1.</span> <span class="toc-text">1.request.get(url,params&#x3D;*,**kwargs)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#requests.posturldatanonejsonnonekwargs"><span class="toc-number">1.2.</span> <span class="toc-text">2.**requests.post(url,data&#x3D;None,json&#x3D;None,**kwargs)**</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#request.headurlkwargs"><span class="toc-number">1.3.</span> <span class="toc-text">3.request.head(url,**kwargs)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#requests.puturldatanonekwargs"><span class="toc-number">1.4.</span> <span class="toc-text">4.requests.put(url,data&#x3D;None,**kwargs)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#request.patchurldatanonekwargs"><span class="toc-number">1.5.</span> <span class="toc-text">5.request.patch(url,data&#x3D;None,**kwargs)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#request.deleteurlkwargs"><span class="toc-number">1.6.</span> <span class="toc-text">6.request.delete(url,**kwargs)</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8Csocket%E5%BA%93"><span class="toc-number">2.</span> <span class="toc-text">二、socket库</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#socket%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.1.</span> <span class="toc-text">1.socket常用函数介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF%E5%87%BD%E6%95%B0"><span class="toc-number">2.1.1.</span> <span class="toc-text">服务器端函数：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%87%BD%E6%95%B0"><span class="toc-number">2.1.2.</span> <span class="toc-text">客户端函数：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AC%E5%85%B1%E5%87%BD%E6%95%B0"><span class="toc-number">2.1.3.</span> <span class="toc-text">公共函数：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BE%E4%BE%8B"><span class="toc-number">2.2.</span> <span class="toc-text">2.举例：</span></a></li></ol></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1273,506 +1294,6 @@
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
     
     
     
@@ -1811,7 +1332,7 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">07/10</span>
-            <a class="archive-post-title" href="/2022/07/10/2022-7-10-oslab/">MIT6.S081_Lab</a>
+            <a class="archive-post-title" href="/2022/07/10/2022-7-10-oslab/">MIT6S081lab</a>
         </li>
     
         
@@ -2233,14 +1754,14 @@
                 Life
             </span>
         
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="PWN">
                 <span class="iconfont-archer">&#xe606;</span>
                 PWN
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="WEB">
-                <span class="iconfont-archer">&#xe606;</span>
-                WEB
             </span>
         
             <span class="sidebar-tag-name" data-tags="RE">
@@ -2253,14 +1774,14 @@
                 BUU刷题
             </span>
         
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="Java">
                 <span class="iconfont-archer">&#xe606;</span>
                 Java
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="免杀">
-                <span class="iconfont-archer">&#xe606;</span>
-                免杀
             </span>
         
             <span class="sidebar-tag-name" data-tags="内网">
@@ -2268,19 +1789,24 @@
                 内网
             </span>
         
+            <span class="sidebar-tag-name" data-tags="免杀">
+                <span class="iconfont-archer">&#xe606;</span>
+                免杀
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="VulnHub">
                 <span class="iconfont-archer">&#xe606;</span>
                 VulnHub
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内核">
-                <span class="iconfont-archer">&#xe606;</span>
-                内核
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="渗透">
                 <span class="iconfont-archer">&#xe606;</span>
                 渗透
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内核">
+                <span class="iconfont-archer">&#xe606;</span>
+                内核
             </span>
         
             <span class="sidebar-tag-name" data-tags="漏洞复现">
@@ -2301,11 +1827,6 @@
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">

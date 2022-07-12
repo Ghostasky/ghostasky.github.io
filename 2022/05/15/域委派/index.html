@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="[toc] 这个是鸽了好久好久的，一直没写，今天补一下。还有域委派的想写一直没写…… 关于详细的可以RFC文档：https:&#x2F;&#x2F;datatracker.ietf.org&#x2F;doc&#x2F;html&#x2F;rfc4120.html kerveros认证由三方来完成：Client,Server,KDC(密钥分发中心)。 KDC 服务默认会安装在一个域的域控中，而 Client 和 Server 为域内的用户或者是服务">
+    <meta name="description" content="[toc] 这个是鸽了好久好久的，一直没写，今天补一下。还有域委派的想写一直没写...... 关于详细的可以RFC文档：https:&#x2F;&#x2F;datatracker.ietf.org&#x2F;doc&#x2F;html&#x2F;rfc4120.html kerveros认证 由三方来完成：Client,Server,KDC(密钥分发中心)。 KDC 服务默认会安装在一个域的域控中，而 Client 和 Server 为">
 <meta property="og:type" content="article">
 <meta property="og:title" content="kerberos认证&amp;PAC">
 <meta property="og:url" content="http://example.com/2022/05/15/%E5%9F%9F%E5%A7%94%E6%B4%BE/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="[toc] 这个是鸽了好久好久的，一直没写，今天补一下。还有域委派的想写一直没写…… 关于详细的可以RFC文档：https:&#x2F;&#x2F;datatracker.ietf.org&#x2F;doc&#x2F;html&#x2F;rfc4120.html kerveros认证由三方来完成：Client,Server,KDC(密钥分发中心)。 KDC 服务默认会安装在一个域的域控中，而 Client 和 Server 为域内的用户或者是服务">
+<meta property="og:description" content="[toc] 这个是鸽了好久好久的，一直没写，今天补一下。还有域委派的想写一直没写...... 关于详细的可以RFC文档：https:&#x2F;&#x2F;datatracker.ietf.org&#x2F;doc&#x2F;html&#x2F;rfc4120.html kerveros认证 由三方来完成：Client,Server,KDC(密钥分发中心)。 KDC 服务默认会安装在一个域的域控中，而 Client 和 Server 为">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2022/05/15/%E5%9F%9F%E5%A7%94%E6%B4%BE/kerberos5.png">
 <meta property="og:image" content="http://example.com/2022/05/15/%E5%9F%9F%E5%A7%94%E6%B4%BE/image001.png">
@@ -502,179 +502,196 @@
                 <main class="main post-page">
     <article class="article-entry">
         <p>[toc]</p>
-<p>这个是鸽了好久好久的，一直没写，今天补一下。还有域委派的想写一直没写……</p>
-<p>关于详细的可以RFC文档：<a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc4120.html">https://datatracker.ietf.org/doc/html/rfc4120.html</a></p>
-<h1 id="kerveros认证"><a href="#kerveros认证" class="headerlink" title="kerveros认证"></a>kerveros认证</h1><p>由三方来完成：Client,Server,KDC(密钥分发中心)。</p>
+<p>这个是鸽了好久好久的，一直没写，今天补一下。还有域委派的想写一直没写......</p>
+<p>关于详细的可以RFC文档：https://datatracker.ietf.org/doc/html/rfc4120.html</p>
+<h1 id="kerveros认证">kerveros认证</h1>
+<p>由三方来完成：Client,Server,KDC(密钥分发中心)。</p>
 <p>KDC 服务默认会安装在一个域的域控中，而 Client 和 Server 为域内的用户或者是服务，如 HTTP 服务，SQL 服务。在 Kerberos 中 Client 是否有权限访问 Server 端的服务由 KDC 发放的票据来决定。</p>
 <p>KDC由两部分组成：</p>
 <ul>
 <li>AS（<strong>Authentication Server</strong>）：认证服务器，专门用来认证client的身份并发放客户用于访问TGS的TGT（票据授予票据）</li>
 <li>TGS（<strong>Ticket Granting Ticket</strong>）：票据授予服务器，用来发放整个认证过程以及客户端访问服务端时所需的服务授予票据（Ticket）</li>
 </ul>
-<h2 id="认证流程"><a href="#认证流程" class="headerlink" title="认证流程"></a>认证流程</h2><p>先来看一张图：</p>
-<p><img src="/2022/05/15/%E5%9F%9F%E5%A7%94%E6%B4%BE/kerberos5.png" alt="img"></p>
+<h2 id="认证流程">认证流程</h2>
+<p>先来看一张图：</p>
+<figure>
+<img src="/2022/05/15/%E5%9F%9F%E5%A7%94%E6%B4%BE/kerberos5.png" alt="img"><figcaption aria-hidden="true">img</figcaption>
+</figure>
 <p>当 Client 想要访问 Server 上的某个服务时，需要先向 AS 证明自己的身份，然后通过 AS 发放的 TGT 向 Server 发起认证请求，这个过程分为三块：</p>
 <p><strong>The Authentication Service Exchange</strong>：Client 与 AS 的交互；</p>
 <p><strong>The Ticket-Granting Service (TGS) Exchange</strong>：Client 与 TGS 的交互；</p>
-<p><strong>The Client&#x2F;Server Authentication Exchange</strong>：Client 与 Server 的交互。</p>
-<h2 id="Client–AS"><a href="#Client–AS" class="headerlink" title="Client–AS"></a>Client–AS</h2><h3 id="AS-REQ"><a href="#AS-REQ" class="headerlink" title="AS_REQ"></a>AS_REQ</h3><p><code>AS_REQ</code>中的字段在这里可以看到：<a target="_blank" rel="noopener" href="https://daiker.gitbook.io/windows-protocol/kerberos/1#0x03-as_req">AS_REQ字段</a></p>
+<p><strong>The Client/Server Authentication Exchange</strong>：Client 与 Server 的交互。</p>
+<h2 id="client--as">Client--AS</h2>
+<h3 id="as_req">AS_REQ</h3>
+<p><code>AS_REQ</code>中的字段在这里可以看到：<a target="_blank" rel="noopener" href="https://daiker.gitbook.io/windows-protocol/kerberos/1#0x03-as_req">AS_REQ字段</a></p>
 <p>请求中包含：用户hash加密的时间戳<code>PA-ENC-TIMESTAMP</code>，用户名。</p>
 <p><code>AS_REQ</code>的<code>PA_DATA</code>字段中主要用到的是两个：</p>
-<ol>
+<ol type="1">
 <li><code>PA-ENC-TIMESTAMP</code>：预认证，用户hash加密的时间戳，之后AS有用户的hash，用于解密，获得时间戳，如果时间在一定范围内，则认证通过</li>
 <li><code>PA_PAC_REQUEST</code>：启用PAC支持的扩展，后面会写到。</li>
 </ol>
-<h3 id="AS-REP"><a href="#AS-REP" class="headerlink" title="AS_REP"></a>AS_REP</h3><p>AS向活动目录AD请求查询是否有该用户，有的话取出相应用户对应的Hash，并对 <code>AS_REQ</code> 请求中加密的时间戳<code>PA-ENC-TIMESTAMP</code>进行解密，如果解密成功，则证明客户端提供的密码正确，如果时间戳在五分钟之内，则预认证成功。之后返回TGT票据，分为两部分看下：</p>
-<ol>
+<h3 id="as_rep">AS_REP</h3>
+<p>AS向活动目录AD请求查询是否有该用户，有的话取出相应用户对应的Hash，并对 <code>AS_REQ</code> 请求中加密的时间戳<code>PA-ENC-TIMESTAMP</code>进行解密，如果解密成功，则证明客户端提供的密码正确，如果时间戳在五分钟之内，则预认证成功。之后返回TGT票据，分为两部分看下：</p>
+<ol type="1">
 <li><code>ticket</code>字段(TGT)：当前KDC中krbtgt hash加密的TGT票据（<code>Session-key-AS</code>，时间戳，用户信息，到期时间等），在通信数据包中显示的就是<code>ticket</code>字段，<code>ticket</code>字段用于<code>TGS_REQ</code>的认证，是加密的，<strong>用户不可读取里面的内容</strong>。在<code>AS_REQ</code>请求里面时，是使用krbtgt的hash进行加密的，因此如果我们拥有krbtgt的hash就可以自己制作一个ticket，既黄金票据。</li>
 <li><code>enc-part</code>字段：AS会生成一个随机数<code>Session-key-AS</code>（非常重要，作为kerberos中下一轮的认证密钥），使用用户hash加密该字段可以解密，key是用户hash，解密后得到<code>Encryptionkey</code>，其中包含<code>Session-key-AS</code>。</li>
 </ol>
 <p>总的来说AS_REP包含<code>Session-key-AS</code>和<code>TGT</code>（由 krbtgt HASH 加密的 <code>Session-key-AS</code>和时间戳等信息）</p>
-<h3 id="工具导出的票据后缀"><a href="#工具导出的票据后缀" class="headerlink" title="工具导出的票据后缀"></a>工具导出的票据后缀</h3><p>mimikatz，kekeo，rubeus生成的凭据是以<code>.kirbi</code>后缀的。</p>
+<h3 id="工具导出的票据后缀">工具导出的票据后缀</h3>
+<p>mimikatz，kekeo，rubeus生成的凭据是以<code>.kirbi</code>后缀的。</p>
 <p>impacket 生成的凭据的后缀是<code>.ccache</code>。</p>
 <p>这两种票据主要包含的都是 Session-key 和 TGT，因此可以相互转化。</p>
-<h2 id="Client–TGS"><a href="#Client–TGS" class="headerlink" title="Client–TGS"></a>Client–TGS</h2><h3 id="TGS-REQ"><a href="#TGS-REQ" class="headerlink" title="TGS_REQ"></a>TGS_REQ</h3><p>这里client拿到通过<code>AS_REP</code>拿到TGT，之后访问KDC访问特定服务。</p>
+<h2 id="client--tgs">Client--TGS</h2>
+<h3 id="tgs_req">TGS_REQ</h3>
+<p>这里client拿到通过<code>AS_REP</code>拿到TGT，之后访问KDC访问特定服务。</p>
 <p>首先通过用户hash解密<code>AS_REP</code>中<code>enc-part</code>，得到<code>Session-key-AS</code></p>
 <p>Client使用<code>Session-key-AS</code>加密时间戳等信息，得到<code>authenticator</code>（认证符），之后连同<code>AS_REP</code>中的TGT和需要访问的服务ID一起发送给KDC中的TGS。</p>
-<h3 id="TGS-REP"><a href="#TGS-REP" class="headerlink" title="TGS_REP"></a>TGS_REP</h3><p>TGS首先检查是否存在Client访问的服务，若存在，使用krbtgt的hash解密TGT得到<code>Session-key-AS</code>、时间戳等信息，之后使用<code>Session-key-AS</code>解密<code>authenticator</code>部分，将得到的两部分时间戳等信息比较，如果时间相差过大则需要重新认证。</p>
+<h3 id="tgs_rep">TGS_REP</h3>
+<p>TGS首先检查是否存在Client访问的服务，若存在，使用krbtgt的hash解密TGT得到<code>Session-key-AS</code>、时间戳等信息，之后使用<code>Session-key-AS</code>解密<code>authenticator</code>部分，将得到的两部分时间戳等信息比较，如果时间相差过大则需要重新认证。</p>
 <p>认证成功TGS会重新生成session，这里称为<code>Session-key-TGS</code>，用于确保客户端与服务器之间通信安全。</p>
 <p>响应为两部分：</p>
-<ol>
+<ol type="1">
 <li><code>Session-key-AS</code>加密的<code>Session-key-TGS</code></li>
 <li>票据ST：server密码的hash加密的<code>Session-key-TGS</code>、时间戳等信息</li>
 </ol>
-<h2 id="Client–Server"><a href="#Client–Server" class="headerlink" title="Client–Server"></a>Client–Server</h2><h3 id="AP-REQ"><a href="#AP-REQ" class="headerlink" title="AP_REQ"></a>AP_REQ</h3><p>客户端收到TGS_REP响应后，使用<code>Session-key-AS</code>解密得到<code>Session-key-TGS</code>。</p>
+<h2 id="client--server">Client--Server</h2>
+<h3 id="ap_req">AP_REQ</h3>
+<p>客户端收到TGS_REP响应后，使用<code>Session-key-AS</code>解密得到<code>Session-key-TGS</code>。</p>
 <p>请求有两部分：</p>
-<ol>
+<ol type="1">
 <li>新生成的<code>authenticator</code>，包含用户ID、时间戳、Client-info等信息，由<code>Session-key-TGS</code>加密</li>
 <li>票据ST</li>
 </ol>
-<h3 id="AP-REP"><a href="#AP-REP" class="headerlink" title="AP_REP"></a>AP_REP</h3><p>使用server密码的hash解密票据ST，得到<code>Session-key-TGS</code>、时间戳等信息；之后使用<code>Session-key-TGS</code>解密<code>authenticator</code>，得到时间戳等信息，将这两者对比校验。</p>
+<h3 id="ap_rep">AP_REP</h3>
+<p>使用server密码的hash解密票据ST，得到<code>Session-key-TGS</code>、时间戳等信息；之后使用<code>Session-key-TGS</code>解密<code>authenticator</code>，得到时间戳等信息，将这两者对比校验。</p>
 <p>通过客户端身份验证后，Server 会拿着 PAC 去询问 DC 该用户是否有访问权限，DC 拿到 PAC 后进行解密，然后通过 PAC 中的 SID 判断用户的用户组信息、用户权限等信息，然后将结果返回给服务端，服务端再将此信息域用户请求的服务资源的 ACL 进行对比，最后决定是否给用户提供相关的服务。通过认证后 Server 将返回最终的 <code>AP-REP</code> 并与 Client 建立通信。</p>
-<h1 id="PAC"><a href="#PAC" class="headerlink" title="PAC"></a>PAC</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>用户特权证书。一般的kerberos流程都是如上所述的，但是这里有个问题，那就是用户有没有权限访问该服务，在上面的流程里面，只要用户的hash正确，那么就可以拿到TGT，有了TGT，就可以拿到TGS，有了TGS，就可以访问服务，任何一个用户都可以访问任何服务。也就是说上面的流程解决了<code>who am i</code>的问题，并没有解决<code>What can I do</code>的问题。</p>
+<h1 id="pac">PAC</h1>
+<h2 id="介绍">介绍</h2>
+<p>用户特权证书。一般的kerberos流程都是如上所述的，但是这里有个问题，那就是用户有没有权限访问该服务，在上面的流程里面，只要用户的hash正确，那么就可以拿到TGT，有了TGT，就可以拿到TGS，有了TGS，就可以访问服务，任何一个用户都可以访问任何服务。也就是说上面的流程解决了<code>who am i</code>的问题，并没有解决<code>What can I do</code>的问题。</p>
 <p>于是微软引入了PAC，流程变成下面的情况：</p>
-<ol>
+<ol type="1">
 <li><code>AS_REQ</code>：请求为用户hash加密的时间戳，KDC使用用户hash进行解密，如果结果正确返回用krbtgt hash加密的TGT票据，<strong>TGT里面包含PAC,PAC包含用户的sid，用户所在的组</strong>：<code>Ticket[Authorization Data[PAC[Signature]]]</code></li>
 <li>用户凭借TGT票据向KDC发起针对特定服务的TGS_REQ请求，KDC使用krbtgt hash进行解密，如果结果正确，就返回用服务hash 加密的TGS票据(这一步不管用户有没有访问服务的权限，只要TGT正确，就返回TGS票据，任何一个用户，只要hash正确，可以请求域内任何一个服务的TGS票据)</li>
 <li>用户拿着TGS票据去请求服务，服务使用自己的hash解密TGS票据。如果解密正确，就拿着PAC去KDC询问用户有没有访问权限，域控解密PAC。获取用户的sid，以及所在的组，再判断用户是否有访问服务的权限，有访问权限(有些服务并没有验证PAC这一步，这也是白银票据能成功的前提，因为就算拥有用户hash，可以制作TGS，也不能制作PAC，PAC当然也验证不成功，但是有些服务不去验证PAC，这是白银票据成功的前提）就允许用户访问。</li>
 </ol>
 <p>PAC对于用户和服务全程都是不可见的。只有KDC能制作和查看PAC。</p>
-<h2 id="PAC结构"><a href="#PAC结构" class="headerlink" title="PAC结构"></a>PAC结构</h2><blockquote>
-<p>   这里看的daiker师傅的文章。</p>
+<h2 id="pac结构">PAC结构</h2>
+<blockquote>
+<p>这里看的daiker师傅的文章。</p>
 </blockquote>
-<p><img src="/2022/05/15/%E5%9F%9F%E5%A7%94%E6%B4%BE/image001.png" alt="img"></p>
+<figure>
+<img src="/2022/05/15/%E5%9F%9F%E5%A7%94%E6%B4%BE/image001.png" alt="img"><figcaption aria-hidden="true">img</figcaption>
+</figure>
 <p>PAC整体上是一个AuthorizationData结构</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">AuthorizationData       ::= SEQUENCE OF SEQUENCE &#123;</span><br><span class="line">              ad-type         [0] Int32,</span><br><span class="line">              ad-data         [1] OCTET STRING</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
 <p>其中的ad-type主要有以下几个：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">AD-IF-RELEVANT                     1</span><br><span class="line">AD-INTENDED-FOR-SERVER             2</span><br><span class="line">AD-INTENDED-FOR-APPLICATION-CLASS  3</span><br><span class="line">AD-KDC-ISSUED                      4</span><br><span class="line">AD-AND-OR                          5</span><br><span class="line">AD-MANDATORY-TICKET-EXTENSIONS     6</span><br><span class="line">AD-IN-TICKET-EXTENSIONS            7</span><br><span class="line">AD-MANDATORY-FOR-KDC               8</span><br><span class="line">Reserved values                 9-63</span><br><span class="line">OSF-DCE                           64</span><br><span class="line">SESAME                            65</span><br><span class="line">AD-OSF-DCE-PKI-CERTID             66 (hemsath @us.ibm.com)</span><br><span class="line">AD-WIN2K-PAC                     128 (jbrezak @exchange.microsoft.com)</span><br><span class="line">AD-ETYPE-NEGOTIATION             129  (lzhu @windows.microsoft.com)</span><br></pre></td></tr></table></figure>
-
 <p>整个PAC最外层的<code>ad-type</code>为<code>AD-IF-RELEVANT</code>，封装了另一个 <code>AD-WIN2K-PAC</code> 类型的 <code>AuthorizationData</code> 元素，结构为<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/6655b92f-ab06-490b-845d-037e6987275f">PACTYPE</a></p>
 <p>，意思就是这个<code>AuthorizationData</code>元素的<code>ad-type</code>为<code>AD-WIN2K-PAC</code>，而<code>ad-data</code>为一段连续的空间，结构为<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/3341cfa2-6ef5-42e0-b7bc-4544884bf399">PAC_INFO_BUFFER</a></p>
 <p>PACTYPE结构：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">PACTYPE</span> &#123;</span></span><br><span class="line">    ULONG cBuffers;<span class="comment">//用于定义Buffers 数组中的条目数。</span></span><br><span class="line">    ULONG Version;<span class="comment">//定义 PAC 版本的小端格式的 32 位无符号整数；必须是 0x00000000。</span></span><br><span class="line">    PAC_INFO_BUFFER Buffers[<span class="number">1</span>];<span class="comment">//PAC_INFO_BUFFER 结构的数组</span></span><br><span class="line">&#125; PACTYPE, *PPACTYPE;</span><br></pre></td></tr></table></figure>
-
 <p>PAC_INFO_BUFFER结构(key-value型)：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">PAC_INFO_BUFFER</span> &#123;</span></span><br><span class="line">    ULONG ulType;<span class="comment">//描述存在于Offset处的缓冲区中的数据类型</span></span><br><span class="line">    ULONG cbBufferSize;<span class="comment">//包含 PAC 中位于Offset的缓冲区的大小（以字节为单位）</span></span><br><span class="line">    ULONG64 Offset;<span class="comment">//包含从 PACTYPE 结构开头到缓冲区开头的偏移量，以字节为单位。数据偏移量必须是八的倍数。以下部分指定每种元素的格式</span></span><br><span class="line">&#125; PAC_INFO_BUFFER, *PPAC_INFO_BUFFER;</span><br></pre></td></tr></table></figure>
-
 <p>key的类型：</p>
 <table>
+<colgroup>
+<col style="width: 14%">
+<col style="width: 85%">
+</colgroup>
 <thead>
-<tr>
-<th align="left">类型</th>
-<th align="left">意义</th>
+<tr class="header">
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">意义</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left">0x00000001</td>
-<td align="left">登录信息。PAC 结构必须包含一个这种类型的缓冲区。必须忽略其他登录信息缓冲区。</td>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">0x00000001</td>
+<td style="text-align: left;">登录信息。PAC 结构必须包含一个这种类型的缓冲区。必须忽略其他登录信息缓冲区。</td>
 </tr>
-<tr>
-<td align="left">0x00000002</td>
-<td align="left">凭证信息。PAC 结构不应包含多个此类缓冲区。第二个或后续的凭证信息缓冲区在接收时必须被忽略。</td>
+<tr class="even">
+<td style="text-align: left;">0x00000002</td>
+<td style="text-align: left;">凭证信息。PAC 结构不应包含多个此类缓冲区。第二个或后续的凭证信息缓冲区在接收时必须被忽略。</td>
 </tr>
-<tr>
-<td align="left">0x00000006</td>
-<td align="left">服务器校验和。PAC 结构必须包含一个这种类型的缓冲区。必须忽略其他登录服务器校验和缓冲区。</td>
+<tr class="odd">
+<td style="text-align: left;">0x00000006</td>
+<td style="text-align: left;">服务器校验和。PAC 结构必须包含一个这种类型的缓冲区。必须忽略其他登录服务器校验和缓冲区。</td>
 </tr>
-<tr>
-<td align="left">0x00000007</td>
-<td align="left">KDC（特权服务器）校验和。PAC 结构必须包含一个这种类型的缓冲区。必须忽略额外的 KDC 校验和缓冲区。</td>
+<tr class="even">
+<td style="text-align: left;">0x00000007</td>
+<td style="text-align: left;">KDC（特权服务器）校验和。PAC 结构必须包含一个这种类型的缓冲区。必须忽略额外的 KDC 校验和缓冲区。</td>
 </tr>
-<tr>
-<td align="left">0x0000000A</td>
-<td align="left">客户名称和票证信息。PAC 结构必须包含一个这种类型的缓冲区。必须忽略其他客户端和票证信息缓冲区。</td>
+<tr class="odd">
+<td style="text-align: left;">0x0000000A</td>
+<td style="text-align: left;">客户名称和票证信息。PAC 结构必须包含一个这种类型的缓冲区。必须忽略其他客户端和票证信息缓冲区。</td>
 </tr>
-<tr>
-<td align="left">0x0000000B</td>
-<td align="left">受约束的委派信息。PAC 结构必须包含一个用于用户到代理服务 (S4U2proxy) 请求的此类缓冲区，否则不包含。必须忽略其他受约束的委托信息缓冲区。</td>
+<tr class="even">
+<td style="text-align: left;">0x0000000B</td>
+<td style="text-align: left;">受约束的委派信息。PAC 结构必须包含一个用于用户到代理服务 (S4U2proxy) 请求的此类缓冲区，否则不包含。必须忽略其他受约束的委托信息缓冲区。</td>
 </tr>
-<tr>
-<td align="left">0x0000000C</td>
-<td align="left">用户主体名称 (UPN) 和域名系统 (DNS) 信息。PAC 结构不应该包含多个此类型的缓冲区。第二个或后续的 UPN 和 DNS 信息缓冲区在接收时必须被忽略。</td>
+<tr class="odd">
+<td style="text-align: left;">0x0000000C</td>
+<td style="text-align: left;">用户主体名称 (UPN) 和域名系统 (DNS) 信息。PAC 结构不应该包含多个此类型的缓冲区。第二个或后续的 UPN 和 DNS 信息缓冲区在接收时必须被忽略。</td>
 </tr>
-<tr>
-<td align="left">0x0000000D</td>
-<td align="left">客户索赔信息。PAC 结构不应该包含多个此类缓冲区。必须忽略其他客户端声明信息缓冲区。</td>
+<tr class="even">
+<td style="text-align: left;">0x0000000D</td>
+<td style="text-align: left;">客户索赔信息。PAC 结构不应该包含多个此类缓冲区。必须忽略其他客户端声明信息缓冲区。</td>
 </tr>
-<tr>
-<td align="left">0x0000000E</td>
-<td align="left">设备信息。PAC 结构不应该包含多个此类缓冲区。必须忽略其他设备信息缓冲区。</td>
+<tr class="odd">
+<td style="text-align: left;">0x0000000E</td>
+<td style="text-align: left;">设备信息。PAC 结构不应该包含多个此类缓冲区。必须忽略其他设备信息缓冲区。</td>
 </tr>
-<tr>
-<td align="left">0x0000000F</td>
-<td align="left">设备声明信息。PAC 结构不应该包含多个此类型的缓冲区。必须忽略其他设备声明信息缓冲区。</td>
+<tr class="even">
+<td style="text-align: left;">0x0000000F</td>
+<td style="text-align: left;">设备声明信息。PAC 结构不应该包含多个此类型的缓冲区。必须忽略其他设备声明信息缓冲区。</td>
 </tr>
-<tr>
-<td align="left">0x00000010</td>
-<td align="left">票证校验和。PAC 结构不应包含多个此类缓冲区。必须忽略额外的票据校验和缓冲区。</td>
+<tr class="odd">
+<td style="text-align: left;">0x00000010</td>
+<td style="text-align: left;">票证校验和。PAC 结构不应包含多个此类缓冲区。必须忽略额外的票据校验和缓冲区。</td>
 </tr>
-<tr>
-<td align="left">0x00000011</td>
-<td align="left">PAC Attributes 指示缓冲区包含 PAC 的属性位。PAC 结构不应包含多个此类缓冲区。必须忽略其他属性缓冲区。</td>
+<tr class="even">
+<td style="text-align: left;">0x00000011</td>
+<td style="text-align: left;">PAC Attributes 指示缓冲区包含 PAC 的属性位。PAC 结构不应包含多个此类缓冲区。必须忽略其他属性缓冲区。</td>
 </tr>
-<tr>
-<td align="left">0x00000012</td>
-<td align="left">PAC 请求者指示缓冲区包含请求 PAC 的主体的 SID。PAC 结构必须包含一个这种类型的缓冲区。</td>
+<tr class="odd">
+<td style="text-align: left;">0x00000012</td>
+<td style="text-align: left;">PAC 请求者指示缓冲区包含请求 PAC 的主体的 SID。PAC 结构必须包含一个这种类型的缓冲区。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p>说几个重要的：</p>
 <ul>
 <li><p>0x00000001：KERB_VALIDATION_INFO，登陆信息，是一个结构体，整个PAC最重要的部分，如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">KERB_VALIDATION_INFO</span> &#123;</span></span><br><span class="line">   FILETIME LogonTime;</span><br><span class="line">   FILETIME LogoffTime;</span><br><span class="line">   FILETIME KickOffTime;</span><br><span class="line">   FILETIME PasswordLastSet;</span><br><span class="line">   FILETIME PasswordCanChange;</span><br><span class="line">   FILETIME PasswordMustChange;</span><br><span class="line">   RPC_UNICODE_STRING EffectiveName;</span><br><span class="line">   RPC_UNICODE_STRING FullName;</span><br><span class="line">   RPC_UNICODE_STRING LogonScript;</span><br><span class="line">   RPC_UNICODE_STRING ProfilePath;</span><br><span class="line">   RPC_UNICODE_STRING HomeDirectory;</span><br><span class="line">   RPC_UNICODE_STRING HomeDirectoryDrive;</span><br><span class="line">   USHORT LogonCount;</span><br><span class="line">   USHORT BadPasswordCount;</span><br><span class="line">   ULONG UserId;</span><br><span class="line">   ULONG PrimaryGroupId;</span><br><span class="line">   ULONG GroupCount;</span><br><span class="line">   [size_is(GroupCount)] PGROUP_MEMBERSHIP GroupIds;</span><br><span class="line">   ULONG UserFlags;</span><br><span class="line">   USER_SESSION_KEY UserSessionKey;</span><br><span class="line">   RPC_UNICODE_STRING LogonServer;</span><br><span class="line">   RPC_UNICODE_STRING LogonDomainName;</span><br><span class="line">   PISID LogonDomainId;</span><br><span class="line">   ULONG Reserved1[<span class="number">2</span>];</span><br><span class="line">   ULONG UserAccountControl;</span><br><span class="line">   ULONG SubAuthStatus;</span><br><span class="line">   FILETIME LastSuccessfulILogon;</span><br><span class="line">   FILETIME LastFailedILogon;</span><br><span class="line">   ULONG FailedILogonCount;</span><br><span class="line">   ULONG Reserved3;</span><br><span class="line">   ULONG SidCount;</span><br><span class="line">   [size_is(SidCount)] PKERB_SID_AND_ATTRIBUTES ExtraSids;</span><br><span class="line">   PISID ResourceGroupDomainSid;</span><br><span class="line">   ULONG ResourceGroupCount;</span><br><span class="line">   [size_is(ResourceGroupCount)] PGROUP_MEMBERSHIP ResourceGroupIds;</span><br><span class="line">&#125; KERB_VALIDATION_INFO, *PKERB_VALIDATION_INFO;</span><br></pre></td></tr></table></figure>
-</li>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">KERB_VALIDATION_INFO</span> &#123;</span></span><br><span class="line">   FILETIME LogonTime;</span><br><span class="line">   FILETIME LogoffTime;</span><br><span class="line">   FILETIME KickOffTime;</span><br><span class="line">   FILETIME PasswordLastSet;</span><br><span class="line">   FILETIME PasswordCanChange;</span><br><span class="line">   FILETIME PasswordMustChange;</span><br><span class="line">   RPC_UNICODE_STRING EffectiveName;</span><br><span class="line">   RPC_UNICODE_STRING FullName;</span><br><span class="line">   RPC_UNICODE_STRING LogonScript;</span><br><span class="line">   RPC_UNICODE_STRING ProfilePath;</span><br><span class="line">   RPC_UNICODE_STRING HomeDirectory;</span><br><span class="line">   RPC_UNICODE_STRING HomeDirectoryDrive;</span><br><span class="line">   USHORT LogonCount;</span><br><span class="line">   USHORT BadPasswordCount;</span><br><span class="line">   ULONG UserId;</span><br><span class="line">   ULONG PrimaryGroupId;</span><br><span class="line">   ULONG GroupCount;</span><br><span class="line">   [size_is(GroupCount)] PGROUP_MEMBERSHIP GroupIds;</span><br><span class="line">   ULONG UserFlags;</span><br><span class="line">   USER_SESSION_KEY UserSessionKey;</span><br><span class="line">   RPC_UNICODE_STRING LogonServer;</span><br><span class="line">   RPC_UNICODE_STRING LogonDomainName;</span><br><span class="line">   PISID LogonDomainId;</span><br><span class="line">   ULONG Reserved1[<span class="number">2</span>];</span><br><span class="line">   ULONG UserAccountControl;</span><br><span class="line">   ULONG SubAuthStatus;</span><br><span class="line">   FILETIME LastSuccessfulILogon;</span><br><span class="line">   FILETIME LastFailedILogon;</span><br><span class="line">   ULONG FailedILogonCount;</span><br><span class="line">   ULONG Reserved3;</span><br><span class="line">   ULONG SidCount;</span><br><span class="line">   [size_is(SidCount)] PKERB_SID_AND_ATTRIBUTES ExtraSids;</span><br><span class="line">   PISID ResourceGroupDomainSid;</span><br><span class="line">   ULONG ResourceGroupCount;</span><br><span class="line">   [size_is(ResourceGroupCount)] PGROUP_MEMBERSHIP ResourceGroupIds;</span><br><span class="line">&#125; KERB_VALIDATION_INFO, *PKERB_VALIDATION_INFO;</span><br></pre></td></tr></table></figure></li>
 <li><p>0x00000006：服务器校验和；0x00000007：KDC（特权服务器）校验和。</p>
 <ul>
-<li><p>分别由server密码和KDC密码加密，是为了防止PAC内容被篡改。</p>
-</li>
-<li><p>存在签名的原因有两个。首先，存在带有服务器密钥的签名，以防止客户端生成自己的PAC并将其作为加密授权数据发送到KDC，以包含在票证中。其次，提供具有KDC密钥的签名，以防止不受信任的服务伪造带有无效PAC的票证。</p>
-</li>
+<li><p>分别由server密码和KDC密码加密，是为了防止PAC内容被篡改。</p></li>
+<li><p>存在签名的原因有两个。首先，存在带有服务器密钥的签名，以防止客户端生成自己的PAC并将其作为加密授权数据发送到KDC，以包含在票证中。其次，提供具有KDC密钥的签名，以防止不受信任的服务伪造带有无效PAC的票证。</p></li>
 <li><p>两个都是PAC_SIGNATURE_DATA结构：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">PAC_SIGNATURE_DATA</span> &#123;</span></span><br><span class="line">    ULONG SignatureType;<span class="comment">//4字节，必须为下表中的值之一</span></span><br><span class="line">    UCHAR Signature[ANYSIZE_ARRAY];<span class="comment">//包含校验和。签名的长度由SignatureType字段的值确定</span></span><br><span class="line">&#125; PAC_SIGNATURE_DATA, *PPAC_SIGNATURE_DATA;</span><br></pre></td></tr></table></figure>
-
 <table>
 <thead>
-<tr>
-<th align="left">值</th>
-<th align="left">意义</th>
+<tr class="header">
+<th style="text-align: left;">值</th>
+<th style="text-align: left;">意义</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left">KERB_CHECKSUM_HMAC_MD5<br>0xFFFFFF76</td>
-<td align="left">签名大小为 16 个字节。十进制值为 -138。</td>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">KERB_CHECKSUM_HMAC_MD5<br>0xFFFFFF76</td>
+<td style="text-align: left;">签名大小为 16 个字节。十进制值为 -138。</td>
 </tr>
-<tr>
-<td align="left">HMAC_SHA1_96_AES128<br>0x0000000F</td>
-<td align="left">签名大小为 12 个字节。十进制值为 15。</td>
+<tr class="even">
+<td style="text-align: left;">HMAC_SHA1_96_AES128<br>0x0000000F</td>
+<td style="text-align: left;">签名大小为 12 个字节。十进制值为 15。</td>
 </tr>
-<tr>
-<td align="left">HMAC_SHA1_96_AES256<br>0x00000010</td>
-<td align="left">签名大小为 12 个字节。十进制值为 16。</td>
+<tr class="odd">
+<td style="text-align: left;">HMAC_SHA1_96_AES256<br>0x00000010</td>
+<td style="text-align: left;">签名大小为 12 个字节。十进制值为 16。</td>
 </tr>
-</tbody></table>
-</li>
-</ul>
-</li>
+</tbody>
+</table></li>
+</ul></li>
 <li><p>0x0000000A：PAC_CLIENT_INFO，客户名称和票证信息，也是一个结构体</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">PAC_CLIENT_INFO</span> &#123;</span></span><br><span class="line">    FILETIME ClientId;<span class="comment">//小端格式的FILETIME结构，包含 Kerberos 初始票证授予票证 (TGT)身份验证时间</span></span><br><span class="line">    USHORT NameLength;<span class="comment">//用于指定Name 字段的长度</span></span><br><span class="line">    WCHAR Name[<span class="number">1</span>];<span class="comment">//包含客户帐户名称的小端格式的 16 位 Unicode 字符数组</span></span><br><span class="line">&#125; PAC_CLIENT_INFO, *PPAC_CLIENT_INFO;</span><br></pre></td></tr></table></figure></li>
 </ul>
@@ -827,7 +844,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#kerveros%E8%AE%A4%E8%AF%81"><span class="toc-number">1.</span> <span class="toc-text">kerveros认证</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">认证流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Client%E2%80%93AS"><span class="toc-number">1.2.</span> <span class="toc-text">Client–AS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AS-REQ"><span class="toc-number">1.2.1.</span> <span class="toc-text">AS_REQ</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AS-REP"><span class="toc-number">1.2.2.</span> <span class="toc-text">AS_REP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E5%AF%BC%E5%87%BA%E7%9A%84%E7%A5%A8%E6%8D%AE%E5%90%8E%E7%BC%80"><span class="toc-number">1.2.3.</span> <span class="toc-text">工具导出的票据后缀</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Client%E2%80%93TGS"><span class="toc-number">1.3.</span> <span class="toc-text">Client–TGS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TGS-REQ"><span class="toc-number">1.3.1.</span> <span class="toc-text">TGS_REQ</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TGS-REP"><span class="toc-number">1.3.2.</span> <span class="toc-text">TGS_REP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Client%E2%80%93Server"><span class="toc-number">1.4.</span> <span class="toc-text">Client–Server</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AP-REQ"><span class="toc-number">1.4.1.</span> <span class="toc-text">AP_REQ</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AP-REP"><span class="toc-number">1.4.2.</span> <span class="toc-text">AP_REP</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PAC"><span class="toc-number">2.</span> <span class="toc-text">PAC</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PAC%E7%BB%93%E6%9E%84"><span class="toc-number">2.2.</span> <span class="toc-text">PAC结构</span></a></li></ol></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#kerveros%E8%AE%A4%E8%AF%81"><span class="toc-number">1.</span> <span class="toc-text">kerveros认证</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">认证流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#client--as"><span class="toc-number">1.2.</span> <span class="toc-text">Client--AS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#as_req"><span class="toc-number">1.2.1.</span> <span class="toc-text">AS_REQ</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#as_rep"><span class="toc-number">1.2.2.</span> <span class="toc-text">AS_REP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E5%AF%BC%E5%87%BA%E7%9A%84%E7%A5%A8%E6%8D%AE%E5%90%8E%E7%BC%80"><span class="toc-number">1.2.3.</span> <span class="toc-text">工具导出的票据后缀</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#client--tgs"><span class="toc-number">1.3.</span> <span class="toc-text">Client--TGS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#tgs_req"><span class="toc-number">1.3.1.</span> <span class="toc-text">TGS_REQ</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tgs_rep"><span class="toc-number">1.3.2.</span> <span class="toc-text">TGS_REP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#client--server"><span class="toc-number">1.4.</span> <span class="toc-text">Client--Server</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ap_req"><span class="toc-number">1.4.1.</span> <span class="toc-text">AP_REQ</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ap_rep"><span class="toc-number">1.4.2.</span> <span class="toc-text">AP_REP</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#pac"><span class="toc-number">2.</span> <span class="toc-text">PAC</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pac%E7%BB%93%E6%9E%84"><span class="toc-number">2.2.</span> <span class="toc-text">PAC结构</span></a></li></ol></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1309,506 +1326,6 @@
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
     
     
     
@@ -1847,7 +1364,7 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">07/10</span>
-            <a class="archive-post-title" href="/2022/07/10/2022-7-10-oslab/">MIT6.S081_Lab</a>
+            <a class="archive-post-title" href="/2022/07/10/2022-7-10-oslab/">MIT6S081lab</a>
         </li>
     
         
@@ -2269,14 +1786,14 @@
                 Life
             </span>
         
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="PWN">
                 <span class="iconfont-archer">&#xe606;</span>
                 PWN
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="WEB">
-                <span class="iconfont-archer">&#xe606;</span>
-                WEB
             </span>
         
             <span class="sidebar-tag-name" data-tags="RE">
@@ -2289,14 +1806,14 @@
                 BUU刷题
             </span>
         
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="Java">
                 <span class="iconfont-archer">&#xe606;</span>
                 Java
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="免杀">
-                <span class="iconfont-archer">&#xe606;</span>
-                免杀
             </span>
         
             <span class="sidebar-tag-name" data-tags="内网">
@@ -2304,19 +1821,24 @@
                 内网
             </span>
         
+            <span class="sidebar-tag-name" data-tags="免杀">
+                <span class="iconfont-archer">&#xe606;</span>
+                免杀
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="VulnHub">
                 <span class="iconfont-archer">&#xe606;</span>
                 VulnHub
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内核">
-                <span class="iconfont-archer">&#xe606;</span>
-                内核
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="渗透">
                 <span class="iconfont-archer">&#xe606;</span>
                 渗透
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内核">
+                <span class="iconfont-archer">&#xe606;</span>
+                内核
             </span>
         
             <span class="sidebar-tag-name" data-tags="漏洞复现">
@@ -2337,11 +1859,6 @@
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">

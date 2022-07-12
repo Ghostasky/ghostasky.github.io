@@ -20,12 +20,12 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="[toc] 双机调试虚拟机添加串行端口：（如果发现建立的串行端口一直是串行端口2，则把虚拟机硬件中的打印机删除即可创建串行端口1）  虚拟机中管理员打开powershell，bcdedit &#x2F;enum查看启动的配置：  执行以下命令： 12345bcdedit  &#x2F;set  “&amp;#123;current&amp;#125;”  bootmenupolicy  Legacy">
+    <meta name="description" content="[toc] 双机调试 虚拟机添加串行端口：（如果发现建立的串行端口一直是串行端口2，则把虚拟机硬件中的打印机删除即可创建串行端口1）  image-20220409155748490  虚拟机中管理员打开powershell，bcdedit &#x2F;enum查看启动的配置：  image-20220409142848941  执行以下命令： 12345bcdedit  &#x2F;set">
 <meta property="og:type" content="article">
 <meta property="og:title" content="WinDbg使用及双机调试">
 <meta property="og:url" content="http://example.com/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/index.html">
 <meta property="og:site_name" content="郁涛丶&#39;s Blog">
-<meta property="og:description" content="[toc] 双机调试虚拟机添加串行端口：（如果发现建立的串行端口一直是串行端口2，则把虚拟机硬件中的打印机删除即可创建串行端口1）  虚拟机中管理员打开powershell，bcdedit &#x2F;enum查看启动的配置：  执行以下命令： 12345bcdedit  &#x2F;set  “&amp;#123;current&amp;#125;”  bootmenupolicy  Legacy">
+<meta property="og:description" content="[toc] 双机调试 虚拟机添加串行端口：（如果发现建立的串行端口一直是串行端口2，则把虚拟机硬件中的打印机删除即可创建串行端口1）  image-20220409155748490  虚拟机中管理员打开powershell，bcdedit &#x2F;enum查看启动的配置：  image-20220409142848941  执行以下命令： 12345bcdedit  &#x2F;set">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409155748490.png">
 <meta property="og:image" content="http://example.com/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409142848941.png">
@@ -354,7 +354,7 @@
                 
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">417</span>阅读时长: <span class="post-count reading-time">1 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">437</span>阅读时长: <span class="post-count reading-time">1 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -511,57 +511,71 @@
                 <main class="main post-page">
     <article class="article-entry">
         <p>[toc]</p>
-<h1 id="双机调试"><a href="#双机调试" class="headerlink" title="双机调试"></a>双机调试</h1><p>虚拟机添加串行端口：（如果发现建立的串行端口一直是串行端口2，则把虚拟机硬件中的打印机删除即可创建串行端口1）</p>
-<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409155748490.png" alt="image-20220409155748490"></p>
-<p>虚拟机中管理员打开powershell，bcdedit &#x2F;enum查看启动的配置：</p>
-<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409142848941.png" alt="image-20220409142848941"></p>
+<h1 id="双机调试">双机调试</h1>
+<p>虚拟机添加串行端口：（如果发现建立的串行端口一直是串行端口2，则把虚拟机硬件中的打印机删除即可创建串行端口1）</p>
+<figure>
+<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409155748490.png" alt="image-20220409155748490"><figcaption aria-hidden="true">image-20220409155748490</figcaption>
+</figure>
+<p>虚拟机中管理员打开powershell，bcdedit /enum查看启动的配置：</p>
+<figure>
+<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409142848941.png" alt="image-20220409142848941"><figcaption aria-hidden="true">image-20220409142848941</figcaption>
+</figure>
 <p>执行以下命令：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">bcdedit  /set  “&#123;current&#125;”  bootmenupolicy  Legacy             //修改启动方式为Legacy</span><br><span class="line"></span><br><span class="line">bcdedit  /dbgsettings  SERIAL  DEBUGPORT:1  BAUDRATE:115200     //设置串口1为调试端口，波特率为115200</span><br><span class="line"></span><br><span class="line">bcdedit  /copy  “&#123;current&#125;”   /d  “Debug”      //将当前配置复制到 Debug 启动配置(新建了Debug启动配置)</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143101892.png" alt="image-20220409143101892"></p>
+<figure>
+<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143101892.png" alt="image-20220409143101892"><figcaption aria-hidden="true">image-20220409143101892</figcaption>
+</figure>
 <p>新建的启动配置：</p>
-<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143218989.png" alt="image-20220409143218989"></p>
+<figure>
+<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143218989.png" alt="image-20220409143218989"><figcaption aria-hidden="true">image-20220409143218989</figcaption>
+</figure>
 <p>继续执行</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bcdedit /debug &quot;&#123;38a233ff-a78b-11ec-a34b-fcc86d824bb2&#125;&quot; on      //打开调试开关</span><br><span class="line">//&#123;&#125;里面的是新建的启动配置的标识符</span><br></pre></td></tr></table></figure>
-
 <p>查看配置：</p>
-<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143417309.png" alt="image-20220409143417309"></p>
+<figure>
+<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143417309.png" alt="image-20220409143417309"><figcaption aria-hidden="true">image-20220409143417309</figcaption>
+</figure>
 <p>虚拟机重启后显示如下则成功：</p>
-<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143702060.png" alt="image-20220409143702060"></p>
+<figure>
+<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409143702060.png" alt="image-20220409143702060"><figcaption aria-hidden="true">image-20220409143702060</figcaption>
+</figure>
 <p>可以选择这样连接：</p>
-<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409144421844.png" alt="image-20220409144421844"></p>
+<figure>
+<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409144421844.png" alt="image-20220409144421844"><figcaption aria-hidden="true">image-20220409144421844</figcaption>
+</figure>
 <p>也可以<code>-b -k com:pipe,port=\\.\pipe\com_1,resets=0,reconnect -y</code>，高级里面管理员运行：</p>
-<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409145103220.png" alt="image-20220409145103220"></p>
+<figure>
+<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409145103220.png" alt="image-20220409145103220"><figcaption aria-hidden="true">image-20220409145103220</figcaption>
+</figure>
 <p>成功：<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409145200846.png" alt="image-20220409145200846"></p>
 <p>下面是配置symbol：</p>
 <p>可以配置环境变量：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_NT_SYMBOL_PATH</span><br><span class="line">srv*E:\symbols*https://msdl.microsoft.com/download/symbols</span><br></pre></td></tr></table></figure>
-
 <p>也可以直接在Symbol Search Path中加：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">srv*E:\symbols*https://msdl.microsoft.com/download/symbols</span><br></pre></td></tr></table></figure>
-
-<h1 id="WinDbg命令"><a href="#WinDbg命令" class="headerlink" title="WinDbg命令"></a>WinDbg命令</h1><h2 id="ring3"><a href="#ring3" class="headerlink" title="ring3"></a>ring3</h2><ul>
-<li><p>version：显示调试器版本信息和已加载的调试器扩展</p>
-</li>
-<li><p>vercommand： 显示调试器启动文件的路径</p>
-</li>
+<h1 id="windbg命令">WinDbg命令</h1>
+<h2 id="ring3">ring3</h2>
+<ul>
+<li><p>version：显示调试器版本信息和已加载的调试器扩展</p></li>
+<li><p>vercommand： 显示调试器启动文件的路径</p></li>
 <li><p>.formats：显示数字的各种格式信息</p>
-<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409154225866.png" alt="image-20220409154225866"></p>
-</li>
-<li><p>.cls：清屏</p>
-</li>
+<figure>
+<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409154225866.png" alt="image-20220409154225866"><figcaption aria-hidden="true">image-20220409154225866</figcaption>
+</figure></li>
+<li><p>.cls：清屏</p></li>
 <li><p>ld：加载指定或者所有模块的符号</p>
-<p><img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409154421965.png" alt="image-20220409154421965"></p>
-</li>
-<li><p>lm：显示所有加载和未加载的模块信息</p>
-</li>
+<figure>
+<img src="/2022/04/09/WinDbg%E4%BD%BF%E7%94%A8%E5%8F%8A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95/image-20220409154421965.png" alt="image-20220409154421965"><figcaption aria-hidden="true">image-20220409154421965</figcaption>
+</figure></li>
+<li><p>lm：显示所有加载和未加载的模块信息</p></li>
 </ul>
-<h2 id="ring0"><a href="#ring0" class="headerlink" title="ring0"></a>ring0</h2><p>额命令啥的先不写了，太多了，之后补充</p>
+<h2 id="ring0">ring0</h2>
+<p>额命令啥的先不写了，太多了，之后补充</p>
 <blockquote>
-<p>  <a target="_blank" rel="noopener" href="https://www.cnblogs.com/gaochundong/p/windbg_cheat_sheet.html">https://www.cnblogs.com/gaochundong/p/windbg_cheat_sheet.html</a></p>
-<p>  <a target="_blank" rel="noopener" href="https://www.cnblogs.com/kekec/archive/2012/12/02/2798020.html">https://www.cnblogs.com/kekec/archive/2012/12/02/2798020.html</a></p>
-<p>  <a target="_blank" rel="noopener" href="https://www.kanxue.com/book-8-62.htm#">https://www.kanxue.com/book-8-62.htm#</a></p>
-<p>  <a target="_blank" rel="noopener" href="https://www.cnblogs.com/DarkBright/p/10843698.html">https://www.cnblogs.com/DarkBright/p/10843698.html</a></p>
+<p>https://www.cnblogs.com/gaochundong/p/windbg_cheat_sheet.html</p>
+<p>https://www.cnblogs.com/kekec/archive/2012/12/02/2798020.html</p>
+<p>https://www.kanxue.com/book-8-62.htm#</p>
+<p>https://www.cnblogs.com/DarkBright/p/10843698.html</p>
 </blockquote>
 
     </article>
@@ -712,7 +726,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">双机调试</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#WinDbg%E5%91%BD%E4%BB%A4"><span class="toc-number">2.</span> <span class="toc-text">WinDbg命令</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ring3"><span class="toc-number">2.1.</span> <span class="toc-text">ring3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ring0"><span class="toc-number">2.2.</span> <span class="toc-text">ring0</span></a></li></ol></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">双机调试</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#windbg%E5%91%BD%E4%BB%A4"><span class="toc-number">2.</span> <span class="toc-text">WinDbg命令</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ring3"><span class="toc-number">2.1.</span> <span class="toc-text">ring3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ring0"><span class="toc-number">2.2.</span> <span class="toc-text">ring0</span></a></li></ol></li></ol>
             </div>
         
         <!-- sidebar -->
@@ -1194,506 +1208,6 @@
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
     
     
     
@@ -1732,7 +1246,7 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">07/10</span>
-            <a class="archive-post-title" href="/2022/07/10/2022-7-10-oslab/">MIT6.S081_Lab</a>
+            <a class="archive-post-title" href="/2022/07/10/2022-7-10-oslab/">MIT6S081lab</a>
         </li>
     
         
@@ -2154,14 +1668,14 @@
                 Life
             </span>
         
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="PWN">
                 <span class="iconfont-archer">&#xe606;</span>
                 PWN
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="WEB">
-                <span class="iconfont-archer">&#xe606;</span>
-                WEB
             </span>
         
             <span class="sidebar-tag-name" data-tags="RE">
@@ -2174,14 +1688,14 @@
                 BUU刷题
             </span>
         
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="Java">
                 <span class="iconfont-archer">&#xe606;</span>
                 Java
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="免杀">
-                <span class="iconfont-archer">&#xe606;</span>
-                免杀
             </span>
         
             <span class="sidebar-tag-name" data-tags="内网">
@@ -2189,19 +1703,24 @@
                 内网
             </span>
         
+            <span class="sidebar-tag-name" data-tags="免杀">
+                <span class="iconfont-archer">&#xe606;</span>
+                免杀
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="VulnHub">
                 <span class="iconfont-archer">&#xe606;</span>
                 VulnHub
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内核">
-                <span class="iconfont-archer">&#xe606;</span>
-                内核
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="渗透">
                 <span class="iconfont-archer">&#xe606;</span>
                 渗透
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内核">
+                <span class="iconfont-archer">&#xe606;</span>
+                内核
             </span>
         
             <span class="sidebar-tag-name" data-tags="漏洞复现">
@@ -2222,11 +1741,6 @@
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">

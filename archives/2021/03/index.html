@@ -442,12 +442,11 @@
             </a>
             <div class="abstract-content">
                 [TOC]
-关于pwndbg安装：
+关于pwndbg
+安装：
 123git clone https://github.com/pwndbg/pwndbgcd pwndbgsudo ./setup.sh
-
 gdb后如果是peda或者其他的插件，可以改下配置文件.gdbinit，在home中，或者root目录下，加上这么一句，其他注释掉。
-1source /home/yourname/pwndbg/gdbinit.py
-...
+1source /home/yourname/pwndbg/gdbini...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -482,13 +481,15 @@ gdb后如果是peda或者其他的插件，可以改下配置文件.gdbinit，�
             </a>
             <div class="abstract-content">
                 [TOC]
-Chunk Extend and Overlapping介绍chunk extend 是堆漏洞的一种常见利用手法，通过extend可以实现chunk overlapping（块重叠）的效果。这种利用的方法需要以下的条件：
+Chunk Extend and Overlapping
+介绍
+chunk extend 是堆漏洞的一种常见利用手法，通过extend可以实现chunk overlapping（块重叠）的效果。这种利用的方法需要以下的条件：
 
 程序中存在堆的漏洞
 漏洞可以控制chunk header中的数据
 
-原理这种利用的技术能够产生在于ptmalloc在对堆chunk进行操作时使用的各种宏。
-在...
+原理
+这种利用的技术能够产生在于ptmalloc在对堆chunk进行...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -521,13 +522,15 @@ Chunk Extend and Overlapping介绍chunk extend 是堆漏洞的一种常见利用
             </a>
             <div class="abstract-content">
                 [TOC]
-介绍off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。
-漏洞原理这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常包括：
+介绍
+off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。
+漏洞原理
+这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常包括：
 
 使用循环写入时，循环的次数设置有误。
 字符串操作不合适
 
-一般来说，单字节溢出很难利用，但是因为Linux的堆管理机制ptmallo...
+一般来说，单字节溢出很难利用，但是因为Linux的堆...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -560,15 +563,14 @@ Chunk Extend and Overlapping介绍chunk extend 是堆漏洞的一种常见利用
             </a>
             <div class="abstract-content">
                 [TOC]
-介绍​	堆溢出是指程序向某个堆块中写入的字节数超过了堆块本身可用的字节数，因而导致了数据的溢出，并覆盖到了物理相邻的高地址的下一个堆块。
-​	so，堆溢出漏洞发生的前提：
+介绍
+​ 堆溢出是指程序向某个堆块中写入的字节数超过了堆块本身可用的字节数，因而导致了数据的溢出，并覆盖到了物理相邻的高地址的下一个堆块。
+​ so，堆溢出漏洞发生的前提：
 
 写入的数据写到了堆上
 写入数据的大小没有被控制
 
-堆溢出是一种特定的缓冲区溢出（还有栈溢出，bss段溢出等）。但是堆溢出并不会像栈溢出那样覆盖ret地址进而控制程序执行流。一般来说，利用堆溢出的策略：
-
-覆盖...
+堆溢出是一种特定的缓冲区溢出（还有栈溢出，bss段溢出等）。但是堆溢出并不会像栈溢出那样覆盖ret地址进而控制程序执行流。一般来说，利用堆溢...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -601,16 +603,18 @@ Chunk Extend and Overlapping介绍chunk extend 是堆漏洞的一种常见利用
             </a>
             <div class="abstract-content">
                 [TOC]
-堆利用目前堆的实现有很多种，具体如下：
+堆利用
+目前堆的实现有很多种，具体如下：
 
-dlmalloc  – General purpose allocator 
-ptmalloc2 – glibc 
-jemalloc  – FreeBSD and Firefox 
-tcmalloc  – Google 
-libumem   – Solaris
+dlmalloc – General purpose allocator
+ptmalloc2 – glibc
+jemalloc – FreeBSD and Firefox
+tcmalloc – Google
+libumem – Solaris
 
 接下来主要以glibc中堆的实现为主进行介绍。
-堆概述内存分配后的系统调用在...
+堆概述
+内存分配后的...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -643,13 +647,20 @@ libumem   – Solaris
             </a>
             <div class="abstract-content">
                 [TOC]
-整数溢出介绍C语言中整数的分类及各自的大小范围：
+整数溢出介绍
+C语言中整数的分类及各自的大小范围：
+
+
+
+
+
 
 
 
 类型
 字节
 范围
+
 
 
 
@@ -662,10 +673,7 @@ unsigned short int
 2byte(word)
 0~65535(0~0xffff)
 
-
-int
-4byte(word)
-0~2147483647(0~0x...
+...
             </div>
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -1250,506 +1258,6 @@ int
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
     
     
     
@@ -1788,7 +1296,7 @@ int
         
         <li class="archive-post-item">
             <span class="archive-post-date">07/10</span>
-            <a class="archive-post-title" href="/2022/07/10/2022-7-10-oslab/">MIT6.S081_Lab</a>
+            <a class="archive-post-title" href="/2022/07/10/2022-7-10-oslab/">MIT6S081lab</a>
         </li>
     
         
@@ -2210,14 +1718,14 @@ int
                 Life
             </span>
         
+            <span class="sidebar-tag-name" data-tags="OS">
+                <span class="iconfont-archer">&#xe606;</span>
+                OS
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="PWN">
                 <span class="iconfont-archer">&#xe606;</span>
                 PWN
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="WEB">
-                <span class="iconfont-archer">&#xe606;</span>
-                WEB
             </span>
         
             <span class="sidebar-tag-name" data-tags="RE">
@@ -2230,14 +1738,14 @@ int
                 BUU刷题
             </span>
         
+            <span class="sidebar-tag-name" data-tags="WEB">
+                <span class="iconfont-archer">&#xe606;</span>
+                WEB
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="Java">
                 <span class="iconfont-archer">&#xe606;</span>
                 Java
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="免杀">
-                <span class="iconfont-archer">&#xe606;</span>
-                免杀
             </span>
         
             <span class="sidebar-tag-name" data-tags="内网">
@@ -2245,19 +1753,24 @@ int
                 内网
             </span>
         
+            <span class="sidebar-tag-name" data-tags="免杀">
+                <span class="iconfont-archer">&#xe606;</span>
+                免杀
+            </span>
+        
             <span class="sidebar-tag-name" data-tags="VulnHub">
                 <span class="iconfont-archer">&#xe606;</span>
                 VulnHub
             </span>
         
-            <span class="sidebar-tag-name" data-tags="内核">
-                <span class="iconfont-archer">&#xe606;</span>
-                内核
-            </span>
-        
             <span class="sidebar-tag-name" data-tags="渗透">
                 <span class="iconfont-archer">&#xe606;</span>
                 渗透
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="内核">
+                <span class="iconfont-archer">&#xe606;</span>
+                内核
             </span>
         
             <span class="sidebar-tag-name" data-tags="漏洞复现">
@@ -2278,11 +1791,6 @@ int
             <span class="sidebar-tag-name" data-tags="汇编">
                 <span class="iconfont-archer">&#xe606;</span>
                 汇编
-            </span>
-        
-            <span class="sidebar-tag-name" data-tags="OS">
-                <span class="iconfont-archer">&#xe606;</span>
-                OS
             </span>
         
             <span class="sidebar-tag-name" data-tags="WriteUp">
