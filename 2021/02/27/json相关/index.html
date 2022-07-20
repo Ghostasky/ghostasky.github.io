@@ -198,26 +198,26 @@
                                                                                 
                                                                     </div>
                                                                     <div class="markdown-body">
-                                                                        <h2 id="1-JSON的两种结构"><a href="#1-JSON的两种结构" class="headerlink" title="1. JSON的两种结构"></a>1. JSON的两种结构</h2><p>两种结构分别为：对象，数组。</p>
-<h3 id="对象结构"><a href="#对象结构" class="headerlink" title="对象结构"></a>对象结构</h3><p>这种结构以大括号开始和结束，中间有多个以逗号分隔的键值对构成，键值对由冒号分隔。</p>
+                                                                        <h2 id="json的两种结构">1. JSON的两种结构</h2>
+<p>两种结构分别为：对象，数组。</p>
+<h3 id="对象结构">对象结构</h3>
+<p>这种结构以大括号开始和结束，中间有多个以逗号分隔的键值对构成，键值对由冒号分隔。</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	key:value,</span><br><span class="line">	key2:value2,</span><br><span class="line">	key3:value3,</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>其中的键为字符串，而值可以是字符串，数值，true，false，null，对象或数组。</p>
-<h3 id="数组结构"><a href="#数组结构" class="headerlink" title="数组结构"></a>数组结构</h3><p>数组结构如下：</p>
+<h3 id="数组结构">数组结构</h3>
+<p>数组结构如下：</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">&quot;键名1&quot;</span>:值<span class="number">1</span>,</span><br><span class="line">        <span class="attr">&quot;键名2&quot;</span>:值<span class="number">2</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">&quot;键名3&quot;</span>:值<span class="number">3</span>,</span><br><span class="line">        <span class="attr">&quot;键名4&quot;</span>:值<span class="number">4</span></span><br><span class="line">    &#125;,</span><br><span class="line">    ……</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-python中JSON模块"><a href="#2-python中JSON模块" class="headerlink" title="2. python中JSON模块"></a>2. python中JSON模块</h2><p>四个方法：</p>
+<h2 id="python中json模块">2. python中JSON模块</h2>
+<p>四个方法：</p>
 <p>dumps，dump，loads，load</p>
 <ul>
 <li>dump的功能就是把<strong>Python对象</strong>encode为<strong>json对象</strong>，一个编码过程。 注意json模块提供了json.dumps和json.dump方法，区别是<strong>dump直接到文件</strong>，而<strong>dumps到一个字符串</strong>，这里的s可以理解为string。</li>
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#dumps方法</span></span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line">data = [&#123; <span class="string">&#x27;a&#x27;</span>:<span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;b&#x27;</span>:(<span class="number">2</span>, <span class="number">4</span>), <span class="string">&#x27;c&#x27;</span>:<span class="number">3.0</span> &#125;]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;DATA:&#x27;</span>, <span class="built_in">repr</span>(data), <span class="built_in">type</span>(data)) </span><br><span class="line"></span><br><span class="line">data_string = json.dumps(data)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;JSON:&#x27;</span>, data_string, <span class="built_in">type</span>(data_string))</span><br></pre></td></tr></table></figure>
-
 <ul>
 <li>dump方法不仅可以将python对象编码为string，还可写入文件。但是不能把Python对象直接写入文件。</li>
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#dump方法</span></span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line">data = [ &#123; <span class="string">&#x27;a&#x27;</span>:<span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;b&#x27;</span>:(<span class="number">2</span>, <span class="number">4</span>), <span class="string">&#x27;c&#x27;</span>:<span class="number">3.0</span> &#125; ]</span><br><span class="line"> </span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;output.json&#x27;</span>,<span class="string">&#x27;w&#x27;</span>) <span class="keyword">as</span> fp:</span><br><span class="line">    json.dump(data,fp)</span><br></pre></td></tr></table></figure>
-
 <ul>
 <li>loads方法可以将JSON对象decode为python可以识别是对象，这是基于string的，如果是文件，可以用json.load方法。</li>
 </ul>
@@ -282,7 +282,7 @@
     <div class="title">Contents</div>
     <div class="catalog-content">
       
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-JSON%E7%9A%84%E4%B8%A4%E7%A7%8D%E7%BB%93%E6%9E%84"><span class="toc-text">1. JSON的两种结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84"><span class="toc-text">对象结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E7%BB%84%E7%BB%93%E6%9E%84"><span class="toc-text">数组结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-python%E4%B8%ADJSON%E6%A8%A1%E5%9D%97"><span class="toc-text">2. python中JSON模块</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#json%E7%9A%84%E4%B8%A4%E7%A7%8D%E7%BB%93%E6%9E%84"><span class="toc-text">1. JSON的两种结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E7%BB%93%E6%9E%84"><span class="toc-text">对象结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E7%BB%84%E7%BB%93%E6%9E%84"><span class="toc-text">数组结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python%E4%B8%ADjson%E6%A8%A1%E5%9D%97"><span class="toc-text">2. python中JSON模块</span></a></li></ol>
       
     </div>
   </div>

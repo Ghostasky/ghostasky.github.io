@@ -167,7 +167,7 @@
         2021-03-23
       </span>
 
-                                                                        <span class="post-pubtime"> 本文共406字 </span>
+                                                                        <span class="post-pubtime"> 本文共402字 </span>
 
                                                                         <span class="post-pubtime">
         大约需要2min
@@ -205,39 +205,34 @@
                                                                     </div>
                                                                     <div class="markdown-body">
                                                                         <p>[TOC]</p>
-<h2 id="关于pwndbg"><a href="#关于pwndbg" class="headerlink" title="关于pwndbg"></a>关于pwndbg</h2><p>安装：</p>
+<h2 id="关于pwndbg">关于pwndbg</h2>
+<p>安装：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/pwndbg/pwndbg</span><br><span class="line">cd pwndbg</span><br><span class="line">sudo ./setup.sh</span><br></pre></td></tr></table></figure>
-
 <p>gdb后如果是peda或者其他的插件，可以改下配置文件.gdbinit，在home中，或者root目录下，加上这么一句，其他注释掉。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source /home/yourname/pwndbg/gdbinit.py</span><br></pre></td></tr></table></figure>
-
-<h2 id="关于Ubuntu修改用户名和密码"><a href="#关于Ubuntu修改用户名和密码" class="headerlink" title="关于Ubuntu修改用户名和密码"></a>关于Ubuntu修改用户名和密码</h2><h3 id="修改root密码"><a href="#修改root密码" class="headerlink" title="修改root密码"></a>修改root密码</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo passwd root</span><br></pre></td></tr></table></figure>
-
-<h3 id="修改用户名密码"><a href="#修改用户名密码" class="headerlink" title="修改用户名密码"></a>修改用户名密码</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">passwd xxx  //xxx表示用户名</span><br></pre></td></tr></table></figure>
-
-<h3 id="修改用户名"><a href="#修改用户名" class="headerlink" title="修改用户名"></a>修改用户名</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gedit /etc/passwd</span><br></pre></td></tr></table></figure>
-
-<p>打开该文件后找到当前用户名的一行(单用户一般是文件最后一行)，将旧用户名改为新的用户名，但不要动&#x2F;home&#x2F;旧用户名的名字，否则重启后可能会无法从图形界面登录系统。</p>
+<h2 id="关于ubuntu修改用户名和密码">关于Ubuntu修改用户名和密码</h2>
+<h3 id="修改root密码">修改root密码</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo passwd root</span><br></pre></td></tr></table></figure>
+<h3 id="修改用户名密码">修改用户名密码</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">passwd xxx  //xxx表示用户名</span><br></pre></td></tr></table></figure>
+<h3 id="修改用户名">修改用户名</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gedit /etc/passwd</span><br></pre></td></tr></table></figure>
+<p>打开该文件后找到当前用户名的一行(单用户一般是文件最后一行)，将旧用户名改为新的用户名，但不要动/home/旧用户名的名字，否则重启后可能会无法从图形界面登录系统。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">oldUser:x:1000:1000:A User ,,,:/home/oldUser:/bin/bash</span><br></pre></td></tr></table></figure>
-
 <p>比如上面的是我需要修改的行，那么我只将开头的旧用户名oldUser修改为新的用户名，比如newUser就可以了。(A User是用户名全称，也可以修改.)</p>
 <p>修改后：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">newUser:x:1000:1000:newUser ,,,:/home/oldUser:/bin/bash</span><br></pre></td></tr></table></figure>
-
 <p>修改保存后，切换到root。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gedit /etc/shadow</span><br></pre></td></tr></table></figure>
-
 <p>找到你的旧用户名并将其修改为新用户名，修改后保存</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gedit /etc/sudoers</span><br></pre></td></tr></table></figure>
-
 <p>在<code>root ALL=(ALL:ALL) ALL</code>后添加一行<code>newUser ALL=(ALL:ALL) ALL</code>(旧用户的类似内容也可以删除了)，其中newUser是新的用户名。</p>
 <p>修改保存后重启系统</p>
-<h3 id="修改用户目录名"><a href="#修改用户目录名" class="headerlink" title="修改用户目录名"></a>修改用户目录名</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gedit /etc/passwd</span><br></pre></td></tr></table></figure>
-
-<p>还是在我们之前修改的那一行，只不过这一次是将&#x2F;home&#x2F;旧用户名修改为&#x2F;home&#x2F;新用户名。</p>
+<h3 id="修改用户目录名">修改用户目录名</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gedit /etc/passwd</span><br></pre></td></tr></table></figure>
+<p>还是在我们之前修改的那一行，只不过这一次是将/home/旧用户名修改为/home/新用户名。</p>
 <p>然后再执行以下指令</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mv /home/oldUser /home/newUser</span><br></pre></td></tr></table></figure>
-
 <p>重启，完了。</p>
 
                                                                     </div>
@@ -306,7 +301,7 @@
     <div class="title">Contents</div>
     <div class="catalog-content">
       
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8Epwndbg"><span class="toc-text">关于pwndbg</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8EUbuntu%E4%BF%AE%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E5%92%8C%E5%AF%86%E7%A0%81"><span class="toc-text">关于Ubuntu修改用户名和密码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9root%E5%AF%86%E7%A0%81"><span class="toc-text">修改root密码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E5%AF%86%E7%A0%81"><span class="toc-text">修改用户名密码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D"><span class="toc-text">修改用户名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E7%94%A8%E6%88%B7%E7%9B%AE%E5%BD%95%E5%90%8D"><span class="toc-text">修改用户目录名</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8Epwndbg"><span class="toc-text">关于pwndbg</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8Eubuntu%E4%BF%AE%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E5%92%8C%E5%AF%86%E7%A0%81"><span class="toc-text">关于Ubuntu修改用户名和密码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9root%E5%AF%86%E7%A0%81"><span class="toc-text">修改root密码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E5%AF%86%E7%A0%81"><span class="toc-text">修改用户名密码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D"><span class="toc-text">修改用户名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E7%94%A8%E6%88%B7%E7%9B%AE%E5%BD%95%E5%90%8D"><span class="toc-text">修改用户目录名</span></a></li></ol></li></ol>
       
     </div>
   </div>
