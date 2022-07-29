@@ -11,7 +11,7 @@
   
   <title>
     
-      Tag 
+      RC4 
       
       
       |
@@ -152,16 +152,158 @@
                     
                         
                                 
-                                    <!-- 分类页 url形式：https://yoursite/categories/ -->
-                                    <div class="container category-index">
-                                        <div>
-                                            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Technology/">Technology</a><span class="category-list-count">65</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Life/">Life</a><span class="category-list-count">6</span></li></ul>
-                                        </div>
-                                    </div>
-                                    
                                         
                                                 
                                                         
+                                                            <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+                                                            <div class="container post-details" id="post-details">
+                                                                <div class="post-content">
+                                                                    <div class="post-title">
+                                                                        RC4
+                                                                    </div>
+                                                                    <div class="post-attach">
+                                                                        <span class="post-pubtime">
+        <i class="iconfont icon-updatetime" title="Update time"></i>
+        2022-07-27
+      </span>
+
+                                                                        <span class="post-pubtime"> 本文共329字 </span>
+
+                                                                        <span class="post-pubtime">
+        大约需要1min
+      </span>
+
+                                                                        
+                                                                                    <span class="post-categories">
+        <i class="iconfont icon-bookmark" title="Categories"></i>
+        
+        <span class="span--category">
+          <a href="/categories/Technology/" title="Technology">
+            <b>#</b> Technology
+          </a>
+        </span>
+                                                                                    
+                                                                                        </span>
+                                                                                        
+                                                                            <span class="post-tags">
+        <i class="iconfont icon-tags" title="Tags"></i>
+        
+        <span class="span--tag">
+          <a href="/tags/Crypto/" title="Crypto">
+            <b>#</b> Crypto
+          </a>
+        </span>
+                                                                            
+                                                                                </span>
+                                                                                
+                                                                    </div>
+                                                                    <div class="markdown-body">
+                                                                        <p>hw摸鱼，闲的没啥事干，把RC4的加解密原理写一遍吧，明天干别的东西。（hw期间电脑装了dlp，，就不截图了）</p>
+<p>RC4，对称加密算法，流加密，秘钥长度可变。RC4 算法广泛应用于 SSL/TLS 协议和 WEP/WPA 协议。</p>
+<p>RC4加解密时依次以字节流的方式加解密明文中的每一个字节。</p>
+<h1 id="rc4">RC4</h1>
+<p>RC4中的一些变量：</p>
+<ul>
+<li>密钥流：与明文长度相等，加密生成的密文也是相同的字节</li>
+<li>状态向量S：长度为256，S[0]~S[255]，每个单元一字节，</li>
+<li>临时向量T：长度为256，每个单元为一字节，如果密钥的长度是256字节，就直接把密钥的值赋给T，否则，轮转地将密钥的每个字节赋给T</li>
+<li>密钥K(Key)：长度为1~256字节(<code>keyLen</code>)，密钥的长度与明文长度、密钥流的长度没有必然关系，通常密钥的长度16字节（128比特）。</li>
+</ul>
+<p>RC4算法步骤：</p>
+<ol type="1">
+<li>初始化S和T</li>
+<li>初始排列S（前两部分称为KSA）</li>
+<li>产生密钥流（称为PRGA）</li>
+</ol>
+<h2 id="初始化s和t">初始化S和T</h2>
+<p><img src="/2022/07/27/RC4/rc4_s_t.png"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">256</span>):</span><br><span class="line">    self.S.append(i)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(self.keyLen):    </span><br><span class="line">    index = random.randint(<span class="number">0</span>, <span class="number">63</span>)</span><br><span class="line">    self.Key.append(self.charTable[index])</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">256</span>):</span><br><span class="line">    tmp = self.Key[i % self.keyLen]</span><br><span class="line">    self.T.append(tmp)</span><br></pre></td></tr></table></figure>
+
+                                                                    </div>
+                                                                    
+                                                                        <div class="prev-or-next">
+                                                                            <div class="post-foot-next">
+                                                                                
+                                                                                    <a href="/2022/07/25/2022-hw/" target="_self">
+                                                                                        <i class="iconfont icon-chevronleft"></i>
+                                                                                        <span>Prev</span>
+                                                                                    </a>
+                                                                                    
+                                                                            </div>
+                                                                            <div class="post-attach">
+                                                                                <!-- <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="Update time"></i>
+              2022-07-27
+            </span> -->
+
+                                                                                
+                                                                                            <span class="post-categories">
+          <!-- <i class="iconfont icon-bookmark" title="Categories"></i> -->
+          
+          <!-- <span class="span--category">
+            <a href="/categories/Technology/" title="Technology">
+              <b>#</b> Technology
+            </a>
+          </span> -->
+                                                                                            
+                                                                                                </span>
+                                                                                                
+                                                                                    <span class="post-tags">
+          <!-- <i class="iconfont icon-tags" title="Tags"></i> -->
+          
+          <!-- <span class="span--tag">
+            <a href="/tags/Crypto/" title="Crypto">
+              <b>#</b> Crypto
+            </a>
+          </span> -->
+                                                                                    
+                                                                                        </span>
+                                                                                        
+                                                                            </div>
+                                                                            <div class="post-foot-prev">
+                                                                                
+                                                                                    <a href="/2099/12/31/TOP%E7%A2%8E%E7%A2%8E%E5%BF%B5/" target="_self">
+                                                                                        <span>Next</span>
+                                                                                        <i class="iconfont icon-chevronright"></i>
+                                                                                    </a>
+                                                                                    
+                                                                            </div>
+                                                                        </div>
+                                                                        
+                                                                </div>
+                                                                
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#rc4"><span class="toc-text">RC4</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96s%E5%92%8Ct"><span class="toc-text">初始化S和T</span></a></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+                                                                    
+                                                                        <div class="comments-container">
+                                                                            
+
+
+
+
+
+
+
+                                                                        </div>
+                                                                        
+                                                            </div>
+                                                            
         
 <div class="footer">
   <div class="social">
@@ -434,12 +576,12 @@
       </a>
       <div class="share-content hidden">
         
-          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + tags + '&url=' + https%3A%2F%2Fghostasky.github.io%2Fcategories%2Findex.html + '" target="_blank" title="Twitter">
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + RC4 + '&url=' + https%3A%2F%2Fghostasky.github.io%2F2022%2F07%2F27%2FRC4%2F + '" target="_blank" title="Twitter">
             <i class="iconfont icon-twitter"></i>
           </a>
         
         
-          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://ghostasky.github.io/categories/index.html" target="_blank" title="Facebook">
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://ghostasky.github.io/2022/07/27/RC4/" target="_blank" title="Facebook">
             <i class="iconfont icon-facebooksquare"></i>
           </a>
         
