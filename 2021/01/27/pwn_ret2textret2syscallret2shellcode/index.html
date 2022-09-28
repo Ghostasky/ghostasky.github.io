@@ -167,7 +167,7 @@
         2021-01-27
       </span>
 
-                                                                        <span class="post-pubtime"> 本文共373字 </span>
+                                                                        <span class="post-pubtime"> 本文共375字 </span>
 
                                                                         <span class="post-pubtime">
         大约需要1min
@@ -198,38 +198,37 @@
                                                                                 
                                                                     </div>
                                                                     <div class="markdown-body">
-                                                                        <h1 id="ret2text">1.Ret2text</h1>
-<p>首先file和checksec一下：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006337251.png"> ida打开：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006341593.png"> 观察到有个vulnerable()函数：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006345522.png"> 还有个后门函数：get_shell()</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006350472.png"> gdb打开，main处下断点后跟进，输入12345678后查看stack：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006355117.png"> 此时ebp= 0xffffd108,</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006367240.png"> 将黄色与红色全部覆盖后填入get_shell()的地址。</p>
+                                                                        <h1 id="1-Ret2text"><a href="#1-Ret2text" class="headerlink" title="1.Ret2text"></a>1.Ret2text</h1><p>首先file和checksec一下：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006337251.png"><br>ida打开：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006341593.png"><br>观察到有个vulnerable()函数：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006345522.png"><br>还有个后门函数：get_shell()</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006350472.png"><br>gdb打开，main处下断点后跟进，输入12345678后查看stack：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006355117.png"><br>此时ebp&#x3D; 0xffffd108,</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006367240.png"><br>将黄色与红色全部覆盖后填入get_shell()的地址。</p>
 <p>exp如下：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006371609.png"> getshell：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006371609.png"><br>getshell：</p>
 <p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006375698.png"></p>
-<h1 id="ret2syscall">2.Ret2syscall</h1>
-<p>首先file和checksec一下：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006456214.png"> 这题是静态链接的，所以比较大，</p>
-<p>ida查看，有/bin/sh，但是没有system函数，</p>
+<h1 id="2-Ret2syscall"><a href="#2-Ret2syscall" class="headerlink" title="2.Ret2syscall"></a>2.Ret2syscall</h1><p>首先file和checksec一下：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006456214.png"><br>这题是静态链接的，所以比较大，</p>
+<p>ida查看，有&#x2F;bin&#x2F;sh，但是没有system函数，</p>
 <p>Linux的系统调用通过int 80h和寄存器来实现，其中eax存放系统调用号，过程如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1.先将系统调用号放入eax</span><br><span class="line">2.将该函数需要的其他参数存入其他寄存器</span><br><span class="line">3.出发0x80中断（int 0x80h）</span><br></pre></td></tr></table></figure>
+
 <p>所以我们需要一些pop和ret指令，这些小片段叫gadget，可以使用ROPgadget这个工具，</p>
-<p>本次要用到的：execve("/bin/sh",0,0)</p>
+<p>本次要用到的：execve(“&#x2F;bin&#x2F;sh”,0,0)</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">eax = 0xb  ---&gt;系统调用号</span><br><span class="line">ebx = address of &quot;/bin/sh&quot;</span><br><span class="line">ecx = 0</span><br><span class="line">edx = 0</span><br></pre></td></tr></table></figure>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006463285.png"> 可以看到有许多gadget，选一些有用的就OK。</p>
+
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006463285.png"><br>可以看到有许多gadget，选一些有用的就OK。</p>
 <p>gdb调试，ebp：0xffffd128</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006467187.png"> exp如下：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006470792.png"> 画图来说就是：（下图并不是上面exp的图)</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006467187.png"><br>exp如下：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006470792.png"><br>画图来说就是：（下图并不是上面exp的图)</p>
 <p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006474606.png"></p>
-<h1 id="ret2shellcode">3.Ret2shellcode</h1>
-<p>首先file和checksec一下：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006531616.png"> 发现rwx并且没有开NX保护，所以代码在堆，栈上可以执行</p>
+<h1 id="3-Ret2shellcode"><a href="#3-Ret2shellcode" class="headerlink" title="3.Ret2shellcode"></a>3.Ret2shellcode</h1><p>首先file和checksec一下：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006531616.png"><br>发现rwx并且没有开NX保护，所以代码在堆，栈上可以执行</p>
 <p>进入IDA查看，发现这题并没有后门函数，将gets到的s拷贝到buf2.</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006537837.png"> 查看buf2所在的bss段是否可执行</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006543090.png"> main处下断点后run起来，此时ebp=0xffffd118 <img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006547168.png"> exp如下：</p>
-<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006551135.png"> shellcraft.sh()是一段shellcode，ljust()是左对齐，不足处用a填充，画图来说就是这样：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006537837.png"><br>查看buf2所在的bss段是否可执行</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006543090.png"><br>main处下断点后run起来，此时ebp&#x3D;0xffffd118<br><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006547168.png"><br>exp如下：</p>
+<p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006551135.png"><br>shellcraft.sh()是一段shellcode，ljust()是左对齐，不足处用a填充，画图来说就是这样：</p>
 <p><img src="/2021/01/27/pwn_ret2textret2syscallret2shellcode/1612006554886.png"></p>
 
                                                                     </div>
@@ -292,7 +291,7 @@
     <div class="title">Contents</div>
     <div class="catalog-content">
       
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ret2text"><span class="toc-text">1.Ret2text</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ret2syscall"><span class="toc-text">2.Ret2syscall</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ret2shellcode"><span class="toc-text">3.Ret2shellcode</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Ret2text"><span class="toc-text">1.Ret2text</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Ret2syscall"><span class="toc-text">2.Ret2syscall</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Ret2shellcode"><span class="toc-text">3.Ret2shellcode</span></a></li></ol>
       
     </div>
   </div>
