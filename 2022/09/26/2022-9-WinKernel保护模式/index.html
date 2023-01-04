@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="zh-cn" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="郁涛丶" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      Windows保护模式 
+      
+      
+      |
+    
+     郁涛丶&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+    
+<link rel="stylesheet" href="/css/figcaption/mac-block.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Ghostasky</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">Windows保护模式</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2022-09-26	  
+        </span>
+		
+		 <span class="post-pubtime"> 本文共8.7k字 </span>
+
+                                                                        <span class="post-pubtime">
+        大约需要53min
+      </span>
+		
+		
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/Technology/" title="Technology">
+                    <b>#</b> Technology
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/Win32/" title="Win32">
+                    #Win32
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <p>[toc]</p>
+<h1 id="001-保护模式"><a href="#001-保护模式" class="headerlink" title="001.保护模式"></a>001.保护模式</h1><p>x86CPU三个模式：实模式， 保护模式，虚拟8086模式</p>
+<p>市面上能见到的x64对x86向下兼容，是x86的扩展</p>
+<p>保护模式特点：</p>
+<ul>
+<li>  段的机制</li>
+<li>  页的基址</li>
+</ul>
+<h1 id="002-段寄存器结构"><a href="#002-段寄存器结构" class="headerlink" title="002.段寄存器结构"></a>002.段寄存器结构</h1><p>学段机制之前先要知道段寄存器结构</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mov dword ptr ds:[0x123456],eax</span><br><span class="line">实际上读的地址是：ds.base + 0x123456</span><br></pre></td></tr></table></figure>
+
+<p>段寄存器共8个：</p>
+<p><code>ES,CS,SS,DS,FS,GS,LDTR,TR</code></p>
+<blockquote>
+<p>  LDRT在win中不用</p>
+</blockquote>
+<p>段寄存器共96位，其中高80位不可见，低16位可见</p>
+<p>段寄存器在读的时候只能读16位：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov ax,es//也就是Selector部分</span><br></pre></td></tr></table></figure>
+
+<h1 id="003-段寄存器属性探测"><a href="#003-段寄存器属性探测" class="headerlink" title="003.段寄存器属性探测"></a>003.段寄存器属性探测</h1><p>寄存器的96位：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Selector	//16，可见部分</span><br><span class="line">Atrribute	//16</span><br><span class="line">Base		//32</span><br><span class="line">Limit		//32</span><br></pre></td></tr></table></figure>
+
+<p><strong>LDTR和TR寄存器不能使用mov读写</strong></p>
+<p>不同系统红色部分可能不同： </p>
+<p>GS寄存器win没有使用</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220926221649224.png"></p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220705133725810.png"></p>
+<h1 id="004-段描述符与段选择子"><a href="#004-段描述符与段选择子" class="headerlink" title="004.段描述符与段选择子"></a>004.段描述符与段选择子</h1><p>介绍两张表：GDT(全局描述符表)和LDT(局部描述符表，该表在win并没有使用)</p>
+<p>当执行类似mov ds,ax指令时，cpu会查表，</p>
+<p>主要是查GDT    表。</p>
+<p>本来要是用32的，这里使用x64来演示，其实都差不多：</p>
+<p>gdtr和gdtl 分别可以知道gdt这个表的位置和大小，dd指令可以查看指定位置的数据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">0: kd&gt; r gdtr</span><br><span class="line">gdtr=fffff8023406afb0</span><br><span class="line">0: kd&gt; r gdtl</span><br><span class="line">gdtl=0057</span><br><span class="line">0: kd&gt; dd fffff8023406afb0</span><br><span class="line">fffff802`3406afb0  00000000 00000000 00000000 00000000</span><br><span class="line">fffff802`3406afc0  00000000 00209b00 00000000 00409300</span><br><span class="line">fffff802`3406afd0  0000ffff 00cffb00 0000ffff 00cff300</span><br><span class="line">fffff802`3406afe0  00000000 0020fb00 00000000 00000000</span><br><span class="line">fffff802`3406aff0  90000067 34008b06 fffff802 00000000</span><br><span class="line">fffff802`3406b000  00003c00 0040f300 00000000 00000000</span><br><span class="line">fffff802`3406b010  00000000 00000000 00000000 00000000</span><br><span class="line">fffff802`3406b020  00000000 00000000 00000000 00000000</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220705143157265.png"></p>
+<blockquote>
+<p>  换成32位xp后：</p>
+</blockquote>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220915155154854.png"></p>
+<p>段描述符，一个段描述符有8字节，查看段描述符一般使用dq查看，即qword，如上图</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220409162131390.png"></p>
+<p>段选择子：16位的端描述符，</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220926221614422.png"></p>
+<p>除了MOV指令，我们还可以使用LES、LSS、LDS、LFS、LGS指令修改寄存器.<br>CS不能通过上述的指令进行修改，CS为代码段,CS的改变会导致EIP的改变，要改CS，必须要保证CS与EIP一起改，后面会讲.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> buffer[<span class="number">6</span>];</span><br><span class="line">__asm</span><br><span class="line">&#123;</span><br><span class="line">	les ecx,fword ptr ds:[buffer] <span class="comment">//高2个字节给es，低四个字节给ecx</span></span><br><span class="line">    <span class="comment">//fword 为6字节</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意:RPL&lt;=DPL(在数值上)，上述指令才能运行</p>
+<p>DPL：描述符特权级</p>
+<h2 id="使用LES指令修改ES"><a href="#使用LES指令修改ES" class="headerlink" title="使用LES指令修改ES"></a>使用LES指令修改ES</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdafx.h&quot;</span></span></span><br><span class="line"><span class="comment">// RPL &lt;= DPL</span></span><br><span class="line"><span class="comment">// Selector: 0000 0000 0011 1000(0038)</span></span><br><span class="line"><span class="comment">// LES高2字节给ES，低4字节给ECX，其他指令如LSS,LDS依此类推</span></span><br><span class="line"><span class="comment">// RPL是段选择子的权限，DPL是段描述符的权限，数值越大权限越小</span></span><br><span class="line"><span class="comment">// 因此当RPL=3时，只能访问DPL=3的段描述符；当RPL=0时，可以访问所有段描述符</span></span><br><span class="line"><span class="comment">// 下面的buffer作为源操作数执行les指令，会把ES写为0x0038，EAX写为0x11223344</span></span><br><span class="line"><span class="type">char</span> buffer[<span class="number">6</span>] = &#123;<span class="number">0x44</span>,<span class="number">0x33</span>,<span class="number">0x22</span>,<span class="number">0x11</span>,<span class="number">0x38</span>, <span class="number">0x00</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">// LES修改段寄存器</span></span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		les ecx,fword ptr ds:[buffer]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到ECX和ES被修改：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220925124839590.png"></p>
+<h1 id="005-段描述符属性：P位和G位"><a href="#005-段描述符属性：P位和G位" class="headerlink" title="005.段描述符属性：P位和G位"></a>005.段描述符属性：P位和G位</h1><p>P=1：段描述符有效，0为无效</p>
+<p>G位：</p>
+<ul>
+<li>  当G=0时，Limit的范围是<code>0x00000000-0x000FFFFF</code>，其中，段描述符的20位在低位，高位补0.</li>
+<li>  当G=1时，Limit的范围是<code>0x00000FFF-0xFFFFFFFF</code>，其中，段描述符的20位在高位，低位补F。</li>
+</ul>
+<p>段寄存器：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Selector	//16,段选择子（已确定）</span><br><span class="line">Atrribute	//16，高32位中的：8--23位</span><br><span class="line">Base		//32，有三部分，在上面的图都能找到</span><br><span class="line">Limit		//32，上面有20位，也就是最多FFFFF,当G=0时，单位为字节，那么0x000FFFFF；当G=1时，单位为4KB，0xFFFFFFFF</span><br></pre></td></tr></table></figure>
+
+<p>目前不要使用FS，FS与线程相关。</p>
+<h2 id="练习：从GTD表中查找对应的段描述符，然后填充到段寄存器中。"><a href="#练习：从GTD表中查找对应的段描述符，然后填充到段寄存器中。" class="headerlink" title="练习：从GTD表中查找对应的段描述符，然后填充到段寄存器中。"></a>练习：从GTD表中查找对应的段描述符，然后填充到段寄存器中。</h2><p>段选择子：23 2B 30 3B 53</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">23：0010 0011</span><br><span class="line">index:4</span><br><span class="line">00cff300`0000ffff</span><br><span class="line">WORD Selector: 23</span><br><span class="line">WORD Atrribute: cff3</span><br><span class="line">DWORD Base: 00000000</span><br><span class="line">DWORD Limit: ffffffff</span><br><span class="line"></span><br><span class="line">2B：0010 1011</span><br><span class="line">index:5</span><br><span class="line">80008b04`200020ab</span><br><span class="line">WORD Selector: 2B</span><br><span class="line">WORD Atrribute: 008b</span><br><span class="line">DWORD Base: 80042000</span><br><span class="line">DWORD Limit:000020ab</span><br><span class="line"></span><br><span class="line">30：0011 0000</span><br><span class="line">index:6</span><br><span class="line">ffc093df`f0000001</span><br><span class="line">WORD Selector: 30</span><br><span class="line">WORD Atrribute: c093</span><br><span class="line">DWORD Base: ffdff000</span><br><span class="line">DWORD Limit: 00001fff</span><br><span class="line"></span><br><span class="line">3B：0011 1011</span><br><span class="line">index:7</span><br><span class="line">0040f300`00000fff</span><br><span class="line">WORD Selector: 3B</span><br><span class="line">WORD Atrribute: 40f3</span><br><span class="line">DWORD Base: 00000000</span><br><span class="line">DWORD Limit: 00000fff</span><br><span class="line"></span><br><span class="line">53：0101 0011</span><br><span class="line">index:A</span><br><span class="line">80008954`af000068</span><br><span class="line">WORD Selector: 53</span><br><span class="line">WORD Atrribute: 0089</span><br><span class="line">DWORD Base: 8054af00</span><br><span class="line">DWORD Limit: 00000068</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="006-段描述符属性：S位和TYPE域"><a href="#006-段描述符属性：S位和TYPE域" class="headerlink" title="006.段描述符属性：S位和TYPE域"></a>006.段描述符属性：S位和TYPE域</h1><p>S=1：代码段或者数据段描述符</p>
+<p>S=0：系统段描述符</p>
+<p>DPL只有两种情况，00和11</p>
+<p>也就是说只有第五位为9或者F时这里是代码段或者数据段，否则不是：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220409170300022.png"></p>
+<p>当type第11位为0时是数据段，1时是代码段：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220409170426468.png"></p>
+<p>A：是否被访问过</p>
+<p>W：是否可写</p>
+<p>E：向下扩展位，</p>
+<p>R：是否可读</p>
+<p>C：一致位</p>
+<p>上面是当S=1的情况，下面是S=0，也就是系统段描述符的情况：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220409171001033.png"></p>
+<h1 id="007-段描述符属性：DB位"><a href="#007-段描述符属性：DB位" class="headerlink" title="007.段描述符属性：DB位"></a>007.段描述符属性：DB位</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">情况一︰对CS段的影响</span><br><span class="line">    D=1:采用32位寻址方式</span><br><span class="line">    D=0:采用16位寻址方式</span><br><span class="line">    前缀67：改变寻址方式（见下图）</span><br><span class="line">情况二:对SS段的影响</span><br><span class="line">    D=1:隐式堆栈访问指令(如:PUSH POP CALL）使用32位堆栈指针寄存器ESP</span><br><span class="line">    D=О:隐式堆栈访问指令(如:PUSH POP CALL）使用16位堆栈指针寄存器SP</span><br><span class="line">情况三:向下拓展的数据段</span><br><span class="line">    D=1:段上线为4GB</span><br><span class="line">    D=0:段上线为64KB</span><br><span class="line">    D=1:段上线为4GB</span><br><span class="line">    D=0:段上线为64KB</span><br></pre></td></tr></table></figure>
+
+<p>32位寻址：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220915160041371.png"></p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220926221836085.png"></p>
+<h1 id="008-段权限检查"><a href="#008-段权限检查" class="headerlink" title="008.段权限检查"></a>008.段权限检查</h1><p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220926221851332.png"></p>
+<p>==如何查看程序是哪一环：CPL（当前特权级）==</p>
+<p>==CS和SS中存储的段选择子的后2位==</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//这种就是0 环</span><br><span class="line">0: kd&gt; r</span><br><span class="line">rax=000000000000df01 rbx=fffff80230fa6180 rcx=0000000000000001</span><br><span class="line">rdx=0000002500000000 rsi=0000000000000001 rdi=ffffc009d5bf0040</span><br><span class="line">rip=fffff80231dc00a0 rsp=fffff80234081b78 rbp=0000000000000000</span><br><span class="line"> r8=000000000000014a  r9=ffffc009d18a1000 r10=00000000000000a4</span><br><span class="line">r11=fffff80234081c08 r12=000000256c72b900 r13=0000000000000000</span><br><span class="line">r14=fffff78000000300 r15=0000000000000001</span><br><span class="line">iopl=0         nv up ei pl nz na pe nc</span><br><span class="line">cs=0010  ss=0018  ds=002b  es=002b  fs=0053  gs=002b             efl=00000202</span><br><span class="line">nt!DbgBreakPointWithStatus:</span><br><span class="line">fffff802`31dc00a0 cc              int     3</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//这种就是3环</span><br><span class="line">0:000&gt; r</span><br><span class="line">rax=0000000000000000 rbx=0000000000000010 rcx=00007ffb95e4d214</span><br><span class="line">rdx=0000000000000000 rsi=00007ffb95ee1a90 rdi=0000006091902000</span><br><span class="line">rip=00007ffb95e806b0 rsp=0000006091a7f2a0 rbp=0000000000000000</span><br><span class="line"> r8=0000006091a7f298  r9=0000000000000000 r10=0000000000000000</span><br><span class="line">r11=0000000000000246 r12=0000000000000040 r13=0000000000000000</span><br><span class="line">r14=00007ffb95ed48f0 r15=00000202241a0000</span><br><span class="line">iopl=0         nv up ei pl zr na po nc</span><br><span class="line">cs=0033  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00000246</span><br><span class="line">ntdll!LdrpDoDebuggerBreak+0x30:</span><br><span class="line">00007ffb`95e806b0 cc              int     3</span><br></pre></td></tr></table></figure>
+
+
+
+<p>CPL：CPU当前的权限级别(当前程序)<br>DPL：(Descriptor Privilege Level:描述符特权级别)如果你想访问我，你应该具备什么样的权限，描述符特权级<br>RPL ：用什么权限去访问一企段，请求特权级</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">参考如下代码:</span><br><span class="line">比如当前程序处于0环，也就是说CPL=O</span><br><span class="line">Mov ax,00OB //1011 RPL = 3</span><br><span class="line">Mov ds,ax   //ax指向的段描述符的DPL=0</span><br><span class="line"></span><br><span class="line">数据段的权限检查:</span><br><span class="line">CPL&lt;= DPL 并且 RPL&lt;= DPL(数值上的比较)</span><br><span class="line">注意:</span><br><span class="line">代码段和系统段描述符中的检查方式并不一样,具体参加后面课程.</span><br></pre></td></tr></table></figure>
+
+<h1 id="009-代码跨段跳转流程"><a href="#009-代码跨段跳转流程" class="headerlink" title="009.代码跨段跳转流程"></a>009.代码跨段跳转流程</h1><p><strong>代码跨段本质就是修改CS段寄存器</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">1、代码间的跳转(段间跳转非调用门之类的)</span><br><span class="line"></span><br><span class="line">段间跳转，有2种情况，即要跳转的段是一致代码段还是非一致代码段(如何区分参见之前视频)</span><br><span class="line"></span><br><span class="line">同时修改CS与EIP的指令</span><br><span class="line">JMP FAR/CALL FAR/RETF /INT/IRETED</span><br><span class="line">注意:</span><br><span class="line">只改变EIP的指令</span><br><span class="line">JMP / CALL /JcC/RET</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">2、代码间的跳转(段间跳转非调用门之类的)执行流程:</span><br><span class="line">JMP 0x20:0x004183D7 CPU如何执行这行代码?</span><br><span class="line">    (1)段选择子拆分</span><br><span class="line">        Ox20对应二进制形式0000 0000 0010 0000</span><br><span class="line">        RPL= 00</span><br><span class="line">        TI=0</span><br><span class="line">        lndex = 4</span><br><span class="line">    (2)查表得到段描述符</span><br><span class="line">        TI=0 所以查GDT表</span><br><span class="line">        Index=4 找到对应的段描述符</span><br><span class="line">        四种情况可以跳转:代码段、调用门、TSS任务段、任务门</span><br><span class="line">    (3)权限检查</span><br><span class="line">    	如果是非一致代码段，要求:CPL == DPL并且RPL&lt;= DPL</span><br><span class="line">    	如果是一致代码段，要求:CPL &gt;= DPL</span><br><span class="line">    (4)加载段描述符</span><br><span class="line">    	通过上面的权限检查后，CPU会将段描述符加载到CS段寄存器中.</span><br><span class="line">    (5)代码执行</span><br><span class="line">        CPU将CS.Base + Offset的值写入EIP然后执行CS:EIP处的代码，段间跳转结束.</span><br><span class="line">6、总结:</span><br><span class="line">对于一致代码段:也就是共享的段</span><br><span class="line">	特权级高的程序不允许访问特权级低的数据:O核心态不允许访问用户态的数据</span><br><span class="line">	特权级低的程序可以访问到特权级高的数据，但特权级不会改变:用户态还是用户态</span><br><span class="line">对于普通代码段:也就是非一致代码段</span><br><span class="line">	只允许同级访问</span><br><span class="line">	绝对禁止不同级别的访问:核心态不是用户态，用户态也不是核心态.</span><br></pre></td></tr></table></figure>
+
+
+
+<p>直接对代码段进行JMP或者CALL的操作，无论目标是一致代码段还是非一致代码段，CPL都不会发生改变.如果要提升CPL的权限，只能通过调用门.</p>
+<h1 id="010-代码跨段跳转实验"><a href="#010-代码跨段跳转实验" class="headerlink" title="010.代码跨段跳转实验"></a>010.代码跨段跳转实验</h1><p>1.构造段描述符</p>
+<p>​    找一个非一致代码段描述符，复制一份，写入到GDT表中</p>
+<p>将上面的那个写到下面空的地方：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220915163111192.png"></p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220705205746223.png"></p>
+<p>在od中：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220915163545870.png"></p>
+<p>执行后，ip和cs都会改变，成功执行：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220915163613567.png"></p>
+<p>下面修改段描述符的权限级别DPL，为00cf9b00`0000ffff，在od中跳转的内容不变，执行后会发现。跳转不成功，权限检查错误，跳到了ntdll里：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; eq 8003f048 00cf9b00`0000ffff</span><br><span class="line">kd&gt; g</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220915164138159.png"></p>
+<p>上面是非一致代码段，下面将该段描述符改为一致代码段(允许低权限执行)，改为00cf9f00xxxxxx，                                                                                              成功跳转：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; eq 8003f048 00cf9f00`0000ffff</span><br><span class="line">kd&gt; g</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220915164331943.png"></p>
+<p>总结:</p>
+<p>1、为了对数据进行保护，普通代码段是禁止不同级别进行访问的。用户态的代码不能访问内核的数据，同样，内核态的代码也不能访问用户态的数据.<br>2、如果想提供一些通用的功能，而且这些功能并不会破坏内核数据，那么可以选择一致代码段，这样低级别的程序可以在不提升CPL权限等级的情况下即可以访问.<br>3、如果想访问普通代码段，只有通过“调用门”等提示CPL权限，才能访问。</p>
+<h1 id="额外：双机调试"><a href="#额外：双机调试" class="headerlink" title="额外：双机调试"></a>额外：双机调试</h1><p><strong>从这里开始换调试环境了，换成winxp32位了。</strong></p>
+<p>改boot.ini</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[boot loader]</span><br><span class="line">timeout=30</span><br><span class="line">default=multi(0)disk(0)rdisk(0)partition(1)\WINDOWS</span><br><span class="line">[operating systems]</span><br><span class="line">multi(0)disk(0)rdisk(0)partition(1)\WINDOWS=&quot;Microsoft Windows XP Professional&quot; /noexecute=optin /fastdetect</span><br><span class="line">multi(0)disk(0)rdisk(0)partition(1)\WINDOWS=&quot;Microsoft Windows XP Professional&quot; /noexecute=optin /fastdetect /debug /debugport=com1 /baudrate=115200</span><br></pre></td></tr></table></figure>
+
+<p>添加串行端口：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220915154318677.png"></p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220915154357463.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Program Files (x86)\Windows Kits\10\Debuggers\x86&gt;windbg.exe -b -k com:port=\\.\pipe\com_1,baud=115200,pipe</span><br></pre></td></tr></table></figure>
+
+<h1 id="011-长调用与短调用"><a href="#011-长调用与短调用" class="headerlink" title="011.长调用与短调用"></a>011.长调用与短调用</h1><p>短调用就是我们在汇编常见的<code>CALL</code>指令，<code>call</code>后会将EIP压栈。</p>
+<p>长调用分为两种，一种提权，一种不提权，调用格式为：指令格式：<code>CALL CS:EIP</code>，其中<code>EIP</code>是废弃的，<code>CS</code>为指向<code>调用门</code>的段选择子。</p>
+<p>通过<strong>JMP FAR</strong>可以实现段间的跳转如果要实现跨段的调用就必须要<strong>CALL FAR</strong>，也就是长调用.<br><strong>CALL FAR</strong>比<strong>JMP FAR</strong>要复杂，<code>JMP</code>并不影响堆栈,但<code>CALL</code>指令会影响.</p>
+<ol>
+<li><p>短调用：</p>
+<p> 指令格式：<code>call 立即数/寄存器/内存</code></p>
+<p> CALL的时候会将下一行代码的地址压入栈，call后eip与esp都会变。</p>
+<p> ret 的时候会将写入的地址写入eip，esp也会变。</p>
+</li>
+<li><p>长调用（跨段不提权）</p>
+<p> 指令格式：<code>call cs:eip(eip是废弃的)</code></p>
+<p> 发生改变的寄存器有<code>ESP</code>、<code>EIP</code>和<code>CS</code>，比段调用多了一个<code>CS</code></p>
+<p> <img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220926211210422.png"></p>
+</li>
+<li><p>长调用（跨段并提权）</p>
+<p> 指令格式：<code>call cs:eip(eip是废弃的)</code></p>
+<p> 发生改变的寄存器有<code>ESP</code>、<code>EIP</code>、<code>CS</code>和`SS。</p>
+</li>
+</ol>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220915170010817.png"><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220915170021012.png"></p>
+<p>5、总结：</p>
+<ol>
+<li>  跨段调用时，一旦有权限切换，就会切换堆栈.</li>
+<li>   CS的权限一旦改变，SS的权限也要随着改变，CS与SS的等级必须一样.</li>
+<li>  <code>JMP FAR</code> 只能跳转到同级非一致代码段，但<code>CALL FAR</code>可以通过调用门提权，提升CPL的权限.</li>
+</ol>
+<h1 id="012-调用门-无参"><a href="#012-调用门-无参" class="headerlink" title="012.调用门(无参)"></a>012.调用门(无参)</h1><p>win无调用门但是可以手写</p>
+<p>p位：12bit=0：系统描述符</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220916164814247.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">调用门执行流程</span><br><span class="line"></span><br><span class="line">指令格式：CALL  CS:EIP(EIP是废弃的)</span><br><span class="line">执行步骤：</span><br><span class="line">1) 根据CS的值 查GDT表，找到对应的段描述符  这个描述符是一个调用门.</span><br><span class="line">2) 在调用门描述符中存储另一个代码段段的选择子.</span><br><span class="line">3) 选择子指向的段  段.Base + 偏移地址 就是真正要执行的地址.</span><br></pre></td></tr></table></figure>
+
+<p>可以在0x48的位置写，这个位置没有被用到，防止蓝屏。</p>
+<h2 id="调用门提权"><a href="#调用门提权" class="headerlink" title="调用门提权"></a>调用门提权</h2><p>构造一个调用门描述符：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0000 EC00 0008 0000</span><br></pre></td></tr></table></figure>
+
+<p>写到gdt表：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220916232442504.png"></p>
+<p>观察堆栈和寄存器变化：</p>
+<p>找到地址：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220916233410021.png"></p>
+<p>这时的寄存器：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220916233912720.png"></p>
+<p>所以说要改调用门为：<code>0040EC00 00081020</code></p>
+<p>发生中断后，中断到了0环调试器：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220916233949926.png"></p>
+<p>可以看到cs和eip还有esp都发生了变化，成功提权，这时已经是0环权限了。</p>
+<p>并且新的栈中，压入了原来esp和cs等内容。</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220916234159283.png"></p>
+<h2 id="读高2G内存"><a href="#读高2G内存" class="headerlink" title="读高2G内存"></a>读高2G内存</h2><p>地址没变，所以gdt表的内容没改。</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220916235233228.png"><br><code>sgdt</code>指令是用来读取<code>GDTR</code>这个寄存器的，3环也可以做到(ret就行)：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __declspec(naked) FunctionHas0CPL()</span><br><span class="line">&#123;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		sgdt GDT</span><br><span class="line">		ret</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="013-调用门-有参"><a href="#013-调用门-有参" class="headerlink" title="013.调用门(有参 )"></a>013.调用门(有参 )</h1><p>调用门描述符和上节还是一样，如果有参数的话如下：<code>0000 EC03 0008 0000(3个参数)</code></p>
+<p>这时的堆栈：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917094545158.png"></p>
+<p>跟上一节一样，该gdtr</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917100052830.png"></p>
+<p>测试代码及结果</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917100007067.png"></p>
+<h2 id="调用门总结"><a href="#调用门总结" class="headerlink" title="调用门总结"></a>调用门总结</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">1) 当通过门，权限不变的时候，只会PUSH两个值：CS  返回地址</span><br><span class="line">	新的CS的值由调用门决定</span><br><span class="line"></span><br><span class="line">2) 当通过门，权限改变的时候，会PUSH四个值：SS、ESP、CS、返回地址   </span><br><span class="line">	新的CS的值由调用门决定  </span><br><span class="line">	新的SS和ESP由TSS提供</span><br><span class="line"></span><br><span class="line">3) 通过门调用时，要执行哪行代码有调用门决定，但使用RETF返回时，由堆栈中压人的值决定，这就是说，进门时只能按指定路线走，出门时可以翻墙(只要改变堆栈里面的值就可以想去哪去哪)	</span><br><span class="line">4) 可不可以再建个门出去呢?也就是用Call  当然可以了 前门进 后门出	</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="调用门阶段测试"><a href="#调用门阶段测试" class="headerlink" title="调用门阶段测试"></a>调用门阶段测试</h2><h3 id="Test1"><a href="#Test1" class="headerlink" title="Test1"></a>Test1</h3><p>构造调用门，实现R3读高2G内存</p>
+<p>还是上面的，注意构造的调用门描述符</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220916235233228.png"></p>
+<h3 id="Test2"><a href="#Test2" class="headerlink" title="Test2"></a>Test2</h3><p>在第一题的基础上进行修改，实现通过fq的方式返回到其他地址</p>
+<p>意思就是不走原来的RETF，而知修改栈里面的ret地址，跳到其他地址执行。</p>
+<p>注意修改返回地址</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220926204910845.png"></p>
+<h3 id="Test3"><a href="#Test3" class="headerlink" title="Test3"></a>Test3</h3><p>在第一题的基础上进行修改，在门中再建一个门跳转到其他地址</p>
+<p>需要注意，从第一个函数跳到第二个函数时，调用门中的DPL要设置成0，因为此时裸函数1的CPL=0.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">DWORD dwHigh2GValue; <span class="comment">// 高2G内存</span></span><br><span class="line">BOOL bFunctionHas0CPL1Called; <span class="comment">// 证明函数1被调用</span></span><br><span class="line">BOOL bFunctionHas0CPL2Called; <span class="comment">// 证明函数2被调用</span></span><br><span class="line"></span><br><span class="line"><span class="type">char</span> gate1[<span class="number">6</span>] = &#123;<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0x48</span>,<span class="number">0</span>&#125;; <span class="comment">// 0041ec00`00081000</span></span><br><span class="line"><span class="type">char</span> gate2[<span class="number">6</span>] = &#123;<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0x90</span>,<span class="number">0</span>&#125;; <span class="comment">// 00418c00`00081020</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 该函数通过 CALL FAR 调用，使用调用门提权，拥有0环权限</span></span><br><span class="line"><span class="comment">// 00401000</span></span><br><span class="line"><span class="type">void</span> __declspec(naked) FunctionHas0CPL1()</span><br><span class="line">&#123;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//int 3</span></span><br><span class="line">		pushad</span><br><span class="line">		pushfd</span><br><span class="line">	</span><br><span class="line">		mov al,<span class="number">1</span></span><br><span class="line">		mov byte ptr ds:[bFunctionHas0CPL1Called],al</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 读取了GDT表第二项的低4字节</span></span><br><span class="line">		mov eax,<span class="number">0x8003f008</span></span><br><span class="line">		mov eax,[eax]</span><br><span class="line">		mov dwHigh2GValue,eax</span><br><span class="line"></span><br><span class="line">		call fword ptr ds:[gate2]</span><br><span class="line"></span><br><span class="line">		popfd</span><br><span class="line">		popad		</span><br><span class="line"></span><br><span class="line">		retf	<span class="comment">// 注意堆栈平衡，写错蓝屏</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 00401020</span></span><br><span class="line"><span class="type">void</span> __declspec(naked) FunctionHas0CPL2()</span><br><span class="line">&#123;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//int 3</span></span><br><span class="line">		pushad</span><br><span class="line">		pushfd</span><br><span class="line">	</span><br><span class="line">		mov al,<span class="number">1</span></span><br><span class="line">		mov byte ptr ds:[bFunctionHas0CPL2Called],al</span><br><span class="line"></span><br><span class="line">		popfd</span><br><span class="line">		popad</span><br><span class="line">		retf</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span>* argv[])</span></span><br><span class="line">&#123;	</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		call fword ptr ds:[gate1] <span class="comment">// 长调用，使用调用门提权</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%08x\n&quot;</span>,dwHigh2GValue);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d %d\n&quot;</span>, bFunctionHas0CPL1Called,bFunctionHas0CPL2Called);</span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>成功执行：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220926205843621.png"></p>
+<h1 id="014-中断门"><a href="#014-中断门" class="headerlink" title="014.中断门"></a>014.中断门</h1><p>win中没有使用调用门，但是使用了中断门，比如系统调用和调试。</p>
+<p>（老的CPU使用的是系统调用，新的是使用快速调用）</p>
+<p>IDT表，即中断描述符表，每个描述符都占8字节，IDT的第一个不为空：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917100944324.png"></p>
+<p>IDT表中只有三种描述符：</p>
+<ol>
+<li> 任务门描述符</li>
+<li> 中断门描述符</li>
+<li> 陷阱们描述符</li>
+</ol>
+<h2 id="中断门描述符"><a href="#中断门描述符" class="headerlink" title="中断门描述符"></a>中断门描述符</h2><p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917101400290.png"></p>
+<h2 id="提权-amp-不提权"><a href="#提权-amp-不提权" class="headerlink" title="提权&amp;不提权"></a>提权&amp;不提权</h2><p>提权&amp;不提权时的栈情况：</p>
+<ul>
+<li>  不提权时：压入<code>EFLAF</code>，<code>CS</code>，<code>EIP</code></li>
+<li>  提权时：压入<code>EFLAF</code>，<code>CS</code>，<code>EIP</code>，并且压入<code>SS</code>和<code>ESP</code></li>
+</ul>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220926212001922.png"></p>
+<p>构造中断门：<code>0000EE00 00080000</code></p>
+<h2 id="读取IDT表项"><a href="#读取IDT表项" class="headerlink" title="读取IDT表项"></a>读取IDT表项</h2><p>在IDT表中找个p=0的无效项</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917103115783.png"></p>
+<p>可以看到正确读取了</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917103501066.png"></p>
+<p>当<strong>CPL=DPL</strong>时，才能成功触发中断。</p>
+<h2 id="调用门中使用IRETD返回，中断门实现RETF返回"><a href="#调用门中使用IRETD返回，中断门实现RETF返回" class="headerlink" title="调用门中使用IRETD返回，中断门实现RETF返回"></a>调用门中使用IRETD返回，中断门实现RETF返回</h2><p>这里要对调用门(提权)和中断门(提权)的栈情况有了解。（见上面几小节</p>
+<p>popfd将EFLAG弹出。</p>
+<h3 id="中断门"><a href="#中断门" class="headerlink" title="中断门"></a>中断门</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">BYTE IDTItem0[<span class="number">8</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// R0 函数，读取了IDT表第一项</span></span><br><span class="line"><span class="comment">// 00401000</span></span><br><span class="line"><span class="type">void</span> __declspec(naked) R0Function()</span><br><span class="line">&#123;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//int 3 // 调试用的</span></span><br><span class="line">		pushad</span><br><span class="line">		pushfd</span><br><span class="line">		mov eax,<span class="number">0x8003f400</span></span><br><span class="line">		mov ebx,[eax]</span><br><span class="line">		mov ecx,[eax+<span class="number">0x4</span>]</span><br><span class="line">		mov dword ptr ds:[IDTItem0],ebx</span><br><span class="line">		mov dword ptr ds:[IDTItem0+<span class="number">0x4</span>],ecx</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 要求用 retf 返回</span></span><br><span class="line">		add esp,<span class="number">0x2c</span>		<span class="comment">// esp指向eflags</span></span><br><span class="line">		popfd				<span class="comment">// esp指向3环esp</span></span><br><span class="line">		mov eax,[esp]		<span class="comment">// 将原ESP和SS向低地址移动4字节</span></span><br><span class="line">		mov [esp<span class="number">-0x4</span>],eax</span><br><span class="line">		mov eax,[esp+<span class="number">0x4</span>]</span><br><span class="line">		mov [esp],eax</span><br><span class="line"></span><br><span class="line">		sub esp,<span class="number">0x30</span>		<span class="comment">// 还原esp</span></span><br><span class="line">		popfd</span><br><span class="line">		popad</span><br><span class="line"></span><br><span class="line">		retf</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	__asm </span><br><span class="line">	&#123;</span><br><span class="line">		INT <span class="number">0x20</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%08x %08x\n&quot;</span>, *(PDWORD)IDTItem0, *(PDWORD)((PBYTE)IDTItem0+<span class="number">0x4</span>));</span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>成功返回：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220926213928875.png"></p>
+<h3 id="调用门"><a href="#调用门" class="headerlink" title="调用门"></a>调用门</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">DWORD dwHigh2GValue;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 该函数通过 CALL FAR 调用，使用调用门提权，拥有0环权限</span></span><br><span class="line"><span class="comment">// 00401000</span></span><br><span class="line"><span class="type">void</span> __declspec(naked) FunctionHas0CPL()</span><br><span class="line">&#123;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		pushad</span><br><span class="line">		pushfd</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 读取了GDT表第二项的低4字节</span></span><br><span class="line">		mov eax,<span class="number">0x8003f008</span></span><br><span class="line">		mov eax,[eax]</span><br><span class="line">		mov dwHigh2GValue,eax</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 要求用 iretd 返回		</span></span><br><span class="line">		add esp,<span class="number">0x30</span>		<span class="comment">// esp指向ss</span></span><br><span class="line">		</span><br><span class="line">		mov eax,[esp]		<span class="comment">// 将原ESP和SS向高地址移动4字节</span></span><br><span class="line">		mov [esp+<span class="number">0x4</span>],eax</span><br><span class="line">		mov eax,[esp<span class="number">-0x4</span>]</span><br><span class="line">		mov [esp],eax</span><br><span class="line">		pushfd</span><br><span class="line">		sub esp,<span class="number">0x2c</span>		<span class="comment">// 还原esp</span></span><br><span class="line"></span><br><span class="line">		popfd</span><br><span class="line">		popad</span><br><span class="line"></span><br><span class="line">		iretd</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">char</span> buff[<span class="number">6</span>] = &#123;<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0x48</span>,<span class="number">0</span>&#125;;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		call fword ptr [buff] <span class="comment">// 长调用，使用调用门提权</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%08x\n&quot;</span>,dwHigh2GValue);</span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>成功返回：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220926214258402.png"></p>
+<h1 id="015-陷阱门"><a href="#015-陷阱门" class="headerlink" title="015.陷阱门"></a>015.陷阱门</h1><p> 陷阱门描述符：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917104302437.png"></p>
+<p>构造一个陷阱门描述符：<code>0000EF00 0008 0000</code></p>
+<p>陷阱门与中断门几乎一直，唯一区别是：中断门执行时，将IF位清零，但陷阱门不会。</p>
+<h1 id="0x16-任务段"><a href="#0x16-任务段" class="headerlink" title="0x16.任务段"></a>0x16.任务段</h1><p>调用门中断门与陷阱门出现权限切换时，堆栈回切换，由于CS的CPL发生改变，也导致了SS也必须要切换。</p>
+<p>切换时，会有新的ESP和SS(CS是由中断门或者调用门指定)，这两个值是从TSS (Task-state segment )，任务状态段，而来</p>
+<p>TSS是一块内存，大小为104字节：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917172922264.png"></p>
+<p><strong>作用：同时切换一堆寄存器(任务切换)</strong></p>
+<p>TSS的地址在<code>TR</code>段寄存器中。</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917173106598.png"></p>
+<p>TSS段描述符：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917173121555.png"></p>
+<h2 id="TR寄存器的读写"><a href="#TR寄存器的读写" class="headerlink" title="TR寄存器的读写"></a>TR寄存器的读写</h2><ol>
+<li><p>将TSS段描述符加载到TR寄存器</p>
+<p>  指令：LTR</p>
+<p>  说明：</p>
+<ul>
+<li><pre><code> 用LTR指令去装载的话，仅仅是改变TR寄存器的值(96位) ，并没有真正改变TSS 
+</code></pre>
+</li>
+<li><pre><code> LTR指令只能在系统层使用
+</code></pre>
+</li>
+<li><pre><code> 加载后TSS段描述符会状态位会发生改变
+</code></pre>
+</li>
+</ul>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MOV AX,SelectorTSS</span><br><span class="line">LTR AX</span><br></pre></td></tr></table></figure>
+
+</li>
+<li><p>读TR寄存器</p>
+<p>  指令：<code>STR</code></p>
+<p>  说明：如果用STR去读的话，只读了TR的16位，也就是选择子</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">STR AX</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="0x17-任务段"><a href="#0x17-任务段" class="headerlink" title="0x17.任务段"></a>0x17.任务段</h1><p>CPU通过<code>TR段寄存器</code>来找到TSS，如果我们想用自己的TSS段来替换原来的寄存器，就要修改TR寄存器，TR寄存器的值又是来自TSS段描述符，那么我们接下来先构造一个段描述符</p>
+<h2 id="修改TR寄存器"><a href="#修改TR寄存器" class="headerlink" title="修改TR寄存器"></a>修改TR寄存器</h2><ol>
+<li><p>在Ring0 我们可以通过<code>LTR</code>指令去修改TR寄存器</p>
+</li>
+<li><p>在Ring3 我们可以通过<code>CALL FAR</code> 或者 <code>JMP FAR</code>指令来修改</p>
+</li>
+</ol>
+<p>用JMP去访问一个代码段的时候，改变的是CS和EIP ：</p>
+<ol>
+<li><p> JMP 0x48:0x123456  如果0x48是代码段 </p>
+</li>
+<li><p> 执行后：CS–&gt;0x48  EIP–&gt;0x123456</p>
+</li>
+</ol>
+<p>用JMP去访问一个任务段的时候：</p>
+<ol>
+<li> 如果0x48是TSS段描述符，先修改TR寄存器，</li>
+<li> 再用TR.Base指向的TSS中的值修改当前的寄存器</li>
+</ol>
+<h2 id="CALL访问任务段，正确返回"><a href="#CALL访问任务段，正确返回" class="headerlink" title="CALL访问任务段，正确返回"></a>CALL访问任务段，正确返回</h2><p>构造TSS段描述符：<code>xx00 E9xx xxxx0068</code></p>
+<p><code>eq xxxxxxx 0000E93A 00000068</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">!process 0 0//查看Dirbase，即CR3</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917214509330.png"></p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917214430495.png"></p>
+<p>代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">DWORD dwOk;</span><br><span class="line">DWORD dwESP;</span><br><span class="line">DWORD dwCS;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 任务切换后的EIP</span></span><br><span class="line"><span class="type">void</span> __declspec(naked) R0Func()</span><br><span class="line">&#123;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		pushad</span><br><span class="line">		pushfd</span><br><span class="line"></span><br><span class="line">		push fs</span><br><span class="line">		<span class="type">int</span> <span class="number">3</span> <span class="comment">// int 3 会修改FS</span></span><br><span class="line">		pop fs</span><br><span class="line"></span><br><span class="line">		mov eax,<span class="number">1</span></span><br><span class="line">		mov dword ptr ds:[dwOk],eax</span><br><span class="line">		mov eax,esp</span><br><span class="line">		mov dword ptr ds:[dwESP],eax</span><br><span class="line">		mov ax,cs</span><br><span class="line">		mov word ptr ds:[dwCS],ax</span><br><span class="line"></span><br><span class="line">		popfd</span><br><span class="line">		popad</span><br><span class="line">		iretd</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;	</span><br><span class="line">	DWORD dwCr3; <span class="comment">// windbg获取</span></span><br><span class="line">	<span class="type">char</span> esp[<span class="number">0x1000</span>]; <span class="comment">// 任务切换后的栈，数组名就是ESP</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 此数组的地址就是TSS描述符中的Base</span></span><br><span class="line">	DWORD *TSS = (DWORD*)VirtualAlloc(<span class="literal">NULL</span>,<span class="number">104</span>,MEM_COMMIT,PAGE_READWRITE);</span><br><span class="line">	<span class="keyword">if</span> (TSS == <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;VirtualAlloc 失败，%d\n&quot;</span>, GetLastError());</span><br><span class="line">		getchar();</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;请在windbg执行: eq 8003f048 %02x00e9%02x`%04x0068\n&quot;</span>, ((DWORD)TSS&gt;&gt;<span class="number">24</span>) &amp; <span class="number">0x000000FF</span>,((DWORD)TSS&gt;&gt;<span class="number">16</span>) &amp; <span class="number">0x000000FF</span>, (WORD)TSS);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;请在windbg中执行!process 0 0，复制TSS.exe进程DirBase的值，并输入.\nCR3: &quot;</span>); <span class="comment">// 在windbg中执行 !process 0 0 获取，DirBase: 13600420  这个数要启动程序后现查</span></span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">&quot;%x&quot;</span>, &amp;dwCr3); <span class="comment">// 注意是%x</span></span><br><span class="line">	</span><br><span class="line">	TSS[<span class="number">0</span>] = <span class="number">0x00000000</span>; <span class="comment">// Previous Task Link CPU填充，表示上一个任务的选择子</span></span><br><span class="line">	TSS[<span class="number">1</span>] = <span class="number">0x00000000</span>; <span class="comment">// ESP0</span></span><br><span class="line">	TSS[<span class="number">2</span>] = <span class="number">0x00000000</span>; <span class="comment">// SS0</span></span><br><span class="line">	TSS[<span class="number">3</span>] = <span class="number">0x00000000</span>; <span class="comment">// ESP1</span></span><br><span class="line">	TSS[<span class="number">4</span>] = <span class="number">0x00000000</span>; <span class="comment">// SS1</span></span><br><span class="line">	TSS[<span class="number">5</span>] = <span class="number">0x00000000</span>; <span class="comment">// ESP2</span></span><br><span class="line">	TSS[<span class="number">6</span>] = <span class="number">0x00000000</span>; <span class="comment">// SS2</span></span><br><span class="line">	TSS[<span class="number">7</span>] = dwCr3; <span class="comment">// CR3 学到页就知道是啥了</span></span><br><span class="line">	TSS[<span class="number">8</span>] = (DWORD)R0Func; <span class="comment">// EIP</span></span><br><span class="line">	TSS[<span class="number">9</span>] = <span class="number">0x00000000</span>; <span class="comment">// EFLAGS</span></span><br><span class="line">	TSS[<span class="number">10</span>] = <span class="number">0x00000000</span>; <span class="comment">// EAX</span></span><br><span class="line">	TSS[<span class="number">11</span>] = <span class="number">0x00000000</span>; <span class="comment">// ECX</span></span><br><span class="line">	TSS[<span class="number">12</span>] = <span class="number">0x00000000</span>; <span class="comment">// EDX</span></span><br><span class="line">	TSS[<span class="number">13</span>] = <span class="number">0x00000000</span>; <span class="comment">// EBX</span></span><br><span class="line">	TSS[<span class="number">14</span>] = (DWORD)esp+<span class="number">0x900</span>; <span class="comment">// ESP，解释：esp是一个0x1000的字节数组，作为裸函数的栈，这里传进去的应该是高地址，压栈才不会越界</span></span><br><span class="line">	TSS[<span class="number">15</span>] = <span class="number">0x00000000</span>; <span class="comment">// EBP</span></span><br><span class="line">	TSS[<span class="number">16</span>] = <span class="number">0x00000000</span>; <span class="comment">// ESI</span></span><br><span class="line">	TSS[<span class="number">17</span>] = <span class="number">0x00000000</span>; <span class="comment">// EDI</span></span><br><span class="line">	TSS[<span class="number">18</span>] = <span class="number">0x00000023</span>; <span class="comment">// ES</span></span><br><span class="line">	TSS[<span class="number">19</span>] = <span class="number">0x00000008</span>; <span class="comment">// CS 0x0000001B</span></span><br><span class="line">	TSS[<span class="number">20</span>] = <span class="number">0x00000010</span>; <span class="comment">// SS 0x00000023</span></span><br><span class="line">	TSS[<span class="number">21</span>] = <span class="number">0x00000023</span>; <span class="comment">// DS</span></span><br><span class="line">	TSS[<span class="number">22</span>] = <span class="number">0x00000030</span>; <span class="comment">// FS 0x0000003B</span></span><br><span class="line">	TSS[<span class="number">23</span>] = <span class="number">0x00000000</span>; <span class="comment">// GS</span></span><br><span class="line">	TSS[<span class="number">24</span>] = <span class="number">0x00000000</span>; <span class="comment">// LDT Segment Selector</span></span><br><span class="line">	TSS[<span class="number">25</span>] = <span class="number">0x20ac0000</span>; <span class="comment">// I/O Map Base Address</span></span><br><span class="line"></span><br><span class="line">	<span class="type">char</span> buff[<span class="number">6</span>] = &#123;<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0x48</span>,<span class="number">0</span>&#125;;	</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		call fword ptr[buff]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;ok: %d\nESP: %x\nCS: %x\n&quot;</span>, dwOk, dwESP, dwCS);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面是通过CALL去访问任务段，下面是通过JMP访问，并且可以返回：</p>
+<h2 id="JMP访问任务段，正确返回"><a href="#JMP访问任务段，正确返回" class="headerlink" title="JMP访问任务段，正确返回"></a>JMP访问任务段，正确返回</h2><p>和CALL FAR对比，NT位不会置1，TSS previous task link 也不会填充旧的TR，因此想要返回，可以先保存旧的TR，然后JMP FAR回去。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">DWORD dwOk;</span><br><span class="line">DWORD dwESP;</span><br><span class="line">DWORD dwCS;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 任务切换后的EIP</span></span><br><span class="line"><span class="type">void</span> __declspec(naked) R0Func()</span><br><span class="line">&#123;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		pushad</span><br><span class="line">		pushfd</span><br><span class="line"></span><br><span class="line">		push fs</span><br><span class="line">		<span class="type">int</span> <span class="number">3</span> <span class="comment">// int 3 会修改FS</span></span><br><span class="line">		pop fs</span><br><span class="line"></span><br><span class="line">		mov eax,<span class="number">1</span></span><br><span class="line">		mov dword ptr ds:[dwOk],eax</span><br><span class="line">		mov eax,esp</span><br><span class="line">		mov dword ptr ds:[dwESP],eax</span><br><span class="line">		mov ax,cs</span><br><span class="line">		mov word ptr ds:[dwCS],ax</span><br><span class="line"></span><br><span class="line">		popfd</span><br><span class="line">		popad</span><br><span class="line">		iretd</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;	</span><br><span class="line">	DWORD dwCr3; <span class="comment">// windbg获取</span></span><br><span class="line">	<span class="type">char</span> esp[<span class="number">0x1000</span>]; <span class="comment">// 任务切换后的栈，数组名就是ESP</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 此数组的地址就是TSS描述符中的Base</span></span><br><span class="line">	DWORD *TSS = (DWORD*)VirtualAlloc(<span class="literal">NULL</span>,<span class="number">104</span>,MEM_COMMIT,PAGE_READWRITE);</span><br><span class="line">	<span class="keyword">if</span> (TSS == <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;VirtualAlloc 失败，%d\n&quot;</span>, GetLastError());</span><br><span class="line">		getchar();</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;请在windbg执行: eq 8003f048 %02x00e9%02x`%04x0068\n&quot;</span>, ((DWORD)TSS&gt;&gt;<span class="number">24</span>) &amp; <span class="number">0x000000FF</span>,((DWORD)TSS&gt;&gt;<span class="number">16</span>) &amp; <span class="number">0x000000FF</span>, (WORD)TSS);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;请在windbg中执行!process 0 0，复制TSS.exe进程DirBase的值，并输入.\nCR3: &quot;</span>); <span class="comment">// 在windbg中执行 !process 0 0 获取，DirBase: 13600420  这个数要启动程序后现查</span></span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">&quot;%x&quot;</span>, &amp;dwCr3); <span class="comment">// 注意是%x</span></span><br><span class="line">	</span><br><span class="line">	TSS[<span class="number">0</span>] = <span class="number">0x00000000</span>; <span class="comment">// Previous Task Link CPU填充，表示上一个任务的选择子</span></span><br><span class="line">	TSS[<span class="number">1</span>] = <span class="number">0x00000000</span>; <span class="comment">// ESP0</span></span><br><span class="line">	TSS[<span class="number">2</span>] = <span class="number">0x00000000</span>; <span class="comment">// SS0</span></span><br><span class="line">	TSS[<span class="number">3</span>] = <span class="number">0x00000000</span>; <span class="comment">// ESP1</span></span><br><span class="line">	TSS[<span class="number">4</span>] = <span class="number">0x00000000</span>; <span class="comment">// SS1</span></span><br><span class="line">	TSS[<span class="number">5</span>] = <span class="number">0x00000000</span>; <span class="comment">// ESP2</span></span><br><span class="line">	TSS[<span class="number">6</span>] = <span class="number">0x00000000</span>; <span class="comment">// SS2</span></span><br><span class="line">	TSS[<span class="number">7</span>] = dwCr3; <span class="comment">// CR3 学到页就知道是啥了</span></span><br><span class="line">	TSS[<span class="number">8</span>] = (DWORD)R0Func; <span class="comment">// EIP</span></span><br><span class="line">	TSS[<span class="number">9</span>] = <span class="number">0x00000000</span>; <span class="comment">// EFLAGS</span></span><br><span class="line">	TSS[<span class="number">10</span>] = <span class="number">0x00000000</span>; <span class="comment">// EAX</span></span><br><span class="line">	TSS[<span class="number">11</span>] = <span class="number">0x00000000</span>; <span class="comment">// ECX</span></span><br><span class="line">	TSS[<span class="number">12</span>] = <span class="number">0x00000000</span>; <span class="comment">// EDX</span></span><br><span class="line">	TSS[<span class="number">13</span>] = <span class="number">0x00000000</span>; <span class="comment">// EBX</span></span><br><span class="line">	TSS[<span class="number">14</span>] = (DWORD)esp+<span class="number">0x900</span>; <span class="comment">// ESP，解释：esp是一个0x1000的字节数组，作为裸函数的栈，这里传进去的应该是高地址，压栈才不会越界</span></span><br><span class="line">	TSS[<span class="number">15</span>] = <span class="number">0x00000000</span>; <span class="comment">// EBP</span></span><br><span class="line">	TSS[<span class="number">16</span>] = <span class="number">0x00000000</span>; <span class="comment">// ESI</span></span><br><span class="line">	TSS[<span class="number">17</span>] = <span class="number">0x00000000</span>; <span class="comment">// EDI</span></span><br><span class="line">	TSS[<span class="number">18</span>] = <span class="number">0x00000023</span>; <span class="comment">// ES</span></span><br><span class="line">	TSS[<span class="number">19</span>] = <span class="number">0x00000008</span>; <span class="comment">// CS 0x0000001B</span></span><br><span class="line">	TSS[<span class="number">20</span>] = <span class="number">0x00000010</span>; <span class="comment">// SS 0x00000023</span></span><br><span class="line">	TSS[<span class="number">21</span>] = <span class="number">0x00000023</span>; <span class="comment">// DS</span></span><br><span class="line">	TSS[<span class="number">22</span>] = <span class="number">0x00000030</span>; <span class="comment">// FS 0x0000003B</span></span><br><span class="line">	TSS[<span class="number">23</span>] = <span class="number">0x00000000</span>; <span class="comment">// GS</span></span><br><span class="line">	TSS[<span class="number">24</span>] = <span class="number">0x00000000</span>; <span class="comment">// LDT Segment Selector</span></span><br><span class="line">	TSS[<span class="number">25</span>] = <span class="number">0x20ac0000</span>; <span class="comment">// I/O Map Base Address</span></span><br><span class="line"></span><br><span class="line">	<span class="type">char</span> buff[<span class="number">6</span>] = &#123;<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0x48</span>,<span class="number">0</span>&#125;;	</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		call fword ptr[buff]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;ok: %d\nESP: %x\nCS: %x\n&quot;</span>, dwOk, dwESP, dwCS);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="0x18-任务门"><a href="#0x18-任务门" class="headerlink" title="0x18.任务门"></a>0x18.任务门</h1><p>本节通过任务门访问任务段。</p>
+<p>注意，任务门描述符在IDT表中，但其中的TSS选择子在GDT表中，其实画个图就全知道了</p>
+<p>任务门描述符(Reserved为保留位，填0即可)：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917215214051.png"></p>
+<p>任务门执行过程：</p>
+<ol>
+<li> <code>INT N</code>（即查IDT索引）</li>
+<li> 查IDT表，找到任务门描述符</li>
+<li> 通过任务门描述符，查GDT表，找到TSS段描述符</li>
+<li> 使用TSS段中的值修改TR寄存器</li>
+<li> <code>IRETD</code>返回</li>
+</ol>
+<h2 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h2><p>需要构造任务门描述符和TSS描述符：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">eq 8003f500 0000e500`00480000	//任务门描述符</span><br><span class="line">eq 8003f048 xx00e9xx`xxxx0068	//TSS描述符,xxxx是TSS malloc（(104)的地址</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220917221940639.png"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">DWORD *TSS;</span><br><span class="line">DWORD dwOk;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 任务切换后的EIP</span></span><br><span class="line"><span class="type">void</span> __declspec(naked) R0Func()</span><br><span class="line">&#123;</span><br><span class="line">	dwOk = <span class="number">1</span>;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		iretd</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;	</span><br><span class="line">	DWORD dwCr3; <span class="comment">// windbg获取</span></span><br><span class="line">	<span class="type">char</span> esp[<span class="number">0x1000</span>]; <span class="comment">// 任务切换后的栈，数组名就是ESP</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 此数组的地址就是TSS描述符中的Base</span></span><br><span class="line">	TSS = (DWORD*)VirtualAlloc(<span class="literal">NULL</span>,<span class="number">104</span>,MEM_COMMIT,PAGE_READWRITE);</span><br><span class="line">	<span class="keyword">if</span> (TSS == <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;VirtualAlloc 失败，%d\n&quot;</span>, GetLastError());</span><br><span class="line">		getchar();</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// GDT：TSS描述符</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;请在windbg执行: eq 8003f048 %02x00e9%02x`%04x0068\n&quot;</span>, ((DWORD)TSS&gt;&gt;<span class="number">24</span>) &amp; <span class="number">0x000000FF</span>,((DWORD)TSS&gt;&gt;<span class="number">16</span>) &amp; <span class="number">0x000000FF</span>, (WORD)TSS);</span><br><span class="line">	<span class="comment">// IDT：任务门描述符</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;请在windbg执行: eq 8003f500 0000e500`00480000\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;请在windbg中执行!process 0 0，复制TSS.exe进程DirBase的值，并输入.\nCR3: &quot;</span>); <span class="comment">// 在windbg中执行 !process 0 0 获取，DirBase: 13600420  这个数要启动程序后现查</span></span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">&quot;%x&quot;</span>, &amp;dwCr3); <span class="comment">// 注意是%x</span></span><br><span class="line">	</span><br><span class="line">	TSS[<span class="number">0</span>] = <span class="number">0x00000000</span>; <span class="comment">// Previous Task Link CPU填充，表示上一个任务的选择子</span></span><br><span class="line">	TSS[<span class="number">1</span>] = <span class="number">0x00000000</span>; <span class="comment">// ESP0</span></span><br><span class="line">	TSS[<span class="number">2</span>] = <span class="number">0x00000000</span>; <span class="comment">// SS0</span></span><br><span class="line">	TSS[<span class="number">3</span>] = <span class="number">0x00000000</span>; <span class="comment">// ESP1</span></span><br><span class="line">	TSS[<span class="number">4</span>] = <span class="number">0x00000000</span>; <span class="comment">// SS1</span></span><br><span class="line">	TSS[<span class="number">5</span>] = <span class="number">0x00000000</span>; <span class="comment">// ESP2</span></span><br><span class="line">	TSS[<span class="number">6</span>] = <span class="number">0x00000000</span>; <span class="comment">// SS2</span></span><br><span class="line">	TSS[<span class="number">7</span>] = dwCr3; <span class="comment">// CR3 学到页就知道是啥了</span></span><br><span class="line">	TSS[<span class="number">8</span>] = (DWORD)R0Func; <span class="comment">// EIP</span></span><br><span class="line">	TSS[<span class="number">9</span>] = <span class="number">0x00000000</span>; <span class="comment">// EFLAGS</span></span><br><span class="line">	TSS[<span class="number">10</span>] = <span class="number">0x00000000</span>; <span class="comment">// EAX</span></span><br><span class="line">	TSS[<span class="number">11</span>] = <span class="number">0x00000000</span>; <span class="comment">// ECX</span></span><br><span class="line">	TSS[<span class="number">12</span>] = <span class="number">0x00000000</span>; <span class="comment">// EDX</span></span><br><span class="line">	TSS[<span class="number">13</span>] = <span class="number">0x00000000</span>; <span class="comment">// EBX</span></span><br><span class="line">	TSS[<span class="number">14</span>] = (DWORD)esp+<span class="number">0x500</span>; <span class="comment">// ESP，解释：esp是一个0x1000的字节数组，作为裸函数的栈，这里传进去的应该是高地址，压栈才不会越界</span></span><br><span class="line">	TSS[<span class="number">15</span>] = <span class="number">0x00000000</span>; <span class="comment">// EBP</span></span><br><span class="line">	TSS[<span class="number">16</span>] = <span class="number">0x00000000</span>; <span class="comment">// ESI</span></span><br><span class="line">	TSS[<span class="number">17</span>] = <span class="number">0x00000000</span>; <span class="comment">// EDI</span></span><br><span class="line">	TSS[<span class="number">18</span>] = <span class="number">0x00000023</span>; <span class="comment">// ES</span></span><br><span class="line">	TSS[<span class="number">19</span>] = <span class="number">0x00000008</span>; <span class="comment">// CS 0x0000001B</span></span><br><span class="line">	TSS[<span class="number">20</span>] = <span class="number">0x00000010</span>; <span class="comment">// SS 0x00000023</span></span><br><span class="line">	TSS[<span class="number">21</span>] = <span class="number">0x00000023</span>; <span class="comment">// DS</span></span><br><span class="line">	TSS[<span class="number">22</span>] = <span class="number">0x00000030</span>; <span class="comment">// FS 0x0000003B</span></span><br><span class="line">	TSS[<span class="number">23</span>] = <span class="number">0x00000000</span>; <span class="comment">// GS</span></span><br><span class="line">	TSS[<span class="number">24</span>] = <span class="number">0x00000000</span>; <span class="comment">// LDT Segment Selector</span></span><br><span class="line">	TSS[<span class="number">25</span>] = <span class="number">0x20ac0000</span>; <span class="comment">// I/O Map Base Address</span></span><br><span class="line"></span><br><span class="line">	<span class="type">char</span> buff[<span class="number">6</span>] = &#123;<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0x48</span>,<span class="number">0</span>&#125;;	</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">//call fword ptr[buff]</span></span><br><span class="line">		<span class="comment">//jmp fword ptr[buff]</span></span><br><span class="line">		<span class="type">int</span> <span class="number">0x20</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;ok: %d\n&quot;</span>,dwOk);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="0x19-10-10-12分页"><a href="#0x19-10-10-12分页" class="headerlink" title="0x19.10-10-12分页"></a>0x19.10-10-12分页</h1><p>首先说下，有效地址 ，线性地址，物理地址：</p>
+<p><code>MOV eax,dword ptr ds:[0x12345678]</code></p>
+<ul>
+<li>  其中,0x12345678 是有效地址</li>
+<li>  <code>ds.Base + 0x12345678</code> 是线性地址</li>
+<li>  物理地址就不用说了，要找的就是这个</li>
+</ul>
+<p> x86中分页的方式有两种：</p>
+<ul>
+<li>  <code>10-10-12</code></li>
+<li>  <code>2-9-9-12</code></li>
+</ul>
+<p>修改boot.ini，之后重启：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">multi(0)disk(0)rdisk(0)partition(1)\WINDOWS=&quot;Microsoft Windows XP Professional&quot; /execute=optin /fastdetect /debug /debugport=com1 /baudrate=115200</span><br></pre></td></tr></table></figure>
+
+<p>这时就是10-10-12分页了。</p>
+<p>打开个记事本，写点东西，之后CE打开，注意选择unicode：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918144624863.png"></p>
+<p>再随便修改下，找到线性地址：<code>000AB468</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">000A B468</span><br><span class="line">0000 0000 0000 1010 1011 0100 0110 1000</span><br><span class="line">0000 0000 00//0</span><br><span class="line">00 1010 1011//AB，这里后面查的时候需要*4=2AC</span><br><span class="line">0100 0110 1000//468</span><br></pre></td></tr></table></figure>
+
+<p>每个进程都有一个<code>CR3</code>(这里存的是物理地址)，准确的说是都一个CR3的值，CR3本身是个寄存器，一个核，只有一套寄存器。 </p>
+<p>CR3指向一个物理页，一共4096字节</p>
+<p>之后找到CR3，也就是DirBase：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918145721145.png"></p>
+<p>查物理内存的话是<code>!dd</code></p>
+<p>第一级：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918150026313.png"></p>
+<p>每四字节最后的是属性，用的时候填0即可。</p>
+<p>第二级：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918150143370.png"></p>
+<p>第三级：helloworld就存在这里(物理地址)</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918150308389.png"></p>
+<h1 id="020-PDE-PTE"><a href="#020-PDE-PTE" class="headerlink" title="020.PDE_PTE"></a>020.PDE_PTE</h1><p>注意区别：<code>PDT，PTT，PDE，PTE</code></p>
+<p>PTE可以不指向物理页，多个PTE也可以指向同一个物理页</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918151003514.png"></p>
+<p>正常编程中，不能读写NULL，原因是NULL指针没有对应的物理页，因此，只要我们让NULL指针最终映射到一块可读写的物理页，就可以用NULL去读写数据了。</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918152409888.png"></p>
+<p>x的物理地址查找：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918152641394.png"></p>
+<p>一个进程只有一个CR3，分解NULL后：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918152850045.png"></p>
+<p>用!ed指令改写成x的PTE：0f746867<br><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918153023964.png"></p>
+<p>成功在NULL地址写入：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918153103508.png"></p>
+<h1 id="021-PDE-PTE属性-P-RW"><a href="#021-PDE-PTE属性-P-RW" class="headerlink" title="021.PDE_PTE属性(P_RW)"></a>021.PDE_PTE属性(P_RW)</h1><p><strong><code>物理页的属性 = PDE属性 &amp; PTE属性</code></strong></p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918153555496.png"></p>
+<h2 id="修改常量"><a href="#修改常量" class="headerlink" title="修改常量"></a>修改常量</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">char</span> *str = <span class="string">&quot;Hello World&quot;</span>;</span><br><span class="line">	<span class="type">int</span> addr = (<span class="type">int</span>)str;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;线性地址：0x%08x, 4*0x%x 4*0x%x 0x%x\n&quot;</span>, addr, addr&gt;&gt;<span class="number">22</span>,(addr&gt;&gt;<span class="number">12</span>)&amp;<span class="number">0x000002FF</span>,addr&amp;<span class="number">0x00000FFF</span>);</span><br><span class="line">	getchar(); <span class="comment">// 修改 PDE PTE 的 RW 位为1，使物理页可读可写</span></span><br><span class="line">	str[<span class="number">0</span>] = <span class="string">&#x27;Q&#x27;</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;修改后：%s\n&quot;</span>, str);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>修改PTE的RW=1即可：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918214341108.png"></p>
+<p>成功修改：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918214451606.png"></p>
+<h1 id="022-PDE-PTE属性-US-PS-A-D"><a href="#022-PDE-PTE属性-US-PS-A-D" class="headerlink" title="022.PDE_PTE属性(US_PS_A_D )"></a>022.PDE_PTE属性(US_PS_A_D )</h1><h2 id="U-S位"><a href="#U-S位" class="headerlink" title="U/S位"></a>U/S位</h2><ul>
+<li>  U/S=0：特权用户可以访问</li>
+<li>  U/S=1：普通用户可以访问</li>
+</ul>
+<h2 id="读高2G内存地址："><a href="#读高2G内存地址：" class="headerlink" title="读高2G内存地址："></a>读高2G内存地址：</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	PWORD p=(PWORD)<span class="number">0X8003f00C</span>;</span><br><span class="line">	getchar();</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;高2G地址：%x\n&quot;</span>,*p);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>查找并修改PDE和PTE：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918220530341.png"></p>
+<p>成功读取：</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220918220442272.png"></p>
+<h2 id="P-S位"><a href="#P-S位" class="headerlink" title="P/S位"></a>P/S位</h2><p>只对PDE有意义，<code>PS = PageSize</code>的意思，当PS=1的时候，PDE直接指向物理页，无PTE，低22位是页内偏移。</p>
+<p>线性地址只能拆成2段：大小为4MB   俗称“大页”</p>
+<h2 id="A位"><a href="#A位" class="headerlink" title="A位"></a>A位</h2><p>是否被访问（读或者写）过 ，访问过置1 ，即使只访问一个字节也会导致PDE PTE置1</p>
+<h2 id="D位"><a href="#D位" class="headerlink" title="D位"></a>D位</h2><p>脏位，是否被写过，0没有被写过，1被写过</p>
+<h1 id="023-页目录表基址"><a href="#023-页目录表基址" class="headerlink" title="023.页目录表基址"></a>023.页目录表基址</h1><h2 id="页目录表PDT"><a href="#页目录表PDT" class="headerlink" title="页目录表PDT"></a>页目录表PDT</h2><p><code>0xC0300000</code> 指向<code>PDT</code><br><code>0xC0000000</code> 指向第一张页表<code>PTT</code><br>页目录表其实是一张特殊的页表，它是第0x300张页表。<br>页目录表中每项PTE都指向一张页表，其中第0x300项指向了页目录表自己。</p>
+<h2 id="页表PTT"><a href="#页表PTT" class="headerlink" title="页表PTT"></a>页表PTT</h2><p>页表总共有1024张，每张4KB，总共占了1024*4KB=4MB内存，1024张页表的线性地址是连续的，但物理地址不连续。<br>页表被映射到了从0xC0000000到0xC03FFFFF的4MB地址空间。<br>在这1024个页表中，第0x300个是一张特殊的表：页目录表。</p>
+<h1 id="024-页表基址"><a href="#024-页表基址" class="headerlink" title="024.页表基址"></a>024.页表基址</h1><p>XP 10-10-12分页下PDT、PTT、物理页关系图</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220919215916582.png"></p>
+<p>这意味着我们可以通过 <code>0xC0000000</code> 找到任何一个 PTE。公式如下（PDI 是页目录表的下标，PTI是页表的下标）：</p>
+<p><strong><code>PDE = 0xC0300000 + PDI * 4</code></strong><br><strong><code>PTE = 0xC0000000 + PDI * 4KB + PTI * 4</code></strong></p>
+<h1 id="025-2-9-9-12分页"><a href="#025-2-9-9-12分页" class="headerlink" title="025.2-9-9-12分页"></a>025.2-9-9-12分页</h1><p>10-10-12分页还是2-9-9-12分页都是从后面分的。</p>
+<p>2-9-9-12分页,又称为PAE（物理地址扩展）分页</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220920000300402.png"></p>
+<h2 id="查看物理地址"><a href="#查看物理地址" class="headerlink" title="查看物理地址"></a>查看物理地址</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> a=<span class="number">0x12345678</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;address:%p\n&quot;</span>,&amp;a);</span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>!vtop</code>指令可以查看各表：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; !vtop 02880320 0012ff7c</span><br><span class="line">X86VtoP: Virt 000000000012ff7c, pagedir 0000000002880320</span><br><span class="line">X86VtoP: PAE PDPE 0000000002880320 - 000000000dd5d801</span><br><span class="line">X86VtoP: PAE PDE 000000000dd5d000 - 000000000dcc0867</span><br><span class="line">X86VtoP: PAE PTE 000000000dcc0978 - 800000000e145867</span><br><span class="line">X86VtoP: PAE Mapped phys 000000000e145f7c</span><br><span class="line">Virtual address 12ff7c translates to physical address e145f7c.</span><br><span class="line">kd&gt; !dd 000000000e145f7c</span><br><span class="line"># e145f7c 12345678 0012ffc0 00401569 00000001</span><br><span class="line"># e145f8c 00380ff0 00381078 00241fe4 0012f7bc</span><br><span class="line"># e145f9c 7ffdc000 00000001 00000006 0012ff94</span><br><span class="line"># e145fac 806224ce 0012ffe0 00406b50 0040e238</span><br><span class="line"># e145fbc 00000000 0012fff0 7c817077 00241fe4</span><br><span class="line"># e145fcc 0012f7bc 7ffdc000 8054c6ed 0012ffc8</span><br><span class="line"># e145fdc 81ccb348 ffffffff 7c839ad8 7c817080</span><br><span class="line"># e145fec 00000000 00000000 00000000 00401480</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="026-2-9-9-12分页"><a href="#026-2-9-9-12分页" class="headerlink" title="026.2-9-9-12分页"></a>026.2-9-9-12分页</h1><h2 id="PDPTE"><a href="#PDPTE" class="headerlink" title="PDPTE"></a>PDPTE</h2><p>一共有四个</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220920000407513.png"></p>
+<h2 id="PDE"><a href="#PDE" class="headerlink" title="PDE"></a>PDE</h2><p>1、当PS=1时是大页，35-21位是大页的物理地址，这样36位的物理地址的低21位为0，这就意味着页的大小为2MB，且都是2MB对齐。2、当PS=0时，35-12位是页表基址,低12位补0，共36位。</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220920000444805.png"></p>
+<h2 id="PTE"><a href="#PTE" class="headerlink" title="PTE"></a>PTE</h2><p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220920000540021.png"></p>
+<p>改成2-9-9-12分页：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[boot loader]</span><br><span class="line">timeout=30</span><br><span class="line">default=multi(0)disk(0)rdisk(0)partition(1)\WINDOWS</span><br><span class="line">[operating systems]</span><br><span class="line">multi(0)disk(0)rdisk(0)partition(1)\WINDOWS=&quot;Microsoft Windows XP Professional&quot; /noexecute=optin /fastdetect</span><br><span class="line">multi(0)disk(0)rdisk(0)partition(1)\WINDOWS=&quot;Microsoft Windows XP Professional&quot; /noexecute=optin /fastdetect /debug /debugport=com1 /baudrate=115200</span><br></pre></td></tr></table></figure>
+
+<p><code>!vtop</code>指令可以查看各表：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; !vtop 028802a0 0</span><br><span class="line">X86VtoP: Virt 0000000000000000, pagedir 00000000028802a0</span><br><span class="line">X86VtoP: PAE PDPE 00000000028802a0 - 000000000c47a801</span><br><span class="line">X86VtoP: PAE PDE 000000000c47a000 - 000000001ba0a867</span><br><span class="line">X86VtoP: PAE PTE 000000001ba0a000 - 0000000000000000</span><br><span class="line">X86VtoP: PAE zero PTE</span><br><span class="line">Virtual address 0 translation fails, error 0xD0000147.</span><br></pre></td></tr></table></figure>
+
+<h2 id="给0线性地址挂上物理页"><a href="#给0线性地址挂上物理页" class="headerlink" title="给0线性地址挂上物理页"></a>给0线性地址挂上物理页</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">char</span> data[<span class="number">0x1000</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">	<span class="type">int</span> *p = <span class="literal">NULL</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;可用的物理页基址：%p\n&quot;</span>, data);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;请在windbg中给NULL挂物理页.\n&quot;</span>);</span><br><span class="line">	getchar(); <span class="comment">// windbg...</span></span><br><span class="line">	<span class="comment">// 读写NULL</span></span><br><span class="line">	*p = <span class="number">0x20201008</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;*NULL = %x\n&quot;</span>, *p);</span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>线性地址：<code>0x0012EF80</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; !vtop 028801e0  0012ef80</span><br><span class="line">X86VtoP: Virt 000000000012ef80, pagedir 00000000028801e0</span><br><span class="line">X86VtoP: PAE PDPE 00000000028801e0 - 000000000da11801</span><br><span class="line">X86VtoP: PAE PDE 000000000da11000 - 0000000013b23867</span><br><span class="line">X86VtoP: PAE PTE 0000000013b23970 - 800000001c0e8867</span><br><span class="line">X86VtoP: PAE Mapped phys 000000001c0e8f80</span><br><span class="line">Virtual address 12ef80 translates to physical address 1c0e8f80.</span><br></pre></td></tr></table></figure>
+
+<p>不能直接<code>!eq</code>，需要<code>!ed</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; !vtop 028801e0  0012ef80</span><br><span class="line">X86VtoP: Virt 000000000012ef80, pagedir 00000000028801e0</span><br><span class="line">X86VtoP: PAE PDPE 00000000028801e0 - 000000000da11801</span><br><span class="line">X86VtoP: PAE PDE 000000000da11000 - 0000000013b23867</span><br><span class="line">X86VtoP: PAE PTE 0000000013b23970 - 800000001c0e8867</span><br><span class="line">X86VtoP: PAE Mapped phys 000000001c0e8f80</span><br><span class="line">Virtual address 12ef80 translates to physical address 1c0e8f80.</span><br><span class="line">kd&gt; !ed 13b23000 1c0e8867</span><br><span class="line">kd&gt; !ed 13b23004 80000000</span><br><span class="line">kd&gt; g</span><br></pre></td></tr></table></figure>
+
+<p>挂载成功</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220924211956538.png"></p>
+<h2 id="公式"><a href="#公式" class="headerlink" title="公式"></a>公式</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2</span><span class="number">-9</span><span class="number">-9</span><span class="number">-12</span>					</span><br><span class="line">PDPTI-PDI-PTI-OFFSET					</span><br><span class="line">					</span><br><span class="line">公式：					</span><br><span class="line">pPDE = <span class="number">0xc0600000</span> + (PDPTI*<span class="number">4</span>KB) + (PDI*<span class="number">8</span>)					</span><br><span class="line">pPTE = <span class="number">0xc0000000</span> + (PDPTI*<span class="number">2</span>MB) + (PDI*<span class="number">4</span>KB) + (PTI*<span class="number">8</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h1 id="027-TLB"><a href="#027-TLB" class="headerlink" title="027.TLB"></a>027.TLB</h1><p>TLB（Translation Lookaside Buffer）</p>
+<p>当程序访问一个线性地址，需要先查PDPT，然后查PDT，然后查页表PTT，最后才是访问物理页。这期间多次访问内存，效率非常低。于是TLB就被设计出来了。</p>
+<p>TLB 是CPU内部的表，一个CPU有一张TLB表，用来缓存线性地址和物理地址的映射关系，以及属性和访问次数。</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220925121337378.png"></p>
+<p>说明：</p>
+<ol>
+<li><p>  ATTR（属性）：属性是PDPE PDE PTE三个属性AND起来的. 如果是10-10-12 就是PDE and PTE</p>
+</li>
+<li><p>  不同的CPU 这个表的大小不一样.</p>
+</li>
+<li><p>  只要Cr3变了，TLB立马刷新，一核一套TLB.</p>
+</li>
+</ol>
+<p>操作系统的高2G映射基本不变，如果Cr3改了，TLB刷新 重建高2G以上很浪费。所以PDE和PTE中有个G标志位，如果G位为1刷新TLB时将不会刷新 PDE/PTE的G位为1的页，当TLB满了，根据统计信息将不常用的地址废弃，最近最常用的保留.</p>
+<h2 id="证明TLB存在"><a href="#证明TLB存在" class="headerlink" title="证明TLB存在"></a>证明TLB存在</h2><p>在R0给NULL挂一个物理页，并写入数据，然后修改NULL的物理页，然后读NULL，发现读取了之前写入的值，这证明第二次访问NULL的时候是从TLB中取的物理地址，证明了TLB的存在。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">DWORD TempVal = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> __declspec(naked) R0Function()</span><br><span class="line">&#123;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		pushad</span><br><span class="line">		pushfd		</span><br><span class="line">		<span class="comment">// 1.给NULL挂物理页（修改PTE，这里概率蓝屏）0x01234867(G=0) 0x01234967(G=1)</span></span><br><span class="line">		mov dword ptr ds:[<span class="number">0xc0000000</span>],<span class="number">0x01234867</span></span><br><span class="line">		<span class="comment">// 2.写NULL指针，生成TLB记录</span></span><br><span class="line">		mov dword ptr ds:[<span class="number">0</span>],<span class="number">0x12345678</span></span><br><span class="line">		<span class="comment">// 3.再次修改物理页</span></span><br><span class="line">		mov dword ptr ds:[<span class="number">0xc0000000</span>],<span class="number">0x02345867</span></span><br><span class="line">		<span class="comment">// 4.读NULL，发现读了之前赋的值，证明了TLB的存在</span></span><br><span class="line">		mov eax,dword ptr ds:[<span class="number">0</span>]</span><br><span class="line">		mov TempVal,eax</span><br><span class="line"></span><br><span class="line">		popfd</span><br><span class="line">		popad		</span><br><span class="line">		iretd</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;在IDT表构建中断门，请在windbg中执行下面的指令：\n&quot;</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;eq 8003f500 %04xee00`0008%04x\n&quot;</span>,(DWORD)R0Function&gt;&gt;<span class="number">16</span>,(DWORD)R0Function &amp; <span class="number">0x0000FFFF</span>);</span><br><span class="line">	getchar();</span><br><span class="line">	__asm <span class="type">int</span> <span class="number">0x20</span></span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%08X\n&quot;</span>, TempVal);</span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220925123759825.png"></p>
+<h1 id="028-控制寄存器"><a href="#028-控制寄存器" class="headerlink" title="028.控制寄存器"></a>028.控制寄存器</h1><p>控制寄存器用于控制和确定CPU的操作模式。有：<code>Cr0</code>，<code>Cr1</code>，<code>Cr2</code>，<code>Cr3</code>，<code>Cr4</code>，其中<code>Cr1</code> 保留<code>Cr3</code> 页目录表基址</p>
+<h2 id="Cr0"><a href="#Cr0" class="headerlink" title="Cr0"></a>Cr0</h2><p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220925121843125.png"></p>
+<p>说明：</p>
+<ol>
+<li>PE：CR0的位0是启用保护（Protection Enable）标志。<ul>
+<li>  PE=1保护模式  </li>
+<li>  PE=0 实地址模式 这个标志仅开启段级保护，而并没有启用分页机制。</li>
+<li>  若要启用分页机制，那么PE和PG标志都要置位。</li>
+</ul>
+</li>
+<li> PG：当设置该位时即开启了分页机制。在开启这个标志之前必须已经或者同时开启PE标志。</li>
+</ol>
+<blockquote>
+<p>  PG=0且PE=0  处理器工作在实地址模式下<br>  PG=0且PE=1  处理器工作在没有开启分页机制的保护模式下<br>  PG=1且PE=0  在PE没有开启的情况下  无法开启PG<br>  PG=1且PE=1  处理器工作在开启了分页机制的保护模式下</p>
+</blockquote>
+<h2 id="Cr2"><a href="#Cr2" class="headerlink" title="Cr2"></a>Cr2</h2><p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220925122123519.png"></p>
+<p>当CPU访问某个无效页面时，会产生缺页异常，此时，CPU会将引起异常的线性地址存放在CR2中。</p>
+<h2 id="Cr4"><a href="#Cr4" class="headerlink" title="Cr4"></a>Cr4</h2><p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220925122137925.png"></p>
+<p>PAE=1 是2-9-9-12分页  PAE=0 是10-10-12分页。</p>
+<p><img src="/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/image-20220925122155565.png"></p>
+<p>Windows保护模式就此告一段落，下来是驱动的内容…</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2022/08/13/2022-8-13-Yara/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2022-09-26 00:00:00
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="Categories"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/Technology/" title="Technology">
+                        <b>#</b> Technology
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/Win32/" title="Win32">
+                        #Win32
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2022/09/28/2022-9-%E8%BF%99%E4%B8%A4%E5%B9%B4%E6%88%91%E5%AD%A6%E5%88%B0%E4%BA%86%E4%BB%80%E4%B9%88/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#001-%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="toc-text">001.保护模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#002-%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8%E7%BB%93%E6%9E%84"><span class="toc-text">002.段寄存器结构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#003-%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8%E5%B1%9E%E6%80%A7%E6%8E%A2%E6%B5%8B"><span class="toc-text">003.段寄存器属性探测</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#004-%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90"><span class="toc-text">004.段描述符与段选择子</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8LES%E6%8C%87%E4%BB%A4%E4%BF%AE%E6%94%B9ES"><span class="toc-text">使用LES指令修改ES</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#005-%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E5%B1%9E%E6%80%A7%EF%BC%9AP%E4%BD%8D%E5%92%8CG%E4%BD%8D"><span class="toc-text">005.段描述符属性：P位和G位</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%83%E4%B9%A0%EF%BC%9A%E4%BB%8EGTD%E8%A1%A8%E4%B8%AD%E6%9F%A5%E6%89%BE%E5%AF%B9%E5%BA%94%E7%9A%84%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%EF%BC%8C%E7%84%B6%E5%90%8E%E5%A1%AB%E5%85%85%E5%88%B0%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8%E4%B8%AD%E3%80%82"><span class="toc-text">练习：从GTD表中查找对应的段描述符，然后填充到段寄存器中。</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#006-%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E5%B1%9E%E6%80%A7%EF%BC%9AS%E4%BD%8D%E5%92%8CTYPE%E5%9F%9F"><span class="toc-text">006.段描述符属性：S位和TYPE域</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#007-%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6%E5%B1%9E%E6%80%A7%EF%BC%9ADB%E4%BD%8D"><span class="toc-text">007.段描述符属性：DB位</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#008-%E6%AE%B5%E6%9D%83%E9%99%90%E6%A3%80%E6%9F%A5"><span class="toc-text">008.段权限检查</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#009-%E4%BB%A3%E7%A0%81%E8%B7%A8%E6%AE%B5%E8%B7%B3%E8%BD%AC%E6%B5%81%E7%A8%8B"><span class="toc-text">009.代码跨段跳转流程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#010-%E4%BB%A3%E7%A0%81%E8%B7%A8%E6%AE%B5%E8%B7%B3%E8%BD%AC%E5%AE%9E%E9%AA%8C"><span class="toc-text">010.代码跨段跳转实验</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%A2%9D%E5%A4%96%EF%BC%9A%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95"><span class="toc-text">额外：双机调试</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#011-%E9%95%BF%E8%B0%83%E7%94%A8%E4%B8%8E%E7%9F%AD%E8%B0%83%E7%94%A8"><span class="toc-text">011.长调用与短调用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#012-%E8%B0%83%E7%94%A8%E9%97%A8-%E6%97%A0%E5%8F%82"><span class="toc-text">012.调用门(无参)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%83%E7%94%A8%E9%97%A8%E6%8F%90%E6%9D%83"><span class="toc-text">调用门提权</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%BB%E9%AB%982G%E5%86%85%E5%AD%98"><span class="toc-text">读高2G内存</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#013-%E8%B0%83%E7%94%A8%E9%97%A8-%E6%9C%89%E5%8F%82"><span class="toc-text">013.调用门(有参 )</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%83%E7%94%A8%E9%97%A8%E6%80%BB%E7%BB%93"><span class="toc-text">调用门总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%83%E7%94%A8%E9%97%A8%E9%98%B6%E6%AE%B5%E6%B5%8B%E8%AF%95"><span class="toc-text">调用门阶段测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Test1"><span class="toc-text">Test1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Test2"><span class="toc-text">Test2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Test3"><span class="toc-text">Test3</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#014-%E4%B8%AD%E6%96%AD%E9%97%A8"><span class="toc-text">014.中断门</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%AD%E6%96%AD%E9%97%A8%E6%8F%8F%E8%BF%B0%E7%AC%A6"><span class="toc-text">中断门描述符</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%90%E6%9D%83-amp-%E4%B8%8D%E6%8F%90%E6%9D%83"><span class="toc-text">提权&amp;不提权</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%BB%E5%8F%96IDT%E8%A1%A8%E9%A1%B9"><span class="toc-text">读取IDT表项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%83%E7%94%A8%E9%97%A8%E4%B8%AD%E4%BD%BF%E7%94%A8IRETD%E8%BF%94%E5%9B%9E%EF%BC%8C%E4%B8%AD%E6%96%AD%E9%97%A8%E5%AE%9E%E7%8E%B0RETF%E8%BF%94%E5%9B%9E"><span class="toc-text">调用门中使用IRETD返回，中断门实现RETF返回</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E6%96%AD%E9%97%A8"><span class="toc-text">中断门</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E7%94%A8%E9%97%A8"><span class="toc-text">调用门</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#015-%E9%99%B7%E9%98%B1%E9%97%A8"><span class="toc-text">015.陷阱门</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x16-%E4%BB%BB%E5%8A%A1%E6%AE%B5"><span class="toc-text">0x16.任务段</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#TR%E5%AF%84%E5%AD%98%E5%99%A8%E7%9A%84%E8%AF%BB%E5%86%99"><span class="toc-text">TR寄存器的读写</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x17-%E4%BB%BB%E5%8A%A1%E6%AE%B5"><span class="toc-text">0x17.任务段</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9TR%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-text">修改TR寄存器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CALL%E8%AE%BF%E9%97%AE%E4%BB%BB%E5%8A%A1%E6%AE%B5%EF%BC%8C%E6%AD%A3%E7%A1%AE%E8%BF%94%E5%9B%9E"><span class="toc-text">CALL访问任务段，正确返回</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JMP%E8%AE%BF%E9%97%AE%E4%BB%BB%E5%8A%A1%E6%AE%B5%EF%BC%8C%E6%AD%A3%E7%A1%AE%E8%BF%94%E5%9B%9E"><span class="toc-text">JMP访问任务段，正确返回</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x18-%E4%BB%BB%E5%8A%A1%E9%97%A8"><span class="toc-text">0x18.任务门</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%83%E4%B9%A0"><span class="toc-text">练习</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x19-10-10-12%E5%88%86%E9%A1%B5"><span class="toc-text">0x19.10-10-12分页</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#020-PDE-PTE"><span class="toc-text">020.PDE_PTE</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#021-PDE-PTE%E5%B1%9E%E6%80%A7-P-RW"><span class="toc-text">021.PDE_PTE属性(P_RW)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E5%B8%B8%E9%87%8F"><span class="toc-text">修改常量</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#022-PDE-PTE%E5%B1%9E%E6%80%A7-US-PS-A-D"><span class="toc-text">022.PDE_PTE属性(US_PS_A_D )</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#U-S%E4%BD%8D"><span class="toc-text">U&#x2F;S位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%BB%E9%AB%982G%E5%86%85%E5%AD%98%E5%9C%B0%E5%9D%80%EF%BC%9A"><span class="toc-text">读高2G内存地址：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#P-S%E4%BD%8D"><span class="toc-text">P&#x2F;S位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#A%E4%BD%8D"><span class="toc-text">A位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#D%E4%BD%8D"><span class="toc-text">D位</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#023-%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%9F%BA%E5%9D%80"><span class="toc-text">023.页目录表基址</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8PDT"><span class="toc-text">页目录表PDT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B5%E8%A1%A8PTT"><span class="toc-text">页表PTT</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#024-%E9%A1%B5%E8%A1%A8%E5%9F%BA%E5%9D%80"><span class="toc-text">024.页表基址</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#025-2-9-9-12%E5%88%86%E9%A1%B5"><span class="toc-text">025.2-9-9-12分页</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80"><span class="toc-text">查看物理地址</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#026-2-9-9-12%E5%88%86%E9%A1%B5"><span class="toc-text">026.2-9-9-12分页</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#PDPTE"><span class="toc-text">PDPTE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PDE"><span class="toc-text">PDE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PTE"><span class="toc-text">PTE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%990%E7%BA%BF%E6%80%A7%E5%9C%B0%E5%9D%80%E6%8C%82%E4%B8%8A%E7%89%A9%E7%90%86%E9%A1%B5"><span class="toc-text">给0线性地址挂上物理页</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AC%E5%BC%8F"><span class="toc-text">公式</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#027-TLB"><span class="toc-text">027.TLB</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%81%E6%98%8ETLB%E5%AD%98%E5%9C%A8"><span class="toc-text">证明TLB存在</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#028-%E6%8E%A7%E5%88%B6%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-text">028.控制寄存器</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Cr0"><span class="toc-text">Cr0</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cr2"><span class="toc-text">Cr2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cr4"><span class="toc-text">Cr4</span></a></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/Ghostasky">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/ghostasky">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/Ghostasky">怕什么真理无穷，进一寸有进一寸的欢喜。</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Windows%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F + '&url=' + https%3A%2F%2Fghostasky.github.io%2F2022%2F09%2F26%2F2022-9-WinKernel%25E4%25BF%259D%25E6%258A%25A4%25E6%25A8%25A1%25E5%25BC%258F%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://ghostasky.github.io/2022/09/26/2022-9-WinKernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>

