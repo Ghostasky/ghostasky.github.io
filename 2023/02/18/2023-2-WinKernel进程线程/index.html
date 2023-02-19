@@ -159,7 +159,7 @@
       <div class="post-attach">
         <span class="post-pubtime">
           <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
-          2023-02-19	  
+          2023-02-18	  
         </span>
 		
 		 <span class="post-pubtime"> 本文共12k字 </span>
@@ -219,7 +219,7 @@
 
 
 
-<p><img src="/2023/02/19/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230119203755480.png" alt="image-20230119203755480"></p>
+<p><img src="/2023/02/18/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230119203755480.png" alt="image-20230119203755480"></p>
 <h1 id="003-KPCR"><a href="#003-KPCR" class="headerlink" title="003.KPCR"></a>003.KPCR</h1><ol>
 <li>KPCR结构体是CPU临时记录线程信息的一个结构体</li>
 <li>KPCR是CPU快速查找线程信息用的，自己在上面做不了什么事情。</li>
@@ -294,7 +294,7 @@
 <p>最后，调用 SwitchContext 函数“切换”到刚才找到的“就绪”线程。</p>
 <h2 id="SwitchContext-切换线程函数"><a href="#SwitchContext-切换线程函数" class="headerlink" title="SwitchContext 切换线程函数"></a>SwitchContext 切换线程函数</h2><p>旧线程调用 SwitchContext 时，首先把7个寄存器压到自己的栈顶，然后保存当前栈顶 esp 到 KernelStack，然后从新线程的线程结构体里取出 KernelStack 填到 esp，就完成了线程切换。</p>
 <p>接下来就是从新线程的栈顶 pop 还原7个寄存器。pop 了那7个寄存器后，esp 一定是指向下一条指令的地址的，如果新线程尚未被调度过，那么栈顶一定是 GMThreadStartup；如果新线程曾被调度过，那么栈顶一定是新线程上一次调用 SwitchContext 的返回地址，即 Scheduling 函数的末尾。</p>
-<p><img src="/2023/02/19/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0t3YW5zeQ==,size_16,color_FFFFFF,t_70#pic_center.png"></p>
+<p><img src="/2023/02/18/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0t3YW5zeQ==,size_16,color_FFFFFF,t_70#pic_center.png"></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>模拟线程切换总结：</p>
 <ol>
 <li>线程不是被动切换的，而是<strong>主动</strong>让出CPU.</li>
@@ -353,7 +353,7 @@
 
 <p>一个线程初始状态有6个时间片，每次中断会把当前线程时间片减3，这意味着一个线程要经过两次时钟中断时间片才会用完。</p>
 <h3 id="KiDispatchInterrupt"><a href="#KiDispatchInterrupt" class="headerlink" title="KiDispatchInterrupt"></a>KiDispatchInterrupt</h3><p><code>KiDispatchInterrupt</code> 函数会判断当前线程时间片，如果 <code>QuantumEnd</code> 是非0，表明时间片用完，然后就会调用 <code>KiQuantumEnd</code> 函数重新设置时间片，然后执行线程切换；如果时间片没用完，但是存在备用线程 <code>NextThread</code>，那么也会发生切换：</p>
-<p><img src="/2023/02/19/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218163344642.png" alt="image-20230218163344642"></p>
+<p><img src="/2023/02/18/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218163344642.png" alt="image-20230218163344642"></p>
 <h3 id="KiQuantumEnd"><a href="#KiQuantumEnd" class="headerlink" title="KiQuantumEnd"></a>KiQuantumEnd</h3><p><code>KiQuantumEnd</code> 函数主要工作就是重新设置时间片：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mov     al, [eax+_EPROCESS.Pcb.ThreadQuantum]</span><br><span class="line">mov     [esi+_ETHREAD.Tcb.Quantum], al ; 重新设置一下当前线程的时间片</span><br></pre></td></tr></table></figure>
 
@@ -371,10 +371,10 @@
 <p>(3)、有备用线程(<code>KPCR.PrcbData.NextThread</code>)</p>
 <p><code>KiDispatchInterrupt</code> -&gt; <strong><code>SwapContext</code></strong></p>
 <h1 id="009-Windows线程切换-TSS"><a href="#009-Windows线程切换-TSS" class="headerlink" title="009.Windows线程切换_TSS"></a>009.Windows线程切换_TSS</h1><p>内核堆栈：</p>
-<p><img src="/2023/02/19/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218165731076.png" alt="image-20230218165731076"></p>
+<p><img src="/2023/02/18/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218165731076.png" alt="image-20230218165731076"></p>
 <p>内核堆栈结构：</p>
 <p>(栈底开始往上0x210个字节存储浮点寄存器的值，以上都是<code>TrapFrame</code>结构（在api3环进0环已经讲过了，<code>系统调用</code>那一节）。)</p>
-<p><img src="/2023/02/19/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218165835614.png" alt="image-20230218165835614"></p>
+<p><img src="/2023/02/18/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218165835614.png" alt="image-20230218165835614"></p>
 <p> <strong>调用API进0环</strong></p>
 <p>普通调用：通过<code>TSS.ESP0</code>得到0环堆栈</p>
 <p>快速调用：从MSR得到一个临时0环栈，代码执行后仍然通过<code>TSS.esp0</code>得到当前线程0环堆栈。</p>
@@ -394,7 +394,7 @@
 <p>还是<code>SwapContext</code>的部分代码：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">.text:0046A994 loc_46A994:                             ; CODE XREF: SwapContext+86↑j</span><br><span class="line">.text:0046A994                                         ; SwapContext+AF↑j</span><br><span class="line">.text:0046A994                 mov     eax, [ebx+_KPCR.NtTib.Self] ;</span><br><span class="line">.text:0046A994                                         ; 此时 eax 指向了 TEB</span><br><span class="line">.text:0046A997                 mov     ecx, [ebx+_KPCR.GDT] ; 假设 GDT表在 0x8003f000</span><br><span class="line">.text:0046A997                                         ; ecx = 0x8003f000</span><br><span class="line">.text:0046A997                                         ; 3环 FS = 0x3B</span><br><span class="line">.text:0046A997                                         ; 所以 FS 在 GDT表里的地址是 0x8003f03B</span><br><span class="line">.text:0046A997                                         ; 下面的操作是修改 FS 的段描述符，这样3环 FS 就能找到 TEB 了</span><br><span class="line">.text:0046A997                                         ; ;</span><br><span class="line">.text:0046A99A                 mov     [ecx+3Ah], ax   ; BaseAddress 15:00</span><br><span class="line">.text:0046A99E                 shr     eax, 10h        ; eax 指向 TEB 的地址高16位</span><br><span class="line">.text:0046A9A1                 mov     [ecx+3Ch], al   ; BaseAddress 23:16</span><br><span class="line">.text:0046A9A4                 mov     [ecx+3Fh], ah   ; BaseAddress 31:24</span><br><span class="line">.text:0046A9A7                 inc     [esi+_ETHREAD.Tcb.ContextSwitches]</span><br><span class="line">.text:0046A9AA                 inc     [ebx+_KPCR.PrcbData.KeContextSwitches]</span><br><span class="line">.text:0046A9B0                 pop     ecx</span><br><span class="line">.text:0046A9B1                 mov     [ebx], ecx</span><br><span class="line">.text:0046A9B3                 cmp     [esi+_ETHREAD.Tcb.ApcState.KernelApcPending], 0</span><br><span class="line">.text:0046A9B7                 jnz     short loc_46A9BD</span><br><span class="line">.text:0046A9B9                 popf</span><br><span class="line">.text:0046A9BA                 xor     eax, eax</span><br><span class="line">.text:0046A9BC                 retn</span><br></pre></td></tr></table></figure>
 
-<h3 id="段描述符结构"><a href="#段描述符结构" class="headerlink" title="段描述符结构"></a>段描述符结构</h3><p><img src="/2023/02/19/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218174027106.png" alt="image-20230218174027106"></p>
+<h3 id="段描述符结构"><a href="#段描述符结构" class="headerlink" title="段描述符结构"></a>段描述符结构</h3><p><img src="/2023/02/18/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218174027106.png" alt="image-20230218174027106"></p>
 <h1 id="011-Windows线程切换-线程优先级"><a href="#011-Windows线程切换-线程优先级" class="headerlink" title="011.Windows线程切换_线程优先级"></a>011.Windows线程切换_线程优先级</h1><p>回顾：</p>
 <p>三种情况会导致线程切换：</p>
 <ol>
@@ -435,7 +435,7 @@
 <li><p>若当前CPU不存在就绪线程，则会执行空闲线程，每一个CPU都会指定一个空闲线程</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nt!_KPRCB</span><br><span class="line">   +0x004 CurrentThread    : Ptr32 _KTHREAD		//当前线程</span><br><span class="line">   +0x008 NextThread       : Ptr32 _KTHREAD		//就绪线程</span><br><span class="line">   +0x00c IdleThread       : Ptr32 _KTHREAD		//空闲线程</span><br></pre></td></tr></table></figure></li>
 </ol>
-<h2 id="KiSwapThread"><a href="#KiSwapThread" class="headerlink" title="KiSwapThread"></a>KiSwapThread</h2><p><img src="/2023/02/19/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218205639146.png" alt="image-20230218205639146"></p>
+<h2 id="KiSwapThread"><a href="#KiSwapThread" class="headerlink" title="KiSwapThread"></a>KiSwapThread</h2><p><img src="/2023/02/18/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218205639146.png" alt="image-20230218205639146"></p>
 <h3 id="总结-3"><a href="#总结-3" class="headerlink" title="总结"></a>总结</h3><ol>
 <li>调度链表的下标即线程优先级</li>
 <li>CPU通过遍历调度链表判断是否存在需要调度的线程</li>
@@ -457,7 +457,7 @@
 <li>一般情况下，<strong>_ETHREAD.Tcb.ApcState.Process</strong>和 <strong>_ETHREAD.ThreadsProcess</strong> 指向的是同一个进程</li>
 <li>将当前Cr3的值改为其它进程的Cr3(进程切换)，称为“<strong>进程挂靠</strong>”</li>
 </ol>
-<p><img src="/2023/02/19/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230219125142968.png" alt="image-20230219125142968"></p>
+<p><img src="/2023/02/18/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230219125142968.png" alt="image-20230219125142968"></p>
 <p>有了上述概念后，我们知道了，正常情况下，Cr3的值是由养父母提供的，但是Cr3的值也可以改成和当前线程毫不相干的其它进程的<code>DirectoryTableBase</code>。</p>
 <p>观察下面的代码：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mov cr3,A.DirectoryTableBase</span><br><span class="line">mov eax,dword ptr ds:[0x12345678]		//A进程的0x12345678内存</span><br><span class="line">mov cr3,B.DirectoryTableBase</span><br><span class="line">mov eax,dword ptr ds:[0x12345678]		//B进程的0x12345678内存</span><br><span class="line">mov cr3,C.DirectoryTableBase</span><br><span class="line">mov eax,dword ptr ds:[0x12345678]		//C进程的0x12345678内存</span><br></pre></td></tr></table></figure>
@@ -531,7 +531,7 @@
           <div class="post-attach">
             <span class="post-pubtime">
               <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
-              2023-02-19 00:00:00
+              2023-02-18 00:00:00
             </span>
             
                   <span class="post-categories">
@@ -559,7 +559,7 @@
           </div>
           <div class="post-foot-prev">
             
-              <a href="/2099/12/31/TOP/" target="_self">
+              <a href="/2023/02/19/2023-2-WinKernel%E5%8F%A5%E6%9F%84%E8%A1%A8/" target="_self">
                 <span>Next</span>
                 <i class="iconfont icon-chevronright"></i>
               </a>
@@ -875,12 +875,12 @@
       </a>
       <div class="share-content hidden">
         
-          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Windows%E5%86%85%E6%A0%B8(%E5%9B%9B)%E2%80%94%E2%80%94%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B + '&url=' + https%3A%2F%2Fghostasky.github.io%2F2023%2F02%2F19%2F2023-2-WinKernel%25E8%25BF%259B%25E7%25A8%258B%25E7%25BA%25BF%25E7%25A8%258B%2F + '" target="_blank" title="Twitter">
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Windows%E5%86%85%E6%A0%B8(%E5%9B%9B)%E2%80%94%E2%80%94%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B + '&url=' + https%3A%2F%2Fghostasky.github.io%2F2023%2F02%2F18%2F2023-2-WinKernel%25E8%25BF%259B%25E7%25A8%258B%25E7%25BA%25BF%25E7%25A8%258B%2F + '" target="_blank" title="Twitter">
             <i class="iconfont icon-twitter"></i>
           </a>
         
         
-          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://ghostasky.github.io/2023/02/19/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" target="_blank" title="Facebook">
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://ghostasky.github.io/2023/02/18/2023-2-WinKernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" target="_blank" title="Facebook">
             <i class="iconfont icon-facebooksquare"></i>
           </a>
         
