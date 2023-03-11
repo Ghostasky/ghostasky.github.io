@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-cn" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="郁涛丶" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      Windows内核(八)——异常 
+      
+      
+      |
+    
+     郁涛丶&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+    
+<link rel="stylesheet" href="/css/figcaption/mac-block.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Ghostasky</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">Windows内核(八)——异常</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2023-03-02	  
+        </span>
+		
+		 <span class="post-pubtime"> 本文共8.5k字 </span>
+
+                                                                        <span class="post-pubtime">
+        大约需要63min
+      </span>
+		
+		
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/Technology/" title="Technology">
+                    <b>#</b> Technology
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/Win32/" title="Win32">
+                    #Win32
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <p>[toc]</p>
+<h1 id="01-CPU异常记录"><a href="#01-CPU异常记录" class="headerlink" title="01.CPU异常记录"></a>01.CPU异常记录</h1><p>一个异常产生后，首先是要<strong>记录异常信息</strong>（异常的类型、异常发生的位置等），然后要寻找异常的处理函数，称为<strong>异常的分发</strong>,最后找到异常处理函数并调用，称为<strong>异常处理</strong>。</p>
+<p>分类：</p>
+<ol>
+<li>CPU产生的异常</li>
+<li>软件产生的异常</li>
+</ol>
+<h2 id="异常处理流程"><a href="#异常处理流程" class="headerlink" title="异常处理流程"></a>异常处理流程</h2><ol>
+<li>CPU指令检测到异常（例：除0），异常一定是先由CPU发现的</li>
+<li>查IDT表，执行中断处理函数，不同的异常调用不同的中断处理函数</li>
+<li><code>CommonDispatchException</code></li>
+<li><code>KiDispatchExceeption</code></li>
+</ol>
+<p>Windows异常代码：</p>
+<p><img src="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/image-20230224184604177.png" alt="image-20230224184604177"></p>
+<h2 id="KiTrap00"><a href="#KiTrap00" class="headerlink" title="_KiTrap00"></a>_KiTrap00</h2><p>ida中alt+t搜索<code>_IDT</code>，这里使用0号举例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">.text:00407522 _KiTrap00       proc near               ; DATA XREF: INIT:_IDT↓o</span><br><span class="line">.text:00407522</span><br><span class="line">.text:00407522 var_2           = word ptr -2</span><br><span class="line">.text:00407522 arg_4           = dword ptr  8</span><br><span class="line">.text:00407522</span><br><span class="line">.text:00407522 ; FUNCTION CHUNK AT .text:00407399 SIZE 00000021 BYTES</span><br><span class="line">.text:00407522</span><br><span class="line">.text:00407522                 push    0</span><br><span class="line">.text:00407524                 mov     word ptr [esp+(_KTRAP_FRAME.DbgEbp+2)], 0</span><br><span class="line">.text:0040752B                 push    ebp;_Trap_Frame保存现场</span><br><span class="line">.text:0040752C                 push    ebx</span><br><span class="line">.text:0040752D                 push    esi</span><br><span class="line">.text:0040752E                 push    edi</span><br><span class="line">.text:0040752F                 push    fs</span><br><span class="line">.text:00407531                 mov     ebx, 30h ; &#x27;0&#x27;</span><br><span class="line">.text:00407536                 mov     fs, ebx</span><br><span class="line">.text:00407538                 assume fs:nothing</span><br><span class="line">.text:00407538                 mov     ebx, large fs:0</span><br><span class="line">.text:0040753F                 push    ebx</span><br><span class="line">.text:00407540                 sub     esp, 4</span><br><span class="line">.text:00407543                 push    eax</span><br><span class="line">.text:00407544                 push    ecx</span><br><span class="line">.text:00407545                 push    edx</span><br><span class="line">.text:00407546                 push    ds</span><br><span class="line">.text:00407547                 push    es</span><br><span class="line">.text:00407548                 push    gs</span><br><span class="line">.text:0040754A                 mov     ax, 23h ; &#x27;#&#x27;</span><br><span class="line">.text:0040754E                 sub     esp, 30h</span><br><span class="line">.text:00407551                 mov     ds, eax</span><br><span class="line">.text:00407553                 assume ds:nothing</span><br><span class="line">.text:00407553                 mov     es, eax</span><br><span class="line">.text:00407555                 assume es:nothing</span><br><span class="line">.text:00407555                 mov     ebp, esp</span><br><span class="line">.text:00407557                 test    [esp+_KTRAP_FRAME.EFlags], 20000h</span><br><span class="line">.text:0040755F                 jnz     short V86_kit0_a</span><br><span class="line">.text:00407561</span><br><span class="line">.text:00407561 loc_407561:                             ; CODE XREF: V86_kit0_a+25↑j</span><br><span class="line">.text:00407561                 cld</span><br><span class="line">.text:00407562                 mov     ebx, [ebp+_KTRAP_FRAME._Ebp]</span><br><span class="line">.text:00407565                 mov     edi, [ebp+_KTRAP_FRAME._Eip]</span><br><span class="line">.text:00407568                 mov     [ebp+_KTRAP_FRAME.DbgArgPointer], edx</span><br><span class="line">.text:0040756B                 mov     [ebp+_KTRAP_FRAME.DbgArgMark], 0BADB0D00h</span><br><span class="line">.text:00407572                 mov     [ebp+_KTRAP_FRAME.DbgEbp], ebx</span><br><span class="line">.text:00407575                 mov     [ebp+_KTRAP_FRAME.DbgEip], edi</span><br><span class="line">.text:00407578                 test    large byte ptr fs:_KTRAP_FRAME.SegFs, 0FFh</span><br><span class="line">.text:00407580                 jnz     Dr_kit0_a</span><br><span class="line">.text:00407586</span><br><span class="line">.text:00407586 loc_407586:                             ; CODE XREF: Dr_kit0_a+10↑j</span><br><span class="line">.text:00407586                                         ; Dr_kit0_a+7C↑j</span><br><span class="line">.text:00407586                 test    [ebp+_KTRAP_FRAME.EFlags], 20000h</span><br><span class="line">.text:0040758D                 jnz     short loc_4075CC</span><br><span class="line">.text:0040758F                 test    byte ptr [ebp+_KTRAP_FRAME.SegCs], 1</span><br><span class="line">.text:00407593                 jz      short loc_40759C</span><br><span class="line">.text:00407595                 cmp     word ptr [ebp+_KTRAP_FRAME.SegCs], 1Bh</span><br><span class="line">.text:0040759A                 jnz     short loc_4075B9</span><br><span class="line">.text:0040759C</span><br><span class="line">.text:0040759C loc_40759C:                             ; CODE XREF: _KiTrap00+71↑j</span><br><span class="line">.text:0040759C                 sti</span><br><span class="line">.text:0040759D                 push    ebp</span><br><span class="line">.text:0040759E                 call    _Ki386CheckDivideByZeroTrap@4 ; Ki386CheckDivideByZeroTrap(x)</span><br><span class="line">.text:004075A3                 mov     ebx, [ebp+_KTRAP_FRAME._Eip];保存进入异常处理前的地址</span><br><span class="line">.text:004075A6                 jmp     loc_407399;这里</span><br><span class="line">.text:004075AB ; ---------------------------------------------------------------------------</span><br><span class="line">.text:004075AB</span><br><span class="line">.text:004075AB loc_4075AB:                             ; CODE XREF: _KiTrap00+A8↓j</span><br><span class="line">.text:004075AB                                         ; _KiTrap00+B9↓j</span><br><span class="line">.text:004075AB                 sti</span><br><span class="line">.text:004075AC                 mov     ebx, [ebp+_KTRAP_FRAME._Eip];保存进入异常处理前的地址</span><br><span class="line">.text:004075AF                 mov     eax, 0C0000094h</span><br><span class="line">.text:004075B4                 jmp     loc_407399;这里</span><br><span class="line">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span><br><span class="line">.text:00407399 loc_407399:                             ; CODE XREF: _KiTrap00+84↓j</span><br><span class="line">.text:00407399                                         ; _KiTrap00+92↓j ...</span><br><span class="line">.text:00407399                 xor     ecx, ecx</span><br><span class="line">.text:0040739B                 call    CommonDispatchException</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="CommonDispatchException"><a href="#CommonDispatchException" class="headerlink" title="CommonDispatchException"></a>CommonDispatchException</h3><p><code>CommonDispatchException</code>这个函数就是构建一个<code>_EXCEPTION_RECORD</code>结构体并赋值</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dt _EXCEPTION_RECORD</span><br><span class="line">nt!_EXCEPTION_RECORD</span><br><span class="line">   +<span class="number">0x000</span> ExceptionCode    : Int4B<span class="comment">//异常码</span></span><br><span class="line">   +<span class="number">0x004</span> ExceptionFlags   : Uint4B<span class="comment">//异常标志 cpu 0 ,软件模拟 1,嵌套异常10h ...</span></span><br><span class="line">   +<span class="number">0x008</span> ExceptionRecord  : Ptr32 _EXCEPTION_RECORD<span class="comment">//下一个异常 一般为NULL 除非出现嵌套异常</span></span><br><span class="line">   +<span class="number">0x00c</span> ExceptionAddress : Ptr32 Void	<span class="comment">//发生异常的指令地址</span></span><br><span class="line">   +<span class="number">0x010</span> NumberParameters : Uint4B<span class="comment">//参数个数</span></span><br><span class="line">   +<span class="number">0x014</span> ExceptionInformation : [<span class="number">15</span>] Uint4B<span class="comment">//附加参数指针</span></span><br></pre></td></tr></table></figure>
+
+<p>代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">.text:004073BA CommonDispatchException proc near       ; CODE XREF: _KiTrap00-187↑p</span><br><span class="line">.text:004073BA                                         ; _KiTrap00-17B↑p ...</span><br><span class="line">.text:004073BA</span><br><span class="line">.text:004073BA var_50          = dword ptr -50h</span><br><span class="line">.text:004073BA var_4C          = dword ptr -4Ch</span><br><span class="line">.text:004073BA var_48          = dword ptr -48h</span><br><span class="line">.text:004073BA var_44          = dword ptr -44h</span><br><span class="line">.text:004073BA var_40          = dword ptr -40h</span><br><span class="line">.text:004073BA var_3C          = byte ptr -3Ch</span><br><span class="line">.text:004073BA</span><br><span class="line">.text:004073BA                 sub     esp, 50h</span><br><span class="line">.text:004073BD                 mov     [esp+_EXCEPTION_RECORD.ExceptionCode], eax</span><br><span class="line">.text:004073C0                 xor     eax, eax</span><br><span class="line">.text:004073C2                 mov     [esp+_EXCEPTION_RECORD.ExceptionFlags], eax</span><br><span class="line">.text:004073C6                 mov     [esp+_EXCEPTION_RECORD.ExceptionRecord], eax</span><br><span class="line">.text:004073CA                 mov     [esp+_EXCEPTION_RECORD.ExceptionAddress], ebx</span><br><span class="line">.text:004073CE                 mov     [esp+_EXCEPTION_RECORD.NumberParameters], ecx</span><br><span class="line">.text:004073D2                 cmp     ecx, 0</span><br><span class="line">.text:004073D5                 jz      short loc_4073E3</span><br><span class="line">.text:004073D7                 lea     ebx, [esp+_EXCEPTION_RECORD.ExceptionInformation]</span><br><span class="line">.text:004073DB                 mov     [ebx], edx</span><br><span class="line">.text:004073DD                 mov     [ebx+_EXCEPTION_RECORD.ExceptionFlags], esi</span><br><span class="line">.text:004073E0                 mov     [ebx+_EXCEPTION_RECORD.ExceptionRecord], edi</span><br><span class="line">.text:004073E3</span><br><span class="line">.text:004073E3 loc_4073E3:                             ; CODE XREF: CommonDispatchException+1B↑j</span><br><span class="line">.text:004073E3                 mov     ecx, esp</span><br><span class="line">.text:004073E5                 test    [ebp+_KTRAP_FRAME.EFlags], 20000h</span><br><span class="line">.text:004073EC                 jz      short loc_4073F5</span><br><span class="line">.text:004073EE                 mov     eax, 0FFFFh</span><br><span class="line">.text:004073F3                 jmp     short loc_4073F8</span><br><span class="line">.text:004073F5 ; ---------------------------------------------------------------------------</span><br><span class="line">.text:004073F5</span><br><span class="line">.text:004073F5 loc_4073F5:                             ; CODE XREF: CommonDispatchException+32↑j</span><br><span class="line">.text:004073F5                 mov     eax, [ebp+_KTRAP_FRAME.SegCs]</span><br><span class="line">.text:004073F8</span><br><span class="line">.text:004073F8 loc_4073F8:                             ; CODE XREF: CommonDispatchException+39↑j</span><br><span class="line">.text:004073F8                 and     eax, 1</span><br><span class="line">.text:004073FB                 push    1               ; char</span><br><span class="line">.text:004073FD                 push    eax             ; int</span><br><span class="line">.text:004073FE                 push    ebp             ; BugCheckParameter3</span><br><span class="line">.text:004073FF                 push    0               ; int</span><br><span class="line">.text:00407401                 push    ecx             ; ExceptionRecord</span><br><span class="line">.text:00407402                 call    _KiDispatchException@20 ; KiDispatchException(x,x,x,x,x)</span><br><span class="line">.text:00407407                 mov     esp, ebp</span><br><span class="line">.text:00407409                 jmp     Kei386EoiHelper@0 ; Kei386EoiHelper()</span><br><span class="line">.text:00407409 CommonDispatchException endp</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="02-模拟异常记录"><a href="#02-模拟异常记录" class="headerlink" title="02.模拟异常记录"></a>02.模拟异常记录</h1><p>模拟异常的产生：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">CxxThrowException()=&gt;</span><br><span class="line"></span><br><span class="line">(KERNEL32.DLL)RaiseException()=&gt;</span><br><span class="line"></span><br><span class="line">NTDLL.DLL!RtlRaiseException()=&gt;</span><br><span class="line"></span><br><span class="line">NT!NtRaiseException=&gt;</span><br><span class="line"></span><br><span class="line">NT!KiRaiseException</span><br></pre></td></tr></table></figure>
+
+<h2 id="分析模拟异常"><a href="#分析模拟异常" class="headerlink" title="分析模拟异常"></a>分析模拟异常</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	throw <span class="number">1</span>;</span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到调用了<code>CxxThrowException</code>：</p>
+<blockquote>
+<p>本实验使用的编辑器为vc6.0，为C++环境，在不同的环境中，调用的函数可能是不同的，但是最终调用的系统函数都是相同的</p>
+</blockquote>
+<p><img src="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/image-20230225143409781.png" alt="image-20230225143409781"></p>
+<p>F11跟进去，可以看到调用了<code>RaiseException</code>，位于<strong>Kernel32.dll</strong>：</p>
+<p>当CPU产生异常时会记录一个<strong>ErrorCode</strong>，通过查表可以查到ErrorCode具体的含义，不同的异常对应不同的错误代码，但是软件抛出的ErrorCode是根据编译环境决定的，如下图的EDX中存储的值即为当前编译环境的ErrorCode：</p>
+<p><img src="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/image-20230225144037458.png" alt="image-20230225144037458"></p>
+<p><strong>CPU</strong>记录异常的地址是真正发生异常的地址，但软件抛出异常时记录的地址是__RaiseException函数的地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">.text:00474ECE ; __stdcall RaiseException(x, x, x, x)</span><br><span class="line">.text:00474ECE _RaiseException@16 proc near            ; CODE XREF: __raise_exc+194↓p</span><br><span class="line">.text:00474ECE                                         ; DATA XREF: RaiseException(x,x,x,x)+21↓o</span><br><span class="line">.text:00474ECE</span><br><span class="line">.text:00474ECE ExceptionRecord = _EXCEPTION_RECORD ptr -50h</span><br><span class="line">.text:00474ECE arg_0           = dword ptr  8</span><br><span class="line">.text:00474ECE arg_4           = dword ptr  0Ch</span><br><span class="line">.text:00474ECE arg_8           = dword ptr  10h</span><br><span class="line">.text:00474ECE arg_C           = dword ptr  14h</span><br><span class="line">.text:00474ECE</span><br><span class="line">.text:00474ECE                 mov     edi, edi</span><br><span class="line">.text:00474ED0                 push    ebp</span><br><span class="line">.text:00474ED1                 mov     ebp, esp</span><br><span class="line">.text:00474ED3                 sub     esp, 50h</span><br><span class="line">.text:00474ED6                 mov     eax, [ebp+arg_0]</span><br><span class="line">.text:00474ED9                 and     [ebp+ExceptionRecord.ExceptionRecord], 0</span><br><span class="line">.text:00474EDD                 mov     [ebp+ExceptionRecord.ExceptionCode], eax</span><br><span class="line">.text:00474EE0                 mov     eax, [ebp+arg_4]</span><br><span class="line">.text:00474EE3                 push    esi</span><br><span class="line">.text:00474EE4                 mov     esi, [ebp+arg_C]</span><br><span class="line">.text:00474EE7                 and     eax, 1</span><br><span class="line">.text:00474EEA                 test    esi, esi</span><br><span class="line">.text:00474EEC                 mov     [ebp+ExceptionRecord.ExceptionFlags], eax</span><br><span class="line">.text:00474EEF                 mov     [ebp+ExceptionRecord.ExceptionAddress], offset _RaiseException@16 ; RaiseException(x,x,x,x);CPU记录异常的地址是真正发生异常的地址，但软件抛出异常时记录的地址是__RaiseException函数的地址</span><br><span class="line">.text:00474EF6                 jz      short loc_474F13</span><br><span class="line">.text:00474EF8                 mov     ecx, [ebp+arg_8]</span><br><span class="line">.text:00474EFB                 cmp     ecx, 0Fh</span><br><span class="line">.text:00474EFE                 jbe     short loc_474F03</span><br><span class="line">.text:00474F00                 push    0Fh</span><br><span class="line">.text:00474F02                 pop     ecx</span><br><span class="line">.text:00474F03</span><br><span class="line">.text:00474F03 loc_474F03:                             ; CODE XREF: RaiseException(x,x,x,x)+30↑j</span><br><span class="line">.text:00474F03                 test    ecx, ecx</span><br><span class="line">.text:00474F05                 mov     [ebp+ExceptionRecord.NumberParameters], ecx</span><br><span class="line">.text:00474F08                 jz      short loc_474F17</span><br><span class="line">.text:00474F0A                 push    edi</span><br><span class="line">.text:00474F0B                 lea     edi, [ebp+ExceptionRecord.ExceptionInformation]</span><br><span class="line">.text:00474F0E                 rep movsd</span><br><span class="line">.text:00474F10                 pop     edi</span><br><span class="line">.text:00474F11                 jmp     short loc_474F17</span><br><span class="line">.text:00474F13 ; ---------------------------------------------------------------------------</span><br><span class="line">.text:00474F13</span><br><span class="line">.text:00474F13 loc_474F13:                             ; CODE XREF: RaiseException(x,x,x,x)+28↑j</span><br><span class="line">.text:00474F13                 and     [ebp+ExceptionRecord.NumberParameters], 0</span><br><span class="line">.text:00474F17</span><br><span class="line">.text:00474F17 loc_474F17:                             ; CODE XREF: RaiseException(x,x,x,x)+3A↑j</span><br><span class="line">.text:00474F17                                         ; RaiseException(x,x,x,x)+43↑j</span><br><span class="line">.text:00474F17                 lea     eax, [ebp+ExceptionRecord]</span><br><span class="line">.text:00474F1A                 push    eax             ; ExceptionRecord</span><br><span class="line">.text:00474F1B                 call    _RtlRaiseException@4 ; RtlRaiseException(x)</span><br><span class="line">.text:00474F20                 pop     esi</span><br><span class="line">.text:00474F21                 leave</span><br><span class="line">.text:00474F22                 retn    10h</span><br><span class="line">.text:00474F22 _RaiseException@16 endp</span><br></pre></td></tr></table></figure>
+
+<p>最后调用了<code>_RtlRaiseException</code>，位于<strong>Ntdll.dll</strong></p>
+<p><code>_RtlRaiseException</code>调用了<code>ZwRaiseException</code>，之后继续调用了<code>NtRaiseException</code>，之后是<code>KiRaiseException</code>，最终和CPU异常一样调用到了<code>KiDispatchException</code>分发异常</p>
+<h2 id="CPU异常和软件模拟异常流程"><a href="#CPU异常和软件模拟异常流程" class="headerlink" title="CPU异常和软件模拟异常流程"></a>CPU异常和软件模拟异常流程</h2><p>如下图所示：</p>
+<p><img src="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/image-20230225144809214.png" alt="image-20230225144809214"></p>
+<h1 id="03-内核异常处理流程"><a href="#03-内核异常处理流程" class="headerlink" title="03.内核异常处理流程"></a>03.内核异常处理流程</h1><p>异常可以发生在用户空间，也可以发生在内核空间</p>
+<p>内核异常处理流程：</p>
+<ol>
+<li><code>KeContextFromKframes</code>将<code>TrapFrame</code>备份到<code>Context</code>，为返回3环做准备。</li>
+<li>判断先前模式，0是内核调用反之是用户层调用。</li>
+<li>是否是第一次机会。</li>
+<li>是否有内核调试器。</li>
+<li>如果没有或者内核调试器不处理。</li>
+<li>调用<code>RtlDispatchException</code>，查找并调用异常处理函数。</li>
+<li>如果返回<code>FALSE</code>，再次判断是否有内核调试器，有调用，没有直接蓝屏。</li>
+</ol>
+<h2 id="KiDispatchException分析"><a href="#KiDispatchException分析" class="headerlink" title="KiDispatchException分析"></a>KiDispatchException分析</h2><p>函数原型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">VOID <span class="title function_">KiDispatchException</span> <span class="params">(</span></span><br><span class="line"><span class="params">    IN PEXCEPTION_RECORD ExceptionRecord,</span></span><br><span class="line"><span class="params">    IN PKEXCEPTION_FRAME ExceptionFrame,</span></span><br><span class="line"><span class="params">    IN PKTRAP_FRAME TrapFrame,</span></span><br><span class="line"><span class="params">    IN KPROCESSOR_MODE PreviousMode,</span></span><br><span class="line"><span class="params">    IN BOOLEAN FirstChance <span class="comment">//TRUE第一次处理该异常，FALSE不是第一次</span></span></span><br><span class="line"><span class="params">)</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>首先备份<code>TrapFrame</code>到<code>Context</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line">text:00424A69 loc_424A69:                             ; CODE XREF: KiDispatchException(x,x,x,x,x)+55↑j</span><br><span class="line">.text:00424A69                                         ; KiDispatchException(x,x,x,x,x)+68↑j</span><br><span class="line">.text:00424A69                 lea     eax, [ebp+Context]</span><br><span class="line">.text:00424A6F                 push    eax</span><br><span class="line">.text:00424A70                 push    ecx</span><br><span class="line">.text:00424A71                 push    ebx</span><br><span class="line">.text:00424A72                 call    _KeContextFromKframes@12 ; 1)KeContextFromKframes将TrapFrame备份到Context，为返回3环做准备。</span><br><span class="line">.text:00424A77                 mov     eax, [esi]</span><br><span class="line">.text:00424A79                 cmp     eax, 80000003h</span><br><span class="line">.text:00424A7E                 jnz     loc_44110E</span><br><span class="line">.text:00424A84                 dec     [ebp+Context._Eip]</span><br><span class="line">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span><br><span class="line">.text:00424A8C loc_424A8C:                             ; CODE XREF: KiDispatchException(x,x,x,x,x)+266BE↓j</span><br><span class="line">.text:00424A8C                 cmp     byte ptr [ebp+CONTEXT.Dr6], 0 ; 2)判断先前模式，0是内核调用，1是用户层调用，此时能够知道要分发的异常来自哪里。</span><br><span class="line">.text:00424A90                 jnz     loc_440F9E      ; 用户层调用跳转</span><br><span class="line">.text:00424A96                 cmp     byte ptr [ebp+CONTEXT.Dr7], 1 ; 3)是否是第一次调用</span><br><span class="line">.text:00424A9A                 jnz     loc_44B0C0      ; 不是第一次调用跳转</span><br><span class="line">.text:00424AA0                 mov     eax, ds:_KiDebugRoutine ; 4)是否有内核调试器</span><br><span class="line">.text:00424AA5                 cmp     eax, edi</span><br><span class="line">.text:00424AA7                 jz      loc_4335A6      ; 没有内核调试则跳转</span><br><span class="line">.text:00424AAD                 push    edi             ; _DWORD</span><br><span class="line">.text:00424AAE                 push    edi             ; _DWORD</span><br><span class="line">.text:00424AAF                 lea     ecx, [ebp+Context]</span><br><span class="line">.text:00424AB5                 push    ecx             ; _DWORD</span><br><span class="line">.text:00424AB6                 push    esi             ; _DWORD</span><br><span class="line">.text:00424AB7                 push    [ebp+var_2F0]   ; _DWORD</span><br><span class="line">.text:00424ABD                 push    ebx             ; _DWORD</span><br><span class="line">.text:00424ABE                 call    eax ; _KiDebugRoutine ; 有内核调试先 调用内核调试器</span><br><span class="line">.text:00424ABE                                         ; 如果调用返回成功,说明内核调试器已经处理异常,就将CONTEXT再转成Trap_Frame直接返回</span><br><span class="line">.text:00424ABE                                         ; 如果调试器未处理,就让3环处理</span><br><span class="line">.text:00424AC0                 test    al, al</span><br><span class="line">.text:00424AC2                 jz      loc_4335A6      ; 若内核调试器未处理(返回值为FALSE), 跳转</span><br><span class="line">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span><br><span class="line">.text:004335A6 ; START OF FUNCTION CHUNK FOR KiDispatchException(x,x,x,x,x)</span><br><span class="line">.text:004335A6</span><br><span class="line">.text:004335A6 loc_4335A6:                             ; CODE XREF: KiDispatchException(x,x,x,x,x)+B2↑j</span><br><span class="line">.text:004335A6                                         ; KiDispatchException(x,x,x,x,x)+CD↑j</span><br><span class="line">.text:004335A6 ; __unwind &#123; // __SEH_prolog            ; 5)如果没有或者内核调试器不处理</span><br><span class="line">.text:004335A6                 lea     eax, [ebp+Context]</span><br><span class="line">.text:004335AC                 push    eax             ; Context</span><br><span class="line">.text:004335AD                 push    esi             ; ExceptionRecord</span><br><span class="line">.text:004335AE                 call    _RtlDispatchException@8 ; 6)调用RtlDispatchException，查找并调用异常处理函数。</span><br><span class="line">.text:004335B3                 jmp     loc_44B0B8      </span><br><span class="line">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span><br><span class="line">.text:0044B0B8 loc_44B0B8:                             ; CODE XREF: KiDispatchException(x,x,x,x,x)+EBBE↑j</span><br><span class="line">.text:0044B0B8                 cmp     al, 1           ; 7)判断异常是否被解决，解决了跳转</span><br><span class="line">.text:0044B0BA                 jz      loc_424AC8</span><br><span class="line">.text:0044B0C0</span><br><span class="line">.text:0044B0C0 loc_44B0C0:                             ; CODE XREF: KiDispatchException(x,x,x,x,x)+A5↑j</span><br><span class="line">.text:0044B0C0                 mov     eax, ds:_KiDebugRoutine ; 判断是否有内核调试器，有就调用，没有会直接蓝屏</span><br><span class="line">.text:0044B0C5                 cmp     eax, edi</span><br><span class="line">.text:0044B0C7                 jz      loc_44B1C2</span><br><span class="line">.text:0044B0CD                 push    1               ; _DWORD</span><br><span class="line">.text:0044B0CF                 push    edi             ; _DWORD</span><br><span class="line">.text:0044B0D0                 lea     ecx, [ebp+Context]</span><br><span class="line">.text:0044B0D6                 push    ecx             ; _DWORD</span><br><span class="line">.text:0044B0D7                 push    esi             ; _DWORD</span><br><span class="line">.text:0044B0D8                 push    [ebp+var_2F0]   ; _DWORD</span><br><span class="line">.text:0044B0DE                 push    ebx             ; _DWORD</span><br><span class="line">.text:0044B0DF                 call    eax ; _KiDebugRoutine</span><br><span class="line">.text:0044B0E1                 test    al, al</span><br><span class="line">.text:0044B0E3                 jz      loc_44B1C2      ; 内核调试器调用结束，未解决，跳转，蓝屏</span><br><span class="line">.text:0044B0E9                 jmp     loc_424AC8      ; 成功解决跳转</span><br><span class="line">.text:0044B0E9 ; &#125; // starts at 44B06C</span><br><span class="line">.text:0044B0E9 ; END OF FUNCTION CHUNK FOR KiDispatchException(x,x,x,x,x)</span><br><span class="line">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span><br><span class="line">;蓝屏</span><br><span class="line">.text:0044B1C2 loc_44B1C2:                             ; CODE XREF: KiDispatchException(x,x,x,x,x)+266D2↑j</span><br><span class="line">.text:0044B1C2                                         ; KiDispatchException(x,x,x,x,x)+266EE↑j ...</span><br><span class="line">.text:0044B1C2                 push    edi             ; BugCheckParameter4</span><br><span class="line">.text:0044B1C3                 push    ebx             ; BugCheckParameter3</span><br><span class="line">.text:0044B1C4                 push    dword ptr [esi+0Ch] ; BugCheckParameter2</span><br><span class="line">.text:0044B1C7                 push    dword ptr [esi] ; BugCheckParameter1</span><br><span class="line">.text:0044B1C9                 push    8Eh             ; BugCheckCode</span><br><span class="line">.text:0044B1CE                 call    _KeBugCheckEx@20 ; KeBugCheckEx(x,x,x,x,x)</span><br><span class="line">.text:0044B1CE ; &#125; // starts at 44B14A</span><br><span class="line">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span><br><span class="line">.text:00424AC8 loc_424AC8:                             ; CODE XREF: KiDispatchException(x,x,x,x,x)+1C5EB↓j</span><br><span class="line">.text:00424AC8                                         ; KiDispatchException(x,x,x,x,x)+1C743↓j ...</span><br><span class="line">.text:00424AC8                 push    [ebp+arg_C]</span><br><span class="line">.text:00424ACB                 push    [ebp+Context.ContextFlags]</span><br><span class="line">.text:00424AD1                 lea     eax, [ebp+Context]</span><br><span class="line">.text:00424AD7                 push    eax</span><br><span class="line">.text:00424AD8                 push    [ebp+var_2F0]</span><br><span class="line">.text:00424ADE                 push    ebx</span><br><span class="line">.text:00424ADF                 call    _KeContextToKframes@20 ; 成功解决，复原</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="RtlDispatchException分析"><a href="#RtlDispatchException分析" class="headerlink" title="RtlDispatchException分析"></a>RtlDispatchException分析</h2><p>没有调试器或者内核调试器没有处理</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">.text:004257D8 ; BOOLEAN __stdcall RtlDispatchException(PEXCEPTION_RECORD ExceptionRecord, PCONTEXT Context)</span><br><span class="line">.text:004257D8 _RtlDispatchException@8 proc near       ; CODE XREF: ExRaiseException(x)+92↑p</span><br><span class="line">.text:004257D8                 mov     edi, edi</span><br><span class="line">.text:004257DA                 push    ebp</span><br><span class="line">.text:004257DB                 mov     ebp, esp</span><br><span class="line">.text:004257DD                 sub     esp, 64h</span><br><span class="line">.text:004257E0                 push    ebx</span><br><span class="line">.text:004257E1                 lea     eax, [ebp+HighLimit]</span><br><span class="line">.text:004257E4                 push    eax             ; HighLimit</span><br><span class="line">.text:004257E5                 lea     eax, [ebp+LowLimit]</span><br><span class="line">.text:004257E8                 push    eax             ; LowLimit</span><br><span class="line">.text:004257E9                 mov     [ebp+var_1], 0</span><br><span class="line">.text:004257ED                 call    _RtlpGetStackLimits@8 ; RtlpGetStackLimits(x,x)</span><br><span class="line">.text:004257F2                 call    _RtlpGetRegistrationHead@0 ; RtlpGetRegistrationHead()</span><br><span class="line">.text:004257F7                 and     [ebp+var_8], 0</span><br><span class="line">.text:004257FB                 mov     ebx, eax</span><br><span class="line">.text:004257FD                 cmp     ebx, 0FFFFFFFFh</span><br><span class="line">.text:00425800                 jz      loc_455060</span><br><span class="line">.text:00425806                 push    esi</span><br><span class="line">.text:00425807                 mov     esi, [ebp+ExceptionRecord]</span><br><span class="line">.text:0042580A                 push    edi</span><br><span class="line">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span><br><span class="line">.text:00405230 _RtlpGetRegistrationHead@0 proc near    ; CODE XREF: RtlUnwind(x,x,x,x)+90↓p</span><br><span class="line">.text:00405230                                         ; RtlDispatchException(x,x)+1A↓p</span><br><span class="line">.text:00405230                 mov     eax, large fs:0</span><br><span class="line">.text:00405236                 retn</span><br><span class="line">.text:00405236 _RtlpGetRegistrationHead@0 endp</span><br></pre></td></tr></table></figure>
+
+<p><code>fs:0</code>也就是KPCR的<code>ExceptionList</code>，结构如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">EXCEPTION_REGISTRATION_RECORD</span> </span></span><br><span class="line"><span class="class">&#123;</span> </span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">EXCEPTION_REGISTRATION_RECORD</span>* <span class="title">Next</span>;</span>	<span class="comment">//下一个节点，如过为-1就是没有下一个节点了</span></span><br><span class="line">	PEXCEPTION_ROUTINE Handler; <span class="comment">//指向下一个异常处理函数</span></span><br><span class="line">&#125; EXCEPTION_REGISTRATION_RECORD;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/image-20230225153154252.png" alt="image-20230225153154252"></p>
+<ol>
+<li>遍历异常链表,调用异常处理函数,如果异常被正确处理了,该函数返回1</li>
+<li>如果当前异常处理函数不能处理该异常,那么调用下一个,以此类推。</li>
+<li>如果到最后也没有人处理这个异常,返回0。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><img src="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/835440_CA2S8CBBYXKKJ7B.png" alt="avatar"></p>
+<h1 id="04-用户异常的分发"><a href="#04-用户异常的分发" class="headerlink" title="04.用户异常的分发"></a>04.用户异常的分发</h1><ol>
+<li><p>异常如果发生在内核层，处理起来比较简单，因为异常处理函数也在0环，不用切换堆栈，但是如果异常发生在3环，就意味着必须要切换堆栈，回到3环执行处理函数</p>
+</li>
+<li><p>切换堆栈的处理方式与用户APC的执行过程几乎是一样的，惟一的区别就是执行用户APC时返回3环后执行的函数是<code>KiUserApcDispatcher</code>，而异常处理时返回3环后执行的函数是<code>KiUserExceptionDispatcher</code></p>
+</li>
+<li><p>理解用户APC的执行过程是理解3环异常处理的关键</p>
+</li>
+</ol>
+<p>用户异常处理流程：</p>
+<ol>
+<li>KeContextFromKframes将Trap_frame备份到 context 为返回3环做准备</li>
+<li>判断先前模式0是内核调用1是用户层调</li>
+<li>是否是第一次机会</li>
+<li>是否有内核调试器</li>
+<li>发送给3环调试</li>
+<li>如果3环调试器没有处理这个异常,把异常数据填充到用户栈。</li>
+<li>修正EIP为<code>KiUserExceptionDispatcher</code>。这个函数是<code>ntdll</code>的</li>
+</ol>
+<h3 id="KiDispatchException"><a href="#KiDispatchException" class="headerlink" title="KiDispatchException"></a>KiDispatchException</h3><p>前面的部分和内核异常处理流程一样，关键：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">.text:00440F9E loc_440F9E:                             ; CODE XREF: KiDispatchException(x,x,x,x,x)+9B↑j</span><br><span class="line">.text:00440F9E ; __unwind &#123; // __SEH_prolog            ; 判断是否是第一次</span><br><span class="line">.text:00440F9E                 cmp     byte ptr [ebp+CONTEXT.Dr7], 1</span><br><span class="line">.text:00440FA2                 jnz     loc_44B196</span><br><span class="line">.text:00440FA8                 cmp     ds:_KiDebugRoutine, edi ; 判断是否存在内核调试器</span><br><span class="line">.text:00440FAE                 jz      short loc_440FE6 ; 没有则跳转</span><br><span class="line">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span><br><span class="line">.text:00440FE6 loc_440FE6:                             ; CODE XREF: KiDispatchException(x,x,x,x,x)+EBCB↑j</span><br><span class="line">.text:00440FE6                                         ; KiDispatchException(x,x,x,x,x)+1C5B9↑j</span><br><span class="line">.text:00440FE6                 push    edi             ; 5)发送给3环调试</span><br><span class="line">.text:00440FE7                 push    1</span><br><span class="line">.text:00440FE9                 push    esi</span><br><span class="line">.text:00440FEA                 call    _DbgkForwardException@12 ; DbgkForwardException(ExceptionRecord,TRUE,FALSE);</span><br><span class="line">.text:00440FEA                                         ; 参数1:ExceptionRecord异常结构</span><br><span class="line">.text:00440FEA                                         ; 参数2:调试端口-TRUE，异常端口-FALSE</span><br><span class="line">.text:00440FEA                                         ; 参数3:是否是第二次机会(1/0)</span><br><span class="line">.text:00440FEF                 test    al, al</span><br><span class="line">.text:00440FF1                 jnz     loc_424AE4      ; 若存在三环调试器，并处理了该异常，跳转</span><br><span class="line">.text:00440FF7                 mov     [ebp+var_3A0], edi ; 若三环调试器没处理这个异常，则准备返回3环</span><br><span class="line">.text:00440FF7                                         ; 走到这一步说明即不存在0环调试器也不存在3环调试器</span><br><span class="line">.text:00440FF7                                         ; 为返回3环做准备(修改_ TRAP_ FRAME里各寄存器的值)</span><br><span class="line">........................</span><br><span class="line">;这里一堆为TRAP_FRAME结构体赋值，结束的地方：</span><br><span class="line">.........................</span><br><span class="line">.text:004410D3                 mov     [ebx+_KTRAP_FRAME.SegDs], ecx</span><br><span class="line">.text:004410D6                 mov     [ebx+_KTRAP_FRAME.SegEs], ecx</span><br><span class="line">.text:004410D9                 neg     al</span><br><span class="line">.text:004410DB                 sbb     eax, eax</span><br><span class="line">.text:004410DD                 and     eax, 3</span><br><span class="line">.text:004410E0                 add     eax, 38h ; &#x27;8&#x27;</span><br><span class="line">.text:004410E3                 mov     [ebx+_KTRAP_FRAME.SegFs], eax</span><br><span class="line">.text:004410E6                 and     [ebx+_KTRAP_FRAME.SegGs], 0</span><br><span class="line">.text:004410EA                 mov     eax, ds:_KeUserExceptionDispatcher</span><br><span class="line">.text:004410EF                 mov     [ebx+_KTRAP_FRAME._Eip], eax ; 最关键的修改:回到3环的什么地方</span><br><span class="line">.text:004410EF                                         ; 此时eax = KiUserExceptionDispatcher</span><br><span class="line">.text:004410EF                                         ; 改完之后，当前函数执行结束，CPU异常与模拟异常返回地点不同</span><br><span class="line">.text:004410F2                 or      [ebp+ms_exc.registration.TryLevel], 0FFFFFFFFh</span><br><span class="line">.text:004410F6                 jmp     loc_424AE4</span><br><span class="line">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span><br><span class="line">.text:00424AE4 loc_424AE4:                             ; CODE XREF: KiDispatchException(x,x,x,x,x)+1C5FC↓j</span><br><span class="line">.text:00424AE4                                         ; KiDispatchException(x,x,x,x,x)+1C701↓j ...</span><br><span class="line">.text:00424AE4                 mov     ecx, [ebp+var_1C]</span><br><span class="line">.text:00424AE7                 call    sub_403063</span><br><span class="line">.text:00424AEC                 call    __SEH_epilog</span><br><span class="line">.text:00424AF1                 retn    14h</span><br><span class="line">.text:00424AF1 ; &#125; // starts at 4249F5</span><br><span class="line">.text:00424AF1 _KiDispatchException@20 endp</span><br></pre></td></tr></table></figure>
+
+<p>KiDispatchException结束后返回KiRaiseException，之后继续返回NtRaiseException，然后调用KiServiceExit返回</p>
+<p>r3执行<code>_KeUserExceptionDispatcher</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.text:0040A20D                 call    _KiRaiseException@20 ; KiRaiseException(x,x,x,x,x)</span><br><span class="line">.text:0040A212                 pop     ebp</span><br><span class="line">.text:0040A213                 mov     esp, ebp</span><br><span class="line">.text:0040A215                 or      eax, eax</span><br><span class="line">.text:0040A217                 jz      _KiServiceExit2</span><br><span class="line">.text:0040A21D                 jmp     _KiServiceExit</span><br><span class="line">.text:0040A21D _NtRaiseException@12 endp</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>CPU异常与模拟异常返回地点不同</p>
+<blockquote>
+<p>CPU异常：<br>    CPU检测到异常<br>    →查IDT执行处理函数<br>    →CommonDispatchException<br>    →KiDispatchException通过<code>IRETD</code>返回3环<br>模拟异常：<br>    CxxThrowException<br>    →RaiseException<br>    →RtlRaiseException<br>    →NT!NtRaiseException<br>    →NT!KiRaiseException<br>    →KiDispatchException通过系统调用返回3环</p>
+</blockquote>
+<h1 id="05-VEH"><a href="#05-VEH" class="headerlink" title="05.VEH"></a>05.VEH</h1><ol>
+<li>当用户异常产生后，内核函数<code>KiDispatchException</code>并不是像处理内核异常那样在0环直接进行处理 ，而是修正3环EIP为<code>KiUserExceptionDispatcher</code>函数后就结束了</li>
+<li>当线程再次回到3环时，将会从<code>KiUserExceptionDispatcher</code>函数开始执行</li>
+</ol>
+<h2 id="处理流程"><a href="#处理流程" class="headerlink" title="处理流程"></a>处理流程</h2><ol>
+<li><code>CPU</code>捕获异常信息；</li>
+<li>通过<code>KiDispatchException</code>进行分发；</li>
+<li><code>KiUserExceptionDispatcher</code>调用<code>RtlDispatchException</code>；</li>
+<li><code>RtlDispatchException</code>查找<code>VEH</code>处理函数链表 并调用相关处理函数；</li>
+<li>代码返回到<code>KiUserExceptionDispatcher</code>；</li>
+<li>调用<code>ZwContinue</code>再次进入0环（<code>ZwContinue</code>调用<code>NtContinue</code>,主要作用就是恢复<code>_TRAP_FRAME</code>然后通过<code>KiServiceExit</code>返回到3环）；</li>
+<li>线程再次返回3环后，从修正后的位置开始执行；</li>
+</ol>
+<p>其中，RtlDispatchException是个库函数，内核调用与用户调用的是不一样的：</p>
+<p>ntoskrn：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">.text:004257D8                 mov     edi, edi</span><br><span class="line">.text:004257DA                 push    ebp</span><br><span class="line">.text:004257DB                 mov     ebp, esp</span><br><span class="line">.text:004257DD                 sub     esp, 64h</span><br><span class="line">.text:004257E0                 push    ebx</span><br><span class="line">.text:004257E1                 lea     eax, [ebp+HighLimit]</span><br><span class="line">.text:004257E4                 push    eax             ; HighLimit</span><br><span class="line">.text:004257E5                 lea     eax, [ebp+LowLimit]</span><br><span class="line">.text:004257E8                 push    eax             ; LowLimit</span><br><span class="line">.text:004257E9                 mov     [ebp+var_1], 0</span><br><span class="line">.text:004257ED                 call    _RtlpGetStackLimits@8 ; RtlpGetStackLimits(x,x)</span><br><span class="line">.text:004257F2                 call    _RtlpGetRegistrationHead@0 ; RtlpGetRegistrationHead()</span><br><span class="line">.text:004257F7                 and     [ebp+var_8], 0</span><br><span class="line">.text:004257FB                 mov     ebx, eax</span><br><span class="line">.text:004257FD                 cmp     ebx, 0FFFFFFFFh</span><br><span class="line">.text:00425800                 jz      loc_455060</span><br><span class="line">.text:00425806                 push    esi</span><br><span class="line">.text:00425807                 mov     esi, [ebp+ExceptionRecord]</span><br><span class="line">.text:0042580A                 push    edi</span><br></pre></td></tr></table></figure>
+
+<p>ntdll.dll中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">.text:7C94A950                 mov     edi, edi</span><br><span class="line">.text:7C94A952                 push    ebp</span><br><span class="line">.text:7C94A953                 mov     ebp, esp</span><br><span class="line">.text:7C94A955                 sub     esp, 64h</span><br><span class="line">.text:7C94A958                 push    esi</span><br><span class="line">.text:7C94A959                 push    [ebp+arg_4]</span><br><span class="line">.text:7C94A95C                 mov     esi, [ebp+arg_0]</span><br><span class="line">.text:7C94A95F                 push    esi</span><br><span class="line">.text:7C94A960                 mov     [ebp+var_1], 0</span><br><span class="line">.text:7C94A964                 call    _RtlCallVectoredExceptionHandlers@8 ; RtlCallVectoredExceptionHandlers(x,x)</span><br><span class="line">.text:7C94A969                 test    al, al</span><br><span class="line">.text:7C94A96B                 jnz     loc_7C96E2DA</span><br><span class="line">.text:7C94A971                 push    ebx</span><br><span class="line">.text:7C94A972                 lea     eax, [ebp+var_C]</span><br><span class="line">.text:7C94A975                 push    eax</span><br><span class="line">.text:7C94A976                 lea     eax, [ebp+var_8]</span><br><span class="line">.text:7C94A979                 push    eax</span><br><span class="line">.text:7C94A97A                 call    _RtlpGetStackLimits@8 ; RtlpGetStackLimits(x,x)</span><br><span class="line">.text:7C94A97F                 call    _RtlpGetRegistrationHead@0 ; RtlpGetRegistrationHead()</span><br><span class="line">.text:7C94A984                 and     [ebp+arg_0], 0</span><br><span class="line">.text:7C94A988                 mov     ebx, eax</span><br><span class="line">.text:7C94A98A                 cmp     ebx, 0FFFFFFFFh</span><br><span class="line">.text:7C94A98D                 jz      loc_7C94AA22</span><br><span class="line">.text:7C94A993                 push    edi</span><br></pre></td></tr></table></figure>
+
+<h2 id="RtlDispatchException"><a href="#RtlDispatchException" class="headerlink" title="RtlDispatchException"></a>RtlDispatchException</h2><p><code>ntdll.dll</code>中的<code>RtlDispatchException</code>调用了<code>_RtlCallVectoredExceptionHandlers</code></p>
+<h2 id="RtlCallVectoredExceptionHandlers"><a href="#RtlCallVectoredExceptionHandlers" class="headerlink" title="_RtlCallVectoredExceptionHandlers"></a>_RtlCallVectoredExceptionHandlers</h2><p><strong>作用</strong>：</p>
+<ol>
+<li>查找<strong>VEH</strong>链表(<strong>全局链表</strong>)，如果有则调用</li>
+<li>查找<strong>SEH</strong>链表(<strong>局部链表</strong>，在堆栈中)，如果有则调用</li>
+</ol>
+<h2 id="VEH"><a href="#VEH" class="headerlink" title="VEH"></a>VEH</h2><p>VEH(向量化异常处理)，这个是<code>XP</code>及其之后才有的。不同的线程共用一个。</p>
+<h3 id="自定义VEH"><a href="#自定义VEH" class="headerlink" title="自定义VEH"></a>自定义VEH</h3><p>示例代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="title function_">PVOID</span> <span class="params">(NTAPI *FnAddVectoredExceptionHandler)</span><span class="params">(ULONG, _EXCEPTION_POINTERS *)</span>;</span><br><span class="line">FnAddVectoredExceptionHandler MyAddVectoredExceptionHandler;</span><br><span class="line"></span><br><span class="line"><span class="comment">// VEH异常处理只能返回2个值</span></span><br><span class="line"><span class="comment">// EXCEPTION_CONTINUE_EXECUTION 已处理</span></span><br><span class="line"><span class="comment">// EXCEPTION_CONTINUE_SEARCH    未处理</span></span><br><span class="line"></span><br><span class="line">LONG NTAPI <span class="title function_">VectExcepHandler</span><span class="params">( PEXCEPTION_POINTERS pExcepInfo)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">// pExcepInfo-&gt;ContextRecord	保存进入异常处理前的线程信息</span></span><br><span class="line">	<span class="comment">// pExcepInfo-&gt;ExceptionRecord	保存异常信息</span></span><br><span class="line">	<span class="keyword">if</span>( pExcepInfo-&gt;ExceptionRecord-&gt;ExceptionCode == <span class="number">0xC0000094</span> )</span><br><span class="line">	&#123;</span><br><span class="line">		::MessageBoxA(<span class="literal">NULL</span>, <span class="string">&quot;VEH除0异常触发了&quot;</span>, <span class="string">&quot;VEH异常&quot;</span>, MB_OK);</span><br><span class="line">		<span class="comment">//修改完EIP之后并不是异常处理结束后直接返回，而是通过ZwContinue进行修正</span></span><br><span class="line">		pExcepInfo-&gt;ContextRecord-&gt;Eip = pExcepInfo-&gt;ContextRecord-&gt;Eip+<span class="number">2</span>;</span><br><span class="line">		<span class="comment">//pExcepInfo-&gt;ContextRecord-&gt;Ecx = 1;</span></span><br><span class="line">		<span class="keyword">return</span> EXCEPTION_CONTINUE_EXECUTION;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> EXCEPTION_CONTINUE_SEARCH;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//1. 动态获取AddVectoredExceptionHandler函数地址</span></span><br><span class="line">	HMODULE hMyModule = GetModuleHandle(<span class="string">&quot;kernel32.dll&quot;</span>);</span><br><span class="line">	MyAddVectoredExceptionHandler = (FnAddVectoredExceptionHandler)GetProcAddress(hMyModule, <span class="string">&quot;AddVectoredExceptionHandler&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//2. 参数1表示插入到VEH头部，0表示插入到VEH尾部</span></span><br><span class="line">	MyAddVectoredExceptionHandler(<span class="number">0</span>, (_EXCEPTION_POINTERS *)&amp;VectExcepHandler);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//3. 构造除0异常</span></span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		xor edx, edx</span><br><span class="line">		xor ecx, ecx</span><br><span class="line">		mov eax, <span class="number">0x10</span></span><br><span class="line">		idiv ecx		<span class="comment">//EDX:EAX 除以 ECX</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//4. 产生异常，从这里继续</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;代码从这里继续执行\n&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到：</p>
+<p><img src="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/image-20230225175242015.png" alt="image-20230225175242015"></p>
+<p><img src="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/image-20230225175253317.png" alt="image-20230225175253317"></p>
+<h1 id="06-SEH"><a href="#06-SEH" class="headerlink" title="06.SEH"></a>06.SEH</h1><p>SEH(结构化异常处理)</p>
+<p>KiUserExceptionDispatcher会调用RtIDispatchException函数来查找并调用异常处理函数,查找的顺序：</p>
+<ol>
+<li>先查局链表: VEH</li>
+<li>如果VEH没找到，再查局部链表: SEH</li>
+</ol>
+<p>fs寄存器：</p>
+<ul>
+<li>3环<code>fs[0]-&gt;TEB.+ 0x0 _NT_TIB</code></li>
+<li>0环<code>fs[0]-&gt;KPCR.+ 0x0 _NT_TIB</code></li>
+</ul>
+<p>SEH与VEH不同，VEH所有线程都能用的与线程无关，SEH哪个线程想用这个异常处理函数，就必须往自己的堆栈里压入<code>_EXCEPTION_REGISTRATION_RECORD</code>这种结构（你压入当前进程的A线程对B线程没有影响的），然后让fs[0]指向新构建的结构体，再给Handler提供异常处理函数。</p>
+<h2 id="KiUserExceptionDispatcher"><a href="#KiUserExceptionDispatcher" class="headerlink" title="KiUserExceptionDispatcher"></a>KiUserExceptionDispatcher</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">.text:7C94A950 _RtlDispatchException@8 proc near       ; CODE XREF: KiUserExceptionDispatcher(x,x)+9↑p</span><br><span class="line">......</span><br><span class="line">.text:7C94A964                 call    _RtlCallVectoredExceptionHandlers@8 ; </span><br><span class="line">.....</span><br><span class="line">.text:7C94A97A                 call    _RtlpGetStackLimits@8 ; 得到StackBase与StackLimit</span><br><span class="line">.text:7C94A97A                                         ; 用于校验找到的SEH结构体是否位于当前线程</span><br><span class="line">.text:7C94A97F                 call    _RtlpGetRegistrationHead@0 ; 获得链表头fs:[0]</span><br><span class="line">.....</span><br><span class="line">.text:7C94A9DE loc_7C94A9DE:                           ; CODE XREF: RtlDispatchException(x,x)+239A4↓j</span><br><span class="line">.text:7C94A9DE                 push    dword ptr [ebx+4]</span><br><span class="line">.text:7C94A9E1                 lea     eax, [ebp+var_14]</span><br><span class="line">.text:7C94A9E4                 push    eax</span><br><span class="line">.text:7C94A9E5                 push    [ebp+arg_4]</span><br><span class="line">.text:7C94A9E8                 push    ebx</span><br><span class="line">.text:7C94A9E9                 push    esi</span><br><span class="line">.text:7C94A9EA                 call    _RtlpExecuteHandlerForException@20 ; 这里真正调用了SEH异常处理</span><br><span class="line">.text:7C94A9EA                                         ; Handler必须遵守相关调用约定</span><br><span class="line">.text:7C94A9EF                 test    byte_7C99B3FA, 80h</span><br><span class="line">.text:7C94A9F6                 mov     edi, eax</span><br><span class="line">.text:7C94A9F8                 jnz     loc_7C96E2F9</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Handler结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">EXCEPTION_DISPOSITION __cdecl <span class="title function_">MyExceptionHandler</span><span class="params">(</span></span><br><span class="line"><span class="params">	<span class="keyword">struct</span> _EXCEPTION_RECORD *ExceptionRecord,	<span class="comment">//存储异常信息：类型、产生位置</span></span></span><br><span class="line"><span class="params">	<span class="type">void</span> * EstablisherFrame,					<span class="comment">//MyException结构体地址</span></span></span><br><span class="line"><span class="params">	<span class="keyword">struct</span> _CONTEXT *ContextRecord,				<span class="comment">//结构体，异常发生时各种寄存器的值，堆栈位置等</span></span></span><br><span class="line"><span class="params">	<span class="type">void</span> * Dispatchercontext</span></span><br><span class="line"><span class="params">)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="自定义SEH"><a href="#自定义SEH" class="headerlink" title="自定义SEH"></a>自定义SEH</h2><p>示例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">//0环异常处理时讲过这个结构体</span></span><br><span class="line"><span class="comment">typedef struct _EXCEPTION_REGISTRATION_RECORD</span></span><br><span class="line"><span class="comment">&#123;</span></span><br><span class="line"><span class="comment">	struct _EXCEPTION_REGISTRATION_RECORD *Next;</span></span><br><span class="line"><span class="comment">	PEXCEPtiON_ROUTINE Handler;</span></span><br><span class="line"><span class="comment">&#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//定义时结构体名字可以不同，但必须遵守这个格式</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">MyException</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">MyException</span> *<span class="title">prev</span>;</span></span><br><span class="line">	DWORD handler;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">EXCEPTION_DISPOSITION __cdecl <span class="title function_">MyExceptionHandler</span><span class="params">(</span></span><br><span class="line"><span class="params">	<span class="keyword">struct</span> _EXCEPTION_RECORD *ExceptionRecord,	<span class="comment">//存储异常信息：类型、产生位置</span></span></span><br><span class="line"><span class="params">	<span class="type">void</span> * EstablisherFrame,					<span class="comment">//MyException结构体地址</span></span></span><br><span class="line"><span class="params">	<span class="keyword">struct</span> _CONTEXT *ContextRecord,				<span class="comment">//结构体，异常发生时各种寄存器的值，堆栈位置等</span></span></span><br><span class="line"><span class="params">	<span class="type">void</span> * Dispatchercontext)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">if</span>( ExceptionRecord-&gt;ExceptionCode == <span class="number">0xC0000094</span> )</span><br><span class="line">	&#123;</span><br><span class="line">		MessageBoxA(<span class="literal">NULL</span>, <span class="string">&quot;SEH除0异常触发了&quot;</span>, <span class="string">&quot;SEH异常&quot;</span>, MB_OK);</span><br><span class="line">		ContextRecord-&gt;Eip = ContextRecord-&gt;Eip+<span class="number">2</span>;</span><br><span class="line">		<span class="comment">//pExcepInfo-&gt;ContextRecord-&gt;Ecx = 1;</span></span><br><span class="line">		<span class="keyword">return</span> ExceptionContinueExecution;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> ExceptionContinueSearch;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">TestException</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	DWORD temp;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//插入异常，必须在当前线程的堆栈当中</span></span><br><span class="line">	<span class="comment">//若定义成全局变量则无效</span></span><br><span class="line">	MyException myException;</span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		mov eax, FS:[<span class="number">0</span>]</span><br><span class="line">		mov temp, eax</span><br><span class="line">		lea ecx, myException</span><br><span class="line">		mov FS:[<span class="number">0</span>], ecx</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//原来的异常链表中也许有值，因此需要挂上</span></span><br><span class="line">	myException.prev = (MyException*)temp;</span><br><span class="line">	myException.handler = (DWORD)&amp;MyExceptionHandler;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//构造除0异常</span></span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		xor edx, edx</span><br><span class="line">		xor ecx, ecx</span><br><span class="line">		mov eax, <span class="number">0x10</span></span><br><span class="line">		idiv ecx		<span class="comment">//EDX:EAX 除以 ECX</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//处理完成，摘掉异常</span></span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		mov eax, temp</span><br><span class="line">		mov FS:[<span class="number">0</span>], eax</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;函数执行完毕\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	TestException();	</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<p><img src="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/image-20230225182333244.png" alt="image-20230225182333244"></p>
+<p><img src="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/image-20230225182342263.png" alt="image-20230225182342263"></p>
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>SEH异常处理流程</p>
+<ol>
+<li>FS:[0]指向SEH链表的第一个成员</li>
+<li>SEH的目标结构体必须在当前线程的堆栈中</li>
+<li>只有当VEH中的异常处理函数不存在或者不处理才会到SEH链表中查找</li>
+</ol>
+<h1 id="07-编译器扩展SEH"><a href="#07-编译器扩展SEH" class="headerlink" title="07.编译器扩展SEH"></a>07.编译器扩展SEH</h1><h2 id="编译器支持的SEH"><a href="#编译器支持的SEH" class="headerlink" title="编译器支持的SEH"></a>编译器支持的SEH</h2><p>语法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">_try				<span class="comment">//挂入链表</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//代码</span></span><br><span class="line">&#125;</span><br><span class="line">_except(过滤表达式)	<span class="comment">//异常过滤</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//异常处理程序	//异常处理</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>其中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">_try</span><br><span class="line"><span class="comment">//相当于</span></span><br><span class="line">__asm</span><br><span class="line">&#123;</span><br><span class="line">	mov eax, FS:[<span class="number">0</span>]</span><br><span class="line">	mov temp, eax</span><br><span class="line">	lea ecx, myException</span><br><span class="line">	mov FS:[<span class="number">0</span>], ecx</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/////////////////</span></span><br><span class="line">_except(过滤表达式)</span><br><span class="line"><span class="comment">//相当于</span></span><br><span class="line"><span class="keyword">if</span>( ExceptionRecord-&gt;ExceptionCode == <span class="number">0xC0000094</span> ) <span class="comment">//除0异常</span></span><br></pre></td></tr></table></figure>
+
+<p>过滤表达式有三个值：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. EXCEPTION_EXECUTE_HANDLER(1)		执行except代码</span><br><span class="line">2. EXCEPTION_CONTINUE_SEARCH(0)		不处理异常，寻找下一个异常处理函数</span><br><span class="line">3. EXCEPTION_CONTINUE_EXECUTION(-1)	返回出错位置重新执行</span><br></pre></td></tr></table></figure>
+
+<h2 id="拓展SEH结构体"><a href="#拓展SEH结构体" class="headerlink" title="拓展SEH结构体"></a>拓展SEH结构体</h2><p>当嵌套try-except的时候，还是挂一个，代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">TestException</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	_try</span><br><span class="line">	&#123;</span><br><span class="line">		_try</span><br><span class="line">		&#123;</span><br><span class="line">			</span><br><span class="line">		&#125;</span><br><span class="line">		_except(<span class="number">1</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	_except(<span class="number">1</span>)</span><br><span class="line">	&#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	_try</span><br><span class="line">	&#123;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	_except(<span class="number">1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	TestException();</span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>汇编：</p>
+<p>可以看到只改了一次fs:0</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">0040D810   push        ebp</span><br><span class="line">0040D811   mov         ebp,esp</span><br><span class="line">0040D813   push        0FFh</span><br><span class="line">0040D815   push        offset string &quot;\xb4\xfa\xc2\xeb\xb4\xd3\xd5\xe2\xc0\xef\xbc\xcc\xd0\xf8\xd6\xb4\xd0\xd0\</span><br><span class="line">0040D81A   push        offset __except_handler3 (00404300)</span><br><span class="line">0040D81F   mov         eax,fs:[00000000]</span><br><span class="line">0040D825   push        eax</span><br><span class="line">0040D826   mov         dword ptr fs:[0],esp</span><br><span class="line">0040D82D   add         esp,0FFFFFFB8h</span><br><span class="line">0040D830   push        ebx</span><br><span class="line">0040D831   push        esi</span><br><span class="line">0040D832   push        edi</span><br><span class="line">0040D833   mov         dword ptr [ebp-18h],esp</span><br><span class="line">0040D836   lea         edi,[ebp-58h]</span><br><span class="line">0040D839   mov         ecx,10h</span><br><span class="line">0040D83E   mov         eax,0CCCCCCCCh</span><br><span class="line">0040D843   rep stos    dword ptr [edi]</span><br></pre></td></tr></table></figure>
+
+<p>那边一起是怎么实现对所有异常进行处理的呢？扩展<code>_EXCEPTION_REGISTRATION_RECORD</code>结构体</p>
+<p>原本只有next和handler，现在扩展：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">EXCEPTION_REGISTRATION</span>&#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> _<span class="title">EXCEPTION_REGISTRATION</span> *<span class="title">prev</span>;</span></span><br><span class="line">	<span class="type">void</span> (*handler)(PEXCEPTION_RECORD, PEXCEPTION_REGISTRATION, PCONTEXT, PEXCEPTION_RECORD);</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">scopetable_entry</span> *<span class="title">scopetable</span>;</span></span><br><span class="line">	<span class="type">int</span> trylevel;</span><br><span class="line">	<span class="type">int</span> _ebp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一般情况下，当我们将代码分别编译为debug与release版本时，其汇编代码变化较大（release进行了优化），而当函数中存在<code>_try_except</code>这样的语法时，两者变化较小（保证异常处理语句的堆栈结构）</p>
+<h3 id="scopetable"><a href="#scopetable" class="headerlink" title="scopetable"></a>scopetable</h3><p><strong>描述</strong>：结构体指针，指向了一堆结构体数组</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">scopetable_entry</span>&#123;</span></span><br><span class="line">	DWORD	previousTryLevel	<span class="comment">//上一个try&#123;&#125;结构编号</span></span><br><span class="line">	PDWRD	lpfnFilter			<span class="comment">//过滤函数的起始地址</span></span><br><span class="line">	PDWRD	lpfnHandler			<span class="comment">//异常处理程序的地址</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">scopetable[0].previousTryLevel = -1;</span></span><br><span class="line"><span class="comment">scopetable[0].lpfnFilter = 过滤函数1;</span></span><br><span class="line"><span class="comment">scopetable[0].lpfnHandler = 异常处理函数1;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">scopetable[1].previousTryLevel = -1;</span></span><br><span class="line"><span class="comment">scopetable[1].lpfnFilter = 过滤函数2;</span></span><br><span class="line"><span class="comment">scopetable[1].lpfnHandler = 异常处理函数2;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">scopetable[2].previousTryLevel = 1;</span></span><br><span class="line"><span class="comment">scopetable[2].lpfnFilter = 过滤函数3;</span></span><br><span class="line"><span class="comment">scopetable[2].lpfnHandler = 异常处理函数3;</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<p>示例代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">ExceptFilter</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> EXCEPTION_CONTINUE_EXECUTION;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">TestException</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	_try</span><br><span class="line">	&#123;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	_except(EXCEPTION_EXECUTE_HANDLER)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;异常处理函数X\n&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	_try</span><br><span class="line">	&#123;</span><br><span class="line">		_try</span><br><span class="line">		&#123;</span><br><span class="line">			</span><br><span class="line">		&#125;</span><br><span class="line">		_except(GetExceptionCode() == <span class="number">0xC0000094</span>?EXCEPTION_EXECUTE_HANDLER:EXCEPTION_CONTINUE_SEARCH)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">&quot;异常处理函数Y\n&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	_except(ExceptFilter())</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;异常处理函数Z\n&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>汇编：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line">00401060   push        ebp</span><br><span class="line">00401061   mov         ebp,esp</span><br><span class="line">00401063   push        0FFh</span><br><span class="line">00401065   push        offset string &quot;\xd2\xec\xb3\xa3\xb4\xa6\xc0\xed\xba\xaf\xca\xfdX\n&quot;+14h (00423058)</span><br><span class="line">0040106A   push        offset __except_handler3 (004013e0)</span><br><span class="line">0040106F   mov         eax,fs:[00000000]</span><br><span class="line">00401075   push        eax</span><br><span class="line">00401076   mov         dword ptr fs:[0],esp</span><br><span class="line">0040107D   add         esp,0FFFFFFB4h</span><br><span class="line">00401080   push        ebx</span><br><span class="line">00401081   push        esi</span><br><span class="line">00401082   push        edi</span><br><span class="line">00401083   mov         dword ptr [ebp-18h],esp</span><br><span class="line">00401086   lea         edi,[ebp-5Ch]</span><br><span class="line">00401089   mov         ecx,11h</span><br><span class="line">0040108E   mov         eax,0CCCCCCCCh</span><br><span class="line">00401093   rep stos    dword ptr [edi]</span><br><span class="line">11:       _try</span><br><span class="line">00401095   mov         dword ptr [ebp-4],0</span><br><span class="line">12:       &#123;</span><br><span class="line">13:</span><br><span class="line">14:       &#125;</span><br><span class="line">0040109C   mov         dword ptr [ebp-4],0FFFFFFFFh</span><br><span class="line">004010A3   jmp         $L42284+17h (004010c2)</span><br><span class="line">15:       _except(EXCEPTION_EXECUTE_HANDLER)</span><br><span class="line">004010A5   mov         eax,1</span><br><span class="line">$L42285:</span><br><span class="line">004010AA   ret</span><br><span class="line">$L42284:</span><br><span class="line">004010AB   mov         esp,dword ptr [ebp-18h]</span><br><span class="line">16:       &#123;</span><br><span class="line">17:           printf(&quot;异常处理函数X\n&quot;);</span><br><span class="line">004010AE   push        offset string &quot;\xd2\xec\xb3\xa3\xb4\xa6\xc0\xed\xba\xaf\xca\xfdX\n&quot; (00423044)</span><br><span class="line">004010B3   call        printf (00401230)</span><br><span class="line">004010B8   add         esp,4</span><br><span class="line">18:       &#125;</span><br><span class="line">004010BB   mov         dword ptr [ebp-4],0FFFFFFFFh</span><br><span class="line">19:</span><br><span class="line">20:       _try</span><br><span class="line">004010C2   mov         dword ptr [ebp-4],1</span><br><span class="line">21:       &#123;</span><br><span class="line">22:           _try</span><br><span class="line">004010C9   mov         dword ptr [ebp-4],2</span><br><span class="line">23:           &#123;</span><br><span class="line">24:</span><br><span class="line">25:           &#125;</span><br><span class="line">004010D0   mov         dword ptr [ebp-4],1</span><br><span class="line">004010D7   jmp         $L42292+17h (0040110a)</span><br><span class="line">26:           _except(GetExceptionCode() == 0xC0000094?EXCEPTION_EXECUTE_HANDLER:EXCEPTION_CONTINUE_SEARCH)</span><br><span class="line">004010D9   mov         eax,dword ptr [ebp-14h]</span><br><span class="line">004010DC   mov         ecx,dword ptr [eax]</span><br><span class="line">004010DE   mov         edx,dword ptr [ecx]</span><br><span class="line">004010E0   mov         dword ptr [ebp-1Ch],edx</span><br><span class="line">004010E3   mov         eax,dword ptr [ebp-1Ch]</span><br><span class="line">004010E6   xor         ecx,ecx</span><br><span class="line">004010E8   cmp         eax,0C0000094h</span><br><span class="line">004010ED   sete        cl</span><br><span class="line">004010F0   mov         eax,ecx</span><br><span class="line">$L42293:</span><br><span class="line">004010F2   ret</span><br><span class="line">$L42292:</span><br><span class="line">004010F3   mov         esp,dword ptr [ebp-18h]</span><br><span class="line">27:           &#123;</span><br><span class="line">28:               printf(&quot;异常处理函数Y\n&quot;);</span><br><span class="line">004010F6   push        offset string &quot;\xd2\xec\xb3\xa3\xb4\xa6\xc0\xed\xba\xaf\xca\xfdY\n&quot; (00423030)</span><br><span class="line">004010FB   call        printf (00401230)</span><br><span class="line">00401100   add         esp,4</span><br><span class="line">29:           &#125;</span><br><span class="line">00401103   mov         dword ptr [ebp-4],1</span><br><span class="line">30:       &#125;</span><br><span class="line">0040110A   mov         dword ptr [ebp-4],0FFFFFFFFh</span><br><span class="line">00401111   jmp         $L42288+17h (00401130)</span><br><span class="line">31:       _except(ExceptFilter())</span><br><span class="line">00401113   call        @ILT+5(ExceptFilter) (0040100a)</span><br><span class="line">$L42289:</span><br><span class="line">00401118   ret</span><br><span class="line">$L42288:</span><br><span class="line">00401119   mov         esp,dword ptr [ebp-18h]</span><br><span class="line">32:       &#123;</span><br><span class="line">33:           printf(&quot;异常处理函数Z\n&quot;);</span><br><span class="line">0040111C   push        offset string &quot;\xd2\xec\xb3\xa3\xb4\xa6\xc0\xed\xba\xaf\xca\xfdZ\n&quot; (0042301c)</span><br><span class="line">00401121   call        printf (00401230)</span><br><span class="line">00401126   add         esp,4</span><br><span class="line">34:       &#125;</span><br><span class="line">00401129   mov         dword ptr [ebp-4],0FFFFFFFFh</span><br><span class="line">35:   &#125;</span><br><span class="line">00401130   mov         ecx,dword ptr [ebp-10h]</span><br><span class="line">00401133   mov         dword ptr fs:[0],ecx</span><br><span class="line">0040113A   pop         edi</span><br><span class="line">0040113B   pop         esi</span><br><span class="line">0040113C   pop         ebx</span><br><span class="line">0040113D   add         esp,5Ch</span><br><span class="line">00401140   cmp         ebp,esp</span><br><span class="line">00401142   call        __chkesp (004012b0)</span><br><span class="line">00401147   mov         esp,ebp</span><br><span class="line">00401149   pop         ebp</span><br><span class="line">0040114A   ret</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>内存</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">00423058</span> : FFFFFFFF <span class="comment">/*不存在上级异常处理*/</span> <span class="number">004010</span>A5  <span class="number">004010</span>AB  </span><br><span class="line"><span class="number">00423064</span> : FFFFFFFF <span class="comment">/*不存在上级异常处理*/</span> <span class="number">00401113</span>  <span class="number">00401119</span>  </span><br><span class="line"><span class="number">00423070</span> : <span class="number">00000001</span> <span class="comment">/*存在上级异常处理*/</span> <span class="number">004010</span>D9  <span class="number">004010F</span>3</span><br></pre></td></tr></table></figure>
+
+<p><strong>思考</strong>：如何判断当前需要调用第几个<code>scopetable_entry</code>？<br><strong>答案</strong>：根据trylevel的值进行判断</p>
+<h3 id="trylevel"><a href="#trylevel" class="headerlink" title="trylevel"></a>trylevel</h3><p>代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">ExceptFilter</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">return</span> EXCEPTION_CONTINUE_EXECUTION;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">TestException</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	_try</span><br><span class="line">	&#123;</span><br><span class="line">		_try</span><br><span class="line">		&#123;</span><br><span class="line">			</span><br><span class="line">		&#125;</span><br><span class="line">		_except(EXCEPTION_EXECUTE_HANDLER)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">&quot;异常处理函数\n&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	_except(EXCEPTION_EXECUTE_HANDLER)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;异常处理函数X\n&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	_try</span><br><span class="line">	&#123;</span><br><span class="line">		_try</span><br><span class="line">		&#123;</span><br><span class="line">			</span><br><span class="line">		&#125;</span><br><span class="line">		_except(GetExceptionCode() == <span class="number">0xC0000094</span>?EXCEPTION_EXECUTE_HANDLER:EXCEPTION_CONTINUE_SEARCH)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">&quot;异常处理函数Y\n&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	_except(ExceptFilter())</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;异常处理函数Z\n&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>汇编：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br></pre></td><td class="code"><pre><span class="line">9:    void TestException()</span><br><span class="line">10:   &#123;</span><br><span class="line">00401050   push        ebp</span><br><span class="line">00401051   mov         ebp,esp</span><br><span class="line">00401053   push        0FFh		//trylevel，初始值为-1，位于[ebp-4]</span><br><span class="line">00401055   push        offset string &quot;\xd2\xec\xb3\xa3\xb4\xa6\xc0\xed\xba\xaf\xca\xfd\n&quot;+10h (00423018)</span><br><span class="line">0040105A   push        offset __except_handler3 (0040127c)</span><br><span class="line">0040105F   mov         eax,fs:[00000000]</span><br><span class="line">00401065   push        eax</span><br><span class="line">00401066   mov         dword ptr fs:[0],esp</span><br><span class="line">0040106D   add         esp,0FFFFFFB4h</span><br><span class="line">00401070   push        ebx</span><br><span class="line">00401071   push        esi</span><br><span class="line">00401072   push        edi</span><br><span class="line">00401073   mov         dword ptr [ebp-18h],esp</span><br><span class="line">00401076   lea         edi,[ebp-5Ch]</span><br><span class="line">00401079   mov         ecx,11h</span><br><span class="line">0040107E   mov         eax,0CCCCCCCCh</span><br><span class="line">00401083   rep stos    dword ptr [edi]</span><br><span class="line">11:       _try</span><br><span class="line">00401085   mov         dword ptr [ebp-4],0	//修改trylevel为0</span><br><span class="line">12:       &#123;</span><br><span class="line">13:           _try</span><br><span class="line">0040108C   mov         dword ptr [ebp-4],1	//修改trylevel为1</span><br><span class="line">14:           &#123;</span><br><span class="line">15:</span><br><span class="line">16:           &#125;</span><br><span class="line">00401093   mov         dword ptr [ebp-4],0	//恢复到0</span><br><span class="line">0040109A   jmp         $L53982+17h (004010b9)</span><br><span class="line">17:           _except(EXCEPTION_EXECUTE_HANDLER)</span><br><span class="line">0040109C   mov         eax,1</span><br><span class="line">$L53983:</span><br><span class="line">004010A1   ret</span><br><span class="line">$L53982:</span><br><span class="line">004010A2   mov         esp,dword ptr [ebp-18h]</span><br><span class="line">18:           &#123;</span><br><span class="line">19:               printf(&quot;异常处理函数\n&quot;);</span><br><span class="line">004010A5   push        offset string &quot;\xd2\xec\xb3\xa3\xb4\xa6\xc0\xed\xba\xaf\xca\xfd\n&quot; (00423008)</span><br><span class="line">004010AA   call        printf (0040de70)</span><br><span class="line">004010AF   add         esp,4</span><br><span class="line">20:           &#125;</span><br><span class="line">004010B2   mov         dword ptr [ebp-4],0	//恢复到0</span><br><span class="line">21:       &#125;</span><br><span class="line">004010B9   mov         dword ptr [ebp-4],0FFFFFFFFh</span><br><span class="line">004010C0   jmp         $L53978+17h (004010df)</span><br><span class="line">22:       _except(EXCEPTION_EXECUTE_HANDLER)</span><br><span class="line">004010C2   mov         eax,1</span><br><span class="line">$L53979:</span><br><span class="line">004010C7   ret</span><br><span class="line">$L53978:</span><br><span class="line">004010C8   mov         esp,dword ptr [ebp-18h]</span><br><span class="line">23:       &#123;</span><br><span class="line">24:           printf(&quot;异常处理函数X\n&quot;);</span><br><span class="line">004010CB   push        offset string &quot;\xd2\xec\xb3\xa3\xb4\xa6\xc0\xed\xba\xaf\xca\xfdX\n&quot; (00422fc8)</span><br><span class="line">004010D0   call        printf (0040de70)</span><br><span class="line">004010D5   add         esp,4</span><br><span class="line">25:       &#125;</span><br><span class="line">004010D8   mov         dword ptr [ebp-4],0FFFFFFFFh	//恢复到-1</span><br><span class="line">26:</span><br><span class="line">27:       _try</span><br><span class="line">004010DF   mov         dword ptr [ebp-4],2	//修改trylevel为2</span><br><span class="line">28:       &#123;</span><br><span class="line">29:           _try</span><br><span class="line">004010E6   mov         dword ptr [ebp-4],3	//修改trylevel为3</span><br><span class="line">30:           &#123;</span><br><span class="line">31:</span><br><span class="line">32:           &#125;</span><br><span class="line">004010ED   mov         dword ptr [ebp-4],2	//恢复到2</span><br><span class="line">004010F4   jmp         $L53990+17h (00401127)</span><br><span class="line">33:           _except(GetExceptionCode() == 0xC0000094?EXCEPTION_EXECUTE_HANDLER:EXCEPTION_CONTINUE_SEARCH)</span><br><span class="line">004010F6   mov         eax,dword ptr [ebp-14h]</span><br><span class="line">004010F9   mov         ecx,dword ptr [eax]</span><br><span class="line">004010FB   mov         edx,dword ptr [ecx]</span><br><span class="line">004010FD   mov         dword ptr [ebp-1Ch],edx</span><br><span class="line">00401100   mov         eax,dword ptr [ebp-1Ch]</span><br><span class="line">00401103   xor         ecx,ecx</span><br><span class="line">00401105   cmp         eax,0C0000094h</span><br><span class="line">0040110A   sete        cl</span><br><span class="line">0040110D   mov         eax,ecx</span><br><span class="line">$L53991:</span><br><span class="line">0040110F   ret</span><br><span class="line">$L53990:</span><br><span class="line">00401110   mov         esp,dword ptr [ebp-18h]</span><br><span class="line">34:           &#123;</span><br><span class="line">35:               printf(&quot;异常处理函数Y\n&quot;);</span><br><span class="line">00401113   push        offset string &quot;\xd2\xec\xb3\xa3\xb4\xa6\xc0\xed\xba\xaf\xca\xfdY\n&quot; (00422fb8)</span><br><span class="line">00401118   call        printf (0040de70)</span><br><span class="line">0040111D   add         esp,4</span><br><span class="line">36:           &#125;</span><br><span class="line">00401120   mov         dword ptr [ebp-4],2	//恢复到2</span><br><span class="line">37:       &#125;</span><br><span class="line">00401127   mov         dword ptr [ebp-4],0FFFFFFFFh	//恢复到-1</span><br><span class="line">0040112E   jmp         $L53986+17h (0040114d)</span><br><span class="line">38:       _except(ExceptFilter())</span><br><span class="line">00401130   call        @ILT+10(ExceptFilter) (0040100f)</span><br><span class="line">$L53987:</span><br><span class="line">00401135   ret</span><br><span class="line">$L53986:</span><br><span class="line">00401136   mov         esp,dword ptr [ebp-18h]</span><br><span class="line">39:       &#123;</span><br><span class="line">40:           printf(&quot;异常处理函数Z\n&quot;);</span><br><span class="line">00401139   push        offset string &quot;\xd2\xec\xb3\xa3\xb4\xa6\xc0\xed\xba\xaf\xca\xfdZ\n&quot; (00422fa8)</span><br><span class="line">0040113E   call        printf (0040de70)</span><br><span class="line">00401143   add         esp,4</span><br><span class="line">41:       &#125;</span><br><span class="line">00401146   mov         dword ptr [ebp-4],0FFFFFFFFh	//恢复到-1</span><br><span class="line">42:   &#125;</span><br><span class="line">0040114D   mov         ecx,dword ptr [ebp-10h]</span><br><span class="line">00401150   mov         dword ptr fs:[0],ecx</span><br><span class="line">00401157   pop         edi</span><br><span class="line">00401158   pop         esi</span><br><span class="line">00401159   pop         ebx</span><br><span class="line">0040115A   add         esp,5Ch</span><br><span class="line">0040115D   cmp         ebp,esp</span><br><span class="line">0040115F   call        __chkesp (00401690)</span><br><span class="line">00401164   mov         esp,ebp</span><br><span class="line">00401166   pop         ebp</span><br><span class="line">00401167   ret</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="except-handler3执行过程"><a href="#except-handler3执行过程" class="headerlink" title="_except_handler3执行过程"></a>_except_handler3执行过程</h3><ol>
+<li><p>根据<strong>trylevel</strong>选择<strong>scopetable</strong>数组</p>
+</li>
+<li><p>调用<strong>scopetable</strong>数组中对应的<strong>lpfnFilter</strong>函数</p>
+</li>
+<li><p>如果<strong>lpfnFilter</strong>函数<strong>返回0</strong>，向上遍历，直到<strong>previousTryLevel = -1</strong></p>
+</li>
+</ol>
+<h2 id="try-finally"><a href="#try-finally" class="headerlink" title="__try__finally"></a>__try__finally</h2><p>示例代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">TestException</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>; i&lt;<span class="number">10</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		__try</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="comment">//continue;</span></span><br><span class="line">			<span class="comment">//break;</span></span><br><span class="line">			<span class="comment">//return;</span></span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">&quot;其他代码\n&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		__finally</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">&quot;一定会执行的代码\n&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以把上面三个注释逐次删掉运行试试</p>
+<h1 id="08-未处理异常"><a href="#08-未处理异常" class="headerlink" title="08.未处理异常"></a>08.未处理异常</h1><p>windows异常处理流程：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">CPU检测到异常</span><br><span class="line">↓</span><br><span class="line">查IDT表执行中断处理函数</span><br><span class="line">↓</span><br><span class="line">CommonDispatchException		<span class="comment">//存储异常相关信息</span></span><br><span class="line">↓</span><br><span class="line">KiDispatchException			<span class="comment">//异常分发处理函数，查找由哪一个处理程序处理这个异常</span></span><br><span class="line">							<span class="comment">//判断0环异常还是3环异常</span></span><br><span class="line">							<span class="comment">//若为3环，修正EIP，指向KiUserExceptionDispatcher（ntdll.dll）</span></span><br><span class="line">↓</span><br><span class="line">KiUserExceptionDispatcher	<span class="comment">//通过RtlDispatchException查找异常处理函数位置，VEH/SEH</span></span><br><span class="line">↓</span><br><span class="line">RtlDispatchException		<span class="comment">//先查找VEH，若找不到，查找SEH（从FS:[0]开始遍历）</span></span><br><span class="line">↓</span><br><span class="line">VEH</span><br><span class="line">↓</span><br><span class="line">SEH</span><br></pre></td></tr></table></figure>
+
+<p>一般来说，不存在SEH中也没有能处理当前程的序异常</p>
+<h2 id="入口程序的最后一道防线"><a href="#入口程序的最后一道防线" class="headerlink" title="入口程序的最后一道防线"></a>入口程序的最后一道防线</h2><p>main的上面还有其他函数调用它：</p>
+<p><img src="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/image-20230225191306047.png" alt="image-20230225191306047"></p>
+<p><img src="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/image-20230225191407445.png" alt="image-20230225191407445"></p>
+<p>ida中搜<code>BaseProcessStart</code>就能找到对应上面的代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">.text:7C817054 ; __unwind &#123; // __SEH_prolog</span><br><span class="line">.text:7C817054                 push    0Ch</span><br><span class="line">.text:7C817056                 push    offset stru_7C817080</span><br><span class="line">.text:7C81705B                 call    __SEH_prolog;注册了一个异常处理程序</span><br><span class="line">.text:7C817060 ;   __try &#123; // __except at loc_7C843900</span><br><span class="line">.text:7C817060                 and     [ebp+ms_exc.registration.TryLevel], 0</span><br><span class="line">.text:7C817064                 push    4               ; ThreadInformationLength</span><br><span class="line">.text:7C817066                 lea     eax, [ebp+ThreadInformation]</span><br><span class="line">.text:7C817069                 push    eax             ; ThreadInformation</span><br><span class="line">.text:7C81706A                 push    9               ; ThreadInformationClass</span><br><span class="line">.text:7C81706C                 push    0FFFFFFFEh      ; ThreadHandle</span><br><span class="line">.text:7C81706E                 call    ds:__imp__NtSetInformationThread@16 ; NtSetInformationThread(x,x,x,x)</span><br><span class="line">.text:7C817074                 call    [ebp+ThreadInformation]</span><br><span class="line">.text:7C817077                 push    eax             ; dwExitCode</span><br><span class="line">.text:7C817078</span><br><span class="line">.text:7C817078 loc_7C817078:                           ; CODE XREF: BaseProcessStart(x)+2C8B9↓j</span><br><span class="line">.text:7C817078                 call    _ExitThread@4   ; ExitThread(x)</span><br><span class="line">.text:7C817078 ;   &#125; // starts at 7C817060</span><br><span class="line">.text:7C817078 ; &#125; // starts at 7C817054</span><br><span class="line">.text:7C817078 _BaseProcessStart@4 endp</span><br><span class="line">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span><br><span class="line">.text:7C8024D6 __SEH_prolog    proc near               ; CODE XREF: DeviceIoControl(x,x,x,x,x,x,x,x)+7↑p</span><br><span class="line">.text:7C8024D6                                         ; ReadFile(x,x,x,x,x)+7↑p ...</span><br><span class="line">.text:7C8024D6</span><br><span class="line">.text:7C8024D6 arg_4           = dword ptr  8</span><br><span class="line">.text:7C8024D6</span><br><span class="line">.text:7C8024D6                 push    offset __except_handler3</span><br><span class="line">.text:7C8024DB                 mov     eax, large fs:0</span><br><span class="line">.text:7C8024E1                 push    eax</span><br><span class="line">.text:7C8024E2                 mov     eax, [esp+8+arg_4]</span><br><span class="line">.text:7C8024E6                 mov     [esp+8+arg_4], ebp</span><br><span class="line">.text:7C8024EA                 lea     ebp, [esp+8+arg_4]</span><br><span class="line">.text:7C8024EE                 sub     esp, eax</span><br><span class="line">.text:7C8024F0                 push    ebx</span><br><span class="line">.text:7C8024F1                 push    esi</span><br><span class="line">.text:7C8024F2                 push    edi</span><br><span class="line">.text:7C8024F3                 mov     eax, [ebp-8]</span><br><span class="line">.text:7C8024F6                 mov     [ebp-18h], esp</span><br><span class="line">.text:7C8024F9                 push    eax</span><br><span class="line">.text:7C8024FA                 mov     eax, [ebp-4]</span><br><span class="line">.text:7C8024FD                 mov     dword ptr [ebp-4], 0FFFFFFFFh</span><br><span class="line">.text:7C802504                 mov     [ebp-8], eax</span><br><span class="line">.text:7C802507                 lea     eax, [ebp-10h]</span><br><span class="line">.text:7C80250A                 mov     large fs:0, eax</span><br><span class="line">.text:7C802510                 retn</span><br><span class="line">.text:7C802510 __SEH_prolog    endp</span><br></pre></td></tr></table></figure>
+
+<p>kernel32：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">7C817054   push        0Ch</span><br><span class="line">7C817056   push        7C817080h</span><br><span class="line">7C81705B   call        7C8024D6;在堆栈中注册了一个异常处理程序</span><br><span class="line">7C817060   and         dword ptr [ebp-4],0</span><br><span class="line">7C817064   push        4</span><br><span class="line">7C817066   lea         eax,[ebp+8]</span><br><span class="line">7C817069   push        eax</span><br><span class="line">7C81706A   push        9</span><br><span class="line">7C81706C   push        0FEh</span><br><span class="line">7C81706E   call        dword ptr ds:[7C8013B0h]</span><br><span class="line">7C817074   call        dword ptr [ebp+8];这里是mainCRTStartup</span><br><span class="line">7C817077   push        eax</span><br><span class="line">7C817078   call        7C80C0F8</span><br></pre></td></tr></table></figure>
+
+<p>ctrl+G查看<code>7C8024D6</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">7C8024D6   push        7C839AD8h</span><br><span class="line">7C8024DB   mov         eax,fs:[00000000]</span><br><span class="line">7C8024E1   push        eax</span><br><span class="line">7C8024E2   mov         eax,dword ptr [esp+10h]</span><br><span class="line">7C8024E6   mov         dword ptr [esp+10h],ebp</span><br><span class="line">7C8024EA   lea         ebp,[esp+10h]</span><br><span class="line">7C8024EE   sub         esp,eax</span><br><span class="line">7C8024F0   push        ebx</span><br><span class="line">7C8024F1   push        esi</span><br><span class="line">7C8024F2   push        edi</span><br><span class="line">7C8024F3   mov         eax,dword ptr [ebp-8]</span><br><span class="line">7C8024F6   mov         dword ptr [ebp-18h],esp</span><br><span class="line">7C8024F9   push        eax</span><br><span class="line">7C8024FA   mov         eax,dword ptr [ebp-4]</span><br><span class="line">7C8024FD   mov         dword ptr [ebp-4],0FFFFFFFFh</span><br><span class="line">7C802504   mov         dword ptr [ebp-8],eax</span><br><span class="line">7C802507   lea         eax,[ebp-10h]</span><br><span class="line">7C80250A   mov         fs:[00000000],eax</span><br><span class="line">7C802510   ret</span><br></pre></td></tr></table></figure>
+
+<h2 id="新线程的最后一道防线"><a href="#新线程的最后一道防线" class="headerlink" title="新线程的最后一道防线"></a>新线程的最后一道防线</h2><p>示例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">DWORD WINAPI <span class="title function_">ThreadProc</span><span class="params">(LPVOID lpParam)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> x = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	CreateThread(<span class="literal">NULL</span>, <span class="number">0</span>, ThreadProc, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="literal">NULL</span>);</span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到也不是从提供的线程函数开始运行的，还是kernel32的一个位置：</p>
+<p><img src="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/image-20230225192811099.png" alt="image-20230225192811099"></p>
+<p>kernel32的代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">7C80B6F2   push        10h</span><br><span class="line">7C80B6F4   push        7C80B730h</span><br><span class="line">7C80B6F9   call        7C8024D6</span><br><span class="line">7C80B6FE   and         dword ptr [ebp-4],0</span><br><span class="line">7C80B702   mov         eax,fs:[00000018]</span><br><span class="line">7C80B708   mov         dword ptr [ebp-20h],eax</span><br><span class="line">7C80B70B   cmp         dword ptr [eax+10h],1E00h</span><br><span class="line">7C80B712   jne         7C80B723</span><br><span class="line">7C80B714   cmp         byte ptr ds:[7C885008h],0</span><br><span class="line">7C80B71B   jne         7C80B723</span><br><span class="line">7C80B71D   call        dword ptr ds:[7C8012F8h]</span><br><span class="line">7C80B723   push        dword ptr [ebp+0Ch]</span><br><span class="line">7C80B726   call        dword ptr [ebp+8]</span><br><span class="line">7C80B729   push        eax</span><br><span class="line">7C80B72A   call        7C80C0F8</span><br></pre></td></tr></table></figure>
+
+<p>在地址<code>7C80B6F9</code>处也调用了地址<code>7C8024D6</code>的代码（**__SEH_prolog**），注册了异常处理函数</p>
+<h2 id="UnhandledExceptionFilter"><a href="#UnhandledExceptionFilter" class="headerlink" title="UnhandledExceptionFilter"></a>UnhandledExceptionFilter</h2><p>可以理解为线程开始的时候都加了：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">__try</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">__except(UnhandledExceptionFilter(GetExceptionInformation())</span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//终止线程</span></span><br><span class="line">	<span class="comment">//终止进程</span></span><br><span class="line">&#125;</span><br><span class="line">如果UnhandledExceptionFilter(GetExceptionlnformation()</span><br><span class="line">返回<span class="number">0</span>那就是真正找不到对应的异常处理程序了，</span><br><span class="line">但这中情况如果你的程序在没有被 调试 的情况下是不会发生的</span><br><span class="line">只有程序被调试时，才会存在未处理异常</span><br></pre></td></tr></table></figure>
+
+<p><strong>描述</strong>：</p>
+<ol>
+<li>最后一道防线调用的异常处理程序的过滤函数</li>
+<li>只有当它的返回值为<strong>EXCEPTION_CONTINUE_SEARCH</strong>(0)时，当前线程不存在对应的SEH</li>
+<li>只有在当前程序处于调试状态时，才会发生上述情况</li>
+</ol>
+<p>执行流程：</p>
+<p>通过<code>NtQueryInformationProcess</code>查询当前进程是否正在被调试，如果是，返回<code>EXCEPTION_CONTINUE_SEARCH</code>，此时会进入第二轮分发<br>如果没有被调试：</p>
+<ol>
+<li><p>查询是否通过<code>SetUnhandledExceptionFilter</code>注册处理函数 如果有就调用</p>
+</li>
+<li><p>如果没有通过<code>SetUnhandledExceptionFilter</code>注册处理函数，弹出窗口，让用户选择终止程序还是启动即时调试器</p>
+</li>
+<li><p>如果用户没有启用即时调试器，那么该函数返回<code>EXCEPTION_EXECUTE_HANDLER</code>，此时会执行except中的代码</p>
+</li>
+</ol>
+<p>示例代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">long</span> __stdcall <span class="title function_">callback</span><span class="params">(_EXCEPTION_POINTERS *excp)</span></span><br><span class="line">&#123;</span><br><span class="line">	excp-&gt;ContextRecord-&gt;Ecx = <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">return</span> EXCEPTION_CONTINUE_EXECUTION;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	SetUnhandledExceptionFilter(callback);</span><br><span class="line"></span><br><span class="line">	__asm</span><br><span class="line">	&#123;</span><br><span class="line">		xor edx, edx</span><br><span class="line">		xor ecx, ecx</span><br><span class="line">		mov eax, <span class="number">0x10</span></span><br><span class="line">		idiv ecx</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;程序正常执行\n&quot;</span>);</span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="未处理异常"><a href="#未处理异常" class="headerlink" title="未处理异常"></a>未处理异常</h2><p>执行流程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">KiUserExceptionDispatcher</span><br><span class="line">↓</span><br><span class="line">RtlDispatchException			//查找并执行异常处理函数</span><br><span class="line">								//如果返回真,调用ZwContinue再次进入0环</span><br><span class="line">								//但线程再次返回3环时，会从修正后的位置开始执行</span><br><span class="line">							</span><br><span class="line">								//如果返回假,调用ZwRaiseException进行第二轮异常分发</span><br><span class="line">								//(参见KiUserExceptionDispatcher代码)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><code>KiUserExceptionDispatcher</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">.text:7C92E45C ; __stdcall KiUserExceptionDispatcher(x, x)</span><br><span class="line">.text:7C92E45C                 public _KiUserExceptionDispatcher@8</span><br><span class="line">.text:7C92E45C _KiUserExceptionDispatcher@8 proc near  ; DATA XREF: .text:off_7C923428↑o</span><br><span class="line">.text:7C92E45C</span><br><span class="line">.text:7C92E45C var_C           = dword ptr -0Ch</span><br><span class="line">.text:7C92E45C var_8           = dword ptr -8</span><br><span class="line">.text:7C92E45C var_4           = dword ptr -4</span><br><span class="line">.text:7C92E45C arg_0           = dword ptr  4</span><br><span class="line">.text:7C92E45C</span><br><span class="line">.text:7C92E45C                 mov     ecx, [esp+arg_0]</span><br><span class="line">.text:7C92E460                 mov     ebx, [esp+0]</span><br><span class="line">.text:7C92E463                 push    ecx</span><br><span class="line">.text:7C92E464                 push    ebx</span><br><span class="line">.text:7C92E465                 call    _RtlDispatchException@8 ; RtlDispatchException(x,x)</span><br><span class="line">.text:7C92E46A                 or      al, al</span><br><span class="line">.text:7C92E46C                 jz      short loc_7C92E47A</span><br><span class="line">.text:7C92E46E                 pop     ebx</span><br><span class="line">.text:7C92E46F                 pop     ecx</span><br><span class="line">.text:7C92E470                 push    0</span><br><span class="line">.text:7C92E472                 push    ecx</span><br><span class="line">.text:7C92E473                 call    _ZwContinue@8   ; ZwContinue(x,x)</span><br><span class="line">.text:7C92E478                 jmp     short loc_7C92E485</span><br><span class="line">.text:7C92E47A ; ---------------------------------------------------------------------------</span><br><span class="line">.text:7C92E47A</span><br><span class="line">.text:7C92E47A loc_7C92E47A:                           ; CODE XREF: KiUserExceptionDispatcher(x,x)+10↑j</span><br><span class="line">.text:7C92E47A                 pop     ebx</span><br><span class="line">.text:7C92E47B                 pop     ecx</span><br><span class="line">.text:7C92E47C                 push    0;第一次调用为1，第二次调用为0</span><br><span class="line">.text:7C92E47E                 push    ecx</span><br><span class="line">.text:7C92E47F                 push    ebx</span><br><span class="line">.text:7C92E480                 call    _ZwRaiseException@12 ; 进入二次分发</span><br></pre></td></tr></table></figure>
+
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2023/02/26/2023-2-WinKernelAPC/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2023-03-02 00:00:00
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="Categories"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/Technology/" title="Technology">
+                        <b>#</b> Technology
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/Win32/" title="Win32">
+                        #Win32
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2023/03/05/2023-3-WinKernel%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#01-CPU%E5%BC%82%E5%B8%B8%E8%AE%B0%E5%BD%95"><span class="toc-text">01.CPU异常记录</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-text">异常处理流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#KiTrap00"><span class="toc-text">_KiTrap00</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CommonDispatchException"><span class="toc-text">CommonDispatchException</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#02-%E6%A8%A1%E6%8B%9F%E5%BC%82%E5%B8%B8%E8%AE%B0%E5%BD%95"><span class="toc-text">02.模拟异常记录</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E6%A8%A1%E6%8B%9F%E5%BC%82%E5%B8%B8"><span class="toc-text">分析模拟异常</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU%E5%BC%82%E5%B8%B8%E5%92%8C%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9F%E5%BC%82%E5%B8%B8%E6%B5%81%E7%A8%8B"><span class="toc-text">CPU异常和软件模拟异常流程</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#03-%E5%86%85%E6%A0%B8%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-text">03.内核异常处理流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#KiDispatchException%E5%88%86%E6%9E%90"><span class="toc-text">KiDispatchException分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RtlDispatchException%E5%88%86%E6%9E%90"><span class="toc-text">RtlDispatchException分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#04-%E7%94%A8%E6%88%B7%E5%BC%82%E5%B8%B8%E7%9A%84%E5%88%86%E5%8F%91"><span class="toc-text">04.用户异常的分发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#KiDispatchException"><span class="toc-text">KiDispatchException</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#05-VEH"><span class="toc-text">05.VEH</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-text">处理流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RtlDispatchException"><span class="toc-text">RtlDispatchException</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RtlCallVectoredExceptionHandlers"><span class="toc-text">_RtlCallVectoredExceptionHandlers</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VEH"><span class="toc-text">VEH</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89VEH"><span class="toc-text">自定义VEH</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#06-SEH"><span class="toc-text">06.SEH</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#KiUserExceptionDispatcher"><span class="toc-text">KiUserExceptionDispatcher</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89SEH"><span class="toc-text">自定义SEH</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#07-%E7%BC%96%E8%AF%91%E5%99%A8%E6%89%A9%E5%B1%95SEH"><span class="toc-text">07.编译器扩展SEH</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E5%99%A8%E6%94%AF%E6%8C%81%E7%9A%84SEH"><span class="toc-text">编译器支持的SEH</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8B%93%E5%B1%95SEH%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-text">拓展SEH结构体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#scopetable"><span class="toc-text">scopetable</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#trylevel"><span class="toc-text">trylevel</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#except-handler3%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="toc-text">_except_handler3执行过程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#try-finally"><span class="toc-text">__try__finally</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#08-%E6%9C%AA%E5%A4%84%E7%90%86%E5%BC%82%E5%B8%B8"><span class="toc-text">08.未处理异常</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A5%E5%8F%A3%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%9C%80%E5%90%8E%E4%B8%80%E9%81%93%E9%98%B2%E7%BA%BF"><span class="toc-text">入口程序的最后一道防线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B0%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%9C%80%E5%90%8E%E4%B8%80%E9%81%93%E9%98%B2%E7%BA%BF"><span class="toc-text">新线程的最后一道防线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#UnhandledExceptionFilter"><span class="toc-text">UnhandledExceptionFilter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AA%E5%A4%84%E7%90%86%E5%BC%82%E5%B8%B8"><span class="toc-text">未处理异常</span></a></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/Ghostasky">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/ghostasky">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/Ghostasky">怕什么真理无穷，进一寸有进一寸的欢喜。</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Windows%E5%86%85%E6%A0%B8(%E5%85%AB)%E2%80%94%E2%80%94%E5%BC%82%E5%B8%B8 + '&url=' + https%3A%2F%2Fghostasky.github.io%2F2023%2F03%2F02%2F2023-3-WinKernel%25E5%25BC%2582%25E5%25B8%25B8%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://ghostasky.github.io/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>

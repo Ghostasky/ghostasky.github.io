@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh-cn" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="郁涛丶" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      Windows内核(九)——内存管理 
+      
+      
+      |
+    
+     郁涛丶&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+    
+<link rel="stylesheet" href="/css/figcaption/mac-block.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Ghostasky</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">Windows内核(九)——内存管理</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2023-03-05	  
+        </span>
+		
+		 <span class="post-pubtime"> 本文共4.5k字 </span>
+
+                                                                        <span class="post-pubtime">
+        大约需要29min
+      </span>
+		
+		
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/Technology/" title="Technology">
+                    <b>#</b> Technology
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/Win32/" title="Win32">
+                    #Win32
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <p>[toc]</p>
+<h1 id="01-线性地址的管理"><a href="#01-线性地址的管理" class="headerlink" title="01.线性地址的管理"></a>01.线性地址的管理</h1><ol>
+<li>每个进程都有自己的用户空间需要管理，当我们使用<strong>VirtualAlloc</strong>等函数申请一块固定的地址空间时，首先需要确认这块空间是否被占用，如果该空间已被占用则申请失败。</li>
+<li>用户空间并非像内核空间一样通过一块链表去管理已占用的线性地址空间（效率低）， 而是通过<strong>搜索二叉树</strong></li>
+</ol>
+<p><strong>申请内存的两种方式</strong>：</p>
+<ol>
+<li>通过<strong>VirtualAlloc/VirtualAllocEx</strong>申请：<strong>Private Memory（独享物理页）</strong></li>
+<li>通过<strong>CreateFileMapping</strong>进行映射：<strong>Mapped Memory（共享物理页）</strong></li>
+</ol>
+<p>进程空间的地址划分：</p>
+<table>
+<thead>
+<tr>
+<th>分区</th>
+<th>x86 32位Windows</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>空指针赋值区</td>
+<td>0x00000000 - 0x0000FFFF</td>
+</tr>
+<tr>
+<td>空指针赋值区</td>
+<td>0x00010000 - 0x7FFEFFFF</td>
+</tr>
+<tr>
+<td>64KB禁入区</td>
+<td>0x7FFF0000 - 0x7FFFFFFF</td>
+</tr>
+<tr>
+<td>内核</td>
+<td>0x80000000 - 0xFFFFFFFF</td>
+</tr>
+</tbody></table>
+<h2 id="理解用户空间线性地址管理"><a href="#理解用户空间线性地址管理" class="headerlink" title="理解用户空间线性地址管理"></a>理解用户空间线性地址管理</h2><p>随便找个exe：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dt _eprocess <span class="number">85f</span>d2b88      </span><br><span class="line">ntdll!_EPROCESS</span><br><span class="line">   ...</span><br><span class="line">   +<span class="number">0x11c</span> VadRoot          : <span class="number">0x86140188</span>   Void<span class="comment">//入口点，进去后是搜索二叉树,每一个节点记录了一块已被占用的线性地址空间</span></span><br><span class="line">   <span class="comment">//对应_MMVAD结构体</span></span><br><span class="line">   +<span class="number">0x120</span> VadHint          : <span class="number">0x86140188</span>   Void</span><br><span class="line"> </span><br><span class="line"><span class="comment">////////////////////////////////////////////////////////////////////////////////</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>查看<code>_MMVAD</code>结构体：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dt _mmvad <span class="number">0x86140188</span> </span><br><span class="line">nt_exe!_MMVAD</span><br><span class="line">   +<span class="number">0x000</span> StartingVpn      : <span class="number">0x2c60</span><span class="comment">//重要，以页为单位，后面添上三个0即是当前节点所描述的线性地址的起始位置</span></span><br><span class="line">   +<span class="number">0x004</span> EndingVpn        : <span class="number">0x2c9f</span><span class="comment">//重要，以页为单位，后面添上三个0即是当前节点所描述的线性地址的结束位置</span></span><br><span class="line">   +<span class="number">0x008</span> Parent           : (null) <span class="comment">//根节点，不存在父节点</span></span><br><span class="line">   +<span class="number">0x00c</span> LeftChild        : <span class="number">0x863536e0</span> _MMVAD<span class="comment">//左子树</span></span><br><span class="line">   +<span class="number">0x010</span> RightChild       : <span class="number">0x863392c8</span> _MMVAD<span class="comment">//右子树</span></span><br><span class="line">   +<span class="number">0x014</span> u                : __unnamed<span class="comment">//对应_MMVAD_FLAGS结构体</span></span><br><span class="line">   +<span class="number">0x018</span> ControlArea      : <span class="number">0x0a040004</span> _CONTROL_AREA<span class="comment">//包含该节点所对应的线性地址被谁占用等信息</span></span><br><span class="line">   +<span class="number">0x01c</span> FirstPrototypePte : <span class="number">0x53646156</span> _MMPTE</span><br><span class="line">   +<span class="number">0x020</span> LastContiguousPte : <span class="number">0x00002c20</span> _MMPTE</span><br><span class="line">   +<span class="number">0x024</span> u2               : __unnamed</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>查看<strong>CONTROL_AREA</strong>结构体：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dt _CONTROL_AREA <span class="number">0x865224d8</span> </span><br><span class="line">nt_exe!_CONTROL_AREA</span><br><span class="line">   +<span class="number">0x000</span> Segment          : <span class="number">0xe14eb9b0</span> _SEGMENT</span><br><span class="line">   +<span class="number">0x004</span> DereferenceList  : _LIST_ENTRY [ <span class="number">0x0</span> - <span class="number">0x0</span> ]</span><br><span class="line">   +<span class="number">0x00c</span> NumberOfSectionReferences : <span class="number">1</span></span><br><span class="line">   +<span class="number">0x010</span> NumberOfPfnReferences : <span class="number">0</span></span><br><span class="line">   +<span class="number">0x014</span> NumberOfMappedViews : <span class="number">0x12</span></span><br><span class="line">   +<span class="number">0x018</span> NumberOfSubsections : <span class="number">1</span></span><br><span class="line">   +<span class="number">0x01a</span> FlushInProgressCount : <span class="number">0</span></span><br><span class="line">   +<span class="number">0x01c</span> NumberOfUserReferences : <span class="number">0x13</span></span><br><span class="line">   +<span class="number">0x020</span> u                : __unnamed</span><br><span class="line">   +<span class="number">0x024</span> FilePointer      : (null) <span class="comment">//文件指针,若为空，表示线性地址指向真正的物理页;如果不为null就是自己分配的内存</span></span><br><span class="line">   +<span class="number">0x028</span> WaitingForDeletion : (null) </span><br><span class="line">   +<span class="number">0x02c</span> ModifiedWriteCount : <span class="number">0</span></span><br><span class="line">   +<span class="number">0x02e</span> NumberOfSystemCacheViews : <span class="number">0</span></span><br><span class="line">kd&gt; dt _FILE_OBJECT</span><br><span class="line">nt_exe!_FILE_OBJECT</span><br><span class="line">   +<span class="number">0x000</span> Type             : Int2B</span><br><span class="line">   +<span class="number">0x002</span> Size             : Int2B</span><br><span class="line">   +<span class="number">0x004</span> DeviceObject     : Ptr32 _DEVICE_OBJECT</span><br><span class="line">   +<span class="number">0x008</span> Vpb              : Ptr32 _VPB</span><br><span class="line">   +<span class="number">0x00c</span> FsContext        : Ptr32 Void</span><br><span class="line">   +<span class="number">0x010</span> FsContext2       : Ptr32 Void</span><br><span class="line">   +<span class="number">0x014</span> SectionObjectPointer : Ptr32 _SECTION_OBJECT_POINTERS</span><br><span class="line">   +<span class="number">0x018</span> PrivateCacheMap  : Ptr32 Void</span><br><span class="line">   +<span class="number">0x01c</span> FinalStatus      : Int4B</span><br><span class="line">   +<span class="number">0x020</span> RelatedFileObject : Ptr32 _FILE_OBJECT</span><br><span class="line">   +<span class="number">0x024</span> LockOperation    : UChar</span><br><span class="line">   +<span class="number">0x025</span> DeletePending    : UChar</span><br><span class="line">   +<span class="number">0x026</span> ReadAccess       : UChar</span><br><span class="line">   +<span class="number">0x027</span> WriteAccess      : UChar</span><br><span class="line">   +<span class="number">0x028</span> DeleteAccess     : UChar</span><br><span class="line">   +<span class="number">0x029</span> SharedRead       : UChar</span><br><span class="line">   +<span class="number">0x02a</span> SharedWrite      : UChar</span><br><span class="line">   +<span class="number">0x02b</span> SharedDelete     : UChar</span><br><span class="line">   +<span class="number">0x02c</span> Flags            : Uint4B</span><br><span class="line">   +<span class="number">0x030</span> FileName         : _UNICODE_STRING<span class="comment">//线性地址属于主模块</span></span><br><span class="line">   +<span class="number">0x038</span> CurrentByteOffset : _LARGE_INTEGER</span><br><span class="line">   +<span class="number">0x040</span> Waiters          : Uint4B</span><br><span class="line">   +<span class="number">0x044</span> Busy             : Uint4B</span><br><span class="line">   +<span class="number">0x048</span> LastLock         : Ptr32 Void</span><br><span class="line">   +<span class="number">0x04c</span> Lock             : _KEVENT</span><br><span class="line">   +<span class="number">0x05c</span> Event            : _KEVENT</span><br><span class="line">   +<span class="number">0x06c</span> CompletionContext : Ptr32 _IO_COMPLETION_CONTEXT</span><br></pre></td></tr></table></figure>
+
+<p><strong>查看MMVAD_FLAGS结构体</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dt _MMVAD_FLAGS <span class="number">0x86313578</span>+<span class="number">14</span></span><br><span class="line">nt_exe!_MMVAD_FLAGS</span><br><span class="line">   +<span class="number">0x000</span> CommitCharge     : <span class="number">0</span>y0000000000000000000 (<span class="number">0</span>)</span><br><span class="line">   +<span class="number">0x000</span> PhysicalMapping  : <span class="number">0</span>y0</span><br><span class="line">   +<span class="number">0x000</span> ImageMap         : <span class="number">0</span>y0<span class="comment">//为1表示镜像文件（可执行文件），0表示其他</span></span><br><span class="line">   +<span class="number">0x000</span> UserPhysicalPages : <span class="number">0</span>y0</span><br><span class="line">   +<span class="number">0x000</span> NoChange         : <span class="number">0</span>y0</span><br><span class="line">   +<span class="number">0x000</span> WriteWatch       : <span class="number">0</span>y0</span><br><span class="line">   +<span class="number">0x000</span> Protection       : <span class="number">0</span>y00100 (<span class="number">0x4</span>)<span class="comment">//表示内存权限</span></span><br><span class="line">   +<span class="number">0x000</span> LargePages       : <span class="number">0</span>y0</span><br><span class="line">   +<span class="number">0x000</span> MemCommit        : <span class="number">0</span>y0</span><br><span class="line">   +<span class="number">0x000</span> PrivateMemory    : <span class="number">0</span>y1<span class="comment">//0表示Mapped Memory</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>遍历所有节点</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; !vad <span class="number">0x86313578</span> （随便找了个）</span><br><span class="line">VAD   Level     Start       End Commit</span><br><span class="line"><span class="number">86322b</span>18  <span class="number">3</span>        <span class="number">10</span>        <span class="number">10</span>      <span class="number">1</span> Private      READWRITE          </span><br><span class="line"><span class="number">864</span>ac328  <span class="number">2</span>        <span class="number">20</span>        <span class="number">20</span>      <span class="number">1</span> Private      READWRITE          </span><br><span class="line"><span class="number">86127360</span>  <span class="number">5</span>        <span class="number">30</span>        <span class="number">3f</span>      <span class="number">8</span> Private      READWRITE          </span><br><span class="line"><span class="number">86330</span>d60  <span class="number">4</span>        <span class="number">40</span>        <span class="number">7f</span>      <span class="number">4</span> Private      READWRITE          </span><br><span class="line"><span class="number">85f</span>b1188  <span class="number">3</span>        <span class="number">80</span>        <span class="number">82</span>      <span class="number">0</span> Mapped       READONLY           Pagefile section, shared commit <span class="number">0x3</span></span><br><span class="line"><span class="number">8611</span>ee50  <span class="number">4</span>        <span class="number">90</span>        <span class="number">91</span>      <span class="number">0</span> Mapped       READONLY           Pagefile section, shared commit <span class="number">0x2</span></span><br><span class="line"><span class="number">85f</span>b7a08  <span class="number">1</span>        a0       <span class="number">19f</span>     <span class="number">23</span> Private      READWRITE          </span><br><span class="line"><span class="number">86322</span>cf8  <span class="number">4</span>       <span class="number">1</span>a0       <span class="number">1</span>af      <span class="number">6</span> Private      READWRITE          </span><br><span class="line"><span class="number">8611</span>ee20  <span class="number">3</span>       <span class="number">1b</span>0       <span class="number">1b</span>f      <span class="number">0</span> Mapped       READWRITE          Pagefile section, shared commit <span class="number">0x3</span></span><br><span class="line"><span class="number">8611f</span>6d8  <span class="number">4</span>       <span class="number">1</span>c0       <span class="number">1</span>d5      <span class="number">0</span> Mapped       READONLY           \WINDOWS\system32\unicode.nls</span><br><span class="line"><span class="number">863129</span>d0  <span class="number">2</span>       <span class="number">1e0</span>       <span class="number">220</span>      <span class="number">0</span> Mapped       READONLY           \WINDOWS\system32\locale.nls</span><br><span class="line"><span class="number">86312910</span>  <span class="number">4</span>       <span class="number">230</span>       <span class="number">270</span>      <span class="number">0</span> Mapped       READONLY           \WINDOWS\system32\sortkey.nls</span><br><span class="line"><span class="number">86313488</span>  <span class="number">3</span>       <span class="number">280</span>       <span class="number">285</span>      <span class="number">0</span> Mapped       READONLY           \WINDOWS\system32\sorttbls.nls</span><br><span class="line"><span class="number">86313578</span>  <span class="number">0</span>       <span class="number">290</span>       <span class="number">2</span>d0      <span class="number">0</span> Mapped       READONLY           Pagefile section, shared commit <span class="number">0x41</span></span><br><span class="line"><span class="number">86312</span>a00  <span class="number">4</span>       <span class="number">2e0</span>       <span class="number">3</span>a7      <span class="number">0</span> Mapped       EXECUTE_READ       Pagefile section, shared commit <span class="number">0x8</span></span><br><span class="line"><span class="number">85f</span>96608  <span class="number">5</span>       <span class="number">3b</span>0       <span class="number">3b</span>0      <span class="number">1</span> Private      READWRITE          </span><br><span class="line"><span class="number">864583f</span>8  <span class="number">3</span>       <span class="number">3</span>c0       <span class="number">3</span>c0      <span class="number">1</span> Private      READWRITE          </span><br><span class="line"><span class="number">86124128</span>  <span class="number">5</span>       <span class="number">3</span>d0       <span class="number">3</span>df      <span class="number">5</span> Private      READWRITE          </span><br><span class="line"><span class="number">8611</span>ef10  <span class="number">4</span>       <span class="number">3e0</span>       <span class="number">3e1</span>      <span class="number">0</span> Mapped       READONLY           Pagefile section, shared commit <span class="number">0x2</span></span><br><span class="line"><span class="number">85f</span>b1bc8  <span class="number">6</span>       <span class="number">3f</span>0       <span class="number">3f</span>0      <span class="number">0</span> Mapped       READWRITE          Pagefile section, shared commit <span class="number">0x1</span></span><br><span class="line"><span class="number">85f</span>b1e68  <span class="number">5</span>       <span class="number">400</span>       <span class="number">401</span>      <span class="number">0</span> Mapped       READONLY           Pagefile section, shared commit <span class="number">0x2</span></span><br><span class="line"><span class="number">85f</span>bbd98  <span class="number">2</span>       <span class="number">410</span>       <span class="number">41f</span>      <span class="number">8</span> Private      READWRITE          </span><br><span class="line"><span class="number">8612f</span>808  <span class="number">4</span>       <span class="number">420</span>       <span class="number">42f</span>      <span class="number">4</span> Private      READWRITE          </span><br><span class="line"><span class="number">85f</span>a8e50  <span class="number">3</span>       <span class="number">430</span>       <span class="number">432</span>      <span class="number">0</span> Mapped       READONLY           \WINDOWS\system32\ctype.nls</span><br><span class="line"><span class="number">85f</span>b9e28  <span class="number">5</span>       <span class="number">440</span>       <span class="number">47f</span>      <span class="number">3</span> Private      READWRITE          </span><br><span class="line"><span class="number">8631b</span>8e0  <span class="number">4</span>       <span class="number">480</span>       <span class="number">582</span>      <span class="number">0</span> Mapped       READONLY           Pagefile section, shared commit <span class="number">0x103</span></span><br><span class="line"><span class="number">863128b</span>0  <span class="number">6</span>       <span class="number">590</span>       <span class="number">88f</span>      <span class="number">0</span> Mapped       EXECUTE_READ       Pagefile section, shared commit <span class="number">0x26</span></span><br><span class="line"><span class="number">85f</span>b79c8  <span class="number">5</span>       <span class="number">890</span>       <span class="number">90f</span>      <span class="number">1</span> Private      READWRITE          </span><br><span class="line"><span class="number">85f</span>b1fa8  <span class="number">7</span>       <span class="number">910</span>       <span class="number">94f</span>      <span class="number">0</span> Mapped       READWRITE          Pagefile section, shared commit <span class="number">0x10</span></span><br><span class="line"><span class="number">85f</span>b1f78  <span class="number">6</span>       <span class="number">950</span>       <span class="number">95</span>d      <span class="number">0</span> Mapped       READWRITE          Pagefile section, shared commit <span class="number">0xe</span></span><br><span class="line"><span class="number">85f</span>c1610  <span class="number">7</span>       <span class="number">960</span>       a5f    <span class="number">123</span> Private      READWRITE          </span><br><span class="line"><span class="number">86321260</span>  <span class="number">8</span>       a60       a63      <span class="number">0</span> Mapped       READWRITE          Pagefile section, shared commit <span class="number">0x4</span></span><br><span class="line"><span class="number">8631</span>ccc8  <span class="number">9</span>       a80       aff      <span class="number">0</span> Mapped       READWRITE          Pagefile section, shared commit <span class="number">0x7</span></span><br><span class="line"><span class="number">86476b</span>08  <span class="number">1</span>      <span class="number">1000</span>      <span class="number">101</span>e      <span class="number">3</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\calc.exe</span><br><span class="line"><span class="number">86313458</span>  <span class="number">8</span>     <span class="number">58f</span>b0     <span class="number">59179</span>     <span class="number">10</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\AppPatch\AcGenral.dll</span><br><span class="line"><span class="number">863133f</span>8  <span class="number">9</span>     <span class="number">5</span>adc0     <span class="number">5</span>adf6      <span class="number">2</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\uxtheme.dll</span><br><span class="line"><span class="number">86312</span>a30  <span class="number">7</span>     <span class="number">5</span>cc30     <span class="number">5</span>cc55     <span class="number">21</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\shimeng.dll</span><br><span class="line"><span class="number">8611</span>da38 <span class="number">11</span>     <span class="number">62</span>c20     <span class="number">62</span>c28      <span class="number">2</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\lpk.dll</span><br><span class="line"><span class="number">85f</span>b2b10 <span class="number">13</span>     <span class="number">73640</span>     <span class="number">7366</span>d      <span class="number">2</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\MSCTFIME.IME</span><br><span class="line"><span class="number">863158f</span>8 <span class="number">12</span>     <span class="number">73f</span>a0     <span class="number">7400</span>a     <span class="number">17</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\usp10.dll</span><br><span class="line"><span class="number">85f</span>b2c10 <span class="number">13</span>     <span class="number">74680</span>     <span class="number">746</span>cb      <span class="number">3</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\MSCTF.dll</span><br><span class="line"><span class="number">85f</span>af260 <span class="number">10</span>     <span class="number">759</span>d0     <span class="number">75</span>a7e      <span class="number">3</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\userenv.dll</span><br><span class="line"><span class="number">86313518</span> <span class="number">11</span>     <span class="number">76300</span>     <span class="number">7631</span>c      <span class="number">2</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\imm32.dll</span><br><span class="line"><span class="number">863128e0</span>  <span class="number">9</span>     <span class="number">76990</span>     <span class="number">76</span>acd      <span class="number">8</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\ole32.dll</span><br><span class="line"><span class="number">86315830</span>  <span class="number">8</span>     <span class="number">76b</span>10     <span class="number">76b</span>39      <span class="number">3</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\winmm.dll</span><br><span class="line"><span class="number">85f</span>a8e20  <span class="number">9</span>     <span class="number">770f</span>0     <span class="number">7717</span>a      <span class="number">4</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\oleaut32.dll</span><br><span class="line"><span class="number">86313398</span> <span class="number">11</span>     <span class="number">77180</span>     <span class="number">77282</span>      <span class="number">2</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\WinSxS\x86_Microsoft.Windows.Common-Controls_6595b64144ccf1df_6<span class="number">.0</span><span class="number">.2600</span><span class="number">.6028</span>_x-ww_61e65202\comctl32.dll</span><br><span class="line"><span class="number">85f</span>abd48 <span class="number">10</span>     <span class="number">77b</span>b0     <span class="number">77b</span>c4      <span class="number">2</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\msacm32.dll</span><br><span class="line"><span class="number">863134e8</span> <span class="number">11</span>     <span class="number">77b</span>d0     <span class="number">77b</span>d7      <span class="number">2</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\version.dll</span><br><span class="line"><span class="number">86313428</span>  <span class="number">6</span>     <span class="number">77b</span>e0     <span class="number">77</span>c37      <span class="number">8</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\msvcrt.dll</span><br><span class="line"><span class="number">8613</span>c0e0  <span class="number">5</span>     <span class="number">77</span>d10     <span class="number">77</span>d9f      <span class="number">3</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\user32.dll</span><br><span class="line"><span class="number">8611e1</span>d0  <span class="number">4</span>     <span class="number">77</span>da0     <span class="number">77e48</span>      <span class="number">6</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\advapi32.dll</span><br><span class="line"><span class="number">86312970</span>  <span class="number">5</span>     <span class="number">77e50</span>     <span class="number">77</span>ee2      <span class="number">2</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\rpcrt4.dll</span><br><span class="line"><span class="number">85f</span>a83d8  <span class="number">7</span>     <span class="number">77</span>ef0     <span class="number">77f</span>39      <span class="number">3</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\gdi32.dll</span><br><span class="line"><span class="number">863133</span>c8  <span class="number">8</span>     <span class="number">77f</span>40     <span class="number">77f</span>b5      <span class="number">2</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\shlwapi.dll</span><br><span class="line"><span class="number">863129</span>a0  <span class="number">6</span>     <span class="number">77f</span>c0     <span class="number">77f</span>d0      <span class="number">2</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\secur32.dll</span><br><span class="line"><span class="number">864b</span>70d8  <span class="number">3</span>     <span class="number">7</span>c800     <span class="number">7</span>c91d      <span class="number">6</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\kernel32.dll</span><br><span class="line"><span class="number">8611</span>eee0  <span class="number">2</span>     <span class="number">7</span>c920     <span class="number">7</span>c9b2      <span class="number">5</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\ntdll.dll</span><br><span class="line"><span class="number">863135</span>a8  <span class="number">5</span>     <span class="number">7</span>d590     <span class="number">7</span>dd83     <span class="number">31</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\shell32.dll</span><br><span class="line"><span class="number">863134b</span>8  <span class="number">4</span>     <span class="number">7f</span>6f0     <span class="number">7f</span>7ef      <span class="number">0</span> Mapped       EXECUTE_READ       Pagefile section, shared commit <span class="number">0x7</span></span><br><span class="line"><span class="number">85f</span>a21a0  <span class="number">3</span>     <span class="number">7f</span>fa0     <span class="number">7f</span>fd2      <span class="number">0</span> Mapped       READONLY           Pagefile section, shared commit <span class="number">0x33</span></span><br><span class="line"><span class="number">86305638</span>  <span class="number">4</span>     <span class="number">7f</span>fdd     <span class="number">7f</span>fdd      <span class="number">1</span> Private      READWRITE          </span><br><span class="line"><span class="number">864</span>a8530  <span class="number">5</span>     <span class="number">7f</span>fdf     <span class="number">7f</span>fdf      <span class="number">1</span> Private      READWRITE          </span><br><span class="line"></span><br><span class="line">Total VADs: <span class="number">63</span>, average level: <span class="number">6</span>, maximum depth: <span class="number">13</span></span><br><span class="line">Total private commit: <span class="number">0x159</span> pages (<span class="number">1380</span> KB)</span><br><span class="line">Total shared commit:  <span class="number">0x1e2</span> pages (<span class="number">1928</span> KB)</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li><p>所有的线性地址空间是需要管理的（哪些地址是占用的，哪些地址是未占用的）</p>
+</li>
+<li><p>所有用户线性地址空间通过搜索二叉树进行管理（占用大小，占用方式，内存属性）</p>
+</li>
+<li><p>所有已占用的线性地址可以分为两类</p>
+<ol>
+<li><p>VirtualAlloc分配的普通内存</p>
+</li>
+<li><p>文件映射（Mapped）的内存（例如dll/exe/txt等）</p>
+</li>
+</ol>
+</li>
+<li><p>传统的模块隐藏技术，终究会在VadRoot中留下痕迹，假设摘除，操作系统会误认为该地址空间未被分配，从而产生非预期中的错误</p>
+</li>
+</ol>
+<h1 id="02-Private-Memory"><a href="#02-Private-Memory" class="headerlink" title="02.Private Memory"></a>02.Private Memory</h1><p>通过<strong>VirtualAlloc/VirtualAllocEx</strong>申请的内存，叫做Private Memory</p>
+<p>函数原型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">LPVOID VirtualAlloc&#123;</span><br><span class="line">	LPVOID lpAddress, 		<span class="comment">// 要分配的内存区域的地址，填0则随机分配一块符合条件的地址</span></span><br><span class="line">	DWORD dwSize, 			<span class="comment">// 分配的大小，4kb对齐</span></span><br><span class="line">	DWORD flAllocationType, 	<span class="comment">// 分配的类型</span></span><br><span class="line">							<span class="comment">// MEM_RESERVE：只保留线性地址，不分配物理页</span></span><br><span class="line">							<span class="comment">// MEM_COMMIT：既保留线性地址，又分配物理页</span></span><br><span class="line">	DWORD flProtect 			<span class="comment">// 该内存的初始保护属性</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">LPVOID lpAddress;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;程序运行了...内存还没有申请\n&quot;</span>);</span><br><span class="line">	getchar();</span><br><span class="line"></span><br><span class="line">	lpAddress = VirtualAlloc(<span class="literal">NULL</span>, <span class="number">0x1000</span>*<span class="number">2</span>, MEM_COMMIT, PAGE_READWRITE);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;内存地址：%x\n&quot;</span>, lpAddress);</span><br><span class="line"></span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以对比<code>VirtualAlloc</code>前后的不同，这里就不贴图了。</p>
+<h1 id="03-Mapped-Memory"><a href="#03-Mapped-Memory" class="headerlink" title="03.Mapped Memory"></a>03.Mapped Memory</h1><ol>
+<li>通过<code>CreateFileMapping</code>映射的内存，叫做Mapped Memory，一个进程中大部分的内存都属于Mapped Memory</li>
+<li>Mapped Memory可以分为两类<ol>
+<li>共享内存：当内存为共享内存时，本质是共享一份物理页</li>
+<li>共享文件：当内存为共享文件时，这块内存可能被映射到多个进程空间中，但真正占用的物理页只有一份</li>
+</ol>
+</li>
+<li>无论是共享内存还是文件，在底层实现都是一样的，当我们需要共享物理页的时候，系统只需将物理页准备好，当我们需要共享文件时，系统先将物理页准备好，然后将物理页与文件进行关联</li>
+</ol>
+<h2 id="共享内存"><a href="#共享内存" class="headerlink" title="共享内存"></a>共享内存</h2><p>代码1：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MapFileName <span class="string">&quot;共享内存&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//内核对象：1.物理页	2. 文件</span></span><br><span class="line">	<span class="comment">//准备一块内存，若第一个参数为INVALID_HANDLE_VALUE(-1)表示共享物理页</span></span><br><span class="line">	HANDLE g_hMapFile = CreateFileMapping(INVALID_HANDLE_VALUE, <span class="literal">NULL</span>, PAGE_READWRITE, <span class="number">0</span>, BUFSIZ, MapFileName);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//将物理页与线性地址进行映射</span></span><br><span class="line">	LPTSTR g_lpBuff = (LPTSTR)MapViewOfFile(g_hMapFile, FILE_MAP_ALL_ACCESS, <span class="number">0</span>, <span class="number">0</span>, BUFSIZ);</span><br><span class="line"></span><br><span class="line">	*(PDWORD)g_lpBuff = <span class="number">0x12345678</span>;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;A进程写入地址，内容：%p - %x&quot;</span>, g_lpBuff, *(PDWORD)g_lpBuff);</span><br><span class="line"></span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码2：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MapFileName <span class="string">&quot;共享内存&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//内核对象：1.物理页	2. 文件</span></span><br><span class="line">	HANDLE g_hMapFile = OpenFileMapping(FILE_MAP_ALL_ACCESS, FALSE, MapFileName);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//将物理页与线性地址进行映射</span></span><br><span class="line">	LPTSTR g_lpBuff = (LPTSTR)MapViewOfFile(g_hMapFile, FILE_MAP_ALL_ACCESS, <span class="number">0</span>, <span class="number">0</span>, BUFSIZ);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;B进程读取地址，内容：%p - %x&quot;</span>, g_lpBuff, *(PDWORD)g_lpBuff);</span><br><span class="line"></span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="共享文件"><a href="#共享文件" class="headerlink" title="共享文件"></a>共享文件</h2><p>示例代码，ret的地方断点：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">//内核对象：1.物理页	2. 文件</span></span><br><span class="line">	HANDLE g_hFile = CreateFile(<span class="string">&quot;C:\\NOTEPAD.EXE&quot;</span>,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,<span class="literal">NULL</span>,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,<span class="literal">NULL</span>);	</span><br><span class="line">	</span><br><span class="line">	HANDLE g_hMapFile = CreateFileMapping(g_hFile,<span class="literal">NULL</span>,PAGE_READWRITE,<span class="number">0</span>, BUFSIZ,<span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//将物理页与线性地址进行映射</span></span><br><span class="line">	LPTSTR g_lpBuff = (LPTSTR)MapViewOfFile(g_hMapFile, FILE_MAP_ALL_ACCESS, <span class="number">0</span>, <span class="number">0</span>, BUFSIZ);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可以看到：</p>
+<p><img src="/2023/03/05/2023-3-WinKernel%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20230226183309832.png" alt="image-20230226183309832"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">86128f</span>20  <span class="number">1</span>        <span class="number">10</span>        <span class="number">10</span>      <span class="number">1</span> Private      READWRITE          </span><br><span class="line"><span class="number">85f</span>9d600  <span class="number">2</span>        <span class="number">20</span>        <span class="number">20</span>      <span class="number">1</span> Private      READWRITE          </span><br><span class="line"><span class="number">860362f</span>8  <span class="number">0</span>        <span class="number">30</span>       <span class="number">12f</span>      <span class="number">3</span> Private      READWRITE          </span><br><span class="line"><span class="number">8645</span>de68  <span class="number">3</span>       <span class="number">130</span>       <span class="number">132</span>      <span class="number">0</span> Mapped       READONLY           Pagefile section, shared commit <span class="number">0x3</span></span><br><span class="line"><span class="number">86128f</span>70  <span class="number">2</span>       <span class="number">140</span>       <span class="number">23f</span>      <span class="number">3</span> Private      READWRITE          </span><br><span class="line"><span class="number">85f</span>96588  <span class="number">4</span>       <span class="number">240</span>       <span class="number">24f</span>      <span class="number">6</span> Private      READWRITE          </span><br><span class="line"><span class="number">86354738</span>  <span class="number">3</span>       <span class="number">250</span>       <span class="number">25f</span>      <span class="number">0</span> Mapped       READWRITE          Pagefile section, shared commit <span class="number">0x3</span></span><br><span class="line"><span class="number">863</span>aef38  <span class="number">5</span>       <span class="number">260</span>       <span class="number">275</span>      <span class="number">0</span> Mapped       READONLY           \WINDOWS\system32\unicode.nls</span><br><span class="line"><span class="number">86358510</span>  <span class="number">4</span>       <span class="number">280</span>       <span class="number">2</span>c0      <span class="number">0</span> Mapped       READONLY           \WINDOWS\system32\locale.nls</span><br><span class="line"><span class="number">863584b</span>0  <span class="number">6</span>       <span class="number">2</span>d0       <span class="number">310</span>      <span class="number">0</span> Mapped       READONLY           \WINDOWS\system32\sortkey.nls</span><br><span class="line"><span class="number">85f</span>a69b8  <span class="number">5</span>       <span class="number">320</span>       <span class="number">325</span>      <span class="number">0</span> Mapped       READONLY           \WINDOWS\system32\sorttbls.nls</span><br><span class="line"><span class="number">8645</span>de08  <span class="number">7</span>       <span class="number">330</span>       <span class="number">370</span>      <span class="number">0</span> Mapped       READONLY           Pagefile section, shared commit <span class="number">0x41</span></span><br><span class="line"><span class="number">8614</span>a3f8  <span class="number">6</span>       <span class="number">380</span>       <span class="number">38f</span>      <span class="number">3</span> Private      READWRITE          </span><br><span class="line"><span class="number">8602e848</span>  <span class="number">7</span>       <span class="number">390</span>       <span class="number">392</span>      <span class="number">0</span> Mapped       READONLY           \WINDOWS\system32\ctype.nls</span><br><span class="line"><span class="number">861451e0</span>  <span class="number">8</span>       <span class="number">3</span>a0       <span class="number">3</span>a0      <span class="number">0</span> Mapped       READWRITE          \NOTEPAD.EXE</span><br><span class="line"><span class="number">86128f</span>40  <span class="number">1</span>       <span class="number">400</span>       <span class="number">42</span>c      <span class="number">8</span> Mapped  Exe  EXECUTE_WRITECOPY  \Documents and Settings\Administrator\桌面\VC6<span class="number">.0</span>green\MyProjects\test\Debug\test.exe</span><br><span class="line"><span class="number">863</span>a6b08  <span class="number">3</span>     <span class="number">7</span>c800     <span class="number">7</span>c91d      <span class="number">6</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\kernel32.dll</span><br><span class="line"><span class="number">85f</span>968a0  <span class="number">2</span>     <span class="number">7</span>c920     <span class="number">7</span>c9b2      <span class="number">5</span> Mapped  Exe  EXECUTE_WRITECOPY  \WINDOWS\system32\ntdll.dll</span><br><span class="line"><span class="number">863</span>aefd8  <span class="number">4</span>     <span class="number">7f</span>6f0     <span class="number">7f</span>7ef      <span class="number">0</span> Mapped       EXECUTE_READ       Pagefile section, shared commit <span class="number">0x7</span></span><br><span class="line"><span class="number">85f</span>96870  <span class="number">3</span>     <span class="number">7f</span>fa0     <span class="number">7f</span>fd2      <span class="number">0</span> Mapped       READONLY           Pagefile section, shared commit <span class="number">0x33</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Mapped-Exe"><a href="#Mapped-Exe" class="headerlink" title="Mapped Exe"></a>Mapped Exe</h3><ol>
+<li>当一个程序通过<code>LoadLibrary</code>进行加载时，此时该文件所在的线性地址空间的属性为Mapped Exe，权限为<code>EXECUTE_WRITECOPY</code></li>
+<li>由于权限为<code>EXECUTE_WRITECOPY</code>的地址空间是需要共享给所有程序使用的，因此当我们对权限为<code>EXECUTE_WRITECOPY</code>的线性地址空间的任何位置进行修改时，系统会先给这块内存重新映射一份物理页，然后再进行修改</li>
+</ol>
+<p>示例代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	HMODULE hModule = LoadLibrary(<span class="string">&quot;C:\\NOTEPAD.EXE&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>1）线性地址分为三类：私有内存 | 共享内存 | 共享文件<br>2）共享内存和共享文件本质相同，都是分配了一块物理页，不同的是共享文件将物理页和文件关联了起来<br>3）传统的模块隐藏技术很难在VadRoot中进行隐藏（脱钩可能会导致程序崩溃），除非通过VirtualAlloc分配私有内存，手动将文件进行拉伸与贴入等一系列操作，此时能够大大增加寻找该模块的难度</p>
+<h1 id="04-物理内存管理"><a href="#04-物理内存管理" class="headerlink" title="04.物理内存管理"></a>04.物理内存管理</h1><p>32位最大物理内存：</p>
+<ol>
+<li>10-10-12分页  最多识别物理内存为4GB</li>
+<li>2-9-9-12分页  最多识别物理内存为64GB</li>
+</ol>
+<p>操作系统的 <code>_ExVerifySuite()</code> 函数限制了它无法超越4GB（网上有补丁可以突破4GB）</p>
+<p>实际物理内存：</p>
+<blockquote>
+<p>MmNumberOfPhysicalPages * 4 = 物理内存</p>
+</blockquote>
+<p>可以看到一共7FF6C个物理页，乘4后得到KB，与人物管理器中的一致。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dd MmNumberOfPhysicalPages</span><br><span class="line"><span class="number">80563128</span>  <span class="number">0003f</span>f6a <span class="number">00000040</span> <span class="number">00000000</span> <span class="number">7f</span>ff0000</span><br><span class="line"><span class="number">80563138</span>  <span class="number">80000000</span> <span class="number">7f</span>feffff <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line"><span class="number">80563148</span>  <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span></span><br><span class="line"><span class="number">80563158</span>  <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000004</span> <span class="number">00000000</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="物理内存管理"><a href="#物理内存管理" class="headerlink" title="物理内存管理"></a>物理内存管理</h2><p>是一个全局数组：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">数组指针：_MMPFN* MmPfnDatabase	</span><br><span class="line">数组长度：MmNumberOfPhysicalPages</span><br></pre></td></tr></table></figure>
+
+<p>81000000<del>(81000000+0x18)描述的就是第一个物理页的信息，8100001C</del>(8100001C+0x18)是第二个物理页的描述信息，以此类推。</p>
+<p><code>80c86000+1c*索引 == 这个物理页对应的_MMPFN结构</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dd MmPfnDatabase</span><br><span class="line"><span class="number">805630</span>c8  <span class="number">81000000</span> ffffffff <span class="number">00000006</span> <span class="number">0000003f</span></span><br><span class="line"><span class="number">805630</span>d8  <span class="number">0000</span>cfc5 <span class="number">00030</span>c23 <span class="number">00020</span>ae2 <span class="number">0000155f</span></span><br><span class="line"><span class="number">805630e8</span>  <span class="number">0000</span>cb3e <span class="number">00000000</span> <span class="number">000114f</span>4 <span class="number">00009737</span></span><br><span class="line"><span class="number">805630f</span>8  <span class="number">00001f</span>9c <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">000000</span>c0</span><br><span class="line"><span class="number">80563108</span>  <span class="number">0000000</span>c <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">0000001</span>e</span><br><span class="line"><span class="number">80563118</span>  <span class="number">000000f</span>a <span class="number">0002f</span>6b3 <span class="number">0003f</span>fff <span class="number">0003f</span>fff</span><br></pre></td></tr></table></figure>
+
+<h2 id="PFN"><a href="#PFN" class="headerlink" title="PFN"></a>PFN</h2><p><code>_MMPFN</code>结构体：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dt _MMPFN</span><br><span class="line">nt!_MMPFN</span><br><span class="line">   +<span class="number">0x000</span> u1               : __unnamed</span><br><span class="line">   +<span class="number">0x004</span> PteAddress       : Ptr32 _MMPTE</span><br><span class="line">   +<span class="number">0x008</span> u2               : __unnamed</span><br><span class="line">   +<span class="number">0x00c</span> u3               : __unnamed</span><br><span class="line">   +<span class="number">0x010</span> OriginalPte      : _MMPTE</span><br><span class="line">   +<span class="number">0x018</span> u4               : __unnamed</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">MMPFN</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        PFN_NUMBER Flink;</span><br><span class="line">        ULONG WsIndex;<span class="comment">//该页面在进程工作集链表中的索引</span></span><br><span class="line">        PKEVENT Event;</span><br><span class="line">        NTSTATUS ReadStatus;</span><br><span class="line">        SINGLE_LIST_ENTRY NextStackPfn;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// HACK for ROSPFN</span></span><br><span class="line">        SWAPENTRY SwapEntry;</span><br><span class="line">    &#125; u1;</span><br><span class="line">    PMMPTE PteAddress;<span class="comment">//执行此页面的PTE的虚拟地址</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        PFN_NUMBER Blink;</span><br><span class="line">        ULONG_PTR ShareCount;<span class="comment">//指向该页面的PTE数量</span></span><br><span class="line">    &#125; u2;</span><br><span class="line">    <span class="class"><span class="keyword">union</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">        &#123;</span></span><br><span class="line">            USHORT ReferenceCount;<span class="comment">//代表这个页面必须要保留在内存中的引用计数</span></span><br><span class="line">            MMPFNENTRY e1;</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">        &#123;</span></span><br><span class="line">            USHORT ReferenceCount;</span><br><span class="line">            USHORT ShortFlags;</span><br><span class="line">        &#125; e2;</span><br><span class="line">    &#125; u3;</span><br><span class="line">    <span class="class"><span class="keyword">union</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        MMPTE OriginalPte;<span class="comment">//包含了指向此页面的PTE的原始内容</span></span><br><span class="line">        LONG AweReferenceCount;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// HACK for ROSPFN</span></span><br><span class="line">        PMM_RMAP_ENTRY RmapListHead;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="class"><span class="keyword">union</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        ULONG_PTR EntireFrame;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">        &#123;</span></span><br><span class="line">            ULONG_PTR PteFrame:<span class="number">25</span>;</span><br><span class="line">            ULONG_PTR InPageError:<span class="number">1</span>;</span><br><span class="line">            ULONG_PTR VerifierAllocation:<span class="number">1</span>;</span><br><span class="line">            ULONG_PTR AweAllocation:<span class="number">1</span>;</span><br><span class="line">            ULONG_PTR Priority:<span class="number">3</span>;</span><br><span class="line">            ULONG_PTR MustBeCached:<span class="number">1</span>;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125; u4;<span class="comment">//指向该页面的PTE所在的页表页面的物理页帧编号,以及一些标志位</span></span><br><span class="line"></span><br><span class="line">u3.e1.PageLocation 这个成员标识了当前物理页空闲状态（空闲：使用中，两大类）</span><br><span class="line"><span class="number">0</span>：MmZeroedPageListHead         <span class="comment">//零化</span></span><br><span class="line"><span class="number">1</span>：MmFreePageListHead           <span class="comment">//空闲</span></span><br><span class="line"><span class="number">2</span>：MmStandbyPageListHead        <span class="comment">//备用</span></span><br><span class="line"><span class="number">3</span>：MmModifiedPageListHead       <span class="comment">//修改 OriginalPte.u.Soft.Prototype=1 或者 外存都会在这</span></span><br><span class="line"><span class="number">4</span>：MmModifiedNoWritePageListHead<span class="comment">//已修改但不写出</span></span><br><span class="line"><span class="number">5</span>：MmBadPageListHead            <span class="comment">//损坏</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="零化链表"><a href="#零化链表" class="headerlink" title="零化链表"></a>零化链表</h3><p><code>MmPfnDatabase</code>：第一个物理页描述信息：<code>81000000</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dd MmPfnDatabase l1</span><br><span class="line"><span class="number">805630</span>c8  <span class="number">81000000</span></span><br></pre></td></tr></table></figure>
+
+<p>零化链表：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dd MmZeroedPageListHead l4</span><br><span class="line"><span class="number">805528e8</span>  <span class="number">0002949</span>c <span class="number">00000000</span> <span class="number">00023</span>a24 <span class="number">00023</span>ab3</span><br></pre></td></tr></table></figure>
+
+<p>第一个零化链表：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dd <span class="number">81000000</span> + <span class="number">0x1C</span>*<span class="number">00023</span>a24 l4</span><br><span class="line"><span class="number">813e5</span>bf0  <span class="number">00023</span>a64 <span class="number">0011</span>d120 ffffffff <span class="number">00003000</span></span><br></pre></td></tr></table></figure>
+
+<p>零化链表：</p>
+<p><img src="/2023/03/05/2023-3-WinKernel%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20230227102011045.png" alt="image-20230227102011045"></p>
+<p>结构如下：</p>
+<p><img src="/2023/03/05/2023-3-WinKernel%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20230227102049345.png" alt="image-20230227102049345"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; dt _eprocess <span class="number">86104020</span>  </span><br><span class="line">ntdll!_EPROCESS</span><br><span class="line">	+<span class="number">0x1f8</span> Vm               : _MMSUPPORT</span><br><span class="line">kd&gt; dt _MMSUPPORT</span><br><span class="line">nt_exe!_MMSUPPORT</span><br><span class="line">   +<span class="number">0x000</span> LastTrimTime     : _LARGE_INTEGER</span><br><span class="line">   +<span class="number">0x008</span> Flags            : _MMSUPPORT_FLAGS</span><br><span class="line">   +<span class="number">0x00c</span> PageFaultCount   : Uint4B</span><br><span class="line">   +<span class="number">0x010</span> PeakWorkingSetSize : Uint4B</span><br><span class="line">   +<span class="number">0x014</span> WorkingSetSize   : Uint4B</span><br><span class="line">   +<span class="number">0x018</span> MinimumWorkingSetSize : Uint4B<span class="comment">//最小的物理页大小</span></span><br><span class="line">   +<span class="number">0x01c</span> MaximumWorkingSetSize : Uint4B<span class="comment">//最大的物理页大小</span></span><br><span class="line">   +<span class="number">0x020</span> VmWorkingSetList : Ptr32 _MMWSLz<span class="comment">//这个成员可以找到这个进程使用的所有物理页</span></span><br><span class="line">   +<span class="number">0x024</span> WorkingSetExpansionLinks : _LIST_ENTRY</span><br><span class="line">   +<span class="number">0x02c</span> Claim            : Uint4B</span><br><span class="line">   +<span class="number">0x030</span> NextEstimationSlot : Uint4B</span><br><span class="line">   +<span class="number">0x034</span> NextAgingSlot    : Uint4B</span><br><span class="line">   +<span class="number">0x038</span> EstimatedAvailable : Uint4B</span><br><span class="line">   +<span class="number">0x03c</span> GrowthSinceLastEstimate : Uint4B</span><br><span class="line"><span class="comment">/////////////////////////////////////////////////////////////////////////</span></span><br><span class="line">nt!_MMWSL</span><br><span class="line">   +<span class="number">0x000</span> Quota            : <span class="number">0</span></span><br><span class="line">   +<span class="number">0x004</span> FirstFree        : <span class="number">0x1e</span></span><br><span class="line">   +<span class="number">0x008</span> FirstDynamic     : <span class="number">0xa</span></span><br><span class="line">   +<span class="number">0x00c</span> LastEntry        : <span class="number">0x217</span></span><br><span class="line">   +<span class="number">0x010</span> NextSlot         : <span class="number">7</span></span><br><span class="line">   +<span class="number">0x014</span> Wsle             : <span class="number">0xc0883cfc</span> _MMWSLE			<span class="comment">//物理页起始地址</span></span><br><span class="line">   +<span class="number">0x018</span> LastInitializedWsle : <span class="number">0x4c0</span>					<span class="comment">//物理页个数</span></span><br><span class="line">   +<span class="number">0x01c</span> NonDirectCount   : <span class="number">0x33</span></span><br><span class="line">   +<span class="number">0x020</span> HashTable        : <span class="number">0xc0a84000</span> _MMWSLE_HASH</span><br><span class="line">   +<span class="number">0x024</span> HashTableSize    : <span class="number">0x200</span></span><br><span class="line">   +<span class="number">0x028</span> NumberOfCommittedPageTables : <span class="number">2</span></span><br><span class="line">   +<span class="number">0x02c</span> HashTableStart   : <span class="number">0xc0a84000</span> Void</span><br><span class="line">   +<span class="number">0x030</span> HighestPermittedHashAddress : <span class="number">0xc0e00000</span> Void</span><br><span class="line">   +<span class="number">0x034</span> NumberOfImageWaiters : <span class="number">0</span></span><br><span class="line">   +<span class="number">0x038</span> VadBitMapHint    : <span class="number">0x16</span></span><br><span class="line">   +<span class="number">0x03c</span> UsedPageTableEntries : [<span class="number">1536</span>] <span class="number">0x34</span></span><br><span class="line">   +<span class="number">0xc3c</span> CommittedPageTables : [<span class="number">48</span>] <span class="number">1</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="05-缺页异常"><a href="#05-缺页异常" class="headerlink" title="05.缺页异常"></a>05.缺页异常</h1><p>PTE页表：</p>
+<p><img src="/2023/03/05/2023-3-WinKernel%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20230227110744432.png" alt="image-20230227110744432"></p>
+<p>P位表示当前页是否有效</p>
+<blockquote>
+<p>Windows是只有正在被使用的线性地址才会给你挂上物理页，如果你的线性地址隔了一段时间没使用或者当前的物理页快被占用完了，这时它会将你这些物理页的数据拿出来存到硬盘上。</p>
+<p>右键我的电脑 -&gt; 属性 -&gt; 高级 -&gt; 性能下的设置 -&gt; 高级 -&gt;虚拟内存更改<br>设置虚拟内存后它会在你的c盘下生成一个pagefile.sys，它的大小刚好是你设置的虚拟内存大小。</p>
+<p>当你的物理页不够用了，这时系统会将物理页里的数据放到pagefile.sys这个文件中，再将这个物理页跟程序使用。</p>
+<p>如果我们在某个程序中使用了0x12345678这个线性地址，它的物理页被存放的pagefile.sys了，如果我门在次使用这个地址就出问题了，这时就需要用到缺页异常了</p>
+</blockquote>
+<p>当线性地址对应的物理页被存储到文件中时，PTE结构被拓展为以下四种情形：</p>
+<p><img src="/2023/03/05/2023-3-WinKernel%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20230227111808658.png" alt="image-20230227111808658"></p>
+<blockquote>
+<p>图a：位于页面文件中<br>当你的线性地址的物理页被存放到页面文件（pagefile.sys）中的时候，你的PTE就会变成这样</p>
+<p>CPU访问了这地址你的p:0，进入缺页异常处理程序，缺页异常位于idt表里的E号中断。</p>
+<p>进入缺页异常处理它会回头查看你的这个PTE，这时地址时发现你的1-9位，12-31位都是有值的，它就会知道你这个线性地址是有效的，只不过数据放到页面文件里了</p>
+<p>异常处理程序会到pagefile.sys中，按照PTE上描述的页面文件偏移将页的数据取出来挂到一个新的物理页上，将12-31位改为新的物理页地址，再将p=1</p>
+<p>图b：要求0页面<br>页面尚未分配，下次访问时请求一个0页面</p>
+<p>图c：转移<br>页面在物理内存中，但已被转移到某个物理页面链表中，可以通过查询_MMPFN数据库获取实际情况</p>
+<p>图d：缺页异常处理发现你PTE全部为0就会去查VAD，发现这个线性地址已经分配了它会帮你把物理页挂上，如果这个线性地址没有分配就会报0xC0000005。(具体看 “保留与提交的误区” )</p>
+</blockquote>
+<h2 id="保留与提交"><a href="#保留与提交" class="headerlink" title="保留与提交"></a>保留与提交</h2><p><code>VirtualAlloc</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">LPVOID <span class="title function_">VirtualAlloc</span><span class="params">(</span></span><br><span class="line"><span class="params">	LPVOID lpAddress, 	<span class="comment">// 要分配的内存区域的地址</span></span></span><br><span class="line"><span class="params">	DWORD dwSize, 		<span class="comment">// 分配的大小</span></span></span><br><span class="line"><span class="params">	DWORD flAllocationType, <span class="comment">// 类型：MEM_RESERVE MEM_COMMIT</span></span></span><br><span class="line"><span class="params">	DWORD flProtect 	<span class="comment">// 该内存的初始保护属性</span></span></span><br><span class="line"><span class="params">)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MEM_RESERVE：只保留线性地址，不分配物理页</span></span><br><span class="line"><span class="comment">// MEM_COMMIT：既保留线性地址，又分配物理页</span></span><br></pre></td></tr></table></figure>
+
+<p>示例代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	LPVOID pAddr = VirtualAlloc(<span class="literal">NULL</span>, <span class="number">0x1000</span>*<span class="number">8</span>, MEM_COMMIT, PAGE_READWRITE);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%p\n&quot;</span>, pAddr);</span><br><span class="line">	getchar();</span><br><span class="line">	*(PDWORD)pAddr = <span class="number">0x12345678</span>;</span><br><span class="line">	getchar();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<p><img src="/2023/03/05/2023-3-WinKernel%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20230304142407074.png" alt="image-20230304142407074"></p>
+<p>查看该地址有没有物理页：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; !process <span class="number">0</span> <span class="number">0</span></span><br><span class="line">Failed to get VadRoot</span><br><span class="line">PROCESS <span class="number">86301020</span>  SessionId: <span class="number">0</span>  Cid: <span class="number">023</span>c    Peb: <span class="number">7f</span>fd7000  ParentCid: <span class="number">0238</span></span><br><span class="line">    DirBase: <span class="number">06b</span>c01c0  ObjectTable: e1bbbd20  HandleCount:  <span class="number">10.</span></span><br><span class="line">    Image: test.exe</span><br><span class="line"></span><br><span class="line">kd&gt; !vtop <span class="number">06b</span>c01c0  <span class="number">3</span>a0000</span><br><span class="line">X86VtoP: Virt <span class="number">00000000003</span>a0000, pagedir <span class="number">0000000006b</span>c01c0</span><br><span class="line">X86VtoP: PAE PDPE <span class="number">0000000006b</span>c01c0 - <span class="number">000000002</span>aa4d801</span><br><span class="line">X86VtoP: PAE PDE <span class="number">000000002</span>aa4d008 - <span class="number">000000002</span>aaff867</span><br><span class="line">X86VtoP: PAE PTE <span class="number">000000002</span>aaffd00 - <span class="number">0000000000000000</span><span class="comment">//这里，没有</span></span><br><span class="line">X86VtoP: PAE zero PTE</span><br><span class="line">Virtual address <span class="number">3</span>a0000 translation fails, error <span class="number">0xD0000147</span>.</span><br></pre></td></tr></table></figure>
+
+<p>敲个回车后：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">kd&gt; !vtop <span class="number">06b</span>c01c0  <span class="number">3</span>a0000</span><br><span class="line">X86VtoP: Virt <span class="number">00000000003</span>a0000, pagedir <span class="number">0000000006b</span>c01c0</span><br><span class="line">X86VtoP: PAE PDPE <span class="number">0000000006b</span>c01c0 - <span class="number">000000002</span>aa4d801</span><br><span class="line">X86VtoP: PAE PDE <span class="number">000000002</span>aa4d008 - <span class="number">000000002</span>aaff867</span><br><span class="line">X86VtoP: PAE PTE <span class="number">000000002</span>aaffd00 - <span class="number">800000002b</span>62e867<span class="comment">//已经挂上了</span></span><br><span class="line">X86VtoP: PAE Mapped phys <span class="number">000000002b</span>62e000</span><br><span class="line">Virtual address <span class="number">3</span>a0000 translates to physical address <span class="number">2b</span>62e000.</span><br></pre></td></tr></table></figure>
+
+<p>也可以这样看：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">!dd <span class="number">06b</span>c01c0 + <span class="number">3</span>a0*<span class="number">4</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="写拷贝（EXECUTE-WRITECOPY）"><a href="#写拷贝（EXECUTE-WRITECOPY）" class="headerlink" title="写拷贝（EXECUTE_WRITECOPY）"></a>写拷贝（EXECUTE_WRITECOPY）</h2><p><img src="/2023/03/05/2023-3-WinKernel%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20230304144643458.png" alt="image-20230304144643458"></p>
+<p>先将PTE的R/W=0，<code>_MMVAD_FLAGS</code>设为<code>EXECUTE_WRITECOPY</code></p>
+<p>当你HOOK一些属性为EXECUTE_WRITECOPY的模块时：</p>
+<ol>
+<li>修改它的物理页，这时它PTE.R/W为0就会触发缺页异常</li>
+<li>进入异常处理程序发现PTE.R/W=0，查这个页对应的VAD发现 Protection 为写拷贝</li>
+<li>创建一份新的物理页，修改的数据放到新的物理页，将你的线性地址会指向这个新的物理页。</li>
+</ol>
+<p>如果写驱动程序将它的PTE.R/W强行修改为1，这样它就不会触发缺页异常，可实现A进程中hook了这个模块，所有使用这个模块的进程也会被HOOK。</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2023/03/02/2023-3-WinKernel%E5%BC%82%E5%B8%B8/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2023-03-05 00:00:00
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="Categories"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/Technology/" title="Technology">
+                        <b>#</b> Technology
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/Win32/" title="Win32">
+                        #Win32
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2023/03/07/2023-3-WinKernel%E6%B6%88%E6%81%AF%E6%9C%BA%E5%88%B6/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#01-%E7%BA%BF%E6%80%A7%E5%9C%B0%E5%9D%80%E7%9A%84%E7%AE%A1%E7%90%86"><span class="toc-text">01.线性地址的管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%90%86%E8%A7%A3%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4%E7%BA%BF%E6%80%A7%E5%9C%B0%E5%9D%80%E7%AE%A1%E7%90%86"><span class="toc-text">理解用户空间线性地址管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#02-Private-Memory"><span class="toc-text">02.Private Memory</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#03-Mapped-Memory"><span class="toc-text">03.Mapped Memory</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98"><span class="toc-text">共享内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6"><span class="toc-text">共享文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Mapped-Exe"><span class="toc-text">Mapped Exe</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#04-%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="toc-text">04.物理内存管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="toc-text">物理内存管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PFN"><span class="toc-text">PFN</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%B6%E5%8C%96%E9%93%BE%E8%A1%A8"><span class="toc-text">零化链表</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#05-%E7%BC%BA%E9%A1%B5%E5%BC%82%E5%B8%B8"><span class="toc-text">05.缺页异常</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%9D%E7%95%99%E4%B8%8E%E6%8F%90%E4%BA%A4"><span class="toc-text">保留与提交</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%99%E6%8B%B7%E8%B4%9D%EF%BC%88EXECUTE-WRITECOPY%EF%BC%89"><span class="toc-text">写拷贝（EXECUTE_WRITECOPY）</span></a></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/Ghostasky">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/ghostasky">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/Ghostasky">怕什么真理无穷，进一寸有进一寸的欢喜。</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Windows%E5%86%85%E6%A0%B8(%E4%B9%9D)%E2%80%94%E2%80%94%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86 + '&url=' + https%3A%2F%2Fghostasky.github.io%2F2023%2F03%2F05%2F2023-3-WinKernel%25E5%2586%2585%25E5%25AD%2598%25E7%25AE%25A1%25E7%2590%2586%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://ghostasky.github.io/2023/03/05/2023-3-WinKernel%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
