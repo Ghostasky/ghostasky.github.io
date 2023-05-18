@@ -162,10 +162,10 @@
           2023-05-16	  
         </span>
 		
-		 <span class="post-pubtime"> 本文共7k字 </span>
+		 <span class="post-pubtime"> 本文共10.4k字 </span>
 
                                                                         <span class="post-pubtime">
-        大约需要32min
+        大约需要48min
       </span>
 		
 		
@@ -196,19 +196,12 @@
       <div class="markdown-body">
         <p>[toc]</p>
 <p>AFL 翻译</p>
-<p>ref:</p>
-<blockquote>
-<p> <a target="_blank" rel="noopener" href="https://lcamtuf.coredump.cx/afl/technical_details.txt">https://lcamtuf.coredump.cx/afl/technical_details.txt</a></p>
-<p>afl设计目标和动机的讨论地址: <a target="_blank" rel="noopener" href="http://lcamtuf.coredump.cx/afl/historical_notes.txt">http://lcamtuf.coredump.cx/afl/historical_notes.txt</a></p>
-</blockquote>
-<p>blog ref:<br><a target="_blank" rel="noopener" href="https://xidoo.top/2022/01/afl-white-book/">https://xidoo.top/2022/01/afl-white-book/</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/cc7a486e5adb">https://www.jianshu.com/p/cc7a486e5adb</a><br><a target="_blank" rel="noopener" href="https://dowob.cn/2020/02/13/afl%E7%99%BD%E7%9A%AE%E4%B9%A6/">https://dowob.cn/2020/02/13/afl%E7%99%BD%E7%9A%AE%E4%B9%A6/</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/0xHack/p/9407640.html">https://www.cnblogs.com/0xHack/p/9407640.html</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/529960677">https://zhuanlan.zhihu.com/p/529960677</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42110652/article/details/122093156">https://blog.csdn.net/weixin_42110652/article/details/122093156</a></p>
 <h1 id="afl-fuzz-技术-白皮书"><a href="#afl-fuzz-技术-白皮书" class="headerlink" title="afl-fuzz 技术 白皮书"></a>afl-fuzz 技术 白皮书</h1><p>本文档快速概述了American Fuzzy Lop的核心内容。</p>
-<p>请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅historical_notes.txt。</p>
-<h1 id="0-设计说明-Design-statement"><a href="#0-设计说明-Design-statement" class="headerlink" title="0. 设计说明(Design statement)"></a>0. 设计说明(Design statement)</h1><blockquote>
-<p>instrumentation: 插桩</p>
+<p>请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅<a target="_blank" rel="noopener" href="https://lcamtuf.coredump.cx/afl/historical_notes.txt">historical_notes.txt</a>。</p>
+<blockquote>
+<p>historical_notes:<br>这篇文档主要谈论了AFL（American Fuzzy Lop）的设计理念和灵感来源，以及与其他fuzzing工具的比较。作者认为，AFL的设计目标是解决其他工具无法解决的问题，包括速度、可靠性、简单性和可链接性。他们采用了一些小而相互补充的方法来实现这些目标，其中包括使用gcov块覆盖率选择最佳测试用例，使用进化算法进行fuzz，通过精心修剪语料库或跳过不可修剪但非功能性的输入文件区域等。此外，AFL还可以处理资源密集型或交互式工具，使用户能够使用更轻量级的目标创建有趣的测试用例。总之，AFL旨在发现有趣的漏洞，并且在这方面表现出色。</p>
 </blockquote>
-<p>American Fuzzy Lop不会专注于任何单一的操作原则(singular principle of operation)，也不是任何特定理论的概念验证(POC)。AFL可以被认为是一些Hacks技巧的集合，把这些行为以最简单、最健壮的形式实现便得到了 AFL</p>
+<h1 id="0-设计说明-Design-statement"><a href="#0-设计说明-Design-statement" class="headerlink" title="0. 设计说明(Design statement)"></a>0. 设计说明(Design statement)</h1><p>American Fuzzy Lop不会专注于任何单一的操作原则(singular principle of operation)，也不是任何特定理论的概念验证(POC)。AFL可以被认为是一些Hacks技巧的集合，把这些行为以最简单、最健壮的形式实现便得到了 AFL</p>
 <p>轻量级的插桩技术 instrumentation 使 AFL 的许多特性成为可能，并为该工具的基础，但应该将这种机制仅视为手段而已。Fuzz唯一真正的主导原则是速度、可靠性和易用性。</p>
 <h1 id="1-覆盖率检测-Coverage-measurements"><a href="#1-覆盖率检测-Coverage-measurements" class="headerlink" title="1. 覆盖率检测(Coverage measurements)"></a>1. 覆盖率检测(Coverage measurements)</h1><p>指令被注入已经编译好的程序来捕获分支覆盖率(coverage)，用于粗略统计分支命中次数。被注入分支处的代码本质上等于：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cur_location = &lt;COMPILE_TIME_RANDOM&gt;;</span><br><span class="line">shared_mem[cur_location ^ prev_location]++; </span><br><span class="line">prev_location = cur_location &gt;&gt; <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
@@ -295,12 +288,19 @@
 <p>执行过程受到内存和执行时间限制的限制；默认情况下，超时时间设置为初始化标准执行速度对应时间的5倍，向上取整为20毫秒。这些激进的超时时间旨在防止模糊测试器陷入蜜罐中而导致性能严重下降，例如，提高1%的覆盖率，但速度慢100倍；我们希望模糊测试器能够找到更便宜的方法来达到相同的代码。经验测试，更宽松的时间限制不值得。</p>
 <h1 id="3-输入队列进化-变异-Evolving-the-input-queue"><a href="#3-输入队列进化-变异-Evolving-the-input-queue" class="headerlink" title="3. 输入队列进化(变异)(Evolving the input queue)"></a>3. 输入队列进化(变异)(Evolving the input queue)</h1><p>产生了新的程序状态转换的变异测试用例会被添加到输入队列中，并用作新一轮次 fuzzing 的起点。它们作为已有测试用例的补充，但并不替换掉已有测试用例。</p>
 <p>与更贪心的遗传算法相比，这种方法允许AFL逐步探索底层数据格式的各种不相交且可能相互不兼容的特征，如下图所示：</p>
-<p><a target="_blank" rel="noopener" href="http://lcamtuf.coredump.cx/afl/afl_gzip.png">http://lcamtuf.coredump.cx/afl/afl_gzip.png</a></p>
+<p><img src="/2023/05/16/2023-5AFLWritePaper/afl_gzip.png" alt="img"></p>
 <p>还有一些对于此算法实践的结果讨论：</p>
 <ul>
 <li><a target="_blank" rel="noopener" href="http://lcamtuf.blogspot.com/2014/11/pulling-jpegs-out-of-thin-air.html">http://lcamtuf.blogspot.com/2014/11/pulling-jpegs-out-of-thin-air.html</a></li>
 <li><a target="_blank" rel="noopener" href="http://lcamtuf.blogspot.com/2014/11/afl-fuzz-nobody-expects-cdata-sections.html">http://lcamtuf.blogspot.com/2014/11/afl-fuzz-nobody-expects-cdata-sections.html</a></li>
 </ul>
+<blockquote>
+<p><code>pulling-jpegs-out-of-thin-air</code>:<br>本文介绍了afl-fuzz工具的一个有趣的应用场景。作者创建了一个只包含”hello”字符串的文本文件，并将其作为输入交给了一个期望接收JPEG图像的程序。由于该输入文件与有效的图片格式不符，因此该程序会立即拒绝该输入。然而，afl-fuzz可以利用轻量级汇编级别的插装技术，发现将第一个字节设置为0xff触发了被测试应用程序中略微不同的内部代码路径。afl-fuzz将这个测试用例作为下一轮fuzzing的种子。在几百个代和数亿次execve()调用后，afl-fuzz逐渐发现了构成有效JPEG文件的基本控制结构。最终，它成功地合成了一个有效的JPEG图像。作者指出，这种方法不仅可以用于合成JPEG图像，还可以用于压力测试其他类型的解析器。本文还讨论了afl-fuzz工具的局限性，即当目标二进制文件中存在具有大搜索空间的原子执行检查时，可能会对fuzzer造成难以克服的障碍。</p>
+</blockquote>
+<blockquote>
+<p><code>afl-fuzz-nobody-expects-cdata-sections</code>:<br>本文主要介绍了AFL-fuzz的一个实验结果，即通过随机变异输入文件和轻微调整进程状态来发现程序中的新状态转换。作者最初认为这种方法只能使fuzzer比土豆更聪明一些，但后来发现它可以成功地合成JPEG文件。文章还讨论了AFL-fuzz在探索人类可读格式（如HTML或JavaScript）时的局限性，并介绍了一些解决方案。最后，作者提到了AFL-fuzz在测试libxml2时的惊人表现，尽管这与其设计意图有所违背。</p>
+<p>本文介绍了AFL-fuzz在测试XML解析器libxml2时的一个惊人发现。作者最初只是想测试该解析器的基本功能，但在两天内，AFL-fuzz生成了一个包含特殊CDATA部分的XML文件，这个部分很难通过随机变异来发现。作者认为这可能是因为AFL-fuzz在编译插桩二进制文件时使用了-O3 -funroll-loops参数，或者是因为libxml2中的一些字符串比较操作使用了类似的代码结构。作者表示，这个结果让他感到有点神秘，因为它违反了AFL-fuzz的设计限制之一。作者还提到，尽管AFL-fuzz能够发现某些高度冗长的文本语法，但在其他情况下，使用简单的语法感知、基于模板的工具可能更加有效。</p>
+</blockquote>
 <p>这个过程产生的合成语料库本质上是“嗯，有新东西！”的输入集合，并可用于为任何其他测试过程提供种子（例如，手动对资源密集型桌面应用程序进行压力测试）。</p>
 <p>根据这种方法，对于大多数目标程序，队列的大小通常会增长到1k到10k条记录之间。其中约有10-30%的增长是由于发现新元组，其余的增长则与命中计数的变化有关。这意味着，通过使用元组策略，AFL能够更加高效地生成测试用例，并且能够更快地探索目标程序的不同执行路径。</p>
 <p>表格中列出了使用不同引导策略进行fuzzing的结果比较。每种策略下的测试结果都包括块（Blocks）覆盖率、边（Edges）覆盖率、命中最多的边计数变量（Edge hit cnt var）以及在达到最高覆盖率时生成的测试用例。测试使用的目标是GNU patch 2.7.3，编译选项为-O3，并使用一个虚拟文本文件作为种子进行测试。测试过程中使用了afl-fuzz进行单次输入队列遍历。</p>
@@ -471,7 +471,13 @@
 <p>通过仪器提供的反馈信息，可以轻松理解各种fuzzing策略的价值，并优化它们的参数，使它们在各种输入文件上都能同样有效地工作。afl-fuzz使用的策略是格式无关的(format-agnostic)，并在此处进行了更详细的讨论：</p>
 <pre><code>http://lcamtuf.blogspot.com/2014/08/binary-fuzzing-strategies-what-works.html
 </code></pre>
-<p>这段文字描述了AFL在fuzzing测试中使用的一些确定性策略。<br>特别是在早期阶段，afl-fuzz大部分工作都是高度确定性的，只有在后期才会逐渐转向随机堆叠修改和测试用例拼接。这些确定性策略包括：</p>
+<blockquote>
+<p>这篇文章讨论了二进制fuzzing的策略，以及它们的有效性和限制。文章提到，成功的fuzzer取决于它们的fuzzing策略。如果对输入文件做出的更改过于保守，fuzzer将实现非常有限的覆盖率。如果调整过于激进，则会导致大多数输入在非常早期的阶段失败解析，浪费CPU周期并产生难以调查和排除故障的混乱测试用例。</p>
+<p>文章介绍了AFL（American Fuzzy Lop）的设计，该设计提供了一种罕见的反馈循环：您可以仔细测量哪些类型的更改实际上导致代码中新分支的发现。AFL通过一系列逐渐复杂但详尽和确定性的fuzzing策略（例如顺序位翻转和简单算术）来接近每个新输入文件，然后再进入纯随机行为。这样做的原因是先生成最简单和最优雅的测试用例；但是，该设计还提供了一种非常好的方法来量化每种新策略带来的价值 - 以及我们是否需要它。</p>
+<p>文章提到了几种具体的fuzzing策略，包括Walking bit flips、Walking byte flips、Simple arithmetics、Known integers、Stacked tweaks和Test case splicing。每种策略都有其独特的优点和缺点，并且效果因格式而异。例如，Walking bit flips是最基本的策略之一，可以发现大约70个新路径，但成本相对较高，每个输入文件的每个字节需要八个execve()调用。另一方面，Simple arithmetics可以以相对较低的成本发现更复杂的条件，但成本仍然相对较高，每个输入文件的每个字节需要约20个execve()调用。</p>
+<p>总之，文章提供了有关二进制fuzzing策略的详细信息，以及这些策略的有效性和限制。这对于正在开发自己的fuzzer的人们来说可能会很有用。</p>
+</blockquote>
+<p>特别是在早期阶段，afl-fuzz大部分工作都是高度确定性的，只有在后期才会逐渐转向随机堆叠修改和测试用例拼接。这些确定性策略包括：</p>
 <ul>
 <li>顺序位翻转，步长与翻转长度可变</li>
 <li>对小整数进行顺序加减</li>
@@ -485,6 +491,9 @@
 <h1 id="7-字典构建-Dictionaries"><a href="#7-字典构建-Dictionaries" class="headerlink" title="7. 字典构建(Dictionaries)"></a>7. 字典构建(Dictionaries)</h1><p>AFL使用插桩技术来获取程序执行时的反馈信息，并根据这些信息自动识别输入文件中的语法token。这使得AFL能够检测到预定义或自动检测到的字典的某些组合是否构成了被测试解析器的有效语法。通过这种方式，AFL能够更加智能地生成测试用例，并且能够更好地探索程序状态空间。</p>
 <p>这里讨论了 afl-fuzz 是如何实现语法检测的:</p>
 <p>  <a target="_blank" rel="noopener" href="http://lcamtuf.blogspot.com/2015/01/afl-fuzz-making-up-grammar-with.html">http://lcamtuf.blogspot.com/2015/01/afl-fuzz-making-up-grammar-with.html</a></p>
+<blockquote>
+<p>这段内容主要讲述了AFL-fuzz在处理语法复杂的数据格式时存在的局限性，以及一种通过构建基本语法单元列表来改善AFL-fuzz对这些格式的测试能力的方法。作者提出了一个简单的算法，该算法可以通过检测连续的比特翻转触发与邻近区域不同但整个字节序列中一致的执行路径来识别语法单元，并将其添加到字典中以供后续随机组合。这种方法虽然不能替代手工构建的关键字列表，但可以帮助那些没有时间或倾向于构建完整字典的人们。</p>
+</blockquote>
 <p>AFL通过将基本的、容易获取的语法token以纯随机方式组合在一起，利用插桩技术和进化设计队列提供反馈机制，以区分无意义的变异和触发仪器代码中新行为的变异，并逐步在这个发现的基础上构建更复杂的语法。</p>
 <blockquote>
 <p>换句话说，AFL使用随机测试数据来探索程序状态，从而找到新的测试路径和漏洞。同时，AFL还利用进化算法对测试数据进行优化，以获得更好的测试效果。</p>
@@ -500,10 +509,98 @@
 <p>这种方法在早期可能会存在一些路径数量膨胀的问题，但它展示了非常强的自我限制(self-limiting)效果，类似于afl-这种去重方式与执行路径分析的逻辑一起构成了 afl-fuzz 的基石。</p>
 <h1 id="9-崩溃调查-Investigating-crashes"><a href="#9-崩溃调查-Investigating-crashes" class="headerlink" title="9. 崩溃调查(Investigating crashes)"></a>9. 崩溃调查(Investigating crashes)</h1><p>许多类型的崩溃漏洞的可利用性是模糊不清的；afl-fuzz 试图通过提供一个崩溃探索模式(crash exploration mode)来解决这个问题，在这种模式下，一个已知存在漏洞的测试用例会被以与fuzzer正常操作非常相似的方式进行fuzzing，但有一个约束条件，即任何非崩溃的变异都将被丢弃。</p>
 <p>很多类型的崩溃的可利用性 exploitability 是难以界定的；afl-fuzz 会尝试使用崩溃调查模式 crash exploration mode 来解决这一问题：规则与正常操作模式类似，但变异过后不崩溃的测试用例会被直接丢弃。</p>
-<p>这种解决方法的价值在这篇文章中详细探讨:<br>  <a target="_blank" rel="noopener" href="http://lcamtuf.blogspot.com/2014/11/afl-fuzz-crash-exploration-mode.html">http://lcamtuf.blogspot.com/2014/11/afl-fuzz-crash-exploration-mode.html</a></p>
+<p>这种解决方法的价值在这篇文章中详细探讨:</p>
+<p>  <a target="_blank" rel="noopener" href="http://lcamtuf.blogspot.com/2014/11/afl-fuzz-crash-exploration-mode.html">http://lcamtuf.blogspot.com/2014/11/afl-fuzz-crash-exploration-mode.html</a></p>
+<blockquote>
+<p>该文介绍了AFL-fuzz的新功能——崩溃探索模式。在进行fuzzing测试时，发现崩溃问题后需要花费大量时间来确定是否存在安全风险。而使用崩溃探索模式可以很快地生成一组相关但略有不同的崩溃，以便更准确地估计您对故障地址的控制程度，或者找出是否可以通过适当的方式解决越界读取等问题。这项新功能可以使您更加精准地判断崩溃问题是否具有安全风险，而无需花费大量时间进行手动调试。</p>
+</blockquote>
 <p>该方法使用插桩反馈来探索崩溃程序的状态，以克服模糊的故障条件，然后将新发现的输入隔离出来供人工审查。</p>
-<p>在讨论崩溃问题时，值得注意的是，与正常队列条目相比，崩溃输入不会被修剪；它们会被保留为发现时的原始状态，以便更容易地将它们与父级非崩溃条目进行比较。尽管如此，afl-tmin工具可以随时用来缩小它们。</p>
 <p>对于崩溃来说，与通常的队列元素相反，将崩溃的输入进行减枝是毫无意义的。它们被发现之后就会原封不动的保存，以便将它们与父（未崩溃）元素进行对比分析。也就是说，是否用 afl-tmin 去剪枝都行</p>
+<h1 id="10-fork服务器-The-fork-server"><a href="#10-fork服务器-The-fork-server" class="headerlink" title="10. fork服务器(The fork server)"></a>10. fork服务器(The fork server)</h1><p>为了提高性能，afl-fuzz使用了一个”fork server”，其中fuzzing过程中只需经过一次execve()、链接和libc初始化，然后通过利用写时复制(copy-on-write)从停止的进程映像中复制、clone。该实现在这里有更详细的描述：</p>
+<p>  <a target="_blank" rel="noopener" href="http://lcamtuf.blogspot.com/2014/10/fuzzing-binaries-without-execve.html">http://lcamtuf.blogspot.com/2014/10/fuzzing-binaries-without-execve.html</a></p>
+<blockquote>
+<p>该篇文章介绍了在没有execve()的情况下对随机程序进行fuzzing的方法。该方法主要是通过找到一个简单的二进制文件来测试数据解析库的有趣功能，并使用稍微不同的、随机变异的输入在每次运行中执行它。这种方法的优点是可以消除深入文档、理解底层库提供的API并编写自定义代码来测试解析器的需要，同时使模糊测试过程重复和强大。然而，由于特别是对于简单的库，你可能会花费大部分时间等待execve()、链接器和所有库初始化例程完成它们的工作。为了解决这个问题，作者想出了一些方法，例如编写自定义ELF加载器并在使用mprotect()暂时锁定fuzzer本身使用的内存的同时在进程中执行程序，但是这些方法都比较复杂。最终，作者采用了Jann Horn提出的方法，将小型代码注入到被测二进制文件中，以便让execve()发生并在实际程序中提前停止，然后在子进程中使用copy-on-write创建与已加载程序相同的克隆，从而实现了快速、可靠的模糊测试。该方法可以加快许多常见图像库的模糊测试速度。</p>
+</blockquote>
+<p>fork server是插桩的一个重要组成部分，它只是在第一个被插桩的函数处停止，等待来自afl-fuzz的命令。</p>
+<p>在处理快速目标时，使用fork server可以提供相当大的性能提升，通常在1.5倍到2倍之间。除此之外，还有两种模式可以使用：</p>
+<ul>
+<li><p>在手动（“延迟”）( manual (“deferred”) mode )模式下使用fork server，跳过较大的、用户选择的初始化代码块。这需要对目标程序进行非常小的代码更改，并且对于某些目标，可以产生10倍以上的性能提升。</p>
+</li>
+<li><p>启用“持久化”(persistent mode)模式，其中一个进程用于尝试多个输入，大大减少了重复fork()调用的开销。这通常需要对目标程序进行一些代码更改，但可以将快速目标的性能提高5倍或更多，</p>
+<ul>
+<li>近似于进程内fuzzing作业的好处，同时仍然保持非常强大的隔离性，使得fuzzer进程和目标二进制文件之间的隔离非常可靠。</li>
+</ul>
+</li>
+</ul>
+<h1 id="11-并行处理-Parallelization"><a href="#11-并行处理-Parallelization" class="headerlink" title="11. 并行处理(Parallelization)"></a>11. 并行处理(Parallelization)</h1><p>并行机制依赖于定期检查由独立运行的其他CPU核心或远程机器产生的队列，并有选择地拉取在本地尝试时产生尚未被该fuzzer看到的行为的测试用例。</p>
+<p>这种方法极大地提高了fuzzer设置的灵活性，包括对共同数据格式的不同解析器运行同步实例。此外，如果想了解更多关于这种设计的信息，请参阅<code>parallel_fuzzing.txt</code>。</p>
+<h1 id="12-二进制插桩-Binary-only-instrumentation"><a href="#12-二进制插桩-Binary-only-instrumentation" class="headerlink" title="12. 二进制插桩(Binary-only instrumentation)"></a>12. 二进制插桩(Binary-only instrumentation)</h1><p>AFL使用一个在“用户”模式下单独构建的QEMU版本来完成。这也允许执行跨架构代码，例如在x86上运行ARM二进制文件。</p>
+<p>QEMU将基本块作为翻译单元，插桩是在此之上实现的，并使用大致类似于编译时Hook的模型。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (block_address &gt; elf_text_start &amp;&amp; block_address &lt; elf_text_end) </span><br><span class="line">&#123;</span><br><span class="line">  cur_location = (block_address &gt;&gt; <span class="number">4</span>) ^ (block_address &lt;&lt; <span class="number">8</span>);</span><br><span class="line">  shared_mem[cur_location ^ prev_location]++; </span><br><span class="line">  prev_location = cur_location &gt;&gt; <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这段代码检查基本块地址是否在ELF文件的文本段（.text）中，如果是，则将当前位置和前一个位置异或后存储在共享内存中，并将当前位置右移一位作为前一个位置。这样可以记录程序执行路径并用于AFL的fuzzing测试。</p>
+</blockquote>
+<p>第二行中的移位异或混淆（shift-and-XOR-based scrambling）。这种混淆是为了掩盖指令对齐的影响，因为指令对齐可能会导致基本块地址的低位不同。</p>
+<p>此外，由于像QEMU、DynamoRIO和PIN等二进制翻译器的启动速度比较慢，为了解决这个问题，QEMU模式利用了类似于编译器插桩代码使用的fork server。它会在一个已经初始化并暂停在 <code>_start</code> 处的进程中生成多个副本，从而加快启动速度。</p>
+<p>首次翻译新的基本块也会产生相当大的延迟。为了解决这个问题，AFL fork server通过在正在运行的模拟器和父进程之间提供一个通道来进行扩展。该通道用于通知父进程有关任何新遇到的块的地址，并将它们添加到翻译缓存中，以便将来的子进程可以使用。</p>
+<p>由于这两个优化，QEMU模式的开销大约是白盒的2-5倍，而PIN的开销超过100倍。</p>
+<h1 id="13-AFL分析工具-The-afl-analyze-tool"><a href="#13-AFL分析工具-The-afl-analyze-tool" class="headerlink" title="13. AFL分析工具(The afl-analyze tool)"></a>13. AFL分析工具(The afl-analyze tool)</h1><p>文件格式分析器是前面讨论的最小化算法的简单扩展；该工具不是试图删除无操作块，而是对输入文件执行一系列的字节翻转，后给输入文件执行的各个字节做注解与分类。</p>
+<p>它的分类策略如下：</p>
+<p>它使用以下分类方案：</p>
+<ul>
+<li><p>无操作块(No-op blocks):</p>
+<ul>
+<li>位翻转不会对控制流产生明显变化的段。</li>
+<li>常见的例子可能是注释部分、位图文件中的像素数据等。</li>
+</ul>
+</li>
+<li><p>表面内容(Superficial content) </p>
+<ul>
+<li>段落中有些但不是全部位翻转会导致一些控制流的变化。</li>
+<li>例如，富文本文档中的字符串（如XML、RTF）。</li>
+</ul>
+</li>
+<li><p>关键流(Critical stream) </p>
+<ul>
+<li>一系列字节，其中所有位翻转以不同但相关的方式改变控制流。</li>
+<li>这可能是压缩数据、非原子比较的关键字或魔数等。</li>
+</ul>
+</li>
+<li><p>疑似长度字段(Suspected length field) </p>
+<ul>
+<li>小的、原子整数，在任何情况下都会引起一致的程序控制流变化</li>
+<li>这往往预示着长度检测的错误。</li>
+</ul>
+</li>
+<li><p>疑似校验和或魔法整数(Suspected cksum or magic int) </p>
+<ul>
+<li>一个整数，行为类似于长度字段，但其数值使得长度解释不太可能。</li>
+<li>预示这是一个校验和或其他魔数。</li>
+</ul>
+</li>
+<li><p>疑似校验和块(Suspected checksummed block) </p>
+<ul>
+<li>一个长的数据块，任何更改总是触发相同的新执行路径。</li>
+<li>可能是在任何后续解析之前未通过校验和或类似完整性检查而导致的。</li>
+</ul>
+</li>
+<li><p>魔数字段(Magic value section) </p>
+<ul>
+<li>一种通用的标记，更改会导致前面概述的二进制行为类型，但不符合其他任何条件。</li>
+<li>可能是一个原子比较的关键字或其他东西。</li>
+</ul>
+</li>
+</ul>
+<h1 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h1><ul>
+<li>link</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42110652/article/details/122093156">https://blog.csdn.net/weixin_42110652/article/details/122093156</a></li>
+</ul>
+<p>ref:</p>
+<blockquote>
+<p> <a target="_blank" rel="noopener" href="https://lcamtuf.coredump.cx/afl/technical_details.txt">https://lcamtuf.coredump.cx/afl/technical_details.txt</a></p>
+<p>afl设计目标和动机的讨论地址: <a target="_blank" rel="noopener" href="http://lcamtuf.coredump.cx/afl/historical_notes.txt">http://lcamtuf.coredump.cx/afl/historical_notes.txt</a><br><a target="_blank" rel="noopener" href="https://xidoo.top/2022/01/afl-white-book/">https://xidoo.top/2022/01/afl-white-book/</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/cc7a486e5adb">https://www.jianshu.com/p/cc7a486e5adb</a><br><a target="_blank" rel="noopener" href="https://dowob.cn/2020/02/13/afl%E7%99%BD%E7%9A%AE%E4%B9%A6/">https://dowob.cn/2020/02/13/afl%E7%99%BD%E7%9A%AE%E4%B9%A6/</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/0xHack/p/9407640.html">https://www.cnblogs.com/0xHack/p/9407640.html</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/529960677">https://zhuanlan.zhihu.com/p/529960677</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42110652/article/details/122093156">https://blog.csdn.net/weixin_42110652/article/details/122093156</a></p>
+</blockquote>
 
       </div>
       
@@ -564,7 +661,7 @@
     <div class="title">Contents</div>
     <div class="catalog-content">
       
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#afl-fuzz-%E6%8A%80%E6%9C%AF-%E7%99%BD%E7%9A%AE%E4%B9%A6"><span class="toc-text">afl-fuzz 技术 白皮书</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0-%E8%AE%BE%E8%AE%A1%E8%AF%B4%E6%98%8E-Design-statement"><span class="toc-text">0. 设计说明(Design statement)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E8%A6%86%E7%9B%96%E7%8E%87%E6%A3%80%E6%B5%8B-Coverage-measurements"><span class="toc-text">1. 覆盖率检测(Coverage measurements)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%96%B0%E8%B7%AF%E5%BE%84%E6%A3%80%E6%B5%8B-Detecting-new-behaviors"><span class="toc-text">2. 新路径检测(Detecting new behaviors)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E8%BE%93%E5%85%A5%E9%98%9F%E5%88%97%E8%BF%9B%E5%8C%96-%E5%8F%98%E5%BC%82-Evolving-the-input-queue"><span class="toc-text">3. 输入队列进化(变异)(Evolving the input queue)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E7%B2%BE%E7%AE%80%E8%AF%AD%E6%96%99%E5%BA%93-Culling-the-corpus"><span class="toc-text">4. 精简语料库(Culling the corpus)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E4%BF%AE%E5%89%AA%E8%BE%93%E5%85%A5%E6%96%87%E4%BB%B6-Trimming-input-files"><span class="toc-text">5. 修剪输入文件(Trimming input files)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E7%AD%96%E7%95%A5-Fuzzing-strategies"><span class="toc-text">6. 模糊测试策略(Fuzzing strategies)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-%E5%AD%97%E5%85%B8%E6%9E%84%E5%BB%BA-Dictionaries"><span class="toc-text">7. 字典构建(Dictionaries)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-%E5%B4%A9%E6%BA%83%E5%8E%BB%E9%87%8D-De-duping-crashes"><span class="toc-text">8. 崩溃去重(De-duping crashes)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-%E5%B4%A9%E6%BA%83%E8%B0%83%E6%9F%A5-Investigating-crashes"><span class="toc-text">9. 崩溃调查(Investigating crashes)</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#afl-fuzz-%E6%8A%80%E6%9C%AF-%E7%99%BD%E7%9A%AE%E4%B9%A6"><span class="toc-text">afl-fuzz 技术 白皮书</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0-%E8%AE%BE%E8%AE%A1%E8%AF%B4%E6%98%8E-Design-statement"><span class="toc-text">0. 设计说明(Design statement)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E8%A6%86%E7%9B%96%E7%8E%87%E6%A3%80%E6%B5%8B-Coverage-measurements"><span class="toc-text">1. 覆盖率检测(Coverage measurements)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%96%B0%E8%B7%AF%E5%BE%84%E6%A3%80%E6%B5%8B-Detecting-new-behaviors"><span class="toc-text">2. 新路径检测(Detecting new behaviors)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E8%BE%93%E5%85%A5%E9%98%9F%E5%88%97%E8%BF%9B%E5%8C%96-%E5%8F%98%E5%BC%82-Evolving-the-input-queue"><span class="toc-text">3. 输入队列进化(变异)(Evolving the input queue)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E7%B2%BE%E7%AE%80%E8%AF%AD%E6%96%99%E5%BA%93-Culling-the-corpus"><span class="toc-text">4. 精简语料库(Culling the corpus)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E4%BF%AE%E5%89%AA%E8%BE%93%E5%85%A5%E6%96%87%E4%BB%B6-Trimming-input-files"><span class="toc-text">5. 修剪输入文件(Trimming input files)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E7%AD%96%E7%95%A5-Fuzzing-strategies"><span class="toc-text">6. 模糊测试策略(Fuzzing strategies)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-%E5%AD%97%E5%85%B8%E6%9E%84%E5%BB%BA-Dictionaries"><span class="toc-text">7. 字典构建(Dictionaries)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-%E5%B4%A9%E6%BA%83%E5%8E%BB%E9%87%8D-De-duping-crashes"><span class="toc-text">8. 崩溃去重(De-duping crashes)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-%E5%B4%A9%E6%BA%83%E8%B0%83%E6%9F%A5-Investigating-crashes"><span class="toc-text">9. 崩溃调查(Investigating crashes)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#10-fork%E6%9C%8D%E5%8A%A1%E5%99%A8-The-fork-server"><span class="toc-text">10. fork服务器(The fork server)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#11-%E5%B9%B6%E8%A1%8C%E5%A4%84%E7%90%86-Parallelization"><span class="toc-text">11. 并行处理(Parallelization)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#12-%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%8F%92%E6%A1%A9-Binary-only-instrumentation"><span class="toc-text">12. 二进制插桩(Binary-only instrumentation)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#13-AFL%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-The-afl-analyze-tool"><span class="toc-text">13. AFL分析工具(The afl-analyze tool)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#TODO"><span class="toc-text">TODO</span></a></li></ol>
       
     </div>
   </div>
