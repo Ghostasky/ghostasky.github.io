@@ -162,10 +162,10 @@
           2023-05-16	  
         </span>
 		
-		 <span class="post-pubtime"> 本文共10.4k字 </span>
+		 <span class="post-pubtime"> 本文共12.3k字 </span>
 
                                                                         <span class="post-pubtime">
-        大约需要48min
+        大约需要56min
       </span>
 		
 		
@@ -256,14 +256,14 @@
 <blockquote>
 <p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/35844439/what-is-the-difference-between-block-coverage-and-branch-coverage">What is the difference between block coverage and branch coverage?</a></p>
 <p>大写字母代表程序基本块之间的边，每一条边都有一个随机化的ID（即<code>cur_location</code>），值分别为A-E，所以</p>
-<p>B-&gt;C-&gt;D 路径表现为 <code>shared_mem[(B&gt;&gt;1)^C]++ shared_mem[(C&gt;&gt;1)^D]++</code></p>
-<p>B-&gt;D-&gt;C 路径表现为 <code>shared_mem[(B&gt;&gt;1)^D]++ shared_mem[(D&gt;&gt;1)^C]++</code></p>
+<p>B-&gt;C-&gt;D 路径表现为 <code>shared_mem[(B &gt;&gt; 1) ^ C]++ shared_mem[(C &gt;&gt; 1) ^ D]++</code></p>
+<p>B-&gt;D-&gt;C 路径表现为 <code>shared_mem[(B &gt;&gt; 1) ^ D]++ shared_mem[(D &gt;&gt; 1) ^ C]++</code></p>
 <p>显然是可以区分的。但是块覆盖只会记录 B,C,D 块均命中，却无法区分。</p>
 </blockquote>
 <p>这有助于发现底层代码中的细微故障情况，因为安全漏洞通常是一些非预期(或不正确)的语句转移(一个tuple就是一个语句转移)，仅仅追求达到更多新的基本块是不够的。</p>
 <p>前面所示的伪代码的最后一行中进行移位操作是为了保持元组的方向性（如果没有这个，A ^ B 将与 B ^ A 无法区分）并且可以区分不同的紧密循环(tight loops)（否则 , A ^ A 显然等于 B ^ B)。</p>
 <blockquote>
-<p>如果不移位:<br>对于路径 A-&gt;B 与 B-&gt;A 表现均为 <code>shared_mem[A^B]++</code> ，无法区分<br>对于环形路径 A-&gt;A 与 B-&gt;B 表现均为 <code>shared_mem[0]++</code>，无法区分</p>
+<p>如果不移位:<br>对于路径 A-&gt;B 与 B-&gt;A 表现均为 <code>shared_mem[A ^ B]++</code> ，无法区分<br>对于环形路径 A-&gt;A 与 B-&gt;B 表现均为 <code>shared_mem[0]++</code>，无法区分</p>
 </blockquote>
 <p>Intel CPU 上缺少简单的饱和算术操作码(saturating arithmetic opcodes)意味着命中计数器有时会归零。由于这是一个不太可能发生的局部事件，因此它被视为可接受的性能权衡(trade-off)。</p>
 <blockquote>
@@ -601,6 +601,38 @@
 <p> <a target="_blank" rel="noopener" href="https://lcamtuf.coredump.cx/afl/technical_details.txt">https://lcamtuf.coredump.cx/afl/technical_details.txt</a></p>
 <p>afl设计目标和动机的讨论地址: <a target="_blank" rel="noopener" href="http://lcamtuf.coredump.cx/afl/historical_notes.txt">http://lcamtuf.coredump.cx/afl/historical_notes.txt</a><br><a target="_blank" rel="noopener" href="https://xidoo.top/2022/01/afl-white-book/">https://xidoo.top/2022/01/afl-white-book/</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/cc7a486e5adb">https://www.jianshu.com/p/cc7a486e5adb</a><br><a target="_blank" rel="noopener" href="https://dowob.cn/2020/02/13/afl%E7%99%BD%E7%9A%AE%E4%B9%A6/">https://dowob.cn/2020/02/13/afl%E7%99%BD%E7%9A%AE%E4%B9%A6/</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/0xHack/p/9407640.html">https://www.cnblogs.com/0xHack/p/9407640.html</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/529960677">https://zhuanlan.zhihu.com/p/529960677</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42110652/article/details/122093156">https://blog.csdn.net/weixin_42110652/article/details/122093156</a></p>
 </blockquote>
+<h1 id="附-AFL设计目标和动机的讨论-historical-notes"><a href="#附-AFL设计目标和动机的讨论-historical-notes" class="headerlink" title="附: AFL设计目标和动机的讨论(historical notes)"></a>附: AFL设计目标和动机的讨论(historical notes)</h1><ol>
+<li>影响</li>
+</ol>
+<p>简而言之，afl-fuzz的灵感主要来自于Tavis Ormandy在2007年所做的工作。Tavis使用gcov块覆盖率从大量数据中选择最佳的测试用例，并将它们作为传统模糊测试工作流的起点，做了一些非常有说服力的实验。</p>
+<p>（所谓“有说服力”，是指：获得了大量有趣的漏洞。）</p>
+<p>与此同时，Tavis和我都对进化模糊测试很感兴趣。Tavis有他的实验，我则在2007年左右编写了一个名为bunny-the-fuzzer的工具。</p>
+<p>Bunny使用了一种与afl-fuzz并没有太大区别的生成算法，但还试图推理各种输入位与程序内部状态之间的关系，希望从中得到一些额外的价值。这种推理/相关性部分可能在某种程度上受到了Will Drewry和Chris Evans等人在同一时间完成的其他项目的启发。</p>
+<p>状态相关方法(state correlation approach)在论文中听起来非常诱人，但最终使模糊器变得复杂、脆弱且难以使用；每个目标程序都需要进行一两次调整。因为Bunny的表现并不比不那么复杂的暴力工具好多少，我最终决定放弃它。你仍然可以在以下网址找到它的原始文档：</p>
+<p><a target="_blank" rel="noopener" href="https://code.google.com/p/bunny-the-fuzzer/wiki/BunnyDoc">https://code.google.com/p/bunny-the-fuzzer/wiki/BunnyDoc</a></p>
+<p>也有一些独立的工作。最值得注意的是，那一年早些时候，Jared DeMott在Defcon上做了一个关于基于覆盖率的模糊测试的演讲，该模糊测试依赖于覆盖率作为适应度函数(fitness function)。</p>
+<p>Jared的方法与afl-fuzz所做的并不完全相同，但大致相似。他的模糊器试图显式地(explicitly )解决单个输入文件的最大覆盖问题；相比之下，afl仅选择能够做出新事物的情况（这会产生更好的结果-请参见technical_details.txt）。</p>
+<p>几年后，Gabriel Campana发布了fuzzgrind，这是一个完全依赖于Valgrind和约束求解器来最大化覆盖率而没有任何暴力位的工具；微软研究人员则广泛讨论了他们仍未公开的基于求解器的SAGE框架。</p>
+<p>在过去的六年左右，我还看到了很多学术论文，涉及智能模糊测试（主要关注符号执行）和一些讨论使用遗传算法实现相同目标的概念验证应用程序的论文。我不太相信这些实验的实用性；我怀疑其中许多都遭受了bunny-the-fuzzer的诅咒，在论文和精心设计的实验中很酷，但在其他情况下却无法找到新的、有价值的安全漏洞。</p>
+<p>在某些方面，“酷”的解决方案所要竞争的基线比看起来更令人印象深刻，这使得竞争者难以脱颖而出。举个例子，看看Gynvael和Mateusz Jurczyk的工作，将“愚蠢”的模糊测试应用于ffmpeg，现代浏览器和媒体播放器的重要且关键的组件：</p>
+<p><a target="_blank" rel="noopener" href="http://googleonlinesecurity.blogspot.com/2014/01/ffmpeg-and-thousand-fixes.html">http://googleonlinesecurity.blogspot.com/2014/01/ffmpeg-and-thousand-fixes.html</a></p>
+<p>轻松地获得与同样复杂软件中最先进的符号执行相当的结果似乎仍然相当不可能，并且迄今为止还没有在实践中证明过。</p>
+<p>但是我偏离了主题；最终，归因很难，赞美AFL背后的基本概念可能是一种浪费时间。魔鬼往往隐藏在常常被忽视的细节中，这就带我们来到了…</p>
+<ol start="2">
+<li>afl-fuzz的设计目标<br>简而言之，我认为afl-fuzz的当前实现解决了其他工具似乎无法解决的一些问题：</li>
+</ol>
+<p>1）速度。当你的“智能”方法需要大量资源时，很难与暴力破解竞争。如果你的仪器使找到一个漏洞的可能性增加了10倍，但运行速度减慢了100倍，那么你的用户就会受到损失。</p>
+<p>为避免从一开始就处于劣势，afl-fuzz旨在让你以大致原生速度模糊测试大多数目标-即使它没有添加价值，你也不会损失太多。</p>
+<p>此外，该工具利用仪器在几个方面实际上减少了工作量：例如，通过精心修剪语料库或跳过输入文件中不可修剪但非功能性的部分。</p>
+<p>2）坚如磐石的可靠性。如果你的方法脆弱且意外失败，很难与暴力破解竞争。自动化测试很有吸引力，因为它简单易用且可扩展；任何违反这些原则的东西都是一种不受欢迎的权衡，意味着你的工具将被使用得更少，并且结果不太一致。</p>
+<p>大多数基于符号执行、污点跟踪或复杂语法感知仪器的方法目前在实际目标中相当不可靠。更重要的是，它们的失败模式可能使它们比“愚蠢”的工具更糟糕，这种退化对于经验不足的用户来说可能很难察觉和纠正。</p>
+<p>相比之下，afl-fuzz的设计是坚如磐石的，主要是通过保持简单来实现的。实际上，在其核心，它被设计成一个非常好的传统模糊器，拥有各种有趣的、经过深入研究的策略。花哨的部分只是帮助它将工作集中在最重要的地方。</p>
+<p>3）简洁性。测试框架的作者可能是唯一真正了解工具提供的所有设置的人，也是唯一可以精确调整它们的人。然而，即使是最基本的模糊测试框架通常也带有无数个旋钮和模糊比率，需要操作者提前猜测。这可能会造成更多的伤害而不是好处。</p>
+<p>AFL旨在尽可能避免这种情况。你可以玩的三个旋钮是输出文件、内存限制和覆盖默认自动校准超时的能力。其余部分只是应该正常工作。当它不起作用时，用户友好的错误消息会概述可能的原因和解决方法，并让你立即回到正轨。</p>
+<p>4）可链接性。大多数通用模糊器不能轻松地针对资源占用量大或交互重的工具进行测试，这需要创建定制的进程内模糊器或投入大量CPU功率（其中大部分浪费在与我们实际想要测试的代码无直接关系的任务上）。</p>
+<p>AFL试图通过允许用户使用更轻量级的目标（例如，独立的图像解析库）创建一小组有趣的测试用例，这些测试用例可以稍后被馈送到手动测试过程或UI测试中来解决这个问题。</p>
+<p>如technical_details.txt所述，AFL并不是通过系统地应用单一的总体CS概念来做到这一点的，而是通过尝试各种小型、互补的方法来实现的，这些方法已经被证明比机会更可靠地产生结果。仪器的使用是这个工具箱的一部分，但远非最重要的部分。</p>
+<p>最终，重要的是 afl-fuzz 被设计用来发现酷炫的漏洞 - 并且在这方面具有相当强大的记录。</p>
 
       </div>
       
@@ -661,7 +693,7 @@
     <div class="title">Contents</div>
     <div class="catalog-content">
       
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#afl-fuzz-%E6%8A%80%E6%9C%AF-%E7%99%BD%E7%9A%AE%E4%B9%A6"><span class="toc-text">afl-fuzz 技术 白皮书</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0-%E8%AE%BE%E8%AE%A1%E8%AF%B4%E6%98%8E-Design-statement"><span class="toc-text">0. 设计说明(Design statement)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E8%A6%86%E7%9B%96%E7%8E%87%E6%A3%80%E6%B5%8B-Coverage-measurements"><span class="toc-text">1. 覆盖率检测(Coverage measurements)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%96%B0%E8%B7%AF%E5%BE%84%E6%A3%80%E6%B5%8B-Detecting-new-behaviors"><span class="toc-text">2. 新路径检测(Detecting new behaviors)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E8%BE%93%E5%85%A5%E9%98%9F%E5%88%97%E8%BF%9B%E5%8C%96-%E5%8F%98%E5%BC%82-Evolving-the-input-queue"><span class="toc-text">3. 输入队列进化(变异)(Evolving the input queue)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E7%B2%BE%E7%AE%80%E8%AF%AD%E6%96%99%E5%BA%93-Culling-the-corpus"><span class="toc-text">4. 精简语料库(Culling the corpus)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E4%BF%AE%E5%89%AA%E8%BE%93%E5%85%A5%E6%96%87%E4%BB%B6-Trimming-input-files"><span class="toc-text">5. 修剪输入文件(Trimming input files)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E7%AD%96%E7%95%A5-Fuzzing-strategies"><span class="toc-text">6. 模糊测试策略(Fuzzing strategies)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-%E5%AD%97%E5%85%B8%E6%9E%84%E5%BB%BA-Dictionaries"><span class="toc-text">7. 字典构建(Dictionaries)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-%E5%B4%A9%E6%BA%83%E5%8E%BB%E9%87%8D-De-duping-crashes"><span class="toc-text">8. 崩溃去重(De-duping crashes)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-%E5%B4%A9%E6%BA%83%E8%B0%83%E6%9F%A5-Investigating-crashes"><span class="toc-text">9. 崩溃调查(Investigating crashes)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#10-fork%E6%9C%8D%E5%8A%A1%E5%99%A8-The-fork-server"><span class="toc-text">10. fork服务器(The fork server)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#11-%E5%B9%B6%E8%A1%8C%E5%A4%84%E7%90%86-Parallelization"><span class="toc-text">11. 并行处理(Parallelization)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#12-%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%8F%92%E6%A1%A9-Binary-only-instrumentation"><span class="toc-text">12. 二进制插桩(Binary-only instrumentation)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#13-AFL%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-The-afl-analyze-tool"><span class="toc-text">13. AFL分析工具(The afl-analyze tool)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#TODO"><span class="toc-text">TODO</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#afl-fuzz-%E6%8A%80%E6%9C%AF-%E7%99%BD%E7%9A%AE%E4%B9%A6"><span class="toc-text">afl-fuzz 技术 白皮书</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0-%E8%AE%BE%E8%AE%A1%E8%AF%B4%E6%98%8E-Design-statement"><span class="toc-text">0. 设计说明(Design statement)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E8%A6%86%E7%9B%96%E7%8E%87%E6%A3%80%E6%B5%8B-Coverage-measurements"><span class="toc-text">1. 覆盖率检测(Coverage measurements)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%96%B0%E8%B7%AF%E5%BE%84%E6%A3%80%E6%B5%8B-Detecting-new-behaviors"><span class="toc-text">2. 新路径检测(Detecting new behaviors)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E8%BE%93%E5%85%A5%E9%98%9F%E5%88%97%E8%BF%9B%E5%8C%96-%E5%8F%98%E5%BC%82-Evolving-the-input-queue"><span class="toc-text">3. 输入队列进化(变异)(Evolving the input queue)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E7%B2%BE%E7%AE%80%E8%AF%AD%E6%96%99%E5%BA%93-Culling-the-corpus"><span class="toc-text">4. 精简语料库(Culling the corpus)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E4%BF%AE%E5%89%AA%E8%BE%93%E5%85%A5%E6%96%87%E4%BB%B6-Trimming-input-files"><span class="toc-text">5. 修剪输入文件(Trimming input files)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E7%AD%96%E7%95%A5-Fuzzing-strategies"><span class="toc-text">6. 模糊测试策略(Fuzzing strategies)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-%E5%AD%97%E5%85%B8%E6%9E%84%E5%BB%BA-Dictionaries"><span class="toc-text">7. 字典构建(Dictionaries)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-%E5%B4%A9%E6%BA%83%E5%8E%BB%E9%87%8D-De-duping-crashes"><span class="toc-text">8. 崩溃去重(De-duping crashes)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-%E5%B4%A9%E6%BA%83%E8%B0%83%E6%9F%A5-Investigating-crashes"><span class="toc-text">9. 崩溃调查(Investigating crashes)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#10-fork%E6%9C%8D%E5%8A%A1%E5%99%A8-The-fork-server"><span class="toc-text">10. fork服务器(The fork server)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#11-%E5%B9%B6%E8%A1%8C%E5%A4%84%E7%90%86-Parallelization"><span class="toc-text">11. 并行处理(Parallelization)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#12-%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%8F%92%E6%A1%A9-Binary-only-instrumentation"><span class="toc-text">12. 二进制插桩(Binary-only instrumentation)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#13-AFL%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7-The-afl-analyze-tool"><span class="toc-text">13. AFL分析工具(The afl-analyze tool)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#TODO"><span class="toc-text">TODO</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%99%84-AFL%E8%AE%BE%E8%AE%A1%E7%9B%AE%E6%A0%87%E5%92%8C%E5%8A%A8%E6%9C%BA%E7%9A%84%E8%AE%A8%E8%AE%BA-historical-notes"><span class="toc-text">附: AFL设计目标和动机的讨论(historical notes)</span></a></li></ol>
       
     </div>
   </div>
