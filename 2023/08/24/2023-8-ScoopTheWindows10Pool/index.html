@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="zh-cn" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="郁涛丶" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      【译】Scoop The Windows 10 Pool 
+      
+      
+      |
+    
+     郁涛丶&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+    
+<link rel="stylesheet" href="/css/figcaption/mac-block.css">
+
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Ghostasky</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">【译】Scoop The Windows 10 Pool</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2023-08-24	  
+        </span>
+    <span class="post-pubtime"> 本文共12.2k字 </span>
+    
+    <span class="post-pubtime">大约需要62min </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/Technology/" title="Technology">
+                    <b>#</b> Technology
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/Windows/" title="Windows">
+                    #Windows
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <blockquote>
+<p>SSTIC2020-Article-pool_overflow_exploitation_since_windows_10_19h1-bayet_fariello.pdf<br><a target="_blank" rel="noopener" href="https://github.com/synacktiv/Windows-kernel-SegmentHeap-Aligned-Chunk-Confusion">https://github.com/synacktiv/Windows-kernel-SegmentHeap-Aligned-Chunk-Confusion</a><br><a target="_blank" rel="noopener" href="https://paper.seebug.org/1743/">https://paper.seebug.org/1743/</a></p>
+</blockquote>
+<p><strong>摘要</strong>：堆溢出是应用程序中相当常见的漏洞。利用这类漏洞通常依赖于对用于管理堆的基础机制的深入理解。Windows 10 最近改变了其在内核空间中管理堆的方式。本文旨在介绍Windows NT内核中堆机制的最新演变，并介绍针对内核池的新的利用技术。</p>
+<h1 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1 Introduction"></a>1 Introduction</h1><p>池（Pool）是Windows系统中保留给内核空间的堆。多年来，池分配器与用户空间中的分配器有很大的区别。然而，自 2019 年 3 月的 Windows 10 19H1 更新以来，这种情况发生了变化。在内核中引入了用户空间中广为人知和有文档记录的段堆（Segment Heap）[7]。然而，由于内核空间仍然需要一些特定的材料，因此内核中实现的分配器和用户空间中的分配器之间仍存在一些差异。本文从利用的角度重点介绍了内核段堆的自定义内部机制。</p>
+<p>本文的研究针对x64架构进行了定制。对于不同架构的调整尚未进行研究。</p>
+<p>在简要回顾历史池内部机制之后，本文将解释内核中如何实现段堆以及它对内核池特定材料的影响。然后，本文将介绍一种新的攻击方法，用于利用内核池中的堆溢出漏洞时的池内部机制。最后，本文将介绍一种通用的利用方法，利用最小的可控堆溢出，实现从低完整性级别到SYSTEM级别的本地权限提升。</p>
+<h2 id="1-1-Pool-internals"><a href="#1-1-Pool-internals" class="headerlink" title="1.1 Pool internals"></a>1.1 Pool internals</h2><p>本文不会深入探讨池分配器的内部机制，因为这个主题已经被广泛涵盖[5]，但为了对本文有一个全面的理解，仍然需要快速回顾一些内部机制。本节将介绍一些Windows 7中的池内部机制，以及在过去几年中对池进行的各种缓解和更改。这里解释的内部机制将重点关注适合单个页面的块，这是内核中最常见的分配方式。大小大于<code>0xFE0</code>的分配行为不同，本文不涵盖这种情况。</p>
+<p>在Windows内核中，用于分配和释放内存的主要函数分别是<code>ExAllocatePoolWithTag</code>和<code>ExFreePoolWithTag</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line">PVOID <span class="title function_">ExAllocatePoolWithTag</span><span class="params">(POOL_TYPE PoolType, SIZE_T NumberOfBytes, ULONG Tag)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 如果大小超过4080字节，则调用池页分配器</span></span><br><span class="line">    <span class="keyword">if</span> (NumberOfBytes &gt; <span class="number">0xff0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 调用 nt!ExpAllocateBigPool</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 尝试使用 lookaside 列表</span></span><br><span class="line">    <span class="keyword">if</span> (PoolType &amp; PagedPool)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (PoolType &amp; SessionPool &amp;&amp; NumberOfBytes &lt;= <span class="number">0x19</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 尝试会话分页 lookaside 列表</span></span><br><span class="line">            <span class="comment">// 成功时返回</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (NumberOfBytes &lt;= <span class="number">0x20</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 尝试每个处理器的分页 lookaside 列表</span></span><br><span class="line">            <span class="comment">// 成功时返回</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 锁定分页池描述符（循环或本地节点）</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123; <span class="comment">// NonPagedPool</span></span><br><span class="line">        <span class="keyword">if</span> (NumberOfBytes &lt;= <span class="number">0x20</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 尝试每个处理器的非分页 lookaside 列表</span></span><br><span class="line">            <span class="comment">// 成功时返回</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 锁定非分页池描述符（本地节点）</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 尝试使用 listheads 列表</span></span><br><span class="line">    <span class="keyword">for</span> (n = NumberOfBytes - <span class="number">1</span>; n &lt; <span class="number">512</span>; n++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (ListHeads[n].Flink == &amp;ListHeads[n])</span><br><span class="line">        &#123;             <span class="comment">// 空的</span></span><br><span class="line">            <span class="keyword">continue</span>; <span class="comment">// 尝试下一个块大小</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 安全地取消链接 ListHeads[n].Flink</span></span><br><span class="line">        <span class="comment">// 如果大于所需大小，则拆分</span></span><br><span class="line">        <span class="comment">// 返回块</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 未找到块，调用 nt!MiAllocatePoolPages</span></span><br><span class="line">    <span class="comment">// 拆分页面并返回块</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">VOID <span class="title function_">ExFreePoolWithTag</span><span class="params">(PVOID Entry, ULONG Tag)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (PAGE_ALIGNED(Entry))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 调用 nt!MiFreePoolPages</span></span><br><span class="line">        <span class="comment">// 成功时返回</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (Entry-&gt;BlockSize != NextEntry-&gt;PreviousSize)</span><br><span class="line">        BugCheckEx(BAD_POOL_HEADER);</span><br><span class="line">    <span class="keyword">if</span> (Entry-&gt;PoolType &amp; SessionPagedPool &amp;&amp; Entry-&gt;BlockSize &lt;= <span class="number">0x19</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 放入会话池的 lookaside 列表</span></span><br><span class="line">        <span class="comment">// 成功时返回</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (Entry-&gt;BlockSize &lt;= <span class="number">0x20</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (Entry-&gt;PoolType &amp; PagedPool)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 放入每个处理器的分页 lookaside 列表</span></span><br><span class="line">            <span class="comment">// 成功时返回</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123; <span class="comment">// NonPagedPool</span></span><br><span class="line">            <span class="comment">// 放入每个处理器的非分页 lookaside 列表</span></span><br><span class="line">            <span class="comment">// 成功时返回</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (ExpPoolFlags &amp; DELAY_FREE)</span><br><span class="line">    &#123; <span class="comment">// 0x200</span></span><br><span class="line">        <span class="keyword">if</span> (PendingFreeDepth &gt;= <span class="number">0x20</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 调用 nt!ExDeferredFreePool</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 将 Entry 添加到 PendingFrees 列表</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (IS_FREE(NextEntry) &amp;&amp; !PAGE_ALIGNED(NextEntry))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 安全地取消链接下一个条目</span></span><br><span class="line">            <span class="comment">// 将下一个条目与当前块合并</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (IS_FREE(PreviousEntry))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 安全地取消链接上一个条目</span></span><br><span class="line">            <span class="comment">// 将上一个条目与当前块合并</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (IS_FULL_PAGE(Entry))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 调用 nt!MiFreePoolPages</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 将 Entry 插入到 ListHeads[BlockSize - 1]</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>PoolType</code>是一个位字段，具有以下关联的枚举：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">NonPagedPool = <span class="number">0</span>;</span><br><span class="line">PagedPool = <span class="number">1</span>;</span><br><span class="line">NonPagedPoolMustSucceed = <span class="number">2</span>;</span><br><span class="line">DontUseThisType = <span class="number">3</span>;</span><br><span class="line">NonPagedPoolCacheAligned = <span class="number">4</span>;</span><br><span class="line">PagedPoolCacheAligned = <span class="number">5</span>;</span><br><span class="line">NonPagedPoolCacheAlignedMustSucceed = <span class="number">6</span>;</span><br><span class="line">MaxPoolType = <span class="number">7</span>;</span><br><span class="line">PoolQuota = <span class="number">8</span>;</span><br><span class="line">NonPagedPoolSession = <span class="number">20</span>h;</span><br><span class="line">PagedPoolSession = <span class="number">21</span>h;</span><br><span class="line">NonPagedPoolMustSucceedSession = <span class="number">22</span>h;</span><br><span class="line">DontUseThisTypeSession = <span class="number">23</span>h;</span><br><span class="line">NonPagedPoolCacheAlignedSession = <span class="number">24</span>h;</span><br><span class="line">PagedPoolCacheAlignedSession = <span class="number">25</span>h;</span><br><span class="line">NonPagedPoolCacheAlignedMustSSession = <span class="number">26</span>h;</span><br><span class="line">NonPagedPoolNx = <span class="number">200</span>h;</span><br><span class="line">NonPagedPoolNxCacheAligned = <span class="number">204</span>h;</span><br><span class="line">NonPagedPoolSessionNx = <span class="number">220</span>h;</span><br></pre></td></tr></table></figure>
+
+<p><code>PoolType</code>可以存储多种信息：</p>
+<ul>
+<li>内存类型，可以是<code>NonPagedPool</code>、<code>PagedPool</code>、<code>SessionPool</code>或<code>NonPagedPoolNx</code>；</li>
+<li>分配是否关键（第1位），必须成功。如果分配失败，将触发<code>BugCheck</code>；</li>
+<li>分配是否按缓存大小对齐（第2位）；</li>
+<li>分配是否使用<code>PoolQuota</code>机制（第3位）；</li>
+<li>其他未记录的机制。</li>
+</ul>
+<p>使用的内存类型很重要，因为它将分配隔离在不同的内存范围内。使用的两种主要内存类型是<code>PagedPool</code>和<code>NonPagedPool</code>。MSDN文档对其进行了以下描述：</p>
+<blockquote>
+<p>“Nonpaged pool”是不可分页的系统内存。它可以从任何IRQL访问，但它是一种有限的资源，驱动程序应仅在必要时分配它。”Paged pool”是可分页的系统内存，只能在<code>IRQL</code> &lt; <code>DISPATCH_LEVEL</code>级别进行分配和访问。</p>
+</blockquote>
+<p>正如在1.2节中解释的那样，Windows 8 引入了<code>NonPagedPoolNx</code>，必须使用它来替代<code>NonPagedPool</code>。</p>
+<p><code>SessionPool</code>用于会话空间分配，对于每个用户会话都是唯一的。它主要由<code>win32k</code>使用。最后，”tag”是一个由一个到四个非零字符构成的字符字面量（例如，”Tag1”）。建议内核开发人员按照代码路径使用唯一的池标记，以帮助调试器和验证器识别代码路径。</p>
+<p>在内存池中，所有适合于单个页面的块都以<code>POOL_HEADER</code>结构开始。此头部包含分配器所需的信息和标记。当尝试利用Windows内核中的堆溢出漏洞时，首先要被覆盖的是<code>POOL_HEADER</code>结构。攻击者有两种选择：正确地重写<code>POOL_HEADER</code>结构并攻击下一个块的数据，或直接攻击<code>POOL_HEADER</code>结构本身。</p>
+<p>在这两种情况下，<code>POOL_HEADER</code>结构都将被覆盖，因此需要对每个字段及其使用方式有很好的理解，才能利用这种类型的漏洞。本文将重点讨论直接针对<code>POOL_HEADER</code>进行的攻击。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Simplified POOL_HEADER structure in Windows 1809:</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">POOL_HEADER</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">char</span> PreviousSize;</span><br><span class="line">    <span class="type">char</span> PoolIndex;</span><br><span class="line">    <span class="type">char</span> BlockSize;</span><br><span class="line">    <span class="type">char</span> PoolType;</span><br><span class="line">    <span class="type">int</span> PoolTag;</span><br><span class="line">    Ptr64 ProcessBilled;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><code>POOL_HEADER</code>结构在不同版本的Windows中略有变化，但始终保持相同的主要字段。在Windows 1809 和 Windows 19H1 之前的版本中，所有字段都被使用：</p>
+<ul>
+<li><code>PreviousSize</code>是前一个块的大小除以16的结果；</li>
+<li><code>PoolIndex</code>是一个指向<code>PoolDescriptor</code>数组的索引；</li>
+<li><code>BlockSize</code>是当前分配的大小除以16的结果；</li>
+<li><code>PoolType</code>是一个位字段，包含有关分配类型的信息；</li>
+<li><code>ProcessBilled</code>是指向进行分配的<code>KPROCESS</code>的指针。只有在<code>PoolType</code>中设置了<code>PoolQuota</code>标志时才会设置该字段。</li>
+</ul>
+<h2 id="1-2-自Windows-7以来的攻击和缓解措施"><a href="#1-2-自Windows-7以来的攻击和缓解措施" class="headerlink" title="1.2 自Windows 7以来的攻击和缓解措施"></a>1.2 自Windows 7以来的攻击和缓解措施</h2><p>Tarjei Mandt的论文《Windows 7上的内核池利用》[5]是一篇全面的参考文献，探讨了针对Windows 7内核池的攻击。该论文对内核池的内部工作原理进行了深入分析，并介绍了许多攻击方法，其中一些攻击针对<code>POOL_HEADER</code>进行了研究。</p>
+<p><strong>Quota Process Pointer Overwrite Allocation</strong>可以用于针对给定进程收取配额。为了实现这一目的，<code>ExAllocatePoolWithQuotaTag</code>函数将利用<code>POOL_HEADER</code>的<code>ProcessBilled</code>字段，将指向负责分配的<code>_KPROCESS</code>的指针存储其中。</p>
+<p>论文中描述的一种攻击是配额进程指针覆写（Quota Process Pointer Overwrite）。该攻击利用堆溢出来覆写已分配块的<code>ProcessBilled</code>指针。当释放该块时，如果块的<code>PoolType</code>包含<code>PoolQuota</code>标志（0x8），则使用该指针来解引用一个值。控制这个指针提供了一个任意解引用的基本操作，足以从用户态提升特权。图4展示了这个攻击的过程。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230818061734070.png"></p>
+<p>自 Windows 8 开始，这种攻击已经得到了缓解，引入了<code>ExpPoolQuotaCookie</code>。该Cookie在启动时随机生成，并用于保护指针免受攻击者的覆写。例如，它用于对<code>ProcessBilled</code>字段进行异或操作。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ProcessBilled = KPROCESS_PTR ^ ExpPoolQuotaCookie ^ CHUNK_ADDR</span><br></pre></td></tr></table></figure>
+
+<p>当释放该块时，内核会检查编码后的指针是否是一个有效的KPROCESS指针:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">process_ptr = (<span class="keyword">struct</span> _KPROCESS *)(chunk_addr ^ ExpPoolQuotaCookie ^ chunk_addr-&gt;process_billed);</span><br><span class="line"><span class="keyword">if</span> (process_ptr)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (process_ptr &lt; <span class="number">0</span> xFFFF800000000000 || (process_ptr-&gt;Header.Type &amp; <span class="number">0</span> x7F) != <span class="number">3</span>)</span><br><span class="line">        KeBugCheckEx([...])</span><br><span class="line">    [...]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在不知道块的地址和<code>ExpPoolQuotaCookie</code>的值的情况下，无法提供有效的指针，也无法进行任意解引用。然而，仍然有可能正确重写<code>POOL_HEADER</code>并进行全数据攻击，只需不在<code>PoolType</code>中设置<code>PoolQuota</code>标志。关于配额进程指针覆写攻击的更多信息，可以参考在**Nuit du Hack XV [1]**会议上的相关内容。</p>
+<p>在 Windows 8 中引入了一种新的池内存类型：<code>NonPagedPoolNx</code>。它的工作方式与<code>NonPagedPool</code>完全相同，唯一的区别是内存页面不再可执行，从而减轻了使用这种内存存储<code>Shellcode</code>的所有攻击。之前在<code>NonPagedPool</code>中进行的分配现在改为使用<code>NonPagedPoolNx</code>，但为了与第三方驱动程序保持兼容性，保留了<code>NonPagedPool</code>类型。即使在今天的Windows 10中，仍有很多第三方驱动程序仍在使用可执行的<code>NonPagedPool</code>。</p>
+<p>随着时间的推移，引入的各种缓解措施使得使用堆溢出攻击<code>POOl_HEADER</code>变得不再有趣。如今，更简单的方法是正确地重写<code>POOL_HEADER</code>并攻击下一个块的数据。然而，引入池中的Segment Heap改变了<code>POOL_HEADER</code>的使用方式，本论文展示了如何再次攻击它以利用内核池中的堆溢出漏洞。</p>
+<h1 id="2-The-Pool-Allocator-with-the-Segment-Heap"><a href="#2-The-Pool-Allocator-with-the-Segment-Heap" class="headerlink" title="2 The Pool Allocator with the Segment Heap"></a>2 The Pool Allocator with the Segment Heap</h1><h2 id="2-1-Segment-Heap-internals"><a href="#2-1-Segment-Heap-internals" class="headerlink" title="2.1 Segment Heap internals"></a>2.1 Segment Heap internals</h2><p>Segment Heap自Windows 10 19H1起在内核中使用，与用户空间中使用的Segment Heap非常相似。本节旨在介绍Segment Heap的主要特点，并重点关注与用户空间中使用的Segment Heap的区别。用户空间Segment Heap的内部工作原理有一个非常详细的解释，可以在[7]中找到。</p>
+<p>就像用户空间中使用的Segment Heap一样，内核中的Segment Heap旨在根据分配的大小提供不同的功能。为此，定义了四个所谓的后端(backends)。</p>
+<ul>
+<li>低碎片化堆（LFH）：<code>RtlHpLfhContextAllocate</code></li>
+<li>可变大小（VS,Variable Size）：<code>RtlHpVsContextAllocateInternal</code></li>
+<li>分段分配（Seg,Segment Alloc）：<code>RtlHpSegAlloc</code></li>
+<li>大型分配：<code>RtlHpLargeAlloc</code></li>
+</ul>
+<p>请求的分配大小和选择的后端之间的映射如图5所示。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230818062538103.png"></p>
+<p>前三个后端，Seg、VS和LFH，分别与上下文相关联：<code>_HEAP_SEG_CONTEXT</code>、<code>_HEAP_VS_CONTEXT</code>和<code>_HEAP_LFH_CONTEXT</code>。后端上下文存储在<code>_SEGMENT_HEAP</code>结构中。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">1: kd &gt; dt nt!_SEGMENT_HEAP</span><br><span class="line">	+0 x000 EnvHandle : RTL_HP_ENV_HANDLE</span><br><span class="line">	+0 x010 Signature : Uint4B</span><br><span class="line">	+0 x014 GlobalFlags : Uint4B</span><br><span class="line">	+0 x018 Interceptor : Uint4B</span><br><span class="line">	+0 x01c ProcessHeapListIndex : Uint2B</span><br><span class="line">	+0 x01e AllocatedFromMetadata : Pos 0, 1 Bit</span><br><span class="line">	+0 x020 CommitLimitData : _RTL_HEAP_MEMORY_LIMIT_DATA</span><br><span class="line">	+0 x020 ReservedMustBeZero1 : Uint8B</span><br><span class="line">	+0 x028 UserContext : Ptr64 Void</span><br><span class="line">	+0 x030 ReservedMustBeZero2 : Uint8B</span><br><span class="line">	+0 x038 Spare : Ptr64 Void</span><br><span class="line">	+0 x040 LargeMetadataLock : Uint8B</span><br><span class="line">	+0 x048 LargeAllocMetadata : _RTL_RB_TREE</span><br><span class="line">	+0 x058 LargeReservedPages : Uint8B</span><br><span class="line">	+0 x060 LargeCommittedPages : Uint8B</span><br><span class="line">	+0 x068 StackTraceInitVar : _RTL_RUN_ONCE</span><br><span class="line">	+0 x080 MemStats : _HEAP_RUNTIME_MEMORY_STATS</span><br><span class="line">	+0 x0d8 GlobalLockCount : Uint2B</span><br><span class="line">	+0 x0dc GlobalLockOwner : Uint4B</span><br><span class="line">	+0 x0e0 ContextExtendLock : Uint8B</span><br><span class="line">	+0 x0e8 AllocatedBase : Ptr64 UChar</span><br><span class="line">	+0 x0f0 UncommittedBase : Ptr64 UChar</span><br><span class="line">	+0 x0f8 ReservedLimit : Ptr64 UChar</span><br><span class="line">	+0 x100 SegContexts : [2] _HEAP_SEG_CONTEXT</span><br><span class="line">	+0 x280 VsContext : _HEAP_VS_CONTEXT</span><br><span class="line">	+0 x340 LfhContext : _HEAP_LFH_CONTEXT</span><br></pre></td></tr></table></figure>
+
+<p>存在5个这样的结构，对应不同的<code>_POOL_TYPE</code>值：</p>
+<ul>
+<li>非分页池（位0未设置）</li>
+<li>非分页Nx池（位0未设置且位9设置）</li>
+<li>分页池（位0设置）</li>
+<li>分页会话池（位5和1设置）</li>
+</ul>
+<p>还分配了第五个<code>_SEGEMENT_HEAP</code>，但作者无法确定其目的。前三个<code>_SEGEMENT_HEAP</code>，对应于<code>NonPaged</code>、非分页<code>NonPagedNx</code>和分页池，存储在<code>HEAP_POOL_NODES</code>中。至于<code>PagedPoolSession</code>，相应的<code>_SEGEMENT_HEAP</code>存储在当前线程中。图6总结了这五个<code>_SEGEMENT_HEAP</code>:</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230818062842272.png"></p>
+<p>尽管用户空间的Segment Heap仅使用一个Segment分配上下文来进行128 KiB到508 KiB之间的分配，在内核空间中，Segment Heap使用了两个Segment分配上下文。第二个分配上下文用于 508 KiB 到 7 GiB 之间的分配。</p>
+<h3 id="Segment-Backend"><a href="#Segment-Backend" class="headerlink" title="Segment Backend"></a><strong>Segment Backend</strong></h3><p>Segment Backend用于分配大小在128 KiB到7 GiB之间的内存块。它还在幕后用于为 VS 和 LFH 后端分配内存。</p>
+<p>Segment Backend上下文存储在一个名为_HEAP_SEG_CONTEXT的结构中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>: kd &gt; dt nt! _HEAP_SEG_CONTEXT</span><br><span class="line">	+<span class="number">0</span> x000 SegmentMask : Uint8B</span><br><span class="line">	+<span class="number">0</span> x008 UnitShift : UChar</span><br><span class="line">	+<span class="number">0</span> x009 PagesPerUnitShift : UChar</span><br><span class="line">	+<span class="number">0</span> x00a FirstDescriptorIndex : UChar</span><br><span class="line">	+<span class="number">0</span> x00b CachedCommitSoftShift : UChar</span><br><span class="line">	+<span class="number">0</span> x00c CachedCommitHighShift : UChar</span><br><span class="line">	+<span class="number">0</span> x00d Flags : &lt;anonymous -tag &gt;</span><br><span class="line">	+<span class="number">0</span> x010 MaxAllocationSize : Uint4B</span><br><span class="line">	+<span class="number">0</span> x014 OlpStatsOffset : Int2B</span><br><span class="line">	+<span class="number">0</span> x016 MemStatsOffset : Int2B</span><br><span class="line">	+<span class="number">0</span> x018 LfhContext : Ptr64 Void</span><br><span class="line">	+<span class="number">0</span> x020 VsContext : Ptr64 Void</span><br><span class="line">	+<span class="number">0</span> x028 EnvHandle : RTL_HP_ENV_HANDLE</span><br><span class="line">	+<span class="number">0</span> x038 Heap : Ptr64 Void</span><br><span class="line">	+<span class="number">0</span> x040 SegmentLock : Uint8B</span><br><span class="line">	+<span class="number">0</span> x048 SegmentListHead : _LIST_ENTRY</span><br><span class="line">	+<span class="number">0</span> x058 SegmentCount : Uint8B</span><br><span class="line">	+<span class="number">0</span> x060 FreePageRanges : _RTL_RB_TREE</span><br><span class="line">	+<span class="number">0</span> x070 FreeSegmentListLock : Uint8B</span><br><span class="line">	+<span class="number">0</span> x078 FreeSegmentList : [<span class="number">2</span>] _SINGLE_LIST_ENTRY</span><br></pre></td></tr></table></figure>
+
+<p>Segment Backend通过可变大小的块（称为段）来分配内存。每个段由多个可分配页面组成。段以链表的形式存储在<code>SegmentListHead</code>中。段以一个<code>_HEAP_PAGE_SEGMENT</code>开头，后跟256个<code>_HEAP_PAGE_RANGE_DESCRIPTOR</code>结构。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>: kd &gt; dt nt! _HEAP_PAGE_SEGMENT</span><br><span class="line">	+<span class="number">0</span> x000 ListEntry : _LIST_ENTRY</span><br><span class="line">	+<span class="number">0</span> x010 Signature : Uint8B</span><br><span class="line">	+<span class="number">0</span> x018 SegmentCommitState : Ptr64 _HEAP_SEGMENT_MGR_COMMIT_STATE</span><br><span class="line">	+<span class="number">0</span> x020 UnusedWatermark : UChar</span><br><span class="line">	+<span class="number">0</span> x000 DescArray : [<span class="number">256</span>] _HEAP_PAGE_RANGE_DESCRIPTOR</span><br><span class="line"><span class="number">1</span>: kd &gt; dt nt! _HEAP_PAGE_RANGE_DESCRIPTOR</span><br><span class="line">	+<span class="number">0</span> x000 TreeNode : _RTL_BALANCED_NODE</span><br><span class="line">	+<span class="number">0</span> x000 TreeSignature : Uint4B</span><br><span class="line">	+<span class="number">0</span> x004 UnusedBytes : Uint4B</span><br><span class="line">	+<span class="number">0</span> x008 ExtraPresent : Pos <span class="number">0</span>, <span class="number">1</span> Bit</span><br><span class="line">	+<span class="number">0</span> x008 Spare0 : Pos <span class="number">1</span>, <span class="number">15</span> Bits</span><br><span class="line">	+<span class="number">0</span> x018 RangeFlags : UChar</span><br><span class="line">	+<span class="number">0</span> x019 CommittedPageCount : UChar</span><br><span class="line">	+<span class="number">0</span> x01a Spare : Uint2B</span><br><span class="line">	+<span class="number">0</span> x01c Key : _HEAP_DESCRIPTOR_KEY</span><br><span class="line">	+<span class="number">0</span> x01c Align : [<span class="number">3</span>] UChar</span><br><span class="line">	+<span class="number">0</span> x01f UnitOffset : UChar</span><br><span class="line">	+<span class="number">0</span> x01f UnitSize : UChar</span><br></pre></td></tr></table></figure>
+
+<p>为了提供快速查找空闲页面范围的功能，<code>_HEAP_SEG_CONTEXT</code>还维护了一个红黑树。每个<code>_HEAP_PAGE_SEGMENT</code>具有以下计算方法生成的签名：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Signature = Segment ^ SegContext ^ RtlpHpHeapGlobals ^ <span class="number">0xA2E64EADA2E64EAD</span>;</span><br></pre></td></tr></table></figure>
+
+
+<p>这个签名用于从任何分配的内存块中检索所属的<code>_HEAP_SEG_CONTEXT</code>和相应的<code>_SEGMENT_HEAP</code>。图7总结了段后端使用的内部结构。可以通过将地址与<code>_HEAP_SEG_CONTEXT</code>中存储的<code>SegmentMask</code>进行屏蔽来轻松计算原始段。SegmentMask的值为<code>0xfffffffffff00000</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Segment = Addr &amp; SegContext-&gt;SegmentMask;</span><br></pre></td></tr></table></figure>
+
+<p>通过使用<code>_HEAP_SEG_CONTEXT</code>中的<code>UnitShift</code>，可以轻松地从任何地址计算出相应的<code>PageRange</code>。<code>UnitShift</code>被设置为12。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PageRange = Segment + <span class="keyword">sizeof</span>(_HEAP_PAGE_RANGE_DESCRIPTOR) * (Addr - Segment) &gt;&gt; SegContext-&gt;UnitShift;</span><br></pre></td></tr></table></figure>
+
+
+<p>当Segment Backend被其他后端之一使用时，<code>_HEAP_PAGE_RANGE_DESCRIPTOR</code>的<code>RangeFlags</code>字段用于存储请求分配的后端信息。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230818071657961.png"></p>
+<h3 id="Variable-Size-Backend"><a href="#Variable-Size-Backend" class="headerlink" title="Variable Size Backend"></a>Variable Size Backend</h3><p><strong>可变大小Backend</strong></p>
+<p>可变大小后端（Variable Size Backend）分配大小在512字节到128 KiB之间的内存块，旨在提供空闲块的便捷重用。可变大小后端的上下文存储在一个名为_HEAP_VS_CONTEXT的结构中:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0</span>: kd &gt; dt nt! _HEAP_VS_CONTEXT</span><br><span class="line">	+<span class="number">0</span> x000 Lock : Uint8B</span><br><span class="line">	+<span class="number">0</span> x008 LockType : _RTLP_HP_LOCK_TYPE</span><br><span class="line">	+<span class="number">0</span> x010 FreeChunkTree : _RTL_RB_TREE</span><br><span class="line">	+<span class="number">0</span> x020 SubsegmentList : _LIST_ENTRY</span><br><span class="line">	+<span class="number">0</span> x030 TotalCommittedUnits : Uint8B</span><br><span class="line">	+<span class="number">0</span> x038 FreeCommittedUnits : Uint8B</span><br><span class="line">	+<span class="number">0</span> x040 DelayFreeContext : _HEAP_VS_DELAY_FREE_CONTEXT</span><br><span class="line">	+<span class="number">0</span> x080 BackendCtx : Ptr64 Void</span><br><span class="line">	+<span class="number">0</span> x088 Callbacks : _HEAP_SUBALLOCATOR_CALLBACKS</span><br><span class="line">	+<span class="number">0</span> x0b0 Config : _RTL_HP_VS_CONFIG</span><br><span class="line">	+<span class="number">0</span> x0b4 Flags : Uint4B</span><br></pre></td></tr></table></figure>
+
+
+<p>空闲块以红黑树的形式存储在名为<code>FreeChunkTree</code>的数据结构中。当请求进行内存分配时，红黑树用于查找具有精确大小的空闲块或第一个大于请求大小的空闲块。</p>
+<p>释放的空闲块由一个专用的结构<code>_HEAP_VS_CHUNK_FREE_HEADER</code>作为头部进行管理：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0</span>: kd &gt; dt nt! _HEAP_VS_CHUNK_FREE_HEADER</span><br><span class="line">	+<span class="number">0</span> x000 Header : _HEAP_VS_CHUNK_HEADER</span><br><span class="line">	+<span class="number">0</span> x000 OverlapsHeader : Uint8B</span><br><span class="line">	+<span class="number">0</span> x008 Node : _RTL_BALANCED_NODE</span><br></pre></td></tr></table></figure>
+
+<p>一旦找到一个空闲块，就会通过调用<code>RtlpHpVsChunkSplit</code>将其分割为所需的大小。分配的块都由一个专用的结构<code>_HEAP_VS_CHUNK_HEADER</code>作为头部进行管理:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0</span>: kd &gt; dt nt!_HEAP_VS_CHUNK_HEADER</span><br><span class="line">	+<span class="number">0</span> x000 Sizes : _HEAP_VS_CHUNK_HEADER_SIZE</span><br><span class="line">	+<span class="number">0</span> x008 EncodedSegmentPageOffset : Pos <span class="number">0</span>, <span class="number">8</span> Bits</span><br><span class="line">	+<span class="number">0</span> x008 UnusedBytes : Pos <span class="number">8</span>, <span class="number">1</span> Bit	</span><br><span class="line">	+<span class="number">0</span> x008 SkipDuringWalk : Pos <span class="number">9</span>, <span class="number">1</span> Bit</span><br><span class="line">	+<span class="number">0</span> x008 Spare : Pos <span class="number">10</span>, <span class="number">22</span> Bits</span><br><span class="line">	+<span class="number">0</span> x008 AllocatedChunkBits : Uint4B</span><br><span class="line"><span class="number">0</span>: kd &gt; dt nt!_HEAP_VS_CHUNK_HEADER_SIZE</span><br><span class="line">	+<span class="number">0</span> x000 MemoryCost : Pos <span class="number">0</span>, <span class="number">16</span> Bits</span><br><span class="line">	+<span class="number">0</span> x000 UnsafeSize : Pos <span class="number">16</span>, <span class="number">16</span> Bits</span><br><span class="line">	+<span class="number">0</span> x004 UnsafePrevSize : Pos <span class="number">0</span>, <span class="number">16</span> Bits</span><br><span class="line">	+<span class="number">0</span> x004 Allocated : Pos <span class="number">16</span>, <span class="number">8</span> Bits</span><br><span class="line">	+<span class="number">0</span> x000 KeyUShort : Uint2B</span><br><span class="line">	+<span class="number">0</span> x000 KeyULong : Uint4B</span><br><span class="line">	+<span class="number">0</span> x000 HeaderBits : Uint8B</span><br></pre></td></tr></table></figure>
+
+<p>该头部内的所有字段都与<code>RtlpHpHeapGlobals</code>和块的地址进行异或运算。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Chunk-&gt;Sizes = Chunk-&gt;Sizes ^ Chunk ^ RtlpHpHeapGlobals;</span><br></pre></td></tr></table></figure>
+
+<p>在内部，可变大小分配器(VS allocator)使用段分配器。它在<code>RtlpHpVsSubsegmentCreate</code>函数中通过<code>_HEAP_VS_CONTEXT</code>的<code>_HEAP_SUBALLOCATOR_CALLBACKS</code>字段使用。子分配器回调函数都与VS上下文和<code>RtlpHpHeapGlobals</code>的地址进行异或运算。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">callbacks.Allocate = RtlpHpSegVsAllocate;</span><br><span class="line">callbacks.Free = RtlpHpSegLfhVsFree;</span><br><span class="line">callbacks.Commit = RtlpHpSegLfhVsCommit;</span><br><span class="line">callbacks.Decommit = RtlpHpSegLfhVsDecommit;</span><br><span class="line">callbacks.ExtendContext = <span class="literal">NULL</span>;</span><br></pre></td></tr></table></figure>
+
+<p>如果在<code>FreeChunkTree</code>中没有足够大的块存在，将分配一个新的子段，其大小范围从64 KiB到256 KiB，并将其插入到<code>SubsegmentList</code>中。它以<code>_HEAP_VS_SUBSEGMENT</code>结构作为头部。剩余的所有空间都被用作自由块，并插入到<code>FreeChunkTree</code>中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0</span>: kd &gt; dt nt! _HEAP_VS_SUBSEGMENT</span><br><span class="line">	+<span class="number">0</span> x000 ListEntry : _LIST_ENTRY</span><br><span class="line">	+<span class="number">0</span> x010 CommitBitmap : Uint8B</span><br><span class="line">	+<span class="number">0</span> x018 CommitLock : Uint8B</span><br><span class="line">	+<span class="number">0</span> x020 Size : Uint2B</span><br><span class="line">	+<span class="number">0</span> x022 Signature : Pos <span class="number">0</span>, <span class="number">15</span> Bits</span><br><span class="line">	+<span class="number">0</span> x022 FullCommit : Pos <span class="number">15</span>, <span class="number">1</span> Bit</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230818072814761.png"></p>
+<p>图8总结了VS backends的内存结构。</p>
+<p>当一个VS块被释放时，如果它的大小小于1 KiB，并且VS backends已经正确配置（Config.Flags的第4位设置为1），它将被临时存储在<code>DelayFreeContext</code>内部的列表中。一旦<code>DelayFreeContext</code>中填满了32个块，它们将一次性真正释放。<code>DelayFreeContext</code>永远不会用于直接分配。</p>
+<h3 id="Low-Fragmentation-Heap-Backend"><a href="#Low-Fragmentation-Heap-Backend" class="headerlink" title="Low Fragmentation Heap Backend"></a>Low Fragmentation Heap Backend</h3><p>低碎片化堆</p>
+<p>低碎片化堆（Low Fragmentation Heap）是专门用于从1字节到512字节的小内存分配的后端。LFH后端上下文存储在一个名为<code>_HEAP_LFH_CONTEXT</code>的结构中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0</span>: kd &gt; dt nt! _HEAP_LFH_CONTEXT</span><br><span class="line">	+<span class="number">0</span> x000 BackendCtx : Ptr64 Void</span><br><span class="line">	+<span class="number">0</span> x008 Callbacks : _HEAP_SUBALLOCATOR_CALLBACKS</span><br><span class="line">	+<span class="number">0</span> x030 AffinityModArray : Ptr64 UChar</span><br><span class="line">	+<span class="number">0</span> x038 MaxAffinity : UChar</span><br><span class="line">	+<span class="number">0</span> x039 LockType : UChar</span><br><span class="line">	+<span class="number">0</span> x03a MemStatsOffset : Int2B</span><br><span class="line">	+<span class="number">0</span> x03c Config : _RTL_HP_LFH_CONFIG</span><br><span class="line">	+<span class="number">0</span> x040 BucketStats : _HEAP_LFH_SUBSEGMENT_STATS</span><br><span class="line">	+<span class="number">0</span> x048 SubsegmentCreationLock : Uint8B</span><br><span class="line">	+<span class="number">0</span> x080 Buckets : [<span class="number">129</span>] Ptr64 _HEAP_LFH_BUCKET</span><br></pre></td></tr></table></figure>
+
+<p>LFH后端的主要特点是使用不同大小的桶(buckets)来避免碎片化。</p>
+<table>
+<thead>
+<tr>
+<th>Bucket</th>
+<th>Allocation Size</th>
+<th>Bucket granularity</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1 - 64</td>
+<td>1 B - 1008 B</td>
+<td>16 B</td>
+</tr>
+<tr>
+<td>65 - 80</td>
+<td>1009 B - 2032 B</td>
+<td>64 B</td>
+</tr>
+<tr>
+<td>81 - 96</td>
+<td>2033 B - 4080 B</td>
+<td>128 B</td>
+</tr>
+<tr>
+<td>97 - 112</td>
+<td>4081 B - 8176 B</td>
+<td>256 B</td>
+</tr>
+<tr>
+<td>113 - 128</td>
+<td>8177 B - 16,368 B</td>
+<td>512 B</td>
+</tr>
+</tbody></table>
+<p>每个桶由段分配器分配的子段组成。段分配器通过<code>_HEAP_SUBALLOCATOR_CALLBACKS</code>字段在<code>_HEAP_LFH_CONTEXT</code>中使用。子分配器回调函数与LFH上下文和<code>RtlpHpHeapGlobals</code>的地址进行异或运算。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">callbacks.Allocate = RtlpHpSegLfhAllocate;</span><br><span class="line">callbacks.Free = RtlpHpSegLfhVsFree;</span><br><span class="line">callbacks.Commit = RtlpHpSegLfhVsCommit;</span><br><span class="line">callbacks.Decommit = RtlpHpSegLfhVsDecommit;</span><br><span class="line">callbacks.ExtendContext = RtlpHpSegLfhExtendContext;</span><br></pre></td></tr></table></figure>
+
+<p>LFH子段以<code>_HEAP_LFH_SUBSEGMENT</code>结构为首:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0</span>: kd &gt; dt nt! _HEAP_LFH_SUBSEGMENT</span><br><span class="line">	+<span class="number">0</span> x000 ListEntry : _LIST_ENTRY</span><br><span class="line">	+<span class="number">0</span> x010 Owner : Ptr64 _HEAP_LFH_SUBSEGMENT_OWNER</span><br><span class="line">	+<span class="number">0</span> x010 DelayFree : _HEAP_LFH_SUBSEGMENT_DELAY_FREE</span><br><span class="line">	+<span class="number">0</span> x018 CommitLock : Uint8B</span><br><span class="line">	+<span class="number">0</span> x020 FreeCount : Uint2B</span><br><span class="line">	+<span class="number">0</span> x022 BlockCount : Uint2B</span><br><span class="line">	+<span class="number">0</span> x020 InterlockedShort : Int2B</span><br><span class="line">	+<span class="number">0</span> x020 InterlockedLong : Int4B</span><br><span class="line">	+<span class="number">0</span> x024 FreeHint : Uint2B</span><br><span class="line">	+<span class="number">0</span> x026 Location : UChar</span><br><span class="line">	+<span class="number">0</span> x027 WitheldBlockCount : UChar</span><br><span class="line">	+<span class="number">0</span> x028 BlockOffsets : _HEAP_LFH_SUBSEGMENT_ENCODED_OFFSETS</span><br><span class="line">	+<span class="number">0</span> x02c CommitUnitShift : UChar</span><br><span class="line">	+<span class="number">0</span> x02d CommitUnitCount : UChar</span><br><span class="line">	+<span class="number">0</span> x02e CommitStateOffset : Uint2B</span><br><span class="line">	+<span class="number">0</span> x030 BlockBitmap : [<span class="number">1</span>] Uint8B</span><br></pre></td></tr></table></figure>
+
+<p>然后，每个子段被分割成具有相应桶大小的不同LFH块。为了知道使用了哪个桶，每个子段头部都维护着一个位图。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230818081151014.png"></p>
+<p>当请求进行分配时，LFH分配器首先会查找<code>_HEAP_LFH_SUBSEGMENT</code>结构中的<code>FreeHint</code>字段，以找到子段中最后一个释放的块的偏移量。然后，它会按照32个块一组扫描BlockBitmap，寻找一个空闲块。这个扫描过程是通过RtlpLowFragHeapRandomData表进行随机化的。</p>
+<p>根据给定桶上的竞争情况，可以启用一种机制，通过为每个CPU分配专用的子段来简化分配过程。这种机制被称为Affinity Slot（亲和槽）。</p>
+<p>图9展示了LFH后端的主要架构。</p>
+<h3 id="Dynamic-Lookaside"><a href="#Dynamic-Lookaside" class="headerlink" title="Dynamic Lookaside"></a>Dynamic Lookaside</h3><p>大小在0x200到0xF80字节之间的释放块可以临时存储在一个<code>Lookaside</code>列表中，以提供快速分配。当它们在Lookaside中时，这些块不会通过它们各自的backend释放机制。</p>
+<p>Lookaside由<code>_RTL_DYNAMIC_LOOKASIDE</code>结构表示，并存储在<code>_SEGMENT_HEAP</code>的<code>UserContext</code>字段中:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0</span>: kd &gt; dt nt! _RTL_DYNAMIC_LOOKASIDE</span><br><span class="line">	+<span class="number">0</span> x000 EnabledBucketBitmap : Uint8B</span><br><span class="line">	+<span class="number">0</span> x008 BucketCount : Uint4B</span><br><span class="line">	+<span class="number">0</span> x00c ActiveBucketCount : Uint4B</span><br><span class="line">	+<span class="number">0</span> x040 Buckets : [<span class="number">64</span>] _RTL_LOOKASIDE</span><br></pre></td></tr></table></figure>
+
+<p>每个释放的块都存储在与其大小（以<code>POOL_HEADER</code>中表示）相对应的<code>_RTL_LOOKASIDE</code>中。大小对应关系与LFH中的桶的模式相同。</p>
+<table>
+<thead>
+<tr>
+<th>Free List</th>
+<th>Allocation Size</th>
+<th>Bucket granularity</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1 – 32</td>
+<td>512 B – 1024 B</td>
+<td>16 B</td>
+</tr>
+<tr>
+<td>33 – 48</td>
+<td>1025 B – 2048 B</td>
+<td>64 B</td>
+</tr>
+<tr>
+<td>49 – 64</td>
+<td>2049 B – 3967 B</td>
+<td>128 B</td>
+</tr>
+</tbody></table>
+<p>在同一时间内，只有可用桶的一个子集被启用（<code>_RTL_DYNAMIC_LOOKASIDE</code>的ActiveBucketCount字段）。每次请求分配时，相应Lookaside的指标将被更新。</p>
+<p>在平衡集管理器进行3次扫描后，动态Lookaside将进行重新平衡。自上次重新平衡以来使用最频繁的Lookaside将被启用。每个Lookaside的大小取决于其使用情况，但不能超过最大深度（MaximumDepth）或小于4。当新分配的数量少于25时，深度将减少10。否则，如果未命中比率低于0.5%，则深度将减少1；否则，它将按以下公式增长:</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230824165210485.png" alt="image-20230824165210485"></p>
+<h2 id="2-2-POOL-HEADER"><a href="#2-2-POOL-HEADER" class="headerlink" title="2.2 POOL_HEADER"></a>2.2 POOL_HEADER</h2><p>如1.1节所述，POOL_HEADER结构在Windows 10 19H1之前的内核堆分配器中用作所有分配的块的头部。使用了所有字段。随着内核堆分配器的更新，POOL_HEADER的大部分字段变得无用，但仍然用于小内存分配的头部。<br>POOL_HEADER的定义如下所示。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">POOL_HEADER</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">char</span> PreviousSize;</span><br><span class="line">    <span class="type">char</span> PoolIndex;</span><br><span class="line">    <span class="type">char</span> BlockSize;</span><br><span class="line">    <span class="type">char</span> PoolType;</span><br><span class="line">    <span class="type">int</span> PoolTag;</span><br><span class="line">    Ptr64 ProcessBilled;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>分配器设置的唯一字段如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PoolHeader-&gt;PoolTag = PoolTag;</span><br><span class="line">PoolHeader-&gt;BlockSize = BucketBlockSize &gt;&gt; <span class="number">4</span>;</span><br><span class="line">PoolHeader-&gt;PreviousSize = <span class="number">0</span>;</span><br><span class="line">PoolHeader-&gt;PoolType = changedPoolType &amp; <span class="number">0</span> x6D | <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<p>以下是自Windows 19H1以来每个<code>POOL_HEADER</code>字段的用途总结：</p>
+<ul>
+<li><code>PreviousSize</code>：未使用，保持为0。</li>
+<li><code>PoolIndex</code>：未使用。</li>
+<li><code>BlockSize</code>：块的大小。仅在最终将块存储在动态Lookaside列表中时使用（参见2.1节）。</li>
+<li><code>PoolType</code>：用于保持请求的POOL_TYPE，使用方式未更改。</li>
+<li><code>PoolTag</code>：用于保持PoolTag，使用方式未更改。</li>
+<li><code>ProcessBilled</code>：用于跟踪需要分配的进程，如果PoolType为PoolQuota（位3），值的计算如下：<code>ProcessBilled = chunk_addr ^ ExpPoolQuotaCookie ^ KPROCESS;</code></li>
+</ul>
+<h3 id="CacheAligned"><a href="#CacheAligned" class="headerlink" title="CacheAligned"></a>CacheAligned</h3><p>在调用<code>ExAllocatePoolWithTag</code>时，如果<code>PoolType</code>的<code>CacheAligned</code>位设置（位2），返回的内存将按照缓存行大小对齐。缓存行大小的值取决于CPU，但通常为0x40。</p>
+<p>首先，分配器将按照<code>ExpCacheLineSize</code>增加分配的大小：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (PoolType &amp; <span class="number">4</span>)</span><br><span class="line">&#123;</span><br><span class="line">    request_alloc_size += ExpCacheLineSize;</span><br><span class="line">    <span class="keyword">if</span> (request_alloc_size &gt; <span class="number">0</span> xFE0)</span><br><span class="line">    &#123;</span><br><span class="line">        request_alloc_size -= ExpCacheLineSize;</span><br><span class="line">        PoolType = PoolType &amp; <span class="number">0</span> xFB;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>如果新的分配大小无法填满(fit)单个页面，那么<code>CacheAligned</code>位将被忽略。</p>
+<p>然后，分配的块必须满足以下三个条件：</p>
+<ul>
+<li>最终分配的地址必须按照<code>ExpCacheLineSize</code>对齐；</li>
+<li>块的开始处必须有一个<code>POOL_HEADER</code>；</li>
+<li>块的地址减去<code>sizeof(POOL_HEADER)</code>处必须有一个<code>POOL_HEADER</code>。</li>
+</ul>
+<p>因此，如果分配的地址没有正确对齐，块可能会有两个头部。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230818082551433.png"></p>
+<p>第一个<code>POOL_HEADER</code>将位于块的开头，与通常情况一样，而第二个<code>POOL_HEADER</code>将在<code>ExpCacheLineSize - sizeof(POOL_HEADER)</code>的位置对齐，使得最终分配的地址按照<code>ExpCacheLineSize</code>对齐。第一个<code>POOL_HEADER</code>中将移除<code>CacheAligned</code>位，并且第二个<code>POOL_HEADER</code>将填充以下值：</p>
+<ul>
+<li><code>PreviousSize</code>：用于存储两个头部之间的偏移量。</li>
+<li><code>PoolIndex</code>：未使用。</li>
+<li><code>BlockSize</code>：在第一个<code>POOL_HEADER</code>中为分配的桶的大小，在第二个<code>POOL_HEADER</code>中为缩小的大小。</li>
+<li><code>PoolType</code>：与通常情况一样，但设置了<code>CacheAligned</code>位。</li>
+<li><code>PoolTag</code>：与通常情况一样，在两个<code>POOL_HEADER</code>上相同。</li>
+<li><code>ProcessBilled</code>：未使用。</li>
+</ul>
+<p>此外，如果在对齐填充中有足够的空间，可能会在第一个<code>POOL_HEADER</code>之后存储一个指针，我们称之为<code>AlignedPoolHeader</code>。它指向第二个<code>POOL_HEADER</code>，并与<code>ExpPoolQuotaCookie</code>进行异或运算。</p>
+<p>图11总结了在进行缓存对齐时使用的两个<code>POOL_HEADER</code>的布局。</p>
+<h2 id="2-3-Summary"><a href="#2-3-Summary" class="headerlink" title="2.3 Summary"></a>2.3 Summary</h2><p>自Windows 19H1以及引入Segment Heap以来，不再需要将每个块的某些信息存储在<code>POOL_HEADER</code>中。然而，仍然需要<code>Pooltype</code>、<code>Pooltag</code>以及使用<code>CacheAligned</code>和<code>PoolQuota</code>机制的能力。</p>
+<p>这就是为什么在<code>0xFE0</code>以下的所有分配仍然至少在前面有一个<code>POOL_HEADER</code>。自Windows 19H1以来，<code>POOL_HEADER</code>的字段使用情况在第2.2节中进行了描述。图12表示使用LFH后端分配的块，因此只有一个前置的<code>POOL_HEADER</code>。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230818082802360.png"></p>
+<p>如2.1节所述，根据backend的不同，内存可能会由特定的头部组成。例如，大小为0x280的块将使用VS后端，因此前面会有一个大小为0x10的<code>_HEAP_VS_CHUNK_HEADER</code>。图13表示使用VS段分配的块，因此前面有一个VS头部和一个<code>POOL_HEADER</code>。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230818082850882.png"></p>
+<p>最后，如果要求在缓存行上对齐分配，该块可能包含两个<code>POOL_HEADER</code>。第二个<code>POOL_HEADER</code>将设置<code>CacheAligned</code>位，并用于检索第一个<code>POOL_HEADER</code>和实际分配的地址。图14表示使用LFH分配并要求在缓存大小上对齐的块，因此前面有两个<code>POOL_HEADER</code>。</p>
+<p>图15总结了进行分配时使用的决策树。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230818082947395.png"></p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230818083022536.png"></p>
+<p>从利用的角度来看，可以得出两个结论。首先，<code>POOL_HEADER</code>的新用法将简化利用过程：由于大多数字段未使用，覆盖它们时需要更少的注意。另一个结果可能是利用<code>POOL_HEADER</code>的新用法来发现新的利用技术。</p>
+<h1 id="3-Attacking-the-POOL-HEADER"><a href="#3-Attacking-the-POOL-HEADER" class="headerlink" title="3 Attacking the POOL_HEADER"></a>3 Attacking the POOL_HEADER</h1><p>如果堆溢出漏洞允许对写入的数据及其大小有很好的控制，最简单的解决方案可能是重写<code>POOL_HEADER</code>并直接攻击下一个块的数据。唯一需要做的是确保<code>PoolType</code>中未设置<code>PoolQuota</code>位，以避免在释放受损块时对<code>ProcessBilled</code>字段进行完整性检查。</p>
+<p>然而，本节将介绍一些仅使用几个字节的堆溢出可以进行的攻击，目标是<code>POOL_HEADER</code>。</p>
+<h2 id="3-1-Targeting-the-BlockSize"><a href="#3-1-Targeting-the-BlockSize" class="headerlink" title="3.1 Targeting the BlockSize"></a>3.1 Targeting the BlockSize</h2><h3 id="从堆溢出到更大的堆溢出"><a href="#从堆溢出到更大的堆溢出" class="headerlink" title="从堆溢出到更大的堆溢出"></a>从堆溢出到更大的堆溢出</h3><p>正如在2.1节中解释的那样，<code>BlockSize</code>字段用于在释放机制中将某些块存储在动态<code>Lookaside</code>中。</p>
+<p>攻击者可以利用堆溢出来将<code>BlockSize</code>字段的值更改为更大的值，大于<code>0x200</code>。如果释放损坏的块，控制的<code>BlockSize</code>将用于将块存储在错误大小的<code>Lookaside</code>中。下一个此大小的分配可能会使用一个太小的分配来存储所有所需的数据，从而触发另一个堆溢出。</p>
+<p>通过使用喷射技术和特定的对象，攻击者可以将一个3字节的堆溢出转变为最多<code>0xFD0</code>字节的堆溢出，具体取决于受漏洞影响的块的大小。这还允许攻击者选择溢出的对象，并可能对溢出条件具有更多控制。</p>
+<h2 id="3-2-Targeting-the-PoolType"><a href="#3-2-Targeting-the-PoolType" class="headerlink" title="3.2 Targeting the PoolType"></a>3.2 Targeting the PoolType</h2><p>大多数情况下，存储在<code>PoolType</code>中的信息仅用作信息提示；它在分配时提供，并存储在<code>PoolType</code>中，但不会在释放机制中使用。</p>
+<p>例如，更改存储在<code>PoolType</code>中的内存类型实际上不会改变分配使用的内存类型。通过仅更改此位，无法将<code>NonPagedPoolNx</code>内存转换为<code>NonPagedPool</code>。</p>
+<p>但是，对于<code>PoolQuota</code>和<code>CacheAligned</code>位，情况并非如此。设置<code>PoolQuota</code>位将触发在释放时使用<code>POOL_HEADER</code>中的<code>ProcessBilled</code>指针来取消引用配额。正如在1.2节中介绍的那样，对<code>ProcessBilled</code>指针的攻击已经得到缓解。</p>
+<p>所以唯一剩下的位是<code>cachealign</code>位。</p>
+<h3 id="对齐块混淆"><a href="#对齐块混淆" class="headerlink" title="对齐块混淆"></a>对齐块混淆</h3><p>正如在第2.2节中所述，如果在PoolType中设置了<code>CacheAligned</code>位，则分配的布局将不同。</p>
+<p>当分配器释放这样的分配时，它将尝试找到原始块地址以便在正确的地址释放块。它将使用对齐的<code>POOL_HEADER</code>的<code>PreviousSize</code>字段。分配器执行简单的减法运算来计算原始块地址：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (AlignedHeader-&gt;PoolType &amp; <span class="number">4</span>)</span><br><span class="line">&#123;</span><br><span class="line">    OriginalHeader = (QWORD)AlignedHeader - AlignedHeader-&gt;PreviousSize * <span class="number">0</span> x10;</span><br><span class="line">    OriginalHeader-&gt;PoolType |= <span class="number">4</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在引入内核中的Segment Heap之前，这个操作之后进行了几个检查：</p>
+<ul>
+<li>分配器检查原始块的<code>PoolType</code>中是否设置了<code>MustSucceed</code>位。</li>
+<li>使用<code>ExpCacheLineSize</code>重新计算两个头部之间的偏移量，并验证它与实际偏移量是否相同。</li>
+<li>分配器检查对齐的头部的<code>BlockSize</code>是否等于原始头部的<code>BlockSize</code>加上对齐的头部的<code>PreviousSize</code>。</li>
+<li>分配器检查存储在<code>OriginalHeader + sizeof(POOL_HEADER)</code>处的指针是否等于对齐的头部的地址与<code>ExpPoolQuotaCookie</code>进行异或运算的结果。</li>
+</ul>
+<p>自从Windows 10 19H1版本开始，使用Segment Heap的池分配器已经删除了所有这些检查。在原始头部之后，异或后的指针仍然存在，但是释放机制从未对其进行检查。作者认为某些检查可能被错误地删除了。未来的版本可能会重新启用某些检查，但是Windows 10 20H1的预构建版本中并没有这样的补丁。</p>
+<p>目前，缺乏这些检查使得攻击者可以将<code>PoolType</code>作为攻击向量。攻击者可以利用堆溢出来设置下一个块的<code>PoolType</code>的<code>CacheAligned</code>位，并完全控制<code>PreviousSize</code>字段。当块被释放时，释放机制使用受控的<code>PreviousSize</code>来找到原始块并释放它。由于<code>PreviousSize</code>字段只占用一个字节，攻击者可以释放任何对齐于<code>0x10</code>至<code>0xFF * 0x10 = 0xFF0</code>的地址，这些地址都在原始块地址之前。</p>
+<p>这篇论文的最后部分旨在使用前面介绍的技术演示一个通用的利用方式。它介绍了在池溢出或Use-After-Free情况下有趣的通用对象，并提供了多个对象和技术来重复使用具有受控数据的已释放分配。</p>
+<h1 id="4-Generic-Exploitation"><a href="#4-Generic-Exploitation" class="headerlink" title="4 Generic Exploitation"></a>4 Generic Exploitation</h1><h2 id="4-1-Required-conditions"><a href="#4-1-Required-conditions" class="headerlink" title="4.1 Required conditions"></a>4.1 Required conditions</h2><p>本节旨在介绍利用漏洞提升Windows系统权限的技术。假设攻击者处于低完整性级别。</p>
+<p>最终的目的是开发尽可能通用的利用方式，可以在不同类型的内存（<code>PagedPool</code>和<code>NonPagedPoolNx</code>）、不同大小的块以及提供以下所需条件的任何堆溢出漏洞上使用。</p>
+<ul>
+<li>当针对<code>BlockSize</code>时，漏洞需要提供重写下一个块的<code>POOL_HEADER</code>的第三个字节为受控值的能力。</li>
+<li>当针对<code>PoolType</code>时，漏洞需要提供重写下一个块的<code>POOL_HEADER</code>的第一个和第四个字节为受控值的能力。</li>
+<li>在所有情况下，需要控制易受攻击对象的分配和释放，以最大程度地提高喷洒（spraying）成功率。</li>
+</ul>
+<h2 id="4-2-Exploitation-strategies"><a href="#4-2-Exploitation-strategies" class="headerlink" title="4.2 Exploitation strategies"></a>4.2 Exploitation strategies</h2><p>选择的利用策略利用了攻击下一个块的<code>POOL_HEADER</code>中的<code>PoolType</code>和<code>PreviousSize</code>字段的能力。易受堆溢出攻击的块被称为“易受攻击块”(“vulnerable chunk)，其后放置的块被称为“被覆写块”(overwritten chunk)。</p>
+<p>正如在第3.2节中描述的那样，通过控制下一个块的<code>POOL_HEADER</code>中的<code>PoolType</code>和<code>PreviousSize</code>字段，攻击者可以改变被覆写块实际上将被释放的位置。这个基本操作可以以多种方式进行利用。</p>
+<p>这可以将池溢出转化为Use-After-Free的情况，当攻击者将<code>PreviousSize</code>字段设置为与易受攻击块的大小完全相同时。因此，在请求释放被覆写块时，实际上会释放易受攻击块，并使其处于使用后释放的状态。图16展示了这种技术。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230824094657382.png"></p>
+<p>然而，我们选择了另一种技术。这个基本操作还可以用于在易受攻击块的中间触发被覆写块的释放。可以在易受攻击块中（或替代它的块中）伪造一个假的<code>POOL_HEADER</code>，并使用PoolType攻击将释放重定向到这个块上。这将允许在合法块的中间创建一个假块，并处于一个非常好的溢出情况。这个对应的块被称为“幽灵块”(ghost chunk)。</p>
+<p>幽灵块至少覆盖了两个块，即易受攻击块和被覆写块。图17展示了这种技术。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230824094840143.png"></p>
+<p>这种最后一种技术似乎比UAF更容易被利用，因为它使攻击者能够更好地控制任意对象的内容。<br>然后，易受攻击块可以被重新分配给一个允许任意数据控制的对象。这使得攻击者能够部分地控制在幽灵块中分配的对象。<br>为了找到一个有趣的对象放置在幽灵块中，需要满足以下要求，以获得最通用的利用方式：</p>
+<ul>
+<li>如果完全或部分受控，则提供任意读/写基本操作；</li>
+<li>能够控制其分配和释放；</li>
+<li>具有最小为0x210的可变大小，以便从相应的<code>lookaside</code>中分配到幽灵块中，但尽可能小（以避免在分配时破坏堆太多）。</li>
+</ul>
+<p>由于易受攻击块可以放置在<code>PagedPool</code>和<code>NonPagedPoolNx</code>中，因此需要两个这种类型的对象，一个在<code>PagedPool</code>中分配，另一个在<code>NonPagedPoolNx</code>中分配。</p>
+<p>这种类型的对象并不常见，作者没有找到这种完美的对象。因此，他们开发了一种利用策略，使用仅提供任意读取基本操作的对象。攻击者仍然能够控制幽灵块的<code>POOL_HEADER</code>。这意味着可以使用Quota Pointer Process Overwrite(配额指针进程覆写)攻击获得任意递减基本操作。使用任意读取基本操作可以恢复<code>ExpPoolQuotaCookie</code>和幽灵块的地址。</p>
+<p>开发的利用利用了这种最后一种技术。通过利用堆整理和溢出对象，可以将4字节的受控溢出转化为权限提升，从低完整性级别到SYSTEM级别。</p>
+<h2 id="4-3-Targeted-objects"><a href="#4-3-Targeted-objects" class="headerlink" title="4.3 Targeted objects"></a>4.3 Targeted objects</h2><h3 id="Paged-Pool"><a href="#Paged-Pool" class="headerlink" title="Paged Pool"></a>Paged Pool</h3><p>在创建管道后，用户可以向管道添加属性。这些属性是键值对，并存储在一个链表中。<code>PipeAttribute</code>（该结构不公开，以逆向工程命名）对象在<code>PagedPool</code>中分配，并由以下中的结构在内核中定义。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">PipeAttribute</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    LIST_ENTRY <span class="built_in">list</span>;</span><br><span class="line">    <span class="type">char</span> *AttributeName;</span><br><span class="line">    <span class="type">uint64_t</span> AttributeValueSize;</span><br><span class="line">    <span class="type">char</span> *AttributeValue;</span><br><span class="line">    <span class="type">char</span> data[<span class="number">0</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>分配的大小和数据完全由攻击者控制。<code>AttributeName</code>和<code>AttributeValue</code>是指向数据字段的不同偏移的指针。<br>可以使用<code>NtFsControlFile</code>系统调用和<code>0x11003C</code>控制码在管道上创建管道属性，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">HANDLE read_pipe;</span><br><span class="line">HANDLE write_pipe;</span><br><span class="line"><span class="type">char</span> attribute[] = <span class="string">&quot; attribute_name \00 attribute_value &quot;</span> <span class="type">char</span> output[<span class="number">0</span> x100];</span><br><span class="line">CreatePipe(read_pipe, write_pipe, <span class="literal">NULL</span>, bufsize);</span><br><span class="line">NtFsControlFile(write_pipe,</span><br><span class="line">                <span class="literal">NULL</span>,</span><br><span class="line">                <span class="literal">NULL</span>,</span><br><span class="line">                <span class="literal">NULL</span>,</span><br><span class="line">                &amp;status,</span><br><span class="line">                <span class="number">0</span> x11003C,</span><br><span class="line">                attribute,</span><br><span class="line">                <span class="keyword">sizeof</span>(attribute),</span><br><span class="line">                output,</span><br><span class="line">                <span class="keyword">sizeof</span>(output));</span><br></pre></td></tr></table></figure>
+
+<p>然后可以使用<code>0x110038</code>控制码读取属性的值。<code>AttributeValue</code>指针和<code>AttributeValueSize</code>将用于读取属性的值并将其返回给用户。属性的值可以更改，但这将触发先前<code>PipeAttribute</code>的释放和新分配。</p>
+<p>这意味着如果攻击者能够控制<code>PipeAttribute</code>的<code>AttributeValue</code>和<code>AttributeValueSize</code>字段，它可以在内核中读取任意数据，但不能任意写入。该对象还可以用于在内核中放置任意数据。这意味着它可以用于重新分配易受攻击块并控制幽灵块的内容。</p>
+<h3 id="NonPagedPoolNx"><a href="#NonPagedPoolNx" class="headerlink" title="NonPagedPoolNx"></a>NonPagedPoolNx</h3><p>使用<code>WriteFile</code>向管道写入数据是一种已知的技术，用于喷射<code>NonPagedPoolNx</code>。在向管道写入数据时，<code>NpAddDataQueueEntry</code>函数会创建如下定义的结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">PipeQueueEntry</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    LIST_ENTRY <span class="built_in">list</span>;</span><br><span class="line">    IRP *linkedIRP;</span><br><span class="line">    __int64 SecurityClientContext;</span><br><span class="line">    <span class="type">int</span> isDataInKernel;</span><br><span class="line">    <span class="type">int</span> remaining_bytes__;</span><br><span class="line">    <span class="type">int</span> DataSize;</span><br><span class="line">    <span class="type">int</span> field_2C;</span><br><span class="line">    <span class="type">char</span> data[<span class="number">1</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><code>PipeQueueEntry</code>（该结构不公开，以逆向工程命名）的数据和大小由用户控制，因为数据直接存储在结构后面。</p>
+<p>在函数<code>NpReadDataQueue</code>中使用该条目时，内核将遍历条目列表，并使用每个条目来检索数据</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (PipeQueueEntry-&gt;isDataAllocated == <span class="number">1</span>)</span><br><span class="line">    data_ptr = (PipeQueueEntry-&gt;linkedIRP-&gt;SystemBuffer);</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    data_ptr = PipeQueueEntry-&gt;data;</span><br><span class="line">[...] </span><br><span class="line">memmove((<span class="type">void</span> *)(dst_buf + dst_len - cur_read_offset), &amp;data_ptr[PipeQueueEntry-&gt;DataSize - cur_entry_offset], copy_size);</span><br></pre></td></tr></table></figure>
+
+<p>如果<code>isDataInKernel</code>字段等于1，数据就不会直接存储在结构后面，而是指针存储在由<code>linkedIRP</code>指向的IRP中。如果攻击者能够完全控制这个结构，他可以将<code>isDataInKernel</code>设置为1，并将<code>linkedIRP</code>指向用户空间。然后，用户空间中的<code>linkedIRP</code>的<code>SystemBuffer</code>字段（偏移0x18）用于从条目中读取数据。这提供了任意读取的基本功能。这个对象也非常适合在内核中放置任意数据。这意味着它可以用于重新分配易受攻击的块并控制幽灵块的内容。</p>
+<h2 id="4-4-Spraying"><a href="#4-4-Spraying" class="headerlink" title="4.4 Spraying"></a>4.4 Spraying</h2><p>本节描述了喷洒内核堆以获得所需的内存布局的技术。</p>
+<p>为了获得第4.2节中所需的内存布局，需要进行一些堆喷洒。堆喷洒取决于易受攻击的块的大小，因为它将最终分配到不同的分配后端。</p>
+<p>为了简化喷洒过程，可以确保相应的<code>lookaside</code>为空。分配超过256个相同大小的块将确保这一点。</p>
+<p>如果易受攻击的块小于0x200，则它将位于LFH（低碎片化堆）后端。然后，喷洒应该使用完全相同大小的块进行，对应桶的粒度取模，以确保它们都从同一个桶中分配。如第2.1节所述，当请求分配时，LFH后端将按照最多32个块的组进行扫描<code>BlockBitmap</code>，并随机选择一个空闲块。在易受攻击的块分配之前和之后分配超过32个块应有助于打败随机化。</p>
+<p>如果易受攻击的块大于<code>0x200</code>但小于<code>0x10000</code>，则它将位于可变大小（Variable Size）后端。然后，喷洒应该使用与易受攻击的块大小相等的大小进行。较大的块可能会被拆分，从而导致喷洒失败。首先，分配数千个所选大小的块，以确保首先将<code>FreeChunkTree</code>中大于所选大小的所有块清空，然后分配器将分配一个新的<code>0x10000</code>字节的VS子段并将其放入<code>FreeChunkTree</code>中。然后分配另外数千个块，它们将最终位于新的大空闲块中，从而连续。然后释放最后分配块的三分之一，以填充<code>FreeChunkTree</code>。只释放三分之一将确保不会合并任何块。然后让易受攻击的块分配。</p>
+<p>最后，可以重新分配已释放的块以最大化喷洒机会。</p>
+<p>由于完整的利用技术需要释放和重新分配易受攻击的块和幽灵块，为了方便释放块的恢复，启用相应的动态<code>lookaside</code>非常有趣。为此，一个简单的解决方案是分配数千个相应大小的块，等待2秒钟，然后再分配数千个块并等待1秒钟。这样，我们可以确保平衡集管理器已经重新平衡了相应的<code>lookaside</code>。分配数千个块确保<code>lookaside</code>将成为最常用的<code>lookaside</code>，并且将被启用，并且还确保它在其中有足够的空间。</p>
+<h2 id="4-5-Exploitation"><a href="#4-5-Exploitation" class="headerlink" title="4.5 Exploitation"></a>4.5 Exploitation</h2><h3 id="演示设置-Demonstration-setup"><a href="#演示设置-Demonstration-setup" class="headerlink" title="演示设置(Demonstration setup)"></a>演示设置(Demonstration setup)</h3><p>为了演示以下攻击，我们创建了一个虚假的漏洞。</p>
+<p>开发了一个Windows内核驱动程序，它公开了几个IOCTL（输入/输出控制）来实现以下功能：</p>
+<ul>
+<li>在<code>PagedPool</code>中分配一个具有可控大小的块</li>
+<li>触发在该块中进行可控的<code>memcpy</code>操作，从而导致完全可控的池溢出</li>
+<li>释放已分配的块</li>
+</ul>
+<p>当然，这仅用于演示目的，并提供了比实际攻击所需更多的控制。</p>
+<p>这个设置允许攻击者：</p>
+<ul>
+<li>控制易受攻击块的大小。这不是必需的，但最好能够控制大小，因为使用可控大小的块更容易进行攻击。</li>
+<li>控制易受攻击块的分配和释放。</li>
+<li>使用可控的值覆盖下一个块的<code>POOL_HEADER</code>的前4个字节。</li>
+</ul>
+<p>此外，易受攻击的块是在<code>PagedPool</code>中分配的。这一点很重要，因为池的类型可能会改变在攻击中使用的对象，从而对攻击本身产生重大影响。然而，针对<code>NonPagedPoolNx</code>的攻击利用非常相似，只是在喷洒和获取任意读取时使用<code>PipeQueueEntry</code>而不是<code>PipeAttribute</code>。</p>
+<p>对于本示例，易受攻击块的选择大小将为<code>0x180</code>。关于易受攻击块大小及其对攻击的影响的讨论在第4.6节中有详细说明。</p>
+<h3 id="Creating-the-ghost-chunk"><a href="#Creating-the-ghost-chunk" class="headerlink" title="Creating the ghost chunk"></a>Creating the ghost chunk</h3><p>在这里的第一步是调整堆，以便在易受攻击的块之后放置一个受控对象。覆写块中的对象可以是任何东西，唯一的要求是能够控制其何时被释放。为了简化攻击，最好选择一个可以喷洒的对象，请参考第4.2节。</p>
+<p>现在可以触发漏洞，覆写块的POOL_HEADER将被替换为以下值：</p>
+<ul>
+<li><code>PreviousSize</code>：0x15。该大小将乘以0x10。<code>0x180 - 0x150 = 0x30</code>，这是易受攻击块中伪造<code>POOL_HEADER</code>的偏移量。</li>
+<li><code>PoolIndex</code>：0或任何值，此值未使用。</li>
+<li><code>BlockSize</code>：0或任何值，此值未使用。</li>
+<li><code>PoolType</code>：<code>PoolType | 4</code>。设置了<code>CacheAligned</code>位。<br><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230824151746601.png"></li>
+</ul>
+<p>必须在易受攻击的块中的已知偏移量处放置一个伪造的<code>POOL_HEADER</code>。这是通过释放易受攻击的对象并重新分配带有<code>PipeAttribute</code>对象的块来完成的。</p>
+<p>为了演示，易受攻击块中伪造的<code>POOL_HEADER</code>的偏移量将为0x30。伪造的<code>POOL_HEADER</code>的形式如下：</p>
+<ul>
+<li><code>PreviousSize</code>：0或任何值，此值未使用。</li>
+<li><code>PoolIndex</code>：0或任何值，此值未使用。</li>
+<li><code>BlockSize</code>：0x21。该大小将乘以0x10，并成为释放块的大小。</li>
+<li><code>PoolType</code>：<code>PoolType</code>。未设置<code>CacheAligned</code>和<code>PoolQuota</code>位。</li>
+</ul>
+<p>所选择的<code>BlockSize</code>不是随机的，它是实际将被释放的块的大小。由于目标是在之后重用此分配，因此需要选择一个容易重用的大小。由于所有小于0x200的大小都在LFH中，必须避免使用这些大小。最小的不在LFH中的大小是0x200的分配，它是一个大小为0x210的块。大小为0x210的块使用VS分配，并且有资格使用第2.1节中描述的动态<code>Lookaside</code>列表。</p>
+<p>可以通过喷洒和释放大小为0x210字节的块来启用大小为0x210的动态<code>Lookaside</code>列表。</p>
+<p>现在可以释放覆写的块，这将触发缓存对齐。它不会释放覆写块地址处的块，而是释放<code>OverwrittenChunkAddress - (0x15 * 0x10)</code>地址处的块，即<code>VulnerableChunkAddress + 0x30</code>。用于释放的<code>POOL_HEADER</code>是伪造的<code>POOL_HEADER</code>，而不是释放易受攻击的块，内核会释放一个大小为0x210的块，并将其放置在动态<code>Lookaside</code>的顶部。这由图23所示。</p>
+<p>不幸的是，伪造的<code>POOL_HEADER</code>的<code>PoolType</code>对于释放的块是放置在<code>PagedPool</code>还是<code>NonPagedPoolNx</code>没有影响。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230824152011607.png"></p>
+<p>动态<code>Lookaside</code>列表是使用分配的段来选择的，该段是从块的地址派生出来的。这意味着如果易受攻击的块在分页池中，那么这个幽灵块也将被放置在分页池的<code>Lookaside</code>列表中。</p>
+<p>现在，覆写的块处于”丢失”(lost)状态；内核认为它已经被释放，并且对该块的所有引用都已经被丢弃。它将不再被使用。</p>
+<h3 id="Leaking-the-content-of-the-ghost-chunk"><a href="#Leaking-the-content-of-the-ghost-chunk" class="headerlink" title="Leaking the content of the ghost chunk"></a>Leaking the content of the ghost chunk</h3><p>现在可以重新分配幽灵块，并使用<code>PipeAttribute</code>对象。<code>PipeAttribute</code>结构覆盖了放置在易受攻击块中的属性值。通过读取此管道属性的值，可以读取数据并泄漏幽灵块的<code>PipeAttribute</code>内容。现在已知幽灵块的地址，因此也知道易受攻击块的地址。这一步骤在图24中呈现。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230824152343206.png"></p>
+<h3 id="Getting-an-arbitrary-read"><a href="#Getting-an-arbitrary-read" class="headerlink" title="Getting an arbitrary read"></a>Getting an arbitrary read</h3><p>易受攻击的块可以再次被释放，并重新分配给另一个<code>PipeAttribute</code>。这次，<code>PipeAttribute</code>的数据将覆盖幽灵块的<code>PipeAttribute</code>。因此，可以完全控制幽灵块的<code>PipeAttribute</code>。一个新的<code>PipeAttribute</code>被注入到位于用户空间的链表中。这一步骤在图25中呈现。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230824152518161.png"></p>
+<p>现在，通过请求读取幽灵<code>PipeAttribute</code>上的属性，内核将使用位于用户空间的<code>PipeAttribute</code>，从而完全受控。如前所述，通过控制<code>AttributeValue</code>指针和<code>AttributeValueSize</code>，这提供了任意读取的基本操作。图26表示了一个任意读取操作。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230824152534145.png"></p>
+<p>利用第一个指针泄漏和任意读取，可以检索到npfs的文本节上的指针。通过读取导入表，可以读取<code>ntoskrnl</code>的文本节上的指针，这提供了内核的基址。从那里，攻击者可以读取<code>ExpPoolQuotaCookie</code>的值，并检索出用于利用进程的<code>EPROCESS</code>结构的地址和其<code>TOKEN</code>的地址。</p>
+<h3 id="Getting-an-arbitrary-decrementation"><a href="#Getting-an-arbitrary-decrementation" class="headerlink" title="Getting an arbitrary decrementation"></a>Getting an arbitrary decrementation</h3><p>首先，在内核空间中使用<code>PipeQueueEntry</code>构造一个伪造的<code>EPROCESS</code>结构，并使用任意读取检索其地址。</p>
+<p>然后，攻击可以再次释放和重新分配易受攻击的块，以更改幽灵块及其<code>POOL_HEADER</code>的内容。幽灵块的<code>POOL_HEADER</code>被覆盖为以下值：</p>
+<ul>
+<li><code>PreviousSize</code>：0，或任何值，此值未使用。</li>
+<li><code>PoolIndex</code>：0，或任何值，此值未使用。</li>
+<li><code>BlockSize</code>：0x21。此大小将乘以0x10。</li>
+<li><code>PoolType</code>：8。<code>PoolQuota</code>位已设置。</li>
+<li><code>PoolQuota</code>：<code>ExpPoolQuotaCookie XOR FakeEprocessAddress XOR GhostChunkAddress</code></li>
+</ul>
+<p>在释放幽灵块时，内核将尝试解引用相关<code>EPROCESS</code>的配额计数器。它将使用伪造的<code>EPROCESS</code>结构来找到要解引用的值的指针。这提供了一个任意减少的原语。减少的值是<code>PoolHeader</code>中的<code>BlockSize</code>，因此它在0x10对齐，并且在0和0xff0之间。</p>
+<blockquote>
+<p>This provides an arbitrary decrement primitive. The value of the decrementation is the BlockSize in the PoolHeader, so it’s aligned on 0x10 and between 0 and 0xff0</p>
+</blockquote>
+<h3 id="From-arbitrary-decrementation-to-SYSTEM"><a href="#From-arbitrary-decrementation-to-SYSTEM" class="headerlink" title="From arbitrary decrementation to SYSTEM"></a>From arbitrary decrementation to SYSTEM</h3><p>在2012年，Cesar Cerrudo [3]描述了一种通过设置<code>TOKEN</code>结构的<code>Privileges.Enabled</code>字段来提升特权的技术。</p>
+<p><code>Privileges.Enabled</code>字段保存了为该进程启用的特权。默认情况下，低完整性级别的令牌的<code>Privileges.Enabled</code>设置为值<code>0x0000000000800000</code>，仅赋予了<code>SeChangeNotifyPrivilege</code>特权。通过从该位域中减去1，它变为<code>0x000000000007ffff</code>，这将启用更多特权。</p>
+<p>通过在该位域上设置第20位，可以启用<code>SeDebugPrivilege</code>。<code>SeDebugPrivilege</code>允许进程调试系统上的任何进程，从而能够向特权进程中注入任意代码。</p>
+<p>[1]中解释的利用程序介绍了一种配额指针进程覆写的方法，该方法使用任意减少来在其进程中设置<code>SeDebugPrivilege</code>。图27展示了这种技术。</p>
+<p><img src="/2023/08/24/2023-8-ScoopTheWindows10Pool/image-20230824153306958.png"></p>
+<p>然而，自从Windows 10 v1607版本开始，内核现在还会检查<code>Token</code>的<code>Privileges.Present</code>字段的值。<code>Token</code>的<code>Privileges.Present</code>字段是可以通过使用<code>AdjustTokenPrivileges</code> API为该<code>Token</code>启用的特权列表。因此，<code>TOKEN</code>的实际特权现在是<code>Privileges.Present</code>和<code>Privileges.Enabled</code>的位域运算结果。</p>
+<p>默认情况下，低完整性级别的令牌的<code>Privileges.Present</code>设置为<code>0x602880000</code>。因为<code>0x602880000 &amp; (1&lt;&lt;20) == 0</code>，仅在<code>Privileges.Enabled</code>中设置<code>SeDebugPrivilege</code>是不足以获得<code>SeDebugPrivilege</code>特权。</p>
+<p>一种思路是递减<code>Privileges.Present</code>位域，以便在<code>Privileges.Present</code>位域中获得<code>SeDebugPrivilege</code>。然后，攻击者可以使用<code>AdjustTokenPrivileges</code> API来启用<code>SeDebugPrivilege</code>。然而，<code>SepAdjustPrivileges</code>函数进行了额外的检查，根据<code>TOKEN</code>的完整性，即使所需的特权位于<code>Privileges.Present</code>位域中，进程也无法启用任何特权。对于高完整性级别，进程可以启用<code>Privileges.Present</code>位域中的任何特权。对于中等完整性级别，进程只能启用同时在<code>Privileges.Present</code>位域和<code>0x1120160684</code>位域中的特权。对于低完整性级别，进程只能启用同时在<code>Privileges.Present</code>位域和<code>0x202800000</code>位域中的特权。</p>
+<p>这意味着通过单个任意递减操作来获取SYSTEM权限的技术已经失效。<br>然而，通过进行两次任意递减操作，首先递减<code>Privileges.Enabled</code>，然后递减<code>Privileges.Present</code>，完全可以实现该技术。<br>幽灵块可以被重新分配，并且它的<code>POOL_HEADER</code>可以被第二次覆写，以进行第二次任意递减操作。<br>一旦获得了<code>SeDebugPrivilege</code>特权，攻击者可以打开任何SYSTEM进程，并注入一个弹出SYSTEM权限的shellcode。</p>
+<h2 id="4-6-Discussion-on-the-presented-exploit"><a href="#4-6-Discussion-on-the-presented-exploit" class="headerlink" title="4.6 Discussion on the presented exploit"></a>4.6 Discussion on the presented exploit</h2><p>该漏洞利用的代码可在[2]处获取，同时还提供了受漏洞影响的驱动程序。这个漏洞利用只是一个概念验证，始终可以进行改进。</p>
+<h2 id="4-7-Discussion-on-the-size-of-the-vulnerable-object"><a href="#4-7-Discussion-on-the-size-of-the-vulnerable-object" class="headerlink" title="4.7 Discussion on the size of the vulnerable object"></a>4.7 Discussion on the size of the vulnerable object</h2><p>根据受漏洞对象的大小，漏洞利用可能有不同的要求。</p>
+<p>上述漏洞利用仅适用于最小大小为0x130的受漏洞影响的块。这是由于幽灵块的大小必须至少为0x210。如果受漏洞影响的块的大小小于0x130，则分配幽灵块将覆盖在被覆写块后面的块，并在释放时触发崩溃。这是可以修复的，但留给读者作为练习。</p>
+<p>在LFH（大小小于0x200的块）和VS段（大小大于0x200的块）中，受漏洞影响的对象有一些区别。主要区别在于VS块在块前面有一个额外的头部。这意味着为了能够控制VS段中下一个块的<code>POOL_HEADER</code>，至少需要进行0x14字节的堆溢出。这还意味着当覆写的块被释放时，它的<code>_HEAP_VS_CHUNK_HEADER</code>必须已经被修复。此外，还需要注意不要释放覆写块后面的两个喷洒块，因为VS的释放机制可能会尝试合并3个空闲块时读取覆写块的VS头部。</p>
+<p>最后，LFH和VS中的堆整理方法有很大的不同，如第4.4节所述。</p>
+<h1 id="5-Conclusion"><a href="#5-Conclusion" class="headerlink" title="5 Conclusion"></a>5 Conclusion</h1><p>本论文描述了自Windows 10 19H1更新以来的池内部状态。Segment Heap已经引入内核，并且不需要块元数据才能正常工作。然而，每个块顶部原来的<code>POOL_HEADER</code>仍然存在，但用法有所不同。</p>
+<p>我们展示了一些可以利用Windows内核中的堆溢出进行的攻击，通过攻击与池相关的内部结构。所展示的漏洞利用可以适应任何提供最小堆溢出的漏洞，并允许从低完整性级别提升到SYSTEM级别的本地权限提升。</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ol>
+<li>Corentin Bayet. Exploit of CVE-2017-6008 with Quota Process Pointer<br>Overwrite attack. <a target="_blank" rel="noopener" href="https://github.com/cbayet/Exploit-CVE-2017-6008/blob/">https://github.com/cbayet/Exploit-CVE-2017-6008/blob/</a><br>master/Windows10PoolParty.pdf, 2017.</li>
+<li>Corentin Bayet and Paul Fariello. PoC exploiting Aligned Chunk Confusion on<br>Windows kernel Segment Heap. <a target="_blank" rel="noopener" href="https://github.com/synacktiv/Windows-kernelSegmentHeap-Aligned-Chunk-Confusion">https://github.com/synacktiv/Windows-kernelSegmentHeap-Aligned-Chunk-Confusion</a>, 2020.</li>
+<li>Cesar Cerrudo. Tricks to easily elevate its privileges. <a target="_blank" rel="noopener" href="https://media.blackhat.com/">https://media.blackhat.com/</a><br>bh-us-12/Briefings/Cerrudo/BH_US_12_Cerrudo_Windows_Kernel_WP.pdf, 2012.</li>
+<li>Matt Conover and w00w00 Security Development. w00w00 on Heap Overflows.<br><a target="_blank" rel="noopener" href="http://www.w00w00.org/files/articles/heaptut.txt">http://www.w00w00.org/files/articles/heaptut.txt</a>, 1999.</li>
+<li>Tarjei Mandt. Kernel Pool Exploitation on Windows 7. Blackhat DC, 2011.</li>
+<li>Haroon Meer. Memory Corruption Attacks The (almost) Complete History. Blackhat<br>USA, 2010.</li>
+<li>Mark Vincent Yason. Windows 10 Segment Heap Internals. Blackhat US, 2016.</li>
+</ol>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2023/08/16/2023-8-KernelPoolExploitationOnWin7/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2023-08-24 00:00:00
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="Categories"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/Technology/" title="Technology">
+                        <b>#</b> Technology
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/Windows/" title="Windows">
+                        #Windows
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2099/12/31/TOP%E8%AE%B0%E5%BD%95/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Introduction"><span class="toc-text">1 Introduction</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-Pool-internals"><span class="toc-text">1.1 Pool internals</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-%E8%87%AAWindows-7%E4%BB%A5%E6%9D%A5%E7%9A%84%E6%94%BB%E5%87%BB%E5%92%8C%E7%BC%93%E8%A7%A3%E6%8E%AA%E6%96%BD"><span class="toc-text">1.2 自Windows 7以来的攻击和缓解措施</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-The-Pool-Allocator-with-the-Segment-Heap"><span class="toc-text">2 The Pool Allocator with the Segment Heap</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-Segment-Heap-internals"><span class="toc-text">2.1 Segment Heap internals</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Segment-Backend"><span class="toc-text">Segment Backend</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Variable-Size-Backend"><span class="toc-text">Variable Size Backend</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Low-Fragmentation-Heap-Backend"><span class="toc-text">Low Fragmentation Heap Backend</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Dynamic-Lookaside"><span class="toc-text">Dynamic Lookaside</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-POOL-HEADER"><span class="toc-text">2.2 POOL_HEADER</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CacheAligned"><span class="toc-text">CacheAligned</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-Summary"><span class="toc-text">2.3 Summary</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Attacking-the-POOL-HEADER"><span class="toc-text">3 Attacking the POOL_HEADER</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-Targeting-the-BlockSize"><span class="toc-text">3.1 Targeting the BlockSize</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E5%A0%86%E6%BA%A2%E5%87%BA%E5%88%B0%E6%9B%B4%E5%A4%A7%E7%9A%84%E5%A0%86%E6%BA%A2%E5%87%BA"><span class="toc-text">从堆溢出到更大的堆溢出</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-Targeting-the-PoolType"><span class="toc-text">3.2 Targeting the PoolType</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E9%BD%90%E5%9D%97%E6%B7%B7%E6%B7%86"><span class="toc-text">对齐块混淆</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Generic-Exploitation"><span class="toc-text">4 Generic Exploitation</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-Required-conditions"><span class="toc-text">4.1 Required conditions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-Exploitation-strategies"><span class="toc-text">4.2 Exploitation strategies</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3-Targeted-objects"><span class="toc-text">4.3 Targeted objects</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Paged-Pool"><span class="toc-text">Paged Pool</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NonPagedPoolNx"><span class="toc-text">NonPagedPoolNx</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-4-Spraying"><span class="toc-text">4.4 Spraying</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-5-Exploitation"><span class="toc-text">4.5 Exploitation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA%E8%AE%BE%E7%BD%AE-Demonstration-setup"><span class="toc-text">演示设置(Demonstration setup)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Creating-the-ghost-chunk"><span class="toc-text">Creating the ghost chunk</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Leaking-the-content-of-the-ghost-chunk"><span class="toc-text">Leaking the content of the ghost chunk</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Getting-an-arbitrary-read"><span class="toc-text">Getting an arbitrary read</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Getting-an-arbitrary-decrementation"><span class="toc-text">Getting an arbitrary decrementation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#From-arbitrary-decrementation-to-SYSTEM"><span class="toc-text">From arbitrary decrementation to SYSTEM</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-6-Discussion-on-the-presented-exploit"><span class="toc-text">4.6 Discussion on the presented exploit</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-7-Discussion-on-the-size-of-the-vulnerable-object"><span class="toc-text">4.7 Discussion on the size of the vulnerable object</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-Conclusion"><span class="toc-text">5 Conclusion</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#References"><span class="toc-text">References</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/Ghostasky">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/ghostasky">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/Ghostasky">怕什么真理无穷，进一寸有进一寸的欢喜。</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2023 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E3%80%90%E8%AF%91%E3%80%91Scoop%20The%20Windows%2010%20Pool + '&url=' + https%3A%2F%2Fghostasky.github.io%2F2023%2F08%2F24%2F2023-8-ScoopTheWindows10Pool%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=https://ghostasky.github.io/2023/08/24/2023-8-ScoopTheWindows10Pool/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
