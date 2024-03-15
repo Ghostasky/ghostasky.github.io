@@ -692,7 +692,7 @@ $12 = {
 <h2 id="io_file之fread详解" class="heading-element">
   <a href="#io_file%e4%b9%8bfread%e8%af%a6%e8%a7%a3" class="heading-mark"></a>IO_FILE之fread详解</h2><p>上面写了fopen的分析，讲了系统是如何为FILE结构体分配内存并将其链接进<code>_IO_list_all</code>中的。</p>
 <p>本次来讲fread，实现从文件读数据。下面是本次fread的流程图：</p>
-<p><img loading="lazy" src="image-20210925232855099.png" alt="image-20210925232855099" srcset="image-20210925232855099.png?size=small, image-20210925232855099.png?size=medium 1.5x, image-20210925232855099.png?size=large 2x" data-title="image-20210925232855099" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p><img loading="lazy" src="/posts/io_file/image-20210925232855099.png" alt="image-20210925232855099" srcset="/posts/io_file/image-20210925232855099.png?size=small, /posts/io_file/image-20210925232855099.png?size=medium 1.5x, /posts/io_file/image-20210925232855099.png?size=large 2x" data-title="image-20210925232855099" style="--width: 624px;--aspect-ratio: 624 / 713;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>fread的大致流程：</p>
 <p>fread调用<code>_IO_sgetn</code>，之后<code>_IO_sgetn</code>调用vtable中的<code>_IO_XSGETN</code>也就是</p>
 <p><code>_IO_file_xsgetn</code>，这个是fread的核心，简单流程：</p>
