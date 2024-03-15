@@ -1,29 +1,286 @@
-<!doctype html><html itemscope itemtype=http://schema.org/WebPage lang=zh-CN><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=2"><meta name=robots content="noodp"><title>Windows内核(三)——系统调用 - Ghostasky's Blog</title><meta name=author content>
-<meta name=author-link content><meta name=description content><meta name=keywords content='Win32'><meta itemprop=name content="Windows内核(三)——系统调用"><meta itemprop=description content><meta itemprop=datePublished content="2023-01-16T00:00:00+00:00"><meta itemprop=dateModified content="2023-01-16T00:00:00+00:00"><meta itemprop=wordCount content="6444"><meta itemprop=keywords content="Win32,"><meta property="og:title" content="Windows内核(三)——系统调用"><meta property="og:description" content><meta property="og:type" content="article"><meta property="og:url" content="http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-01-16T00:00:00+00:00"><meta property="article:modified_time" content="2023-01-16T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Windows内核(三)——系统调用"><meta name=twitter:description content><meta name=application-name content="FixIt"><meta name=apple-mobile-web-app-title content="FixIt"><meta name=theme-color data-light=#f8f8f8 data-dark=#252627 content="#f8f8f8"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=canonical href=http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/><link rel=prev href=http://ghostasky.github.io/posts/dir815/><link rel=next href=http://ghostasky.github.io/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/><link rel=stylesheet href=/css/style.min.css><link rel=preload href=/lib/fontawesome-free/all.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/fontawesome-free/all.min.css></noscript><link rel=preload href=/lib/animate/animate.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/animate/animate.min.css></noscript><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"Windows内核(三)——系统调用","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"http:\/\/ghostasky.github.io\/posts\/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8\/"},"genre":"posts","keywords":"Win32","wordcount":6444,"url":"http:\/\/ghostasky.github.io\/posts\/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8\/","datePublished":"2023-01-16T00:00:00+00:00","dateModified":"2023-01-16T00:00:00+00:00","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"作者"},"description":""}</script></head><body data-header-desktop=sticky data-header-mobile=auto><script>(window.localStorage?.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("data-theme","dark")</script><div class=wrapper data-page-style=normal><header class="desktop animate__faster" id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="Ghostasky's Blog"><img loading=lazy src=/images/fixit.png alt="Ghostasky's Blog" data-title="Ghostasky's Blog" class=logo style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'><span class=header-title-text>Ghostasky's Blog</span></a><span class=header-subtitle></span></div><nav><ul class=menu><li class=menu-item><a class=menu-link href=/posts/>文章</a></li><li class=menu-item><a class=menu-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-link href=/about/>关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title=切换主题><i class="fa-solid fa-adjust fa-fw" aria-hidden=true></i></li></ul></nav></div></header><header class="mobile animate__faster" id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="Ghostasky's Blog"><img loading=lazy src=/images/fixit.png alt=/images/fixit.png data-title=/images/fixit.png class=logo style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'><span class=header-title-text>Ghostasky's Blog</span></a><span class=header-subtitle></span></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><nav><ul class=menu id=menu-mobile><li class=menu-item><a class=menu-link href=/posts/>文章</a></li><li class=menu-item><a class=menu-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-link href=/about/>关于</a></li><li class="menu-item menu-system"><span class="menu-system-item theme-switch" title=切换主题><i class="fa-solid fa-adjust fa-fw" aria-hidden=true></i></span></li></ul></nav></div></header><main class=container><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label=合集></aside><article class="page single"><div class=header><h1 class="single-title animate__animated animate__flipInX"><span>Windows内核(三)——系统调用</span></h1></div><div class=post-meta><div class=post-meta-line><span class=post-author><span class=author><i class="fa-solid fa-user-circle" aria-hidden=true></i>
-Anonymous</span></span><span class=post-included-in>&nbsp;收录于 <a href=/categories/technology/ class=post-category title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden=true></i> Technology</a></span></div><div class=post-meta-line><span title="发布于 2023-01-16 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden=true></i><time datetime=2023-01-16>2023-01-16</time></span>&nbsp;<span title="6444 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden=true></i>约 6500 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden=true></i>预计阅读 13 分钟</span>&nbsp;</div></div><div class="details toc" id=toc-static data-kept=false><div class="details-summary toc-title"><span>目录</span>
-<span><i class="details-icon fa-solid fa-angle-right" aria-hidden=true></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#001api函数的调用过程3环部分>001.API函数的调用过程(3环部分)</a></li><li><a href=#002api函数的调用过程3环进0环-上>002.API函数的调用过程(3环进0环 上)</a><ul><li><a href=#_kuser_shared_data>_KUSER_SHARED_DATA</a></li><li><a href=#cpu是否支持快速调用>CPU是否支持快速调用</a></li><li><a href=#进r0需要更改哪些寄存器>进R0需要更改哪些寄存器</a></li></ul></li><li><a href=#003api函数的调用过程3环进0环-下>003.API函数的调用过程(3环进0环 下)</a><ul><li><a href=#总结>总结</a></li></ul></li><li><a href=#004api函数的调用过程保存现场>004.API函数的调用过程(保存现场)</a><ul><li><a href=#_trap_frame结构体>_Trap_Frame结构体</a></li><li><a href=#_ethread线程相关的结构体>_ETHREAD线程相关的结构体</a></li><li><a href=#_kpcr>_KPCR</a></li><li><a href=#逆向分析-kisystemservice>逆向分析 KiSystemService</a></li></ul></li><li><a href=#005api函数的调用过程系统服务表>005.API函数的调用过程(系统服务表)</a></li><li><a href=#006api函数的调用过程ssdt>006.API函数的调用过程(SSDT)</a></li></ul></nav></div></div><div class=content id=content><p>[toc]</p><p>本文是windows内核系列的第三部分，本来应该是放到第二部分后面的，但是第二部分会用到这部分的相关内容 ，就先放第三部分了。</p><h2 id=001api函数的调用过程3环部分 class=heading-element><a href=#001api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b3%e7%8e%af%e9%83%a8%e5%88%86 class=heading-mark></a>001.API函数的调用过程(3环部分)</h2><p>主要是存放在 C:\WINDOWS\system32 下面所有的dll</p><p>几个重要的DLL</p><ul><li>Kernel32.dll:最核心的功能模块，比如管理内存、进程和线程相关的函数等.</li><li>User32.dll:是Windows用户界面相关应用程序接口,如创建窗口和发送消息等.</li><li>GDI32.dll:全称是Graphical Device Interface(图形设备接口),包含用于画图和显示文本的函数.比如要显示一个程序窗口，就调用了其中的函数来画这个窗口.</li><li>Ntdll.dll:大多数API都会通过这个DLL进入内核(0环).</li></ul><p>alt+t直接搜就行，这里使用<code>ReadProcesMemory</code>来举例</p><p>首先是kernel32这个dll</p><p>可以看到是call了一个函数，之后巴拉巴拉，</p><p><img loading=lazy src=image-20230106134646722.png alt=image-20230106134646722 srcset="image-20230106134646722.png?size=small, image-20230106134646722.png?size=medium 1.5x, image-20230106134646722.png?size=large 2x" data-title=image-20230106134646722 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>调用的这个函数在ntdll这个dll里面，在import可以看到，他做了这些事：其中的<code>0BA</code>是一个编号，<code>7FFE0300</code>决定以什么方式进0环</p><p><img loading=lazy src=image-20230106134533807.png alt=image-20230106134533807 srcset="image-20230106134533807.png?size=small, image-20230106134533807.png?size=medium 1.5x, image-20230106134533807.png?size=large 2x" data-title=image-20230106134533807 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><blockquote><p>kernel32.dll(ReadProcessMemory) =></p><p>ntdll.dll(NtReadVirtualMemory)</p></blockquote><h2 id=002api函数的调用过程3环进0环-上 class=heading-element><a href=#002api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b3%e7%8e%af%e8%bf%9b0%e7%8e%af-%e4%b8%8a class=heading-mark></a>002.API函数的调用过程(3环进0环 上)</h2><p>下面说下这部分：</p><p><img loading=lazy src=image-20230106134533807.png alt=image-20230106134533807 srcset="image-20230106134533807.png?size=small, image-20230106134533807.png?size=medium 1.5x, image-20230106134533807.png?size=large 2x" data-title=image-20230106134533807 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>首先是<code>7FFE0300</code>这个地址</p><h3 id=_kuser_shared_data class=heading-element><a href=#_kuser_shared_data class=heading-mark></a>_KUSER_SHARED_DATA</h3><ol><li>在 User 层和 Kernel 层分别定义了一个 <code>_KUSER_SHARED_DATA</code> 结构区域，用于 User 层和 Kernel 层共享某些数据</li><li>它们使用固定的地址值映射，<code>_KUSER_SHARED_DATA</code> 结构区域在 User 和 Kernel 层地址分别为：<ul><li>User 层地址为：0x7ffe0000</li><li>Kernnel 层地址为：0xffdf0000</li></ul></li></ol><p>特别说明：</p><p>虽然指向的是同一个物理页，但在User 层是只读的，在Kernnel层是可写的.</p><p>可以看到两者都是一样的：</p><p><img loading=lazy src=image-20230106140227852.png alt=image-20230106140227852 srcset="image-20230106140227852.png?size=small, image-20230106140227852.png?size=medium 1.5x, image-20230106140227852.png?size=large 2x" data-title=image-20230106140227852 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>可以看到300的位置是系统调用：</p><p><img loading=lazy src=image-20230106140509018.png alt=image-20230106140509018 srcset="image-20230106140509018.png?size=small, image-20230106140509018.png?size=medium 1.5x, image-20230106140509018.png?size=large 2x" data-title=image-20230106140509018 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><h3 id=cpu是否支持快速调用 class=heading-element><a href=#cpu%e6%98%af%e5%90%a6%e6%94%af%e6%8c%81%e5%bf%ab%e9%80%9f%e8%b0%83%e7%94%a8 class=heading-mark></a>CPU是否支持快速调用</h3><p>实验：是否支持快速调用</p><p>当通过<code>eax=1</code>来执行<code>cpuid</code>指令时，处理器的特征信息被放在<code>ecx</code>和<code>edx</code>寄存器中，其中<code>edx</code>包含了一个<code>SEP</code>位（11位），该位指明了当前处理器知否支持<code>sysenter/sysexit</code>指令</p><ul><li>支持：ntdll.dll!KiFastSystemCall()</li><li>不支持：ntdll.dll!KiIntSystemCall()</li></ul><p>eax置1后执行，发现是0xBFF，第11位是1，表示支持</p><p><img loading=lazy src=image-20230106141108580.png alt=image-20230106141108580 srcset="image-20230106141108580.png?size=small, image-20230106141108580.png?size=medium 1.5x, image-20230106141108580.png?size=large 2x" data-title=image-20230106141108580 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>当系统启动的时候，上述执行，之后将相应的函数放到偏移0x300的位置。</p><h3 id=进r0需要更改哪些寄存器 class=heading-element><a href=#%e8%bf%9br0%e9%9c%80%e8%a6%81%e6%9b%b4%e6%94%b9%e5%93%aa%e4%ba%9b%e5%af%84%e5%ad%98%e5%99%a8 class=heading-mark></a>进R0需要更改哪些寄存器</h3><ol><li><p>CS的权限由3变为0，意味着需要新的CS</p></li><li><p>SS与CS的权限永远一致，需要新的SS</p></li><li><p>权限发生切换的时候，堆栈也一定会切换，需要新的ESP</p></li><li><p>进0环后代码的位置，需要EIP</p></li></ol><hr><p>不支持的时候使用的是<code>ntdll.dll!KiIntSystemCall()</code></p><p>将eax中的编号和edx(参数指针)，之后中断<code>0x2E</code>进入内核</p><p><img loading=lazy src=image-20230106142000444.png alt=image-20230106142000444 srcset="image-20230106142000444.png?size=small, image-20230106142000444.png?size=medium 1.5x, image-20230106142000444.png?size=large 2x" data-title=image-20230106142000444 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><div class=highlight id=id-1><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>kd&gt;  dq 8003f400+170
-</span></span><span class=line><span class=cl>ReadVirtual: 8003f570 not properly sign extended
-</span></span><span class=line><span class=cl>8003f570  8054ee00<span class=sb>`</span><span class=m>00082611</span> 80548e00<span class=sb>`</span>0008590c
-</span></span><span class=line><span class=cl>8003f580  80548e00<span class=sb>`</span>00081cd0 80548e00<span class=sb>`</span>00081cda
-</span></span><span class=line><span class=cl>8003f590  80548e00<span class=sb>`</span>00081ce4 80548e00<span class=sb>`</span>00081cee
-</span></span><span class=line><span class=cl>8003f5a0  80548e00<span class=sb>`</span>00081cf8 80548e00<span class=sb>`</span>00081d02
-</span></span><span class=line><span class=cl>8003f5b0  80548e00<span class=sb>`</span>00081d0c 806e8e00<span class=sb>`</span><span class=m>00087864</span>
-</span></span><span class=line><span class=cl>8003f5c0  80548e00<span class=sb>`</span>00081d20 80548e00<span class=sb>`</span>00081d2a
-</span></span><span class=line><span class=cl>8003f5d0  80548e00<span class=sb>`</span>00081d34 80548e00<span class=sb>`</span>00081d3e
-</span></span><span class=line><span class=cl>8003f5e0  80548e00<span class=sb>`</span>00081d48 806e8e00<span class=sb>`</span>00088e2c
-</span></span><span class=line><span class=cl>kd&gt; u <span class=m>80542611</span>
-</span></span><span class=line><span class=cl>ReadVirtual: <span class=m>80542611</span> not properly sign extended
-</span></span><span class=line><span class=cl><span class=m>80542611</span> 6a00            push    <span class=m>0</span>
-</span></span><span class=line><span class=cl><span class=m>80542613</span> <span class=m>55</span>              push    ebp
-</span></span><span class=line><span class=cl><span class=m>80542614</span> <span class=m>53</span>              push    ebx
-</span></span><span class=line><span class=cl><span class=m>80542615</span> <span class=m>56</span>              push    esi
-</span></span><span class=line><span class=cl><span class=m>80542616</span> <span class=m>57</span>              push    edi
-</span></span><span class=line><span class=cl><span class=m>80542617</span> 0fa0            push    fs
-</span></span><span class=line><span class=cl><span class=m>80542619</span> bb30000000      mov     ebx,30h
-</span></span><span class=line><span class=cl>8054261e 668ee3          mov     fs,bx</span></span></code></pre></div><p>支持快速调用的时候使用<code>ntdll.dll!KiFastSystemCall()</code></p><p>也就2行代码：</p><p><img loading=lazy src=image-20230106143004394.png alt=image-20230106143004394 srcset="image-20230106143004394.png?size=small, image-20230106143004394.png?size=medium 1.5x, image-20230106143004394.png?size=large 2x" data-title=image-20230106143004394 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>中断门进0环，需要的CS、EIP在IDT表中，需要查内存(SS与ESP由TSS提供)而CPU如果支持sysenter指令时，操作系统会提前将CS/SS/ESP/EIP的值存储在MSR寄存器中，sysenter指令执行时，CPU会将MSR寄存器中的值直接写入相关寄存器，没有读内存的过程，所以叫快速调用，本质是一样的！</p><h2 id=003api函数的调用过程3环进0环-下 class=heading-element><a href=#003api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b3%e7%8e%af%e8%bf%9b0%e7%8e%af-%e4%b8%8b class=heading-mark></a>003.API函数的调用过程(3环进0环 下)</h2><p>不支持快速调用的话就中断进0环，支持的话就sysenter，需要的寄存器信息(CS，SS,ESP,EIP)在<code>MSR</code>寄存器中可以找到：(ss在cs+8的位置)</p><table><thead><tr><th><strong>MSR</strong></th><th><strong>地址</strong></th></tr></thead><tbody><tr><td>IA32_SYSENTER_CS</td><td>174H</td></tr><tr><td>IA32_SYSENTER_ESP</td><td>175H</td></tr><tr><td>IA32_SYSENTER_EIP</td><td>176H</td></tr></tbody></table><p>可以通过RDMSR/WRMST来进行读写（操作系统使用WRMST写该寄存器）:</p><div class=highlight id=id-2><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>kd&gt; rdmsr <span class=m>174</span>   //查看CS
-</span></span><span class=line><span class=cl>kd&gt; rdmsr <span class=m>175</span>   //查看ESP
-</span></span><span class=line><span class=cl>kd&gt; rdmsr <span class=m>176</span>   //查看EIP
-</span></span><span class=line><span class=cl>&gt; 参考：Intel白皮书第二卷<span class=o>(</span>搜索sysenter<span class=o>)</span></span></span></code></pre></div><pre tabindex=0><code>kd&gt; rdmsr 174
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <meta name="robots" content="noodp" />
+    <title>Windows内核(三)——系统调用 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+<meta name="author-link" content="">
+<meta name="description" content="" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(三)——系统调用">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2023-01-16T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2023-01-16T00:00:00+00:00" />
+<meta itemprop="wordCount" content="6444">
+<meta itemprop="keywords" content="Win32," /><meta property="og:title" content="Windows内核(三)——系统调用" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-01-16T00:00:00+00:00" />
+<meta property="article:modified_time" content="2023-01-16T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Windows内核(三)——系统调用"/>
+<meta name="twitter:description" content=""/>
+<meta name="application-name" content="FixIt">
+<meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" /><link rel="prev" href="http://ghostasky.github.io/posts/dir815/" /><link rel="next" href="http://ghostasky.github.io/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Windows内核(三)——系统调用",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http:\/\/ghostasky.github.io\/posts\/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8\/"
+    },"genre": "posts","keywords": "Win32","wordcount":  6444 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8\/","datePublished": "2023-01-16T00:00:00+00:00","dateModified": "2023-01-16T00:00:00+00:00","publisher": {
+      "@type": "Organization",
+      "name": ""},"author": {
+        "@type": "Person",
+        "name": "作者"
+      },"description": ""
+  }
+  </script></head>
+  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <div class="header-wrapper">
+    <div class="header-title">
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+    <nav>
+      <ul class="menu"><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/posts/"
+                
+                
+              >文章</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/categories/"
+                
+                
+              >分类</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/tags/"
+                
+                
+              >标签</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/about/"
+                
+                
+              >关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title="切换主题">
+          <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+        </li></ul>
+    </nav>
+  </div>
+</header><header class="mobile animate__faster" id="header-mobile">
+  <div class="header-container">
+    <div class="header-wrapper">
+      <div class="header-title">
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <div class="menu-toggle" id="menu-toggle-mobile">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <nav>
+      <ul class="menu" id="menu-mobile"><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/posts/"
+                  
+                  
+                >文章</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/categories/"
+                  
+                  
+                >分类</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/tags/"
+                  
+                  
+                >标签</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/about/"
+                  
+                  
+                >关于</a></li><li class="menu-item menu-system">
+          <span class="menu-system-item theme-switch" title="切换主题"><i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i></span></li>
+      </ul>
+    </nav>
+  </div>
+</header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
+
+  <article class="page single">
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>Windows内核(三)——系统调用</span>
+      </h1></div><div class="post-meta">
+      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
+      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-01-16 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-01-16">2023-01-16</time></span>&nbsp;<span title="6444 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 6500 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 13 分钟</span>&nbsp;</div>
+    </div><div class="details toc" id="toc-static" data-kept="false">
+        <div class="details-summary toc-title">
+          <span>目录</span>
+          <span><i class="details-icon fa-solid fa-angle-right" aria-hidden="true"></i></span>
+        </div>
+        <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#001api函数的调用过程3环部分">001.API函数的调用过程(3环部分)</a></li>
+    <li><a href="#002api函数的调用过程3环进0环-上">002.API函数的调用过程(3环进0环 上)</a>
+      <ul>
+        <li><a href="#_kuser_shared_data">_KUSER_SHARED_DATA</a></li>
+        <li><a href="#cpu是否支持快速调用">CPU是否支持快速调用</a></li>
+        <li><a href="#进r0需要更改哪些寄存器">进R0需要更改哪些寄存器</a></li>
+      </ul>
+    </li>
+    <li><a href="#003api函数的调用过程3环进0环-下">003.API函数的调用过程(3环进0环 下)</a>
+      <ul>
+        <li><a href="#总结">总结</a></li>
+      </ul>
+    </li>
+    <li><a href="#004api函数的调用过程保存现场">004.API函数的调用过程(保存现场)</a>
+      <ul>
+        <li><a href="#_trap_frame结构体">_Trap_Frame结构体</a></li>
+        <li><a href="#_ethread线程相关的结构体">_ETHREAD线程相关的结构体</a></li>
+        <li><a href="#_kpcr">_KPCR</a></li>
+        <li><a href="#逆向分析-kisystemservice">逆向分析 KiSystemService</a></li>
+      </ul>
+    </li>
+    <li><a href="#005api函数的调用过程系统服务表">005.API函数的调用过程(系统服务表)</a></li>
+    <li><a href="#006api函数的调用过程ssdt">006.API函数的调用过程(SSDT)</a></li>
+  </ul>
+</nav></div>
+      </div><div class="content" id="content"><p>[toc]</p>
+<p>本文是windows内核系列的第三部分，本来应该是放到第二部分后面的，但是第二部分会用到这部分的相关内容 ，就先放第三部分了。</p>
+<h2 id="001api函数的调用过程3环部分" class="heading-element">
+  <a href="#001api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b3%e7%8e%af%e9%83%a8%e5%88%86" class="heading-mark"></a>001.API函数的调用过程(3环部分)</h2><p>主要是存放在 C:\WINDOWS\system32 下面所有的dll</p>
+<p>几个重要的DLL</p>
+<ul>
+<li>Kernel32.dll:最核心的功能模块，比如管理内存、进程和线程相关的函数等.</li>
+<li>User32.dll:是Windows用户界面相关应用程序接口,如创建窗口和发送消息等.</li>
+<li>GDI32.dll:全称是Graphical Device Interface(图形设备接口),包含用于画图和显示文本的函数.比如要显示一个程序窗口，就调用了其中的函数来画这个窗口.</li>
+<li>Ntdll.dll:大多数API都会通过这个DLL进入内核(0环).</li>
+</ul>
+<p>alt+t直接搜就行，这里使用<code>ReadProcesMemory</code>来举例</p>
+<p>首先是kernel32这个dll</p>
+<p>可以看到是call了一个函数，之后巴拉巴拉，</p>
+<p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134646722.png" alt="image-20230106134646722" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134646722.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134646722.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134646722.png?size=large 2x" data-title="image-20230106134646722" style="--width: 780px;--aspect-ratio: 780 / 428;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>调用的这个函数在ntdll这个dll里面，在import可以看到，他做了这些事：其中的<code>0BA</code>是一个编号，<code>7FFE0300</code>决定以什么方式进0环</p>
+<p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134533807.png" alt="image-20230106134533807" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134533807.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134533807.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134533807.png?size=large 2x" data-title="image-20230106134533807" style="--width: 822px;--aspect-ratio: 822 / 167;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<blockquote>
+<p>kernel32.dll(ReadProcessMemory) =&gt;</p>
+<p>ntdll.dll(NtReadVirtualMemory)</p>
+</blockquote>
+<h2 id="002api函数的调用过程3环进0环-上" class="heading-element">
+  <a href="#002api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b3%e7%8e%af%e8%bf%9b0%e7%8e%af-%e4%b8%8a" class="heading-mark"></a>002.API函数的调用过程(3环进0环 上)</h2><p>下面说下这部分：</p>
+<p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134533807.png" alt="image-20230106134533807" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134533807.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134533807.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134533807.png?size=large 2x" data-title="image-20230106134533807" style="--width: 822px;--aspect-ratio: 822 / 167;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>首先是<code>7FFE0300</code>这个地址</p>
+<h3 id="_kuser_shared_data" class="heading-element">
+  <a href="#_kuser_shared_data" class="heading-mark"></a>_KUSER_SHARED_DATA</h3><ol>
+<li>在 User 层和 Kernel 层分别定义了一个 <code>_KUSER_SHARED_DATA</code> 结构区域，用于 User 层和 Kernel 层共享某些数据</li>
+<li>它们使用固定的地址值映射，<code>_KUSER_SHARED_DATA</code> 结构区域在 User 和 Kernel 层地址分别为：
+<ul>
+<li>User 层地址为：0x7ffe0000</li>
+<li>Kernnel 层地址为：0xffdf0000</li>
+</ul>
+</li>
+</ol>
+<p>特别说明：</p>
+<p>虽然指向的是同一个物理页，但在User 层是只读的，在Kernnel层是可写的.</p>
+<p>可以看到两者都是一样的：</p>
+<p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140227852.png" alt="image-20230106140227852" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140227852.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140227852.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140227852.png?size=large 2x" data-title="image-20230106140227852" style="--width: 515px;--aspect-ratio: 515 / 385;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>可以看到300的位置是系统调用：</p>
+<p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140509018.png" alt="image-20230106140509018" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140509018.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140509018.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140509018.png?size=large 2x" data-title="image-20230106140509018" style="--width: 769px;--aspect-ratio: 769 / 817;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<h3 id="cpu是否支持快速调用" class="heading-element">
+  <a href="#cpu%e6%98%af%e5%90%a6%e6%94%af%e6%8c%81%e5%bf%ab%e9%80%9f%e8%b0%83%e7%94%a8" class="heading-mark"></a>CPU是否支持快速调用</h3><p>实验：是否支持快速调用</p>
+<p>当通过<code>eax=1</code>来执行<code>cpuid</code>指令时，处理器的特征信息被放在<code>ecx</code>和<code>edx</code>寄存器中，其中<code>edx</code>包含了一个<code>SEP</code>位（11位），该位指明了当前处理器知否支持<code>sysenter/sysexit</code>指令</p>
+<ul>
+<li>支持：ntdll.dll!KiFastSystemCall()</li>
+<li>不支持：ntdll.dll!KiIntSystemCall()</li>
+</ul>
+<p>eax置1后执行，发现是0xBFF，第11位是1，表示支持</p>
+<p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106141108580.png" alt="image-20230106141108580" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106141108580.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106141108580.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106141108580.png?size=large 2x" data-title="image-20230106141108580" style="--width: 854px;--aspect-ratio: 854 / 125;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>当系统启动的时候，上述执行，之后将相应的函数放到偏移0x300的位置。</p>
+<h3 id="进r0需要更改哪些寄存器" class="heading-element">
+  <a href="#%e8%bf%9br0%e9%9c%80%e8%a6%81%e6%9b%b4%e6%94%b9%e5%93%aa%e4%ba%9b%e5%af%84%e5%ad%98%e5%99%a8" class="heading-mark"></a>进R0需要更改哪些寄存器</h3><ol>
+<li>
+<p>CS的权限由3变为0，意味着需要新的CS</p>
+</li>
+<li>
+<p>SS与CS的权限永远一致，需要新的SS</p>
+</li>
+<li>
+<p>权限发生切换的时候，堆栈也一定会切换，需要新的ESP</p>
+</li>
+<li>
+<p>进0环后代码的位置，需要EIP</p>
+</li>
+</ol>
+<hr>
+<p>不支持的时候使用的是<code>ntdll.dll!KiIntSystemCall()</code></p>
+<p>将eax中的编号和edx(参数指针)，之后中断<code>0x2E</code>进入内核</p>
+<p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106142000444.png" alt="image-20230106142000444" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106142000444.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106142000444.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106142000444.png?size=large 2x" data-title="image-20230106142000444" style="--width: 835px;--aspect-ratio: 835 / 184;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt;  dq 8003f400+170
+</span></span><span class="line"><span class="cl">ReadVirtual: 8003f570 not properly sign extended
+</span></span><span class="line"><span class="cl">8003f570  8054ee00<span class="sb">`</span><span class="m">00082611</span> 80548e00<span class="sb">`</span>0008590c
+</span></span><span class="line"><span class="cl">8003f580  80548e00<span class="sb">`</span>00081cd0 80548e00<span class="sb">`</span>00081cda
+</span></span><span class="line"><span class="cl">8003f590  80548e00<span class="sb">`</span>00081ce4 80548e00<span class="sb">`</span>00081cee
+</span></span><span class="line"><span class="cl">8003f5a0  80548e00<span class="sb">`</span>00081cf8 80548e00<span class="sb">`</span>00081d02
+</span></span><span class="line"><span class="cl">8003f5b0  80548e00<span class="sb">`</span>00081d0c 806e8e00<span class="sb">`</span><span class="m">00087864</span>
+</span></span><span class="line"><span class="cl">8003f5c0  80548e00<span class="sb">`</span>00081d20 80548e00<span class="sb">`</span>00081d2a
+</span></span><span class="line"><span class="cl">8003f5d0  80548e00<span class="sb">`</span>00081d34 80548e00<span class="sb">`</span>00081d3e
+</span></span><span class="line"><span class="cl">8003f5e0  80548e00<span class="sb">`</span>00081d48 806e8e00<span class="sb">`</span>00088e2c
+</span></span><span class="line"><span class="cl">kd&gt; u <span class="m">80542611</span>
+</span></span><span class="line"><span class="cl">ReadVirtual: <span class="m">80542611</span> not properly sign extended
+</span></span><span class="line"><span class="cl"><span class="m">80542611</span> 6a00            push    <span class="m">0</span>
+</span></span><span class="line"><span class="cl"><span class="m">80542613</span> <span class="m">55</span>              push    ebp
+</span></span><span class="line"><span class="cl"><span class="m">80542614</span> <span class="m">53</span>              push    ebx
+</span></span><span class="line"><span class="cl"><span class="m">80542615</span> <span class="m">56</span>              push    esi
+</span></span><span class="line"><span class="cl"><span class="m">80542616</span> <span class="m">57</span>              push    edi
+</span></span><span class="line"><span class="cl"><span class="m">80542617</span> 0fa0            push    fs
+</span></span><span class="line"><span class="cl"><span class="m">80542619</span> bb30000000      mov     ebx,30h
+</span></span><span class="line"><span class="cl">8054261e 668ee3          mov     fs,bx</span></span></code></pre></div><p>支持快速调用的时候使用<code>ntdll.dll!KiFastSystemCall()</code></p>
+<p>也就2行代码：</p>
+<p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106143004394.png" alt="image-20230106143004394" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106143004394.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106143004394.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106143004394.png?size=large 2x" data-title="image-20230106143004394" style="--width: 722px;--aspect-ratio: 722 / 117;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>中断门进0环，需要的CS、EIP在IDT表中，需要查内存(SS与ESP由TSS提供)而CPU如果支持sysenter指令时，操作系统会提前将CS/SS/ESP/EIP的值存储在MSR寄存器中，sysenter指令执行时，CPU会将MSR寄存器中的值直接写入相关寄存器，没有读内存的过程，所以叫快速调用，本质是一样的！</p>
+<h2 id="003api函数的调用过程3环进0环-下" class="heading-element">
+  <a href="#003api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b3%e7%8e%af%e8%bf%9b0%e7%8e%af-%e4%b8%8b" class="heading-mark"></a>003.API函数的调用过程(3环进0环 下)</h2><p>不支持快速调用的话就中断进0环，支持的话就sysenter，需要的寄存器信息(CS，SS,ESP,EIP)在<code>MSR</code>寄存器中可以找到：(ss在cs+8的位置)</p>
+<table>
+<thead>
+<tr>
+<th><strong>MSR</strong></th>
+<th><strong>地址</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IA32_SYSENTER_CS</td>
+<td>174H</td>
+</tr>
+<tr>
+<td>IA32_SYSENTER_ESP</td>
+<td>175H</td>
+</tr>
+<tr>
+<td>IA32_SYSENTER_EIP</td>
+<td>176H</td>
+</tr>
+</tbody>
+</table>
+<p>可以通过RDMSR/WRMST来进行读写（操作系统使用WRMST写该寄存器）:</p>
+<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; rdmsr <span class="m">174</span>   //查看CS
+</span></span><span class="line"><span class="cl">kd&gt; rdmsr <span class="m">175</span>   //查看ESP
+</span></span><span class="line"><span class="cl">kd&gt; rdmsr <span class="m">176</span>   //查看EIP
+</span></span><span class="line"><span class="cl">&gt; 参考：Intel白皮书第二卷<span class="o">(</span>搜索sysenter<span class="o">)</span></span></span></code></pre></div><pre tabindex="0"><code>kd&gt; rdmsr 174
 msr[174] = 00000000`00000008
 kd&gt; rdmsr 175
 msr[175] = 00000000`f78af000
@@ -38,12 +295,27 @@ ReadVirtual: 805426e0 not properly sign extended
 805426eb 8ec1            mov     es,cx
 805426ed 648b0d40000000  mov     ecx,dword ptr fs:[40h]
 805426f4 8b6104          mov     esp,dword ptr [ecx+4]
-805426f7 6a23            push    23h</code></pre><h3 id=总结 class=heading-element><a href=#%e6%80%bb%e7%bb%93 class=heading-mark></a>总结</h3><p>API通过中断门进0环：</p><pre><code>1)  固定中断号为0x2E
+805426f7 6a23            push    23h</code></pre><h3 id="总结" class="heading-element">
+  <a href="#%e6%80%bb%e7%bb%93" class="heading-mark"></a>总结</h3><p>API通过中断门进0环：</p>
+<pre><code>1)  固定中断号为0x2E
 2)  CS/EIP由门描述符提供   ESP/SS由TSS提供
 3)  进入0环后执行的内核函数：NT!KiSystemService
-</code></pre><p>API通过sysenter指令进0环：</p><pre><code>1)  CS/ESP/EIP由MSR寄存器提供(SS是算出来的)
+</code></pre>
+<p>API通过sysenter指令进0环：</p>
+<pre><code>1)  CS/ESP/EIP由MSR寄存器提供(SS是算出来的)
 2)  进入0环后执行的内核函数：NT!KiFastCallEntry
-</code></pre><p>内核模块：<code>ntoskrnl.exe/ntkrnlpa.exe</code></p><h2 id=004api函数的调用过程保存现场 class=heading-element><a href=#004api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b%e4%bf%9d%e5%ad%98%e7%8e%b0%e5%9c%ba class=heading-mark></a>004.API函数的调用过程(保存现场)</h2><p>这里使用<code>KiSystemService</code>举例。</p><p>首先接收三个结构体：</p><h3 id=_trap_frame结构体 class=heading-element><a href=#_trap_frame%e7%bb%93%e6%9e%84%e4%bd%93 class=heading-mark></a>_Trap_Frame结构体</h3><p>这个结构体在0环，由操作系统进行维护</p><p><strong>无论是快速调用还是中断进0环都会将寄存器写到这个结构体里</strong></p><div class=highlight id=id-4><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>kd&gt; dt _ktrap_Frame</span></span></code></pre></div><p><img loading=lazy src=image-20230107134858939.png alt=image-20230107134858939.png srcset="image-20230107134858939.png?size=small, image-20230107134858939.png?size=medium 1.5x, image-20230107134858939.png?size=large 2x" data-title=image-20230107134858939.png style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>在中断进入0环的时候，会压入<code>0x068~0x078</code>的5个值，快速调用的 时候，这5个值是没有的。</p><h3 id=_ethread线程相关的结构体 class=heading-element><a href=#_ethread%e7%ba%bf%e7%a8%8b%e7%9b%b8%e5%85%b3%e7%9a%84%e7%bb%93%e6%9e%84%e4%bd%93 class=heading-mark></a>_ETHREAD线程相关的结构体</h3><pre tabindex=0><code>kd&gt; dt _ETHREAD
+</code></pre>
+<p>内核模块：<code>ntoskrnl.exe/ntkrnlpa.exe</code></p>
+<h2 id="004api函数的调用过程保存现场" class="heading-element">
+  <a href="#004api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b%e4%bf%9d%e5%ad%98%e7%8e%b0%e5%9c%ba" class="heading-mark"></a>004.API函数的调用过程(保存现场)</h2><p>这里使用<code>KiSystemService</code>举例。</p>
+<p>首先接收三个结构体：</p>
+<h3 id="_trap_frame结构体" class="heading-element">
+  <a href="#_trap_frame%e7%bb%93%e6%9e%84%e4%bd%93" class="heading-mark"></a>_Trap_Frame结构体</h3><p>这个结构体在0环，由操作系统进行维护</p>
+<p><strong>无论是快速调用还是中断进0环都会将寄存器写到这个结构体里</strong></p>
+<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _ktrap_Frame</span></span></code></pre></div><p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png" alt="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png?size=large 2x" data-title="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png" style="--width: 700px;--aspect-ratio: 700 / 1105;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>在中断进入0环的时候，会压入<code>0x068~0x078</code>的5个值，快速调用的 时候，这5个值是没有的。</p>
+<h3 id="_ethread线程相关的结构体" class="heading-element">
+  <a href="#_ethread%e7%ba%bf%e7%a8%8b%e7%9b%b8%e5%85%b3%e7%9a%84%e7%bb%93%e6%9e%84%e4%bd%93" class="heading-mark"></a>_ETHREAD线程相关的结构体</h3><pre tabindex="0"><code>kd&gt; dt _ETHREAD
 ntdll!_ETHREAD
    +0x000 Tcb              : _KTHREAD
    +0x1c0 CreateTime       : _LARGE_INTEGER
@@ -98,7 +370,8 @@ ntdll!_ETHREAD
    +0x250 LpcExitThreadCalled : Pos 1, 1 Bit
    +0x250 AddressSpaceOwner : Pos 2, 1 Bit
    +0x254 ForwardClusterOnly : UChar
-   +0x255 DisablePageFaultClustering : UChar</code></pre><p>里面有个<code>_KTHREAD</code></p><pre tabindex=0><code>kd&gt; dt _KTHREAD
+   +0x255 DisablePageFaultClustering : UChar</code></pre><p>里面有个<code>_KTHREAD</code></p>
+<pre tabindex="0"><code>kd&gt; dt _KTHREAD
 ntdll!_KTHREAD
    +0x000 Header           : _DISPATCHER_HEADER
    +0x010 MutantListHead   : _LIST_ENTRY
@@ -172,7 +445,10 @@ ntdll!_KTHREAD
    +0x1b8 FreezeCount      : Char
    +0x1b9 SuspendCount     : Char
    +0x1ba IdealProcessor   : UChar
-   +0x1bb DisableBoost     : UChar</code></pre><h3 id=_kpcr class=heading-element><a href=#_kpcr class=heading-mark></a>_KPCR</h3><p>KPCR 叫CPU控制区（Processor Control Region）</p><p>CPU也有自己的控制块，每一个CPU有一个，叫KPCR</p><pre tabindex=0><code>kd&gt; dt _KPCR
+   +0x1bb DisableBoost     : UChar</code></pre><h3 id="_kpcr" class="heading-element">
+  <a href="#_kpcr" class="heading-mark"></a>_KPCR</h3><p>KPCR  叫CPU控制区（Processor Control Region）</p>
+<p>CPU也有自己的控制块，每一个CPU有一个，叫KPCR</p>
+<pre tabindex="0"><code>kd&gt; dt _KPCR
 nt!_KPCR
    +0x000 NtTib            : _NT_TIB
    +0x01c SelfPcr          : Ptr32 _KPCR
@@ -200,7 +476,8 @@ nt!_KPCR
    +0x0d4 InterruptMode    : Uint4B
    +0x0d8 Spare1           : UChar
    +0x0dc KernelReserved2  : [17] Uint4B
-   +0x120 PrcbData         : _KPRCB</code></pre><p>其中第一个是一个结构体<code>_NT_TIB</code></p><pre tabindex=0><code>kd&gt; dt _NT_TIB
+   +0x120 PrcbData         : _KPRCB</code></pre><p>其中第一个是一个结构体<code>_NT_TIB</code></p>
+<pre tabindex="0"><code>kd&gt; dt _NT_TIB
 ntdll!_NT_TIB
    +0x000 ExceptionList    : Ptr32 _EXCEPTION_REGISTRATION_RECORD
    +0x004 StackBase        : Ptr32 Void
@@ -209,99 +486,102 @@ ntdll!_NT_TIB
    +0x010 FiberData        : Ptr32 Void
    +0x010 Version          : Uint4B
    +0x014 ArbitraryUserPointer : Ptr32 Void
-   +0x018 Self             : Ptr32 _NT_TIB//结构体指针 指向自己</code></pre><p><code>_KPRC</code>的最后一个也是一个结构体<code>_KPRCB</code>：</p><div class=highlight id=id-9><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>kd&gt; dt _KPRCB
-</span></span><span class=line><span class=cl>ntdll!_KPRCB
-</span></span><span class=line><span class=cl>   +0x000 MinorVersion     : Uint2B
-</span></span><span class=line><span class=cl>   +0x002 MajorVersion     : Uint2B
-</span></span><span class=line><span class=cl>   +0x004 CurrentThread    : Ptr32 _KTHREAD//当前CPU所执行线程的_ETHREAD
-</span></span><span class=line><span class=cl>   +0x008 NextThread       : Ptr32 _KTHREAD//下一个_ETHREAD
-</span></span><span class=line><span class=cl>   +0x00c IdleThread       : Ptr32 _KTHREAD//当所以线程都执行完了CPU就可以执行这个
-</span></span><span class=line><span class=cl>   +0x010 Number           : Char//CPU编号
-</span></span><span class=line><span class=cl>   +0x011 Reserved         : Char
-</span></span><span class=line><span class=cl>   +0x012 BuildType        : Uint2B
-</span></span><span class=line><span class=cl>   +0x014 SetMember        : Uint4B
-</span></span><span class=line><span class=cl>   +0x018 CpuType          : Char
-</span></span><span class=line><span class=cl>   +0x019 CpuID            : Char
-</span></span><span class=line><span class=cl>   +0x01a CpuStep          : Uint2B//CPU子版本号
-</span></span><span class=line><span class=cl>   +0x01c ProcessorState   : _KPROCESSOR_STATE//CPU状态
-</span></span><span class=line><span class=cl>   +0x33c KernelReserved   : <span class=o>[</span>16<span class=o>]</span> Uint4B
-</span></span><span class=line><span class=cl>   +0x37c HalReserved      : <span class=o>[</span>16<span class=o>]</span> Uint4B
-</span></span><span class=line><span class=cl>   +0x3bc PrcbPad0         : <span class=o>[</span>92<span class=o>]</span> UChar
-</span></span><span class=line><span class=cl>   +0x418 LockQueue        : <span class=o>[</span>16<span class=o>]</span> _KSPIN_LOCK_QUEUE
-</span></span><span class=line><span class=cl>   +0x498 PrcbPad1         : <span class=o>[</span>8<span class=o>]</span> UChar
-</span></span><span class=line><span class=cl>   +0x4a0 NpxThread        : Ptr32 _KTHREAD//Npx浮点处理器  最后一次用过浮点的线程
-</span></span><span class=line><span class=cl>   +0x4a4 InterruptCount   : Uint4B//中断计数 统计信息 没什么实际意义 自己调试用的
-</span></span><span class=line><span class=cl>   +0x4a8 KernelTime       : Uint4B//统计信息
-</span></span><span class=line><span class=cl>   +0x4ac UserTime         : Uint4B//统计信息
-</span></span><span class=line><span class=cl>   +0x4b0 DpcTime          : Uint4B//统计信息
-</span></span><span class=line><span class=cl>   +0x4b4 DebugDpcTime     : Uint4B//统计信息
-</span></span><span class=line><span class=cl>   +0x4b8 InterruptTime    : Uint4B//统计信息
-</span></span><span class=line><span class=cl>   +0x4bc AdjustDpcThreshold : Uint4B
-</span></span><span class=line><span class=cl>   +0x4c0 PageColor        : Uint4B
-</span></span><span class=line><span class=cl>   +0x4c4 SkipTick         : Uint4B
-</span></span><span class=line><span class=cl>   +0x4c8 MultiThreadSetBusy : UChar
-</span></span><span class=line><span class=cl>   +0x4c9 Spare2           : <span class=o>[</span>3<span class=o>]</span> UChar
-</span></span><span class=line><span class=cl>   +0x4cc ParentNode       : Ptr32 _KNODE
-</span></span><span class=line><span class=cl>   +0x4d0 MultiThreadProcessorSet : Uint4B
-</span></span><span class=line><span class=cl>   +0x4d4 MultiThreadSetMaster : Ptr32 _KPRCB
-</span></span><span class=line><span class=cl>   +0x4d8 ThreadStartCount : <span class=o>[</span>2<span class=o>]</span> Uint4B
-</span></span><span class=line><span class=cl>   +0x4e0 CcFastReadNoWait : Uint4B
-</span></span><span class=line><span class=cl>   +0x4e4 CcFastReadWait   : Uint4B
-</span></span><span class=line><span class=cl>   +0x4e8 CcFastReadNotPossible : Uint4B
-</span></span><span class=line><span class=cl>   +0x4ec CcCopyReadNoWait : Uint4B
-</span></span><span class=line><span class=cl>   +0x4f0 CcCopyReadWait   : Uint4B
-</span></span><span class=line><span class=cl>   +0x4f4 CcCopyReadNoWaitMiss : Uint4B
-</span></span><span class=line><span class=cl>   +0x4f8 KeAlignmentFixupCount : Uint4B
-</span></span><span class=line><span class=cl>   +0x4fc KeContextSwitches : Uint4B
-</span></span><span class=line><span class=cl>   +0x500 KeDcacheFlushCount : Uint4B
-</span></span><span class=line><span class=cl>   +0x504 KeExceptionDispatchCount : Uint4B
-</span></span><span class=line><span class=cl>   +0x508 KeFirstLevelTbFills : Uint4B
-</span></span><span class=line><span class=cl>   +0x50c KeFloatingEmulationCount : Uint4B
-</span></span><span class=line><span class=cl>   +0x510 KeIcacheFlushCount : Uint4B
-</span></span><span class=line><span class=cl>   +0x514 KeSecondLevelTbFills : Uint4B
-</span></span><span class=line><span class=cl>   +0x518 KeSystemCalls    : Uint4B
-</span></span><span class=line><span class=cl>   +0x51c SpareCounter0    : <span class=o>[</span>1<span class=o>]</span> Uint4B
-</span></span><span class=line><span class=cl>   +0x520 PPLookasideList  : <span class=o>[</span>16<span class=o>]</span> _PP_LOOKASIDE_LIST
-</span></span><span class=line><span class=cl>   +0x5a0 PPNPagedLookasideList : <span class=o>[</span>32<span class=o>]</span> _PP_LOOKASIDE_LIST
-</span></span><span class=line><span class=cl>   +0x6a0 PPPagedLookasideList : <span class=o>[</span>32<span class=o>]</span> _PP_LOOKASIDE_LIST
-</span></span><span class=line><span class=cl>   +0x7a0 PacketBarrier    : Uint4B
-</span></span><span class=line><span class=cl>   +0x7a4 ReverseStall     : Uint4B
-</span></span><span class=line><span class=cl>   +0x7a8 IpiFrame         : Ptr32 Void
-</span></span><span class=line><span class=cl>   +0x7ac PrcbPad2         : <span class=o>[</span>52<span class=o>]</span> UChar
-</span></span><span class=line><span class=cl>   +0x7e0 CurrentPacket    : <span class=o>[</span>3<span class=o>]</span> Ptr32 Void
-</span></span><span class=line><span class=cl>   +0x7ec TargetSet        : Uint4B
-</span></span><span class=line><span class=cl>   +0x7f0 WorkerRoutine    : Ptr32     void 
-</span></span><span class=line><span class=cl>   +0x7f4 IpiFrozen        : Uint4B
-</span></span><span class=line><span class=cl>   +0x7f8 PrcbPad3         : <span class=o>[</span>40<span class=o>]</span> UChar
-</span></span><span class=line><span class=cl>   +0x820 RequestSummary   : Uint4B
-</span></span><span class=line><span class=cl>   +0x824 SignalDone       : Ptr32 _KPRCB
-</span></span><span class=line><span class=cl>   +0x828 PrcbPad4         : <span class=o>[</span>56<span class=o>]</span> UChar
-</span></span><span class=line><span class=cl>   +0x860 DpcListHead      : _LIST_ENTRY
-</span></span><span class=line><span class=cl>   +0x868 DpcStack         : Ptr32 Void
-</span></span><span class=line><span class=cl>   +0x86c DpcCount         : Uint4B
-</span></span><span class=line><span class=cl>   +0x870 DpcQueueDepth    : Uint4B
-</span></span><span class=line><span class=cl>   +0x874 DpcRoutineActive : Uint4B
-</span></span><span class=line><span class=cl>   +0x878 DpcInterruptRequested : Uint4B
-</span></span><span class=line><span class=cl>   +0x87c DpcLastCount     : Uint4B
-</span></span><span class=line><span class=cl>   +0x880 DpcRequestRate   : Uint4B
-</span></span><span class=line><span class=cl>   +0x884 MaximumDpcQueueDepth : Uint4B
-</span></span><span class=line><span class=cl>   +0x888 MinimumDpcRate   : Uint4B
-</span></span><span class=line><span class=cl>   +0x88c QuantumEnd       : Uint4B
-</span></span><span class=line><span class=cl>   +0x890 PrcbPad5         : <span class=o>[</span>16<span class=o>]</span> UChar
-</span></span><span class=line><span class=cl>   +0x8a0 DpcLock          : Uint4B
-</span></span><span class=line><span class=cl>   +0x8a4 PrcbPad6         : <span class=o>[</span>28<span class=o>]</span> UChar
-</span></span><span class=line><span class=cl>   +0x8c0 CallDpc          : _KDPC
-</span></span><span class=line><span class=cl>   +0x8e0 ChainedInterruptList : Ptr32 Void
-</span></span><span class=line><span class=cl>   +0x8e4 LookasideIrpFloat : Int4B
-</span></span><span class=line><span class=cl>   +0x8e8 SpareFields0     : <span class=o>[</span>6<span class=o>]</span> Uint4B
-</span></span><span class=line><span class=cl>   +0x900 VendorString     : <span class=o>[</span>13<span class=o>]</span> UChar
-</span></span><span class=line><span class=cl>   +0x90d InitialApicId    : UChar
-</span></span><span class=line><span class=cl>   +0x90e LogicalProcessorsPerPhysicalProcessor : UChar//每个物理处理器有几个逻辑处理器
-</span></span><span class=line><span class=cl>   +0x910 MHz              : Uint4B//频率 
-</span></span><span class=line><span class=cl>   +0x914 FeatureBits      : Uint4B
-</span></span><span class=line><span class=cl>   +0x918 UpdateSignature  : _LARGE_INTEGER
-</span></span><span class=line><span class=cl>   +0x920 NpxSaveArea      : _FX_SAVE_AREA
-</span></span><span class=line><span class=cl>   +0xb30 PowerState       : _PROCESSOR_POWER_STATE</span></span></code></pre></div><h3 id=逆向分析-kisystemservice class=heading-element><a href=#%e9%80%86%e5%90%91%e5%88%86%e6%9e%90-kisystemservice class=heading-mark></a>逆向分析 KiSystemService</h3><p><code>KiSystemService</code>这个函数也就是中断的时候，<code>0x2E</code>的内容</p><pre tabindex=0><code class=language-assembly data-lang=assembly>.text:004067D1 _KiSystemService proc near              ; CODE XREF: ZwAcceptConnectPort(x,x,x,x,x,x)+C↓p
+   +0x018 Self             : Ptr32 _NT_TIB//结构体指针 指向自己</code></pre><p><code>_KPRC</code>的最后一个也是一个结构体<code>_KPRCB</code>：</p>
+<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _KPRCB
+</span></span><span class="line"><span class="cl">ntdll!_KPRCB
+</span></span><span class="line"><span class="cl">   +0x000 MinorVersion     : Uint2B
+</span></span><span class="line"><span class="cl">   +0x002 MajorVersion     : Uint2B
+</span></span><span class="line"><span class="cl">   +0x004 CurrentThread    : Ptr32 _KTHREAD//当前CPU所执行线程的_ETHREAD
+</span></span><span class="line"><span class="cl">   +0x008 NextThread       : Ptr32 _KTHREAD//下一个_ETHREAD
+</span></span><span class="line"><span class="cl">   +0x00c IdleThread       : Ptr32 _KTHREAD//当所以线程都执行完了CPU就可以执行这个
+</span></span><span class="line"><span class="cl">   +0x010 Number           : Char//CPU编号
+</span></span><span class="line"><span class="cl">   +0x011 Reserved         : Char
+</span></span><span class="line"><span class="cl">   +0x012 BuildType        : Uint2B
+</span></span><span class="line"><span class="cl">   +0x014 SetMember        : Uint4B
+</span></span><span class="line"><span class="cl">   +0x018 CpuType          : Char
+</span></span><span class="line"><span class="cl">   +0x019 CpuID            : Char
+</span></span><span class="line"><span class="cl">   +0x01a CpuStep          : Uint2B//CPU子版本号
+</span></span><span class="line"><span class="cl">   +0x01c ProcessorState   : _KPROCESSOR_STATE//CPU状态
+</span></span><span class="line"><span class="cl">   +0x33c KernelReserved   : <span class="o">[</span>16<span class="o">]</span> Uint4B
+</span></span><span class="line"><span class="cl">   +0x37c HalReserved      : <span class="o">[</span>16<span class="o">]</span> Uint4B
+</span></span><span class="line"><span class="cl">   +0x3bc PrcbPad0         : <span class="o">[</span>92<span class="o">]</span> UChar
+</span></span><span class="line"><span class="cl">   +0x418 LockQueue        : <span class="o">[</span>16<span class="o">]</span> _KSPIN_LOCK_QUEUE
+</span></span><span class="line"><span class="cl">   +0x498 PrcbPad1         : <span class="o">[</span>8<span class="o">]</span> UChar
+</span></span><span class="line"><span class="cl">   +0x4a0 NpxThread        : Ptr32 _KTHREAD//Npx浮点处理器  最后一次用过浮点的线程
+</span></span><span class="line"><span class="cl">   +0x4a4 InterruptCount   : Uint4B//中断计数 统计信息 没什么实际意义 自己调试用的
+</span></span><span class="line"><span class="cl">   +0x4a8 KernelTime       : Uint4B//统计信息
+</span></span><span class="line"><span class="cl">   +0x4ac UserTime         : Uint4B//统计信息
+</span></span><span class="line"><span class="cl">   +0x4b0 DpcTime          : Uint4B//统计信息
+</span></span><span class="line"><span class="cl">   +0x4b4 DebugDpcTime     : Uint4B//统计信息
+</span></span><span class="line"><span class="cl">   +0x4b8 InterruptTime    : Uint4B//统计信息
+</span></span><span class="line"><span class="cl">   +0x4bc AdjustDpcThreshold : Uint4B
+</span></span><span class="line"><span class="cl">   +0x4c0 PageColor        : Uint4B
+</span></span><span class="line"><span class="cl">   +0x4c4 SkipTick         : Uint4B
+</span></span><span class="line"><span class="cl">   +0x4c8 MultiThreadSetBusy : UChar
+</span></span><span class="line"><span class="cl">   +0x4c9 Spare2           : <span class="o">[</span>3<span class="o">]</span> UChar
+</span></span><span class="line"><span class="cl">   +0x4cc ParentNode       : Ptr32 _KNODE
+</span></span><span class="line"><span class="cl">   +0x4d0 MultiThreadProcessorSet : Uint4B
+</span></span><span class="line"><span class="cl">   +0x4d4 MultiThreadSetMaster : Ptr32 _KPRCB
+</span></span><span class="line"><span class="cl">   +0x4d8 ThreadStartCount : <span class="o">[</span>2<span class="o">]</span> Uint4B
+</span></span><span class="line"><span class="cl">   +0x4e0 CcFastReadNoWait : Uint4B
+</span></span><span class="line"><span class="cl">   +0x4e4 CcFastReadWait   : Uint4B
+</span></span><span class="line"><span class="cl">   +0x4e8 CcFastReadNotPossible : Uint4B
+</span></span><span class="line"><span class="cl">   +0x4ec CcCopyReadNoWait : Uint4B
+</span></span><span class="line"><span class="cl">   +0x4f0 CcCopyReadWait   : Uint4B
+</span></span><span class="line"><span class="cl">   +0x4f4 CcCopyReadNoWaitMiss : Uint4B
+</span></span><span class="line"><span class="cl">   +0x4f8 KeAlignmentFixupCount : Uint4B
+</span></span><span class="line"><span class="cl">   +0x4fc KeContextSwitches : Uint4B
+</span></span><span class="line"><span class="cl">   +0x500 KeDcacheFlushCount : Uint4B
+</span></span><span class="line"><span class="cl">   +0x504 KeExceptionDispatchCount : Uint4B
+</span></span><span class="line"><span class="cl">   +0x508 KeFirstLevelTbFills : Uint4B
+</span></span><span class="line"><span class="cl">   +0x50c KeFloatingEmulationCount : Uint4B
+</span></span><span class="line"><span class="cl">   +0x510 KeIcacheFlushCount : Uint4B
+</span></span><span class="line"><span class="cl">   +0x514 KeSecondLevelTbFills : Uint4B
+</span></span><span class="line"><span class="cl">   +0x518 KeSystemCalls    : Uint4B
+</span></span><span class="line"><span class="cl">   +0x51c SpareCounter0    : <span class="o">[</span>1<span class="o">]</span> Uint4B
+</span></span><span class="line"><span class="cl">   +0x520 PPLookasideList  : <span class="o">[</span>16<span class="o">]</span> _PP_LOOKASIDE_LIST
+</span></span><span class="line"><span class="cl">   +0x5a0 PPNPagedLookasideList : <span class="o">[</span>32<span class="o">]</span> _PP_LOOKASIDE_LIST
+</span></span><span class="line"><span class="cl">   +0x6a0 PPPagedLookasideList : <span class="o">[</span>32<span class="o">]</span> _PP_LOOKASIDE_LIST
+</span></span><span class="line"><span class="cl">   +0x7a0 PacketBarrier    : Uint4B
+</span></span><span class="line"><span class="cl">   +0x7a4 ReverseStall     : Uint4B
+</span></span><span class="line"><span class="cl">   +0x7a8 IpiFrame         : Ptr32 Void
+</span></span><span class="line"><span class="cl">   +0x7ac PrcbPad2         : <span class="o">[</span>52<span class="o">]</span> UChar
+</span></span><span class="line"><span class="cl">   +0x7e0 CurrentPacket    : <span class="o">[</span>3<span class="o">]</span> Ptr32 Void
+</span></span><span class="line"><span class="cl">   +0x7ec TargetSet        : Uint4B
+</span></span><span class="line"><span class="cl">   +0x7f0 WorkerRoutine    : Ptr32     void 
+</span></span><span class="line"><span class="cl">   +0x7f4 IpiFrozen        : Uint4B
+</span></span><span class="line"><span class="cl">   +0x7f8 PrcbPad3         : <span class="o">[</span>40<span class="o">]</span> UChar
+</span></span><span class="line"><span class="cl">   +0x820 RequestSummary   : Uint4B
+</span></span><span class="line"><span class="cl">   +0x824 SignalDone       : Ptr32 _KPRCB
+</span></span><span class="line"><span class="cl">   +0x828 PrcbPad4         : <span class="o">[</span>56<span class="o">]</span> UChar
+</span></span><span class="line"><span class="cl">   +0x860 DpcListHead      : _LIST_ENTRY
+</span></span><span class="line"><span class="cl">   +0x868 DpcStack         : Ptr32 Void
+</span></span><span class="line"><span class="cl">   +0x86c DpcCount         : Uint4B
+</span></span><span class="line"><span class="cl">   +0x870 DpcQueueDepth    : Uint4B
+</span></span><span class="line"><span class="cl">   +0x874 DpcRoutineActive : Uint4B
+</span></span><span class="line"><span class="cl">   +0x878 DpcInterruptRequested : Uint4B
+</span></span><span class="line"><span class="cl">   +0x87c DpcLastCount     : Uint4B
+</span></span><span class="line"><span class="cl">   +0x880 DpcRequestRate   : Uint4B
+</span></span><span class="line"><span class="cl">   +0x884 MaximumDpcQueueDepth : Uint4B
+</span></span><span class="line"><span class="cl">   +0x888 MinimumDpcRate   : Uint4B
+</span></span><span class="line"><span class="cl">   +0x88c QuantumEnd       : Uint4B
+</span></span><span class="line"><span class="cl">   +0x890 PrcbPad5         : <span class="o">[</span>16<span class="o">]</span> UChar
+</span></span><span class="line"><span class="cl">   +0x8a0 DpcLock          : Uint4B
+</span></span><span class="line"><span class="cl">   +0x8a4 PrcbPad6         : <span class="o">[</span>28<span class="o">]</span> UChar
+</span></span><span class="line"><span class="cl">   +0x8c0 CallDpc          : _KDPC
+</span></span><span class="line"><span class="cl">   +0x8e0 ChainedInterruptList : Ptr32 Void
+</span></span><span class="line"><span class="cl">   +0x8e4 LookasideIrpFloat : Int4B
+</span></span><span class="line"><span class="cl">   +0x8e8 SpareFields0     : <span class="o">[</span>6<span class="o">]</span> Uint4B
+</span></span><span class="line"><span class="cl">   +0x900 VendorString     : <span class="o">[</span>13<span class="o">]</span> UChar
+</span></span><span class="line"><span class="cl">   +0x90d InitialApicId    : UChar
+</span></span><span class="line"><span class="cl">   +0x90e LogicalProcessorsPerPhysicalProcessor : UChar//每个物理处理器有几个逻辑处理器
+</span></span><span class="line"><span class="cl">   +0x910 MHz              : Uint4B//频率 
+</span></span><span class="line"><span class="cl">   +0x914 FeatureBits      : Uint4B
+</span></span><span class="line"><span class="cl">   +0x918 UpdateSignature  : _LARGE_INTEGER
+</span></span><span class="line"><span class="cl">   +0x920 NpxSaveArea      : _FX_SAVE_AREA
+</span></span><span class="line"><span class="cl">   +0xb30 PowerState       : _PROCESSOR_POWER_STATE</span></span></code></pre></div><h3 id="逆向分析-kisystemservice" class="heading-element">
+  <a href="#%e9%80%86%e5%90%91%e5%88%86%e6%9e%90-kisystemservice" class="heading-mark"></a>逆向分析 KiSystemService</h3><p><code>KiSystemService</code>这个函数也就是中断的时候，<code>0x2E</code>的内容</p>
+<pre tabindex="0"><code class="language-assembly" data-lang="assembly">.text:004067D1 _KiSystemService proc near              ; CODE XREF: ZwAcceptConnectPort(x,x,x,x,x,x)+C↓p
 .text:004067D1                                         ; ZwAccessCheck(x,x,x,x,x,x,x,x)+C↓p ...
 .text:004067D1
 .text:004067D1 arg_0           = dword ptr  4
@@ -351,154 +631,212 @@ ntdll!_NT_TIB
 .text:00406841                                         ; Dr_kss_a+7C↑j
 .text:00406841                 sti                     ; 允许中断
 .text:00406842                 jmp     loc_406932
-.text:00406842 _KiSystemService endp</code></pre><h2 id=005api函数的调用过程系统服务表 class=heading-element><a href=#005api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b%e7%b3%bb%e7%bb%9f%e6%9c%8d%e5%8a%a1%e8%a1%a8 class=heading-mark></a>005.API函数的调用过程(系统服务表)</h2><p>上节内容：进0环后，3环的各种寄存器都会保留到_Trap_Frame结构体中</p><p>本节内容：</p><ul><li>如何根据系统服务号(eax中存储)找到要执行的内核函数？</li><li>调用时参数是存储到3环的堆栈，如何传递给内核函数？</li></ul><p>SystemServiceTable 系统服务表</p><p><img loading=lazy src=image-20230107230553238.png alt=image-20230107230553238 srcset="image-20230107230553238.png?size=small, image-20230107230553238.png?size=medium 1.5x, image-20230107230553238.png?size=large 2x" data-title=image-20230107230553238 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>这个表在<code>_KTHREAD</code>的偏移为0xE0的位置。</p><p>如何判断是上面还是下面那张表：</p><p><img loading=lazy src=image-20230107230710291.png alt=image-20230107230710291 srcset="image-20230107230710291.png?size=small, image-20230107230710291.png?size=medium 1.5x, image-20230107230710291.png?size=large 2x" data-title=image-20230107230710291 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>这个是<code>_KiFastCallEntry</code>，KiSystemService的最后直接到了<code>0x00406932</code>的位置</p><div class=highlight id=id-11><pre tabindex=0 class=chroma><code class=language-asm data-lang=asm><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040689</span><span class=nf>F</span> <span class=no>_KiFastCallEntry</span> <span class=no>proc</span> <span class=no>near</span>              <span class=c1>; DATA XREF: _KiTrap01+71↓o
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040689</span><span class=nf>F</span>                                         <span class=c1>; KiLoadFastSyscallMachineSpecificRegisters(x)+24↓o
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040689</span><span class=nf>F</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040689</span><span class=nf>F</span> <span class=no>var_B</span>           <span class=err>=</span> <span class=no>byte</span> <span class=no>ptr</span> <span class=p>-</span><span class=mi>0</span><span class=no>Bh</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040689</span><span class=nf>F</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040689</span><span class=nf>F</span> <span class=c1>; FUNCTION CHUNK AT .text:0040686C SIZE 00000024 BYTES
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040689</span><span class=nf>F</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040689</span><span class=nf>F</span>                 <span class=no>mov</span>     <span class=no>ecx</span><span class=p>,</span> <span class=mi>23</span><span class=no>h</span> <span class=c1>; &#39;#&#39;
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004068</span><span class=nf>A4</span>                 <span class=no>push</span>    <span class=mi>30</span><span class=no>h</span> <span class=c1>; &#39;0&#39;
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004068</span><span class=nf>A6</span>                 <span class=no>pop</span>     <span class=no>fs</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>A8</span>                 <span class=no>mov</span>     <span class=no>ds</span><span class=p>,</span> <span class=no>ecx</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>AA</span>                 <span class=no>mov</span>     <span class=no>es</span><span class=p>,</span> <span class=no>ecx</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>AC</span>                 <span class=no>mov</span>     <span class=no>ecx</span><span class=p>,</span> <span class=no>large</span> <span class=no>fs</span><span class=p>:</span><span class=mi>40</span><span class=no>h</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>B3</span>                 <span class=no>mov</span>     <span class=no>esp</span><span class=p>,</span> <span class=p>[</span><span class=no>ecx</span><span class=err>+</span><span class=mi>4</span><span class=p>]</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>B6</span>                 <span class=no>push</span>    <span class=mi>23</span><span class=no>h</span> <span class=c1>; &#39;#&#39;
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004068</span><span class=nf>B8</span>                 <span class=no>push</span>    <span class=no>edx</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>B9</span>                 <span class=no>pushf</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>BA</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>BA</span> <span class=no>loc_4068BA</span><span class=p>:</span>                             <span class=c1>; CODE XREF: _KiFastCallEntry2+23↑j
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004068</span><span class=nf>BA</span>                 <span class=no>push</span>    <span class=mi>2</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>BC</span>                 <span class=no>add</span>     <span class=no>edx</span><span class=p>,</span> <span class=mi>8</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>BF</span>                 <span class=no>popf</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>C0</span>                 <span class=no>or</span>      <span class=p>[</span><span class=no>esp</span><span class=err>+</span><span class=mi>0</span><span class=no>Ch</span><span class=err>+</span><span class=no>var_B</span><span class=p>],</span> <span class=mi>2</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>C5</span>                 <span class=no>push</span>    <span class=mi>1</span><span class=no>Bh</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>C7</span>                 <span class=no>push</span>    <span class=no>dword</span> <span class=no>ptr</span> <span class=no>ds</span><span class=p>:</span><span class=mi>0</span><span class=no>FFDF0304h</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>CD</span>                 <span class=no>push</span>    <span class=mi>0</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>CF</span>                 <span class=no>push</span>    <span class=no>ebp</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>D0</span>                 <span class=no>push</span>    <span class=no>ebx</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>D1</span>                 <span class=no>push</span>    <span class=no>esi</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>D2</span>                 <span class=no>push</span>    <span class=no>edi</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>D3</span>                 <span class=no>mov</span>     <span class=no>ebx</span><span class=p>,</span> <span class=no>large</span> <span class=no>fs</span><span class=p>:</span><span class=mi>1</span><span class=no>Ch</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>DA</span>                 <span class=no>push</span>    <span class=mi>3</span><span class=no>Bh</span> <span class=c1>; &#39;;&#39;
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004068</span><span class=nf>DC</span>                 <span class=no>mov</span>     <span class=no>esi</span><span class=p>,</span> <span class=p>[</span><span class=no>ebx</span><span class=err>+</span><span class=mi>124</span><span class=no>h</span><span class=p>]</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>E2</span>                 <span class=no>push</span>    <span class=no>dword</span> <span class=no>ptr</span> <span class=p>[</span><span class=no>ebx</span><span class=p>]</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>E4</span>                 <span class=no>mov</span>     <span class=no>dword</span> <span class=no>ptr</span> <span class=p>[</span><span class=no>ebx</span><span class=p>],</span> <span class=mi>0</span><span class=no>FFFFFFFFh</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>EA</span>                 <span class=no>mov</span>     <span class=no>ebp</span><span class=p>,</span> <span class=p>[</span><span class=no>esi</span><span class=err>+</span><span class=mi>18</span><span class=no>h</span><span class=p>]</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>ED</span>                 <span class=no>push</span>    <span class=mi>1</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>EF</span>                 <span class=no>sub</span>     <span class=no>esp</span><span class=p>,</span> <span class=mi>48</span><span class=no>h</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>F2</span>                 <span class=no>sub</span>     <span class=no>ebp</span><span class=p>,</span> <span class=mi>29</span><span class=no>Ch</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>F8</span>                 <span class=no>mov</span>     <span class=no>byte</span> <span class=no>ptr</span> <span class=p>[</span><span class=no>esi</span><span class=err>+</span><span class=mi>140</span><span class=no>h</span><span class=p>],</span> <span class=mi>1</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004068</span><span class=nf>FF</span>                 <span class=no>cmp</span>     <span class=no>ebp</span><span class=p>,</span> <span class=no>esp</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406901</span>                 <span class=nf>jnz</span>     <span class=no>loc_40686C</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406907</span>                 <span class=nf>and</span>     <span class=no>dword</span> <span class=no>ptr</span> <span class=p>[</span><span class=no>ebp</span><span class=err>+</span><span class=mi>2</span><span class=no>Ch</span><span class=p>],</span> <span class=mi>0</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040690</span><span class=nf>B</span>                 <span class=no>test</span>    <span class=no>byte</span> <span class=no>ptr</span> <span class=p>[</span><span class=no>esi</span><span class=err>+</span><span class=mi>2</span><span class=no>Ch</span><span class=p>],</span> <span class=mi>0</span><span class=no>FFh</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040690</span><span class=nf>F</span>                 <span class=no>mov</span>     <span class=p>[</span><span class=no>esi</span><span class=err>+</span><span class=mi>134</span><span class=no>h</span><span class=p>],</span> <span class=no>ebp</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406915</span>                 <span class=nf>jnz</span>     <span class=no>Dr_FastCallDrSave</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040691</span><span class=nf>B</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040691</span><span class=nf>B</span> <span class=no>loc_40691B</span><span class=p>:</span>                             <span class=c1>; CODE XREF: Dr_FastCallDrSave+10↑j
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040691</span><span class=nf>B</span>                                         <span class=c1>; Dr_FastCallDrSave+7C↑j
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040691</span><span class=nf>B</span>                 <span class=no>mov</span>     <span class=no>ebx</span><span class=p>,</span> <span class=p>[</span><span class=no>ebp</span><span class=err>+</span><span class=mi>60</span><span class=no>h</span><span class=p>]</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040691</span><span class=nf>E</span>                 <span class=no>mov</span>     <span class=no>edi</span><span class=p>,</span> <span class=p>[</span><span class=no>ebp</span><span class=err>+</span><span class=mi>68</span><span class=no>h</span><span class=p>]</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406921</span>                 <span class=nf>mov</span>     <span class=p>[</span><span class=no>ebp</span><span class=err>+</span><span class=mi>0</span><span class=no>Ch</span><span class=p>],</span> <span class=no>edx</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406924</span>                 <span class=nf>mov</span>     <span class=no>dword</span> <span class=no>ptr</span> <span class=p>[</span><span class=no>ebp</span><span class=err>+</span><span class=mi>8</span><span class=p>],</span> <span class=mi>0</span><span class=no>BADB0D00h</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040692</span><span class=nf>B</span>                 <span class=no>mov</span>     <span class=p>[</span><span class=no>ebp</span><span class=err>+</span><span class=mi>0</span><span class=p>],</span> <span class=no>ebx</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040692</span><span class=nf>E</span>                 <span class=no>mov</span>     <span class=p>[</span><span class=no>ebp</span><span class=err>+</span><span class=mi>4</span><span class=p>],</span> <span class=no>edi</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406931</span>                 <span class=nf>sti</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406932</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406932</span> <span class=nl>loc_406932:</span>                             <span class=c1>; CODE XREF: _KiBBTUnexpectedRange+18↑j
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406932</span>                                         <span class=c1>; _KiSystemService+71↑j
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406932</span>                 <span class=nf>mov</span>     <span class=no>edi</span><span class=p>,</span> <span class=no>eax</span>        <span class=c1>; 取出3环传进来的系统调用号
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406934</span>                 <span class=nf>shr</span>     <span class=no>edi</span><span class=p>,</span> <span class=mi>8</span>          <span class=c1>; 右移8位
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406937</span>                 <span class=nf>and</span>     <span class=no>edi</span><span class=p>,</span> <span class=mi>30</span><span class=no>h</span>        <span class=c1>; 检测系统调用号12位
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406937</span>                                         <span class=c1>; 如果等于1，那么 edi == 0x10
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406937</span>                                         <span class=c1>; 如果等于0，那么 edi == 0x00
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040693</span><span class=nf>A</span>                 <span class=no>mov</span>     <span class=no>ecx</span><span class=p>,</span> <span class=no>edi</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040693</span><span class=nf>C</span>                 <span class=no>add</span>     <span class=no>edi</span><span class=p>,</span> <span class=p>[</span><span class=no>esi</span><span class=err>+</span><span class=mi>0</span><span class=no>E0h</span><span class=p>]</span> <span class=c1>; edi += CurrentThread.ServiceTable
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040693</span><span class=nf>C</span>                                         <span class=c1>; 此时 edi 指向了API对应的系统服务表
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040693</span><span class=nf>C</span>                                         <span class=c1>;
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040693</span><span class=nf>C</span>                                         <span class=c1>; 0x10 刚好是系统服务表的大小
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040693</span><span class=nf>C</span>                                         <span class=c1>; 系统服务表有 ServiceTable, Count, ServiceLimit 和 ArgmentTable
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040693</span><span class=nf>C</span>                                         <span class=c1>;  4项共0x10字节，所以通过这里的代码也可以推断，内核和win32k.sys的系统服务表是连续的
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040693</span><span class=nf>C</span>                                         <span class=c1>;  第一张是内核的，第二张是win32k.sys的
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406942</span>                 <span class=nf>mov</span>     <span class=no>ebx</span><span class=p>,</span> <span class=no>eax</span>        <span class=c1>; ebx = 系统调用号
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406944</span>                 <span class=nf>and</span>     <span class=no>eax</span><span class=p>,</span> <span class=mi>0</span><span class=no>FFFh</span>      <span class=c1>; eax = 系统服务表下标
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406949</span>                 <span class=nf>cmp</span>     <span class=no>eax</span><span class=p>,</span> <span class=p>[</span><span class=no>edi</span><span class=err>+</span><span class=mi>8</span><span class=p>]</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040694</span><span class=nf>C</span>                 <span class=no>jnb</span>     <span class=no>_KiBBTUnexpectedRange</span> <span class=c1>; 检查系统调用号是否超过系统服务表的范围，超过就跳到异常处理
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406952</span>                 <span class=nf>cmp</span>     <span class=no>ecx</span><span class=p>,</span> <span class=mi>10</span><span class=no>h</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406955</span>                 <span class=nf>jnz</span>     <span class=no>short</span> <span class=no>loc_406972</span> <span class=c1>; 跳转条件：系统服务（ntdll.dll 的API）
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406955</span>                                         <span class=c1>; 不跳转条件：图形及用户界面（gdi.dll 的API）
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406957</span>                 <span class=nf>mov</span>     <span class=no>ecx</span><span class=p>,</span> <span class=no>large</span> <span class=no>fs</span><span class=p>:</span><span class=mi>18</span><span class=no>h</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040695</span><span class=nf>E</span>                 <span class=no>xor</span>     <span class=no>ebx</span><span class=p>,</span> <span class=no>ebx</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040695</span><span class=nf>E</span> <span class=no>_KiFastCallEntry</span> <span class=no>endp</span> <span class=c1>; sp-analysis failed
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040695</span><span class=nf>E</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406960</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406960</span> <span class=c1>; =============== S U B R O U T I N E =======================================
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406960</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406960</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406960</span> <span class=c1>; _DWORD __stdcall KiSystemServiceAccessTeb()
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406960</span> <span class=nf>_KiSystemServiceAccessTeb@0</span> <span class=no>proc</span> <span class=no>near</span>   <span class=c1>; DATA XREF: KiPreprocessAccessViolation(x,x,x)+3D↓o
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406960</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406960</span> <span class=c1>; FUNCTION CHUNK AT .text:00406B4F SIZE 0000000A BYTES
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406960</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406960</span>                 <span class=nf>or</span>      <span class=no>ebx</span><span class=p>,</span> <span class=p>[</span><span class=no>ecx</span><span class=err>+</span><span class=mi>0</span><span class=no>F70h</span><span class=p>]</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406966</span>                 <span class=nf>jz</span>      <span class=no>short</span> <span class=no>loc_406972</span> <span class=c1>; _KCPR.KPRCB.KeSystemCalls += 1, 系统调用计数加1
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406968</span>                 <span class=nf>push</span>    <span class=no>edx</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406969</span>                 <span class=nf>push</span>    <span class=no>eax</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040696</span><span class=nf>A</span>                 <span class=no>call</span>    <span class=no>ds</span><span class=p>:</span><span class=no>_KeGdiFlushUserBatch</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406970</span>                 <span class=nf>pop</span>     <span class=no>eax</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406971</span>                 <span class=nf>pop</span>     <span class=no>edx</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406972</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406972</span> <span class=nl>loc_406972:</span>                             <span class=c1>; CODE XREF: _KiFastCallEntry+B6↑j
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406972</span>                                         <span class=c1>; KiSystemServiceAccessTeb()+6↑j
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406972</span>                 <span class=nf>inc</span>     <span class=no>large</span> <span class=no>dword</span> <span class=no>ptr</span> <span class=no>fs</span><span class=p>:</span><span class=mi>638</span><span class=no>h</span> <span class=c1>; _KCPR.KPRCB.KeSystemCalls += 1, 系统调用计数加1
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406979</span>                 <span class=nf>mov</span>     <span class=no>esi</span><span class=p>,</span> <span class=no>edx</span>        <span class=c1>; esi = edx = 3环参数指针
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040697</span><span class=nf>B</span>                 <span class=no>mov</span>     <span class=no>ebx</span><span class=p>,</span> <span class=p>[</span><span class=no>edi</span><span class=err>+</span><span class=mi>0</span><span class=no>Ch</span><span class=p>]</span>  <span class=c1>; ebx 指向函数参数表
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040697</span><span class=nf>B</span>                                         <span class=c1>; eax 是系统调用号
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040697</span><span class=nf>E</span>                 <span class=no>xor</span>     <span class=no>ecx</span><span class=p>,</span> <span class=no>ecx</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406980</span>                 <span class=nf>mov</span>     <span class=no>cl</span><span class=p>,</span> <span class=p>[</span><span class=no>eax</span><span class=err>+</span><span class=no>ebx</span><span class=p>]</span>   <span class=c1>; cl = 参数字节数
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406983</span>                 <span class=nf>mov</span>     <span class=no>edi</span><span class=p>,</span> <span class=p>[</span><span class=no>edi</span><span class=p>]</span>      <span class=c1>; edi 指向函数地址表
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406985</span>                 <span class=nf>mov</span>     <span class=no>ebx</span><span class=p>,</span> <span class=p>[</span><span class=no>edi</span><span class=err>+</span><span class=no>eax</span><span class=p>*</span><span class=mi>4</span><span class=p>]</span> <span class=c1>; ebx 指向0环函数
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406988</span>                 <span class=nf>sub</span>     <span class=no>esp</span><span class=p>,</span> <span class=no>ecx</span>        <span class=c1>; 从这句开始，到call为止，完成了复制3环参数的工作
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406988</span>                                         <span class=c1>; 这句是模拟压栈操作
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040698</span><span class=nf>A</span>                 <span class=no>shr</span>     <span class=no>ecx</span><span class=p>,</span> <span class=mi>2</span>          <span class=c1>; 参数字节数 / 4，得到参数个数
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040698</span><span class=nf>D</span>                 <span class=no>mov</span>     <span class=no>edi</span><span class=p>,</span> <span class=no>esp</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040698</span><span class=nf>F</span>                 <span class=no>test</span>    <span class=no>byte</span> <span class=no>ptr</span> <span class=p>[</span><span class=no>ebp</span><span class=err>+</span><span class=mi>72</span><span class=no>h</span><span class=p>],</span> <span class=mi>2</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406993</span>                 <span class=nf>jnz</span>     <span class=no>short</span> <span class=no>loc_40699B</span> <span class=c1>; 越界检查
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406993</span>                                         <span class=c1>; 如果 esi（3环参数指针）大于等于 0x7fff0000，则返回 c0000005 异常
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406995</span>                 <span class=nf>test</span>    <span class=no>byte</span> <span class=no>ptr</span> <span class=p>[</span><span class=no>ebp</span><span class=err>+</span><span class=mi>6</span><span class=no>Ch</span><span class=p>],</span> <span class=mi>1</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>00406999</span>                 <span class=nf>jz</span>      <span class=no>short</span> <span class=no>_KiSystemServiceCopyArguments@0</span> <span class=c1>; 复制参数：复制 esi 到 edi，每次复制4字节，次数由 ecx 决定
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>00406999</span>                                         <span class=c1>; 方向由DF决定，DF=0，故每次复制后，edi 和 esi 都加4
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040699</span><span class=nf>B</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>0040699</span><span class=nf>B</span> <span class=no>loc_40699B</span><span class=p>:</span>                             <span class=c1>; CODE XREF: KiSystemServiceAccessTeb()+33↑j
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040699</span><span class=nf>B</span>                 <span class=no>cmp</span>     <span class=no>esi</span><span class=p>,</span> <span class=no>ds</span><span class=p>:</span><span class=no>_MmUserProbeAddress</span> <span class=c1>; 越界检查
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>0040699</span><span class=nf>B</span>                                         <span class=c1>; 如果 esi（3环参数指针）大于等于 0x7fff0000，则返回 c0000005 异常
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A1</span>                 <span class=no>jnb</span>     <span class=no>loc_406B4F</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A1</span> <span class=no>_KiSystemServiceAccessTeb@0</span> <span class=no>endp</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A1</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A7</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A7</span> <span class=c1>; =============== S U B R O U T I N E =======================================
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A7</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A7</span> <span class=c1>; 复制参数：复制 esi 到 edi，每次复制4字节，次数由 ecx 决定
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A7</span> <span class=c1>; 方向由DF决定，DF=0，故每次复制后，edi 和 esi 都加4
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A7</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A7</span> <span class=c1>; _DWORD __stdcall KiSystemServiceCopyArguments()
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A7</span> <span class=no>_KiSystemServiceCopyArguments@0</span> <span class=no>proc</span> <span class=no>near</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A7</span>                                         <span class=c1>; CODE XREF: KiSystemServiceAccessTeb()+39↑j
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A7</span>                                         <span class=c1>; DATA XREF: KiPreprocessAccessViolation(x,x,x):loc_4628DF↓o
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A7</span>                 <span class=no>rep</span> <span class=no>movsd</span>
-</span></span><span class=line><span class=cl><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A9</span>                 <span class=no>call</span>    <span class=no>ebx</span>             <span class=c1>; 复制参数：复制 esi 到 edi，每次复制4字节，次数由 ecx 决定
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A9</span> <span class=no>_KiSystemServiceCopyArguments@0</span> <span class=no>endp</span>    <span class=c1>; 方向由DF决定，DF=0，故每次复制后，edi 和 esi 都加4
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004069</span><span class=nf>A9</span>                                         <span class=c1>; 调用内核函数
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=nl>.text:</span><span class=err>004069</span><span class=nf>AB</span></span></span></code></pre></div><h2 id=006api函数的调用过程ssdt class=heading-element><a href=#006api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8bssdt class=heading-mark></a>006.API函数的调用过程(SSDT)</h2><p>本节通过其他方式来访问系统服务表.</p><p>SSDT 的全称是 System Services Descriptor Table，系统服务描述符表</p><pre tabindex=0><code>kd&gt; dd  KeServiceDescriptorTable(SSDT)
+.text:00406842 _KiSystemService endp</code></pre><h2 id="005api函数的调用过程系统服务表" class="heading-element">
+  <a href="#005api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b%e7%b3%bb%e7%bb%9f%e6%9c%8d%e5%8a%a1%e8%a1%a8" class="heading-mark"></a>005.API函数的调用过程(系统服务表)</h2><p>上节内容：进0环后，3环的各种寄存器都会保留到_Trap_Frame结构体中</p>
+<p>本节内容：</p>
+<ul>
+<li>如何根据系统服务号(eax中存储)找到要执行的内核函数？</li>
+<li>调用时参数是存储到3环的堆栈，如何传递给内核函数？</li>
+</ul>
+<p>SystemServiceTable 系统服务表</p>
+<p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107230553238.png" alt="image-20230107230553238" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107230553238.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107230553238.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107230553238.png?size=large 2x" data-title="image-20230107230553238" style="--width: 955px;--aspect-ratio: 955 / 570;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>这个表在<code>_KTHREAD</code>的偏移为0xE0的位置。</p>
+<p>如何判断是上面还是下面那张表：</p>
+<p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107230710291.png" alt="image-20230107230710291" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107230710291.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107230710291.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107230710291.png?size=large 2x" data-title="image-20230107230710291" style="--width: 919px;--aspect-ratio: 919 / 613;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>这个是<code>_KiFastCallEntry</code>，KiSystemService的最后直接到了<code>0x00406932</code>的位置</p>
+<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span> <span class="no">_KiFastCallEntry</span> <span class="no">proc</span> <span class="no">near</span>              <span class="c1">; DATA XREF: _KiTrap01+71↓o
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span>                                         <span class="c1">; KiLoadFastSyscallMachineSpecificRegisters(x)+24↓o
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span> <span class="no">var_B</span>           <span class="err">=</span> <span class="no">byte</span> <span class="no">ptr</span> <span class="p">-</span><span class="mi">0</span><span class="no">Bh</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span> <span class="c1">; FUNCTION CHUNK AT .text:0040686C SIZE 00000024 BYTES
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span>                 <span class="no">mov</span>     <span class="no">ecx</span><span class="p">,</span> <span class="mi">23</span><span class="no">h</span> <span class="c1">; &#39;#&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004068</span><span class="nf">A4</span>                 <span class="no">push</span>    <span class="mi">30</span><span class="no">h</span> <span class="c1">; &#39;0&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004068</span><span class="nf">A6</span>                 <span class="no">pop</span>     <span class="no">fs</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">A8</span>                 <span class="no">mov</span>     <span class="no">ds</span><span class="p">,</span> <span class="no">ecx</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">AA</span>                 <span class="no">mov</span>     <span class="no">es</span><span class="p">,</span> <span class="no">ecx</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">AC</span>                 <span class="no">mov</span>     <span class="no">ecx</span><span class="p">,</span> <span class="no">large</span> <span class="no">fs</span><span class="p">:</span><span class="mi">40</span><span class="no">h</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">B3</span>                 <span class="no">mov</span>     <span class="no">esp</span><span class="p">,</span> <span class="p">[</span><span class="no">ecx</span><span class="err">+</span><span class="mi">4</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">B6</span>                 <span class="no">push</span>    <span class="mi">23</span><span class="no">h</span> <span class="c1">; &#39;#&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004068</span><span class="nf">B8</span>                 <span class="no">push</span>    <span class="no">edx</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">B9</span>                 <span class="no">pushf</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">BA</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">BA</span> <span class="no">loc_4068BA</span><span class="p">:</span>                             <span class="c1">; CODE XREF: _KiFastCallEntry2+23↑j
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004068</span><span class="nf">BA</span>                 <span class="no">push</span>    <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">BC</span>                 <span class="no">add</span>     <span class="no">edx</span><span class="p">,</span> <span class="mi">8</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">BF</span>                 <span class="no">popf</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">C0</span>                 <span class="no">or</span>      <span class="p">[</span><span class="no">esp</span><span class="err">+</span><span class="mi">0</span><span class="no">Ch</span><span class="err">+</span><span class="no">var_B</span><span class="p">],</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">C5</span>                 <span class="no">push</span>    <span class="mi">1</span><span class="no">Bh</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">C7</span>                 <span class="no">push</span>    <span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:</span><span class="mi">0</span><span class="no">FFDF0304h</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">CD</span>                 <span class="no">push</span>    <span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">CF</span>                 <span class="no">push</span>    <span class="no">ebp</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">D0</span>                 <span class="no">push</span>    <span class="no">ebx</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">D1</span>                 <span class="no">push</span>    <span class="no">esi</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">D2</span>                 <span class="no">push</span>    <span class="no">edi</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">D3</span>                 <span class="no">mov</span>     <span class="no">ebx</span><span class="p">,</span> <span class="no">large</span> <span class="no">fs</span><span class="p">:</span><span class="mi">1</span><span class="no">Ch</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">DA</span>                 <span class="no">push</span>    <span class="mi">3</span><span class="no">Bh</span> <span class="c1">; &#39;;&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004068</span><span class="nf">DC</span>                 <span class="no">mov</span>     <span class="no">esi</span><span class="p">,</span> <span class="p">[</span><span class="no">ebx</span><span class="err">+</span><span class="mi">124</span><span class="no">h</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">E2</span>                 <span class="no">push</span>    <span class="no">dword</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">ebx</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">E4</span>                 <span class="no">mov</span>     <span class="no">dword</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">ebx</span><span class="p">],</span> <span class="mi">0</span><span class="no">FFFFFFFFh</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">EA</span>                 <span class="no">mov</span>     <span class="no">ebp</span><span class="p">,</span> <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="mi">18</span><span class="no">h</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">ED</span>                 <span class="no">push</span>    <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">EF</span>                 <span class="no">sub</span>     <span class="no">esp</span><span class="p">,</span> <span class="mi">48</span><span class="no">h</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">F2</span>                 <span class="no">sub</span>     <span class="no">ebp</span><span class="p">,</span> <span class="mi">29</span><span class="no">Ch</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">F8</span>                 <span class="no">mov</span>     <span class="no">byte</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="mi">140</span><span class="no">h</span><span class="p">],</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">FF</span>                 <span class="no">cmp</span>     <span class="no">ebp</span><span class="p">,</span> <span class="no">esp</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406901</span>                 <span class="nf">jnz</span>     <span class="no">loc_40686C</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406907</span>                 <span class="nf">and</span>     <span class="no">dword</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="mi">2</span><span class="no">Ch</span><span class="p">],</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040690</span><span class="nf">B</span>                 <span class="no">test</span>    <span class="no">byte</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="mi">2</span><span class="no">Ch</span><span class="p">],</span> <span class="mi">0</span><span class="no">FFh</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040690</span><span class="nf">F</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="mi">134</span><span class="no">h</span><span class="p">],</span> <span class="no">ebp</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406915</span>                 <span class="nf">jnz</span>     <span class="no">Dr_FastCallDrSave</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040691</span><span class="nf">B</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040691</span><span class="nf">B</span> <span class="no">loc_40691B</span><span class="p">:</span>                             <span class="c1">; CODE XREF: Dr_FastCallDrSave+10↑j
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040691</span><span class="nf">B</span>                                         <span class="c1">; Dr_FastCallDrSave+7C↑j
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040691</span><span class="nf">B</span>                 <span class="no">mov</span>     <span class="no">ebx</span><span class="p">,</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="mi">60</span><span class="no">h</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040691</span><span class="nf">E</span>                 <span class="no">mov</span>     <span class="no">edi</span><span class="p">,</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="mi">68</span><span class="no">h</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406921</span>                 <span class="nf">mov</span>     <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="mi">0</span><span class="no">Ch</span><span class="p">],</span> <span class="no">edx</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406924</span>                 <span class="nf">mov</span>     <span class="no">dword</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="mi">8</span><span class="p">],</span> <span class="mi">0</span><span class="no">BADB0D00h</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040692</span><span class="nf">B</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="mi">0</span><span class="p">],</span> <span class="no">ebx</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040692</span><span class="nf">E</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="mi">4</span><span class="p">],</span> <span class="no">edi</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406931</span>                 <span class="nf">sti</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406932</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406932</span> <span class="nl">loc_406932:</span>                             <span class="c1">; CODE XREF: _KiBBTUnexpectedRange+18↑j
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406932</span>                                         <span class="c1">; _KiSystemService+71↑j
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406932</span>                 <span class="nf">mov</span>     <span class="no">edi</span><span class="p">,</span> <span class="no">eax</span>        <span class="c1">; 取出3环传进来的系统调用号
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406934</span>                 <span class="nf">shr</span>     <span class="no">edi</span><span class="p">,</span> <span class="mi">8</span>          <span class="c1">; 右移8位
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406937</span>                 <span class="nf">and</span>     <span class="no">edi</span><span class="p">,</span> <span class="mi">30</span><span class="no">h</span>        <span class="c1">; 检测系统调用号12位
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406937</span>                                         <span class="c1">; 如果等于1，那么 edi == 0x10
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406937</span>                                         <span class="c1">; 如果等于0，那么 edi == 0x00
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040693</span><span class="nf">A</span>                 <span class="no">mov</span>     <span class="no">ecx</span><span class="p">,</span> <span class="no">edi</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040693</span><span class="nf">C</span>                 <span class="no">add</span>     <span class="no">edi</span><span class="p">,</span> <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="mi">0</span><span class="no">E0h</span><span class="p">]</span> <span class="c1">; edi += CurrentThread.ServiceTable
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040693</span><span class="nf">C</span>                                         <span class="c1">; 此时 edi 指向了API对应的系统服务表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040693</span><span class="nf">C</span>                                         <span class="c1">;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040693</span><span class="nf">C</span>                                         <span class="c1">; 0x10 刚好是系统服务表的大小
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040693</span><span class="nf">C</span>                                         <span class="c1">; 系统服务表有 ServiceTable, Count, ServiceLimit 和 ArgmentTable
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040693</span><span class="nf">C</span>                                         <span class="c1">;  4项共0x10字节，所以通过这里的代码也可以推断，内核和win32k.sys的系统服务表是连续的
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040693</span><span class="nf">C</span>                                         <span class="c1">;  第一张是内核的，第二张是win32k.sys的
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406942</span>                 <span class="nf">mov</span>     <span class="no">ebx</span><span class="p">,</span> <span class="no">eax</span>        <span class="c1">; ebx = 系统调用号
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406944</span>                 <span class="nf">and</span>     <span class="no">eax</span><span class="p">,</span> <span class="mi">0</span><span class="no">FFFh</span>      <span class="c1">; eax = 系统服务表下标
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406949</span>                 <span class="nf">cmp</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">edi</span><span class="err">+</span><span class="mi">8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040694</span><span class="nf">C</span>                 <span class="no">jnb</span>     <span class="no">_KiBBTUnexpectedRange</span> <span class="c1">; 检查系统调用号是否超过系统服务表的范围，超过就跳到异常处理
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406952</span>                 <span class="nf">cmp</span>     <span class="no">ecx</span><span class="p">,</span> <span class="mi">10</span><span class="no">h</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406955</span>                 <span class="nf">jnz</span>     <span class="no">short</span> <span class="no">loc_406972</span> <span class="c1">; 跳转条件：系统服务（ntdll.dll 的API）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406955</span>                                         <span class="c1">; 不跳转条件：图形及用户界面（gdi.dll 的API）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406957</span>                 <span class="nf">mov</span>     <span class="no">ecx</span><span class="p">,</span> <span class="no">large</span> <span class="no">fs</span><span class="p">:</span><span class="mi">18</span><span class="no">h</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040695</span><span class="nf">E</span>                 <span class="no">xor</span>     <span class="no">ebx</span><span class="p">,</span> <span class="no">ebx</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040695</span><span class="nf">E</span> <span class="no">_KiFastCallEntry</span> <span class="no">endp</span> <span class="c1">; sp-analysis failed
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040695</span><span class="nf">E</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406960</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406960</span> <span class="c1">; =============== S U B R O U T I N E =======================================
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406960</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406960</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406960</span> <span class="c1">; _DWORD __stdcall KiSystemServiceAccessTeb()
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406960</span> <span class="nf">_KiSystemServiceAccessTeb@0</span> <span class="no">proc</span> <span class="no">near</span>   <span class="c1">; DATA XREF: KiPreprocessAccessViolation(x,x,x)+3D↓o
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406960</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406960</span> <span class="c1">; FUNCTION CHUNK AT .text:00406B4F SIZE 0000000A BYTES
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406960</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406960</span>                 <span class="nf">or</span>      <span class="no">ebx</span><span class="p">,</span> <span class="p">[</span><span class="no">ecx</span><span class="err">+</span><span class="mi">0</span><span class="no">F70h</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406966</span>                 <span class="nf">jz</span>      <span class="no">short</span> <span class="no">loc_406972</span> <span class="c1">; _KCPR.KPRCB.KeSystemCalls += 1, 系统调用计数加1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406968</span>                 <span class="nf">push</span>    <span class="no">edx</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406969</span>                 <span class="nf">push</span>    <span class="no">eax</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040696</span><span class="nf">A</span>                 <span class="no">call</span>    <span class="no">ds</span><span class="p">:</span><span class="no">_KeGdiFlushUserBatch</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406970</span>                 <span class="nf">pop</span>     <span class="no">eax</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406971</span>                 <span class="nf">pop</span>     <span class="no">edx</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406972</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406972</span> <span class="nl">loc_406972:</span>                             <span class="c1">; CODE XREF: _KiFastCallEntry+B6↑j
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406972</span>                                         <span class="c1">; KiSystemServiceAccessTeb()+6↑j
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406972</span>                 <span class="nf">inc</span>     <span class="no">large</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="no">fs</span><span class="p">:</span><span class="mi">638</span><span class="no">h</span> <span class="c1">; _KCPR.KPRCB.KeSystemCalls += 1, 系统调用计数加1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406979</span>                 <span class="nf">mov</span>     <span class="no">esi</span><span class="p">,</span> <span class="no">edx</span>        <span class="c1">; esi = edx = 3环参数指针
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040697</span><span class="nf">B</span>                 <span class="no">mov</span>     <span class="no">ebx</span><span class="p">,</span> <span class="p">[</span><span class="no">edi</span><span class="err">+</span><span class="mi">0</span><span class="no">Ch</span><span class="p">]</span>  <span class="c1">; ebx 指向函数参数表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040697</span><span class="nf">B</span>                                         <span class="c1">; eax 是系统调用号
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040697</span><span class="nf">E</span>                 <span class="no">xor</span>     <span class="no">ecx</span><span class="p">,</span> <span class="no">ecx</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406980</span>                 <span class="nf">mov</span>     <span class="no">cl</span><span class="p">,</span> <span class="p">[</span><span class="no">eax</span><span class="err">+</span><span class="no">ebx</span><span class="p">]</span>   <span class="c1">; cl = 参数字节数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406983</span>                 <span class="nf">mov</span>     <span class="no">edi</span><span class="p">,</span> <span class="p">[</span><span class="no">edi</span><span class="p">]</span>      <span class="c1">; edi 指向函数地址表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406985</span>                 <span class="nf">mov</span>     <span class="no">ebx</span><span class="p">,</span> <span class="p">[</span><span class="no">edi</span><span class="err">+</span><span class="no">eax</span><span class="p">*</span><span class="mi">4</span><span class="p">]</span> <span class="c1">; ebx 指向0环函数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406988</span>                 <span class="nf">sub</span>     <span class="no">esp</span><span class="p">,</span> <span class="no">ecx</span>        <span class="c1">; 从这句开始，到call为止，完成了复制3环参数的工作
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406988</span>                                         <span class="c1">; 这句是模拟压栈操作
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040698</span><span class="nf">A</span>                 <span class="no">shr</span>     <span class="no">ecx</span><span class="p">,</span> <span class="mi">2</span>          <span class="c1">; 参数字节数 / 4，得到参数个数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040698</span><span class="nf">D</span>                 <span class="no">mov</span>     <span class="no">edi</span><span class="p">,</span> <span class="no">esp</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040698</span><span class="nf">F</span>                 <span class="no">test</span>    <span class="no">byte</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="mi">72</span><span class="no">h</span><span class="p">],</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406993</span>                 <span class="nf">jnz</span>     <span class="no">short</span> <span class="no">loc_40699B</span> <span class="c1">; 越界检查
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406993</span>                                         <span class="c1">; 如果 esi（3环参数指针）大于等于 0x7fff0000，则返回 c0000005 异常
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406995</span>                 <span class="nf">test</span>    <span class="no">byte</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="mi">6</span><span class="no">Ch</span><span class="p">],</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406999</span>                 <span class="nf">jz</span>      <span class="no">short</span> <span class="no">_KiSystemServiceCopyArguments@0</span> <span class="c1">; 复制参数：复制 esi 到 edi，每次复制4字节，次数由 ecx 决定
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406999</span>                                         <span class="c1">; 方向由DF决定，DF=0，故每次复制后，edi 和 esi 都加4
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040699</span><span class="nf">B</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040699</span><span class="nf">B</span> <span class="no">loc_40699B</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KiSystemServiceAccessTeb()+33↑j
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040699</span><span class="nf">B</span>                 <span class="no">cmp</span>     <span class="no">esi</span><span class="p">,</span> <span class="no">ds</span><span class="p">:</span><span class="no">_MmUserProbeAddress</span> <span class="c1">; 越界检查
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040699</span><span class="nf">B</span>                                         <span class="c1">; 如果 esi（3环参数指针）大于等于 0x7fff0000，则返回 c0000005 异常
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A1</span>                 <span class="no">jnb</span>     <span class="no">loc_406B4F</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A1</span> <span class="no">_KiSystemServiceAccessTeb@0</span> <span class="no">endp</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A1</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A7</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A7</span> <span class="c1">; =============== S U B R O U T I N E =======================================
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A7</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A7</span> <span class="c1">; 复制参数：复制 esi 到 edi，每次复制4字节，次数由 ecx 决定
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A7</span> <span class="c1">; 方向由DF决定，DF=0，故每次复制后，edi 和 esi 都加4
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A7</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A7</span> <span class="c1">; _DWORD __stdcall KiSystemServiceCopyArguments()
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A7</span> <span class="no">_KiSystemServiceCopyArguments@0</span> <span class="no">proc</span> <span class="no">near</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A7</span>                                         <span class="c1">; CODE XREF: KiSystemServiceAccessTeb()+39↑j
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A7</span>                                         <span class="c1">; DATA XREF: KiPreprocessAccessViolation(x,x,x):loc_4628DF↓o
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A7</span>                 <span class="no">rep</span> <span class="no">movsd</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A9</span>                 <span class="no">call</span>    <span class="no">ebx</span>             <span class="c1">; 复制参数：复制 esi 到 edi，每次复制4字节，次数由 ecx 决定
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A9</span> <span class="no">_KiSystemServiceCopyArguments@0</span> <span class="no">endp</span>    <span class="c1">; 方向由DF决定，DF=0，故每次复制后，edi 和 esi 都加4
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A9</span>                                         <span class="c1">; 调用内核函数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">AB</span></span></span></code></pre></div><h2 id="006api函数的调用过程ssdt" class="heading-element">
+  <a href="#006api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8bssdt" class="heading-mark"></a>006.API函数的调用过程(SSDT)</h2><p>本节通过其他方式来访问系统服务表.</p>
+<p>SSDT  的全称是 System Services Descriptor Table，系统服务描述符表</p>
+<pre tabindex="0"><code>kd&gt; dd  KeServiceDescriptorTable(SSDT)
 导出的 声明一下就可以使用了
 
 kd&gt; dd  KeServiceDescriptorTableShadow(SSDT Shadow)
-未导出 需要用其他的方式来查找</code></pre><p>上面的是导出的，下面是未导出的，可以看到导出的里面只有一张表有值，其余三张没有值，如果想看第二张表的话可以看未导出的：</p><p><img loading=lazy src=image-20230107234334197.png alt=image-20230107234334197 srcset="image-20230107234334197.png?size=small, image-20230107234334197.png?size=medium 1.5x, image-20230107234334197.png?size=large 2x" data-title=image-20230107234334197 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>这里使用前面的那个函数进入0环需要的系统服务号(BA)，这里要*4，每个是4字节（其实下面的那个函数就是<code>nt!NtReadVirtualMemory</code>这个函数）：</p><p><img loading=lazy src=image-20230107235014722.png alt=image-20230107235014722 srcset="image-20230107235014722.png?size=small, image-20230107235014722.png?size=medium 1.5x, image-20230107235014722.png?size=large 2x" data-title=image-20230107235014722 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>所需要的参数的字节数，0x14，也就是20字节：</p><p><img loading=lazy src=image-20230107235309282.png alt=image-20230107235309282 srcset="image-20230107235309282.png?size=small, image-20230107235309282.png?size=medium 1.5x, image-20230107235309282.png?size=large 2x" data-title=image-20230107235309282 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span title="更新于 2023-01-16 00:00:00">更新于 2023-01-16&nbsp;</span></div><div class=post-info-license><span><a rel="license external nofollow noopener noreferrer" href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank>CC BY-NC-SA 4.0</a></span></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/ data-title=Windows内核(三)——系统调用 data-hashtags=Win32><i class="fa-brands fa-twitter fa-fw" aria-hidden=true></i></a>
-<a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/ data-hashtag=Win32><i class="fa-brands fa-facebook-square fa-fw" aria-hidden=true></i></a>
-<a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/ data-title=Windows内核(三)——系统调用><i class="fa-brands fa-weibo fa-fw" aria-hidden=true></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fa-solid fa-tags fa-fw me-1" aria-hidden=true></i><a href=/tags/win32/ class=post-tag title="标签 - Win32">Win32</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span></section></div><div class=post-nav><a href=/posts/dir815/ class=post-nav-item rel=prev title="DLink 815路由器栈溢出漏洞分析与复现"><i class="fa-solid fa-angle-left fa-fw" aria-hidden=true></i>DLink 815路由器栈溢出漏洞分析与复现</a>
-<a href=/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/ class=post-nav-item rel=next title=Windows内核(二)——驱动>Windows内核(二)——驱动<i class="fa-solid fa-angle-right fa-fw" aria-hidden=true></i></a></div></div></article><aside class=toc id=toc-auto aria-label=目录><h2 class=toc-title>目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden=true></i></h2><div class=toc-content id=toc-content-auto></div></aside></main><footer class=footer><div class=footer-container><div class="footer-line powered">由 <a href=https://gohugo.io/ target=_blank rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class=hugo-icon src=/images/hugo.min.svg alt="Hugo logo"> Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/hugo-fixit/FixIt target=_blank rel=external title="FixIt v0.3.2"><img class=fixit-icon src=/images/fixit.min.svg alt="FixIt logo"> FixIt</a></div><div class="footer-line copyright" itemscope itemtype=http://schema.org/CreativeWork><i class="fa-regular fa-copyright fa-fw" aria-hidden=true></i>
-<span itemprop=copyrightYear>2024</span><span class=author itemprop=copyrightHolder>
-<a href=/></a></span></div></div></footer></div><div class=widgets><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role=button aria-label=回到顶部><i class="fa-solid fa-arrow-up fa-fw" aria-hidden=true></i><span class="variant-numeric d-none">0%</span></div></div><div id=mask></div><noscript><div class=noscript-warning>FixIt 主题在启用 JavaScript 的情况下效果最佳。</div></noscript></div><link rel=preload href=/lib/katex/katex.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/katex/katex.min.css></noscript><link rel=stylesheet href=/lib/cookieconsent/cookieconsent.min.css><script src=/lib/sharer/sharer.min.js async defer></script><script src=/lib/katex/katex.min.js defer></script><script src=/lib/katex/auto-render.min.js defer></script><script src=/lib/katex/copy-tex.min.js defer></script><script src=/lib/katex/mhchem.min.js defer></script><script src=/lib/cookieconsent/cookieconsent.min.js defer></script><script>window.config={code:{copyTitle:"复制到剪贴板",editLockTitle:"锁定可编辑代码块",editUnLockTitle:"解锁可编辑代码块",editable:!0,maxShownLines:10},comment:{enable:!1},cookieconsent:{content:{dismiss:"同意",link:"了解更多",message:"本网站使用 Cookies 来改善您的浏览体验。"},enable:!0,palette:{button:{background:"#f0f0f0"},popup:{background:"#1aa3ff"}},theme:"edgeless"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!0,left:"\\begin{equation}",right:"\\end{equation}"},{display:!0,left:"\\begin{equation*}",right:"\\end{equation*}"},{display:!0,left:"\\begin{align}",right:"\\end{align}"},{display:!0,left:"\\begin{align*}",right:"\\end{align*}"},{display:!0,left:"\\begin{alignat}",right:"\\end{alignat}"},{display:!0,left:"\\begin{alignat*}",right:"\\end{alignat*}"},{display:!0,left:"\\begin{gather}",right:"\\end{gather}"},{display:!0,left:"\\begin{CD}",right:"\\end{CD}"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1}}</script><script src=/js/theme.min.js defer></script></body></html>
+未导出 需要用其他的方式来查找</code></pre><p>上面的是导出的，下面是未导出的，可以看到导出的里面只有一张表有值，其余三张没有值，如果想看第二张表的话可以看未导出的：</p>
+<p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107234334197.png" alt="image-20230107234334197" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107234334197.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107234334197.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107234334197.png?size=large 2x" data-title="image-20230107234334197" style="--width: 622px;--aspect-ratio: 622 / 425;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>这里使用前面的那个函数进入0环需要的系统服务号(BA)，这里要*4，每个是4字节（其实下面的那个函数就是<code>nt!NtReadVirtualMemory</code>这个函数）：</p>
+<p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107235014722.png" alt="image-20230107235014722" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107235014722.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107235014722.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107235014722.png?size=large 2x" data-title="image-20230107235014722" style="--width: 1166px;--aspect-ratio: 1166 / 476;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>所需要的参数的字节数，0x14，也就是20字节：</p>
+<p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107235309282.png" alt="image-20230107235309282" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107235309282.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107235309282.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107235309282.png?size=large 2x" data-title="image-20230107235309282" style="--width: 1008px;--aspect-ratio: 1008 / 480;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+</div><div class="post-footer" id="post-footer">
+  <div class="post-info">
+    <div class="post-info-line">
+      <div class="post-info-mod">
+        <span title="更新于 2023-01-16 00:00:00">更新于 2023-01-16&nbsp;</span>
+      </div><div class="post-info-license">
+            <span><a rel="license external nofollow noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a></span>
+          </div></div><div class="post-info-line">
+        <div class="post-info-md"></div>
+        <div class="post-info-share">
+          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" data-title="Windows内核(三)——系统调用" data-hashtags="Win32"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" data-title="Windows内核(三)——系统调用"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+  </span>
+        </div>
+      </div></div>
+
+  <div class="post-info-more">
+    <section class="post-tags"><i class="fa-solid fa-tags fa-fw me-1" aria-hidden="true"></i><a href="/tags/win32/" class="post-tag" title="标签 - Win32">Win32</a></section>
+    <section>
+      <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+    </section>
+  </div>
+
+  <div class="post-nav"><a href="/posts/dir815/" class="post-nav-item" rel="prev" title="DLink 815路由器栈溢出漏洞分析与复现"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>DLink 815路由器栈溢出漏洞分析与复现</a>
+      <a href="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" class="post-nav-item" rel="next" title="Windows内核(二)——驱动">Windows内核(二)——驱动<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article>
+
+  <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
+      <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+        </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
+            <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
+              <a href="/"></a></span></div></div>
+  </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
+        </div></div><div id="mask"></div><noscript>
+    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+  </noscript>
+</div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+</html>

