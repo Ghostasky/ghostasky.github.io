@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <meta name="robots" content="noodp" />
+    <title>XV6阅读笔记 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+<meta name="author-link" content="">
+<meta name="description" content="" /><meta name="keywords" content='OS' /><meta itemprop="name" content="XV6阅读笔记">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2022-07-12T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2022-07-12T00:00:00+00:00" />
+<meta itemprop="wordCount" content="13022">
+<meta itemprop="keywords" content="OS," /><meta property="og:title" content="XV6阅读笔记" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/xv6/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-07-12T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-07-12T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="XV6阅读笔记"/>
+<meta name="twitter:description" content=""/>
+<meta name="application-name" content="FixIt">
+<meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/xv6/" /><link rel="prev" href="http://ghostasky.github.io/posts/2022-7-12/" /><link rel="next" href="http://ghostasky.github.io/posts/javasec-url/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "XV6阅读笔记",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http:\/\/ghostasky.github.io\/posts\/xv6\/"
+    },"genre": "posts","keywords": "OS","wordcount":  13022 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/xv6\/","datePublished": "2022-07-12T00:00:00+00:00","dateModified": "2022-07-12T00:00:00+00:00","publisher": {
+      "@type": "Organization",
+      "name": ""},"author": {
+        "@type": "Person",
+        "name": "作者"
+      },"description": ""
+  }
+  </script></head>
+  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <div class="header-wrapper">
+    <div class="header-title">
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+    <nav>
+      <ul class="menu"><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/posts/"
+                
+                
+              >文章</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/categories/"
+                
+                
+              >分类</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/tags/"
+                
+                
+              >标签</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/about/"
+                
+                
+              >关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title="切换主题">
+          <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+        </li></ul>
+    </nav>
+  </div>
+</header><header class="mobile animate__faster" id="header-mobile">
+  <div class="header-container">
+    <div class="header-wrapper">
+      <div class="header-title">
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <div class="menu-toggle" id="menu-toggle-mobile">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <nav>
+      <ul class="menu" id="menu-mobile"><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/posts/"
+                  
+                  
+                >文章</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/categories/"
+                  
+                  
+                >分类</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/tags/"
+                  
+                  
+                >标签</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/about/"
+                  
+                  
+                >关于</a></li><li class="menu-item menu-system">
+          <span class="menu-system-item theme-switch" title="切换主题"><i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i></span></li>
+      </ul>
+    </nav>
+  </div>
+</header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
+
+  <article class="page single">
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>XV6阅读笔记</span>
+      </h1></div><div class="post-meta">
+      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
+      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2022-07-12 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2022-07-12">2022-07-12</time></span>&nbsp;<span title="13022 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 13100 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 26 分钟</span>&nbsp;</div>
+    </div><div class="details toc" id="toc-static" data-kept="false">
+        <div class="details-summary toc-title">
+          <span>目录</span>
+          <span><i class="details-icon fa-solid fa-angle-right" aria-hidden="true"></i></span>
+        </div>
+        <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#chapter-1operating-system-interfaces">Chapter 1:Operating system interfaces</a>
+      <ul>
+        <li><a href="#11-进程和内存">1.1 进程和内存</a></li>
+        <li><a href="#12-io-和文件描述符">1.2 I/O 和文件描述符</a></li>
+        <li><a href="#13-管道">1.3 管道</a></li>
+        <li><a href="#14-文件系统">1.4 文件系统</a></li>
+      </ul>
+    </li>
+    <li><a href="#chapter-2operating-system-organization">Chapter 2:Operating system organization</a>
+      <ul>
+        <li><a href="#21-xv6架构">2.1 xv6架构</a></li>
+        <li><a href="#22进程概述">2.2进程概述</a></li>
+        <li><a href="#23-启动xv6的第一个程序">2.3 启动XV6的第一个程序</a></li>
+      </ul>
+    </li>
+    <li><a href="#chapter-3page-tables">Chapter 3:Page tables</a>
+      <ul>
+        <li><a href="#31-分页硬件">3.1 分页硬件</a></li>
+        <li><a href="#32-内核地址空间">3.2 内核地址空间</a></li>
+        <li><a href="#33-建立一个地址空间">3.3 建立一个地址空间</a></li>
+        <li><a href="#34-物理内存分配">3.4 物理内存分配</a></li>
+        <li><a href="#35-进程地址空间">3.5 进程地址空间</a></li>
+        <li><a href="#36-sbrk">3.6 sbrk</a></li>
+        <li><a href="#37-exec">3.7 exec</a></li>
+        <li><a href="#38-real-world">3.8 Real world</a></li>
+      </ul>
+    </li>
+    <li><a href="#chapter-4traps-and-system-calls">Chapter 4:Traps and system calls</a>
+      <ul>
+        <li><a href="#41-risc-v陷入机制">4.1 RISC-V陷入机制</a></li>
+        <li><a href="#42-从用户空间陷入">4.2 从用户空间陷入</a></li>
+        <li><a href="#43-调用系统调用">4.3 调用系统调用</a></li>
+        <li><a href="#44-系统调用参数">4.4 系统调用参数</a></li>
+        <li><a href="#45-从内核空间陷入">4.5 从内核空间陷入</a></li>
+      </ul>
+    </li>
+    <li><a href="#chapter-5interrupts-and-device-drivers">Chapter 5:Interrupts and device drivers</a></li>
+  </ul>
+</nav></div>
+      </div><div class="content" id="content"><p>[toc]</p>
+<blockquote>
+<p>英文版：https://pdos.csail.mit.edu/6.828/2020/xv6/book-riscv-rev1.pdf</p>
+<p>中文版：http://xv6.dgs.zone/</p>
+</blockquote>
+<h2 id="chapter-1operating-system-interfaces" class="heading-element">
+  <a href="#chapter-1operating-system-interfaces" class="heading-mark"></a>Chapter 1:Operating system interfaces</h2><blockquote>
+<p>xv6 是 MIT 开发的一个教学用的完整的类 Unix 操作系统，并且在 MIT 的操作系统课程 <a href="http://pdos.csail.mit.edu/6.828/2012/xv6.html"target="_blank" rel="external nofollow noopener noreferrer">6.828</a> 中使用</p>
+<p>xv6 是 Dennis Ritchie 和 Ken Thompson 合著的 Unix Version 6（v6）操作系统的重新实现。xv6 在一定程度上遵守 v6 的结构和风格，但它是用 ANSI C 实现的，并且是基于 x86 多核处理器的。</p>
+</blockquote>
+<p>进程通过<strong>系统调用</strong>使用内核服务。系统调用会进入内核，让内核执行服务然后返回。所以进程总是在用户空间和内核空间之间交替运行。</p>
+<p>内核使用了CPU 的硬件保护机制来保证用户进程只能访问自己的内存空间。内核拥有实现保护机制所需的硬件权限(hardware privileges)，而用户程序没有这些权限。当一个用户程序进行一次系统调用时，硬件会提升特权级并且开始执行一些内核中预定义的功能。</p>
+<p>xv6中提供的系统调用(部分unix)：</p>
+<table>
+<thead>
+<tr>
+<th>系统调用</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fork()</td>
+<td>创建进程</td>
+</tr>
+<tr>
+<td>exit()</td>
+<td>结束当前进程</td>
+</tr>
+<tr>
+<td>wait()</td>
+<td>等待子进程结束</td>
+</tr>
+<tr>
+<td>kill(pid)</td>
+<td>结束 pid 所指进程</td>
+</tr>
+<tr>
+<td>getpid()</td>
+<td>获得当前进程 pid</td>
+</tr>
+<tr>
+<td>sleep(n)</td>
+<td>睡眠 n 秒</td>
+</tr>
+<tr>
+<td>exec(filename, *argv)</td>
+<td>加载并执行一个文件</td>
+</tr>
+<tr>
+<td>sbrk(n)</td>
+<td>为进程内存空间增加 n 字节</td>
+</tr>
+<tr>
+<td>open(filename, flags)</td>
+<td>打开文件，flags 指定读/写模式</td>
+</tr>
+<tr>
+<td>read(fd, buf, n)</td>
+<td>从文件中读 n 个字节到 buf</td>
+</tr>
+<tr>
+<td>write(fd, buf, n)</td>
+<td>从 buf 中写 n 个字节到文件</td>
+</tr>
+<tr>
+<td>close(fd)</td>
+<td>关闭打开的 fd</td>
+</tr>
+<tr>
+<td>dup(fd)</td>
+<td>复制 fd</td>
+</tr>
+<tr>
+<td>pipe( p)</td>
+<td>创建管道， 并把读和写的 fd 返回到p</td>
+</tr>
+<tr>
+<td>chdir(dirname)</td>
+<td>改变当前目录</td>
+</tr>
+<tr>
+<td>mkdir(dirname)</td>
+<td>创建新的目录</td>
+</tr>
+<tr>
+<td>mknod(name, major, minor)</td>
+<td>创建设备文件</td>
+</tr>
+<tr>
+<td>fstat(fd)</td>
+<td>返回文件信息</td>
+</tr>
+<tr>
+<td>link(f1, f2)</td>
+<td>给 f1 创建一个新名字(f2)</td>
+</tr>
+<tr>
+<td>unlink(filename)</td>
+<td>删除文件</td>
+</tr>
+</tbody>
+</table>
+<p>xv6 shell的具体实现在<code>user/sh.c</code></p>
+<h3 id="11-进程和内存" class="heading-element">
+  <a href="#11-%e8%bf%9b%e7%a8%8b%e5%92%8c%e5%86%85%e5%ad%98" class="heading-mark"></a>1.1 进程和内存</h3><p><code>fork</code> 函数在父进程、子进程中都返回（一次调用两次返回），对于父进程它返回子进程的 pid，对于子进程它返回 0。</p>
+<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">pid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">pid</span> <span class="o">=</span> <span class="nf">fork</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span><span class="p">(</span><span class="n">pid</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;parent: child=%d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pid</span> <span class="o">=</span> <span class="nf">wait</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;child %d is done</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">pid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;child: exiting</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">exit</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;fork error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>系统调用 <code>wait</code> 会返回一个<strong>当前进程已退出的子进程</strong>，如果没有子进程退出，<code>wait</code> 会等候直到有一个子进程退出。</p>
+<p>父子进程拥有不同的内存空间和寄存器，改变一个进程中的变量不会影响另一个进程，这一点在代码中有体现。</p>
+<p><code>exec</code>系统调用，从某个<em>文件</em>（通常是可执行文件）里读取内存镜像，并将其替换到调用它的进程的内存空间，这样的话，在执行<code>exec</code>系统调用后不返回，而是直接执行调用的elf文件：</p>
+<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#34;echo&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#34;hello&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nf">exec</span><span class="p">(</span><span class="s">&#34;/bin/echo&#34;</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nf">printf</span><span class="p">(</span><span class="s">&#34;exec error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span><span class="c1">//注意这里，不返回，走这一步说明出问题了
+</span></span></span></code></pre></div><p>下面是xv6 shell的代码：</p>
+<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">static</span> <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Ensure that three file descriptors are open.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">while</span> <span class="p">((</span><span class="n">fd</span> <span class="o">=</span> <span class="nf">open</span><span class="p">(</span><span class="s">&#34;console&#34;</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nf">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Read and run input commands.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">while</span> <span class="p">(</span><span class="nf">getcmd</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span><span class="c1">//getcmd 读取命令行的输入
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;c&#39;</span> <span class="o">&amp;&amp;</span> <span class="n">buf</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;d&#39;</span> <span class="o">&amp;&amp;</span> <span class="n">buf</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39; &#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="c1">// Chdir must be called by the parent, not the child.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="n">buf</span><span class="p">[</span><span class="nf">strlen</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// chop \n
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="k">if</span> <span class="p">(</span><span class="nf">chdir</span><span class="p">(</span><span class="n">buf</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="nf">fprintf</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#34;cannot cd %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">buf</span> <span class="o">+</span> <span class="mi">3</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="k">continue</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nf">fork1</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="c1">//调用fork
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="nf">runcmd</span><span class="p">(</span><span class="nf">parsecmd</span><span class="p">(</span><span class="n">buf</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">wait</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="c1">//父进程等待子进程退出
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><code>fork</code>的时候要拷贝elf的内容，空间不够的话：<code>sbrk(n)</code> 来增加 n 字节的数据内存。<code>sbrk</code> 返回新的内存的地址。</p>
+<h3 id="12-io-和文件描述符" class="heading-element">
+  <a href="#12-io-%e5%92%8c%e6%96%87%e4%bb%b6%e6%8f%8f%e8%bf%b0%e7%ac%a6" class="heading-mark"></a>1.2 I/O 和文件描述符</h3><p><strong>文件描述符</strong>是一个整数，它代表了一个进程可以读写的被内核管理的对象。进程可以通过多种方式获得一个文件描述符，如打开文件、目录、设备，或者创建一个管道（pipe），或者复制已经存在的文件描述符。</p>
+<p>每个进程都有一张表，而 xv6 内核就以文件描述符作为这张表的索引，所以每个进程都有一个从0开始的文件描述符空间。见下图，但是这里不深究，也就看个大概，真想深究的话，去跟iofile的源码。</p>
+<p>文件描述符0读入（标准输入），从文件描述符1输出（标准输出），从文件描述符2输出错误（标准错误输出）。</p>
+<p><img loading="lazy" src="image-20220707211016555.png" alt="image-20220707211016555.png" srcset="image-20220707211016555.png?size=small, image-20220707211016555.png?size=medium 1.5x, image-20220707211016555.png?size=large 2x" data-title="image-20220707211016555.png" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>系统调用 <code>close</code> 会释放一个文件描述符，使得它之后可以被 <code>open</code>, <code>pipe</code>, <code>dup</code> 等调用重用。新分配的文件描述符始终是当前进程中编号最少的未使用描述符。</p>
+<p><code>fork</code> 会复制父进程的文件描述符和内存，所以子进程和父进程的文件描述符一模一样。</p>
+<p><code>exec</code> 会替换调用它的进程的内存但是会保留它的文件描述符表。</p>
+<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#34;cat&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="nf">fork</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">close</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">open</span><span class="p">(</span><span class="s">&#34;input.txt&#34;</span><span class="p">,</span> <span class="n">O_RDONLY</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">exec</span><span class="p">(</span><span class="s">&#34;cat&#34;</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>在子进程关闭文件描述符0之后，<code>open</code>使用新打开的input.txt(0文件描述符为0)。<code>cat</code>然后执行文件描述符0(标准输入)，但引用的是input.txt。父进程的文件描述符不会被这个序列改变，因为它只修改子进程的描述符。(这里还是挺有意思的)</p>
+<p><code>open</code>的第二个参数由一组标志组成，这些标志以位表示，用于控制打开的操作。在<code>kernel/fcntl.h</code>中</p>
+<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">##define O_RDONLY  0x000
+</span></span></span><span class="line"><span class="cl"><span class="cp">##define O_WRONLY  0x001
+</span></span></span><span class="line"><span class="cl"><span class="cp">##define O_RDWR    0x002
+</span></span></span><span class="line"><span class="cl"><span class="cp">##define O_CREATE  0x200</span><span class="c1">//如果文件不存在则创建文件
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">##define O_TRUNC   0x400</span><span class="c1">//将文件截断为零长度
+</span></span></span></code></pre></div><p><code>dup</code>系统调用复制一个现有的文件描述符，返回一个引用自同一个底层I/O对象的新文件描述符。</p>
+<p>helloword的另一种写法：</p>
+<div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">fd</span> <span class="o">=</span> <span class="nf">dup</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nf">write</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#34;hello&#34;</span><span class="p">,</span> <span class="mi">6</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nf">write</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="s">&#34;world</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="mi">6</span><span class="p">);</span></span></span></code></pre></div><h3 id="13-管道" class="heading-element">
+  <a href="#13-%e7%ae%a1%e9%81%93" class="heading-mark"></a>1.3 管道</h3><p>管道是一个小的内核缓冲区，它以文件描述符对的形式提供给进程，一个用于写操作，一个用于读操作。从管道的一端写的数据可以从管道的另一端读取。提供了一种<strong>进程间</strong>交互的方式。就是队列，0是读，1是写。</p>
+<div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#34;wc&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nf">pipe</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span><span class="p">(</span><span class="nf">fork</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">close</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">dup</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span><span class="c1">//调用close和dup使文件描述符0指向管道的读取端
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">close</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">close</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">exec</span><span class="p">(</span><span class="s">&#34;/bin/wc&#34;</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">write</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#34;hello world</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="mi">12</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">close</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">close</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><code>link</code>系统调用创建另一个文件名，该文件名指向与现有文件相同的inode。</p>
+<div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">open</span><span class="p">(</span><span class="s">&#34;a&#34;</span><span class="p">,</span> <span class="n">O_CREATE</span> <span class="o">|</span> <span class="n">O_WRONLY</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nf">link</span><span class="p">(</span><span class="s">&#34;a&#34;</span><span class="p">,</span> <span class="s">&#34;b&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 创建了一个既叫做 a 又叫做 b 的新文件
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">unlink</span><span class="p">(</span><span class="s">&#34;a&#34;</span><span class="p">)</span><span class="err">，</span></span></span></code></pre></div><p>读写 <code>a</code> 就相当于读写 <code>b</code>。每一个 inode 都由一个唯一的 <code>inode 号</code> 直接确定。在上面这段代码中，我们可以通过 <code>fstat</code> 知道 <code>a</code> 和 <code>b</code> 都指向同样的内容：<code>a</code> 和 <code>b</code> 都会返回同样的 inode 号（<code>ino</code>），并且 <code>nlink</code> 数会设置为2。</p>
+<p>系统调用 <code>unlink</code> 从文件系统移除一个文件名。一个文件的 inode 和磁盘空间只有当它的链接数变为 0 的时候才会被清空，也就是没有一个文件再指向它。</p>
+<h3 id="14-文件系统" class="heading-element">
+  <a href="#14-%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f" class="heading-mark"></a>1.4 文件系统</h3><p>xv6 文件系统提供文件和目录，文件就是一个简单的字节数组，而目录包含指向文件和其他目录的引用。</p>
+<p>不从 <code>/</code> 开始的目录表示的是相对调用进程当前目录的目录，调用进程的当前目录可以通过 <code>chdir</code> 这个系统调用进行改变。</p>
+<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">chdir</span><span class="p">(</span><span class="s">&#34;/a&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nf">chdir</span><span class="p">(</span><span class="s">&#34;b&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nf">open</span><span class="p">(</span><span class="s">&#34;c&#34;</span><span class="p">,</span> <span class="n">O_RDONLY</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nf">open</span><span class="p">(</span><span class="s">&#34;/a/b/c&#34;</span><span class="p">,</span> <span class="n">O_RDONLY</span><span class="p">);</span></span></span></code></pre></div><p><code>mknod</code>创建一个引用设备的特殊文件。与设备文件相关联的是主设备号和次设备号(<code>mknod</code>的两个参数)，它们唯一地标识了一个内核设备。当进程稍后打开设备文件时，内核将使用内核设备实现<code>read</code>和<code>write</code>系统调用，而不是使用文件系统。</p>
+<div class="highlight" id="id-10"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">mkdir</span><span class="p">(</span><span class="s">&#34;/dir&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">fd</span> <span class="o">=</span> <span class="nf">open</span><span class="p">(</span><span class="s">&#34;/dir/file&#34;</span><span class="p">,</span> <span class="n">O_CREATE</span> <span class="o">|</span> <span class="n">O_WRONLY</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nf">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nf">mknod</span><span class="p">(</span><span class="s">&#34;/console&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span></span></span></code></pre></div><p>同一个底层文件（叫做inode，索引结点）可以有多个名字（叫做link，链接）。每个链接都由目录中的一个条目组成;该条目包含一个文件名和一个inode引用。Inode保存有关文件的元数据（用于解释或帮助理解信息的数据），包括其类型(文件/目录/设备)、长度、文件内容在磁盘上的位置以及指向文件的链接数。</p>
+<p><code>fstat</code> 可以获取一个文件描述符指向的文件的信息。它填充一个名为 <code>stat</code> 的结构体，它在 <code>stat.h</code> 中定义为：</p>
+<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##define T_DIR     1   </span><span class="c1">// Directory
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">##define T_FILE    2   </span><span class="c1">// File
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">##define T_DEVICE  3   </span><span class="c1">// Device
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">stat</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">dev</span><span class="p">;</span>     <span class="c1">// File system&#39;s disk device
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">uint</span> <span class="n">ino</span><span class="p">;</span>    <span class="c1">// Inode number,Inode编号
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">short</span> <span class="n">type</span><span class="p">;</span>  <span class="c1">// Type of file
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">short</span> <span class="n">nlink</span><span class="p">;</span> <span class="c1">// Number of links to file，指向文件的链接数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">uint64</span> <span class="n">size</span><span class="p">;</span> <span class="c1">// Size of file in bytes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span></span></span></code></pre></div><h2 id="chapter-2operating-system-organization" class="heading-element">
+  <a href="#chapter-2operating-system-organization" class="heading-mark"></a>Chapter 2:Operating system organization</h2><h3 id="21-xv6架构" class="heading-element">
+  <a href="#21-xv6%e6%9e%b6%e6%9e%84" class="heading-mark"></a>2.1 xv6架构</h3><table>
+<thead>
+<tr>
+<th><strong>文件</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>bio.c</strong></td>
+<td>文件系统的磁盘块缓存</td>
+</tr>
+<tr>
+<td><strong>def.h</strong></td>
+<td>模块间的接口定义</td>
+</tr>
+<tr>
+<td><strong>console.c</strong></td>
+<td>连接到用户的键盘和屏幕</td>
+</tr>
+<tr>
+<td><strong>entry.S</strong></td>
+<td>首次启动指令</td>
+</tr>
+<tr>
+<td><strong>exec.</strong></td>
+<td><code>exec()</code>系统调用</td>
+</tr>
+<tr>
+<td><strong>file.c</strong></td>
+<td>文件描述符支持</td>
+</tr>
+<tr>
+<td><strong>fs.c</strong></td>
+<td>文件系统</td>
+</tr>
+<tr>
+<td><strong>kalloc.c</strong></td>
+<td>物理页面分配器</td>
+</tr>
+<tr>
+<td><strong>kernelvec.S</strong></td>
+<td>处理来自内核的陷入指令以及计时器中断</td>
+</tr>
+<tr>
+<td><strong>log.c</strong></td>
+<td>文件系统日志记录以及崩溃修复</td>
+</tr>
+<tr>
+<td><strong>main.c</strong></td>
+<td>在启动过程中控制其他模块初始化</td>
+</tr>
+<tr>
+<td><strong>pipe.c</strong></td>
+<td>管道</td>
+</tr>
+<tr>
+<td><strong>plic.c</strong></td>
+<td>RISC-V中断控制器</td>
+</tr>
+<tr>
+<td><strong>printf.c</strong></td>
+<td>格式化输出到控制台</td>
+</tr>
+<tr>
+<td><strong>proc.c</strong></td>
+<td>进程和调度</td>
+</tr>
+<tr>
+<td><strong>sleeplock.c</strong></td>
+<td>Locks that yield the CPU</td>
+</tr>
+<tr>
+<td><strong>spinlock.c</strong></td>
+<td>Locks that don’t yield the CPU.</td>
+</tr>
+<tr>
+<td><strong>start.c</strong></td>
+<td>早期机器模式启动代码</td>
+</tr>
+<tr>
+<td><strong>string.c</strong></td>
+<td>字符串和字节数组库</td>
+</tr>
+<tr>
+<td><strong>swtch.c</strong></td>
+<td>线程切换</td>
+</tr>
+<tr>
+<td><strong>syscall.c</strong></td>
+<td>Dispatch system calls to handling function.</td>
+</tr>
+<tr>
+<td><strong>sysfile.c</strong></td>
+<td>文件相关的系统调用</td>
+</tr>
+<tr>
+<td><strong>sysproc.c</strong></td>
+<td>进程相关的系统调用</td>
+</tr>
+<tr>
+<td><strong>trampoline.S</strong></td>
+<td>用于在用户和内核之间切换的汇编代码</td>
+</tr>
+<tr>
+<td><strong>trap.c</strong></td>
+<td>对陷入指令和中断进行处理并返回的C代码</td>
+</tr>
+<tr>
+<td><strong>uart.c</strong></td>
+<td>串口控制台设备驱动程序</td>
+</tr>
+<tr>
+<td><strong>virtio_disk.c</strong></td>
+<td>磁盘设备驱动程序</td>
+</tr>
+<tr>
+<td><strong>vm.c</strong></td>
+<td>管理页表和地址空间</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22进程概述" class="heading-element">
+  <a href="#22%e8%bf%9b%e7%a8%8b%e6%a6%82%e8%bf%b0" class="heading-mark"></a>2.2进程概述</h3><p>xv6 使用页表（由硬件实现）来为每个进程提供其独有的地址空间(实现隔离)。</p>
+<p>页表将<em>虚拟地址</em>（x86 指令所使用的地址）翻译（或说“映射”）为<em>物理地址</em>（处理器芯片向主存发送的地址）。</p>
+<p>Xv6为每个进程维护一个单独的页表，定义了该进程的地址空间。</p>
+<p>RISC-V上的指针有64位宽；硬件在页表中查找虚拟地址时只使用低39位；xv6只使用这39位中的38位。因此，最大地址是2^38-1=0x3fffffffff，即<code>MAXVA</code>，在<strong>kernel/riscv.h</strong>中定义：</p>
+<div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// one beyond the highest possible virtual address.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// MAXVA is actually one bit less than the max allowed by
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Sv39, to avoid having to sign-extend virtual addresses
+</span></span></span><span class="line"><span class="cl"><span class="c1">// that have the high bit set.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">##define MAXVA (1L &lt;&lt; (9 + 9 + 9 + 12 - 1))</span></span></span></code></pre></div><p>xv6为<code>trampoline</code>（用于在用户和内核之间切换）和映射进程切换到内核的<code>trapframe</code>分别保留了一个页面:</p>
+<p><img loading="lazy" src="image-20220713121236349.png" alt="image-20220713121236349.png" srcset="image-20220713121236349.png?size=small, image-20220713121236349.png?size=medium 1.5x, image-20220713121236349.png?size=large 2x" data-title="image-20220713121236349.png" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>xv6内核为每个进程维护许多状态片段，并将它们聚集到一个<code>proc</code>结构体中<code>kernel/proc.h</code>：</p>
+<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// Per-process state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">struct</span> <span class="n">proc</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">struct</span> <span class="n">spinlock</span> <span class="n">lock</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// p-&gt;lock must be held when using these:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">enum</span> <span class="n">procstate</span> <span class="n">state</span><span class="p">;</span>        <span class="c1">// Process state,表明进程是已分配、就绪态、运行态、等待I/O中（阻塞态）还是退出
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">void</span> <span class="o">*</span><span class="n">chan</span><span class="p">;</span>                  <span class="c1">// If non-zero, sleeping on chan
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">killed</span><span class="p">;</span>                  <span class="c1">// If non-zero, have been killed
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">xstate</span><span class="p">;</span>                  <span class="c1">// Exit status to be returned to parent&#39;s wait
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">pid</span><span class="p">;</span>                     <span class="c1">// Process ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// wait_lock must be held when using this:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">struct</span> <span class="n">proc</span> <span class="o">*</span><span class="n">parent</span><span class="p">;</span>         <span class="c1">// Parent process
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// these are private to the process, so p-&gt;lock need not be held.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">uint64</span> <span class="n">kstack</span><span class="p">;</span>               <span class="c1">// Virtual address of kernel stack
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">uint64</span> <span class="n">sz</span><span class="p">;</span>                   <span class="c1">// Size of process memory (bytes)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">pagetable_t</span> <span class="n">pagetable</span><span class="p">;</span>       <span class="c1">// User page table
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">struct</span> <span class="n">trapframe</span> <span class="o">*</span><span class="n">trapframe</span><span class="p">;</span> <span class="c1">// data page for trampoline.S
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">struct</span> <span class="n">context</span> <span class="n">context</span><span class="p">;</span>      <span class="c1">// swtch() here to run process
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">struct</span> <span class="n">file</span> <span class="o">*</span><span class="n">ofile</span><span class="p">[</span><span class="n">NOFILE</span><span class="p">];</span>  <span class="c1">// Open files
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">struct</span> <span class="n">inode</span> <span class="o">*</span><span class="n">cwd</span><span class="p">;</span>           <span class="c1">// Current directory
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">char</span> <span class="n">name</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>               <span class="c1">// Process name (debugging)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span></span></span></code></pre></div><p>每个进程都有一个执行线程（或简称线程）来执行进程的指令。一个线程可以挂起并且稍后再恢复</p>
+<p>每个线程有两个栈区，一个user的stack，一个kernel的stack：<code>p-&gt;kstack</code></p>
+<p>当进程执行用户指令时，只有它的用户栈在使用，它的内核栈是空的。当进程进入内核（由于系统调用或中断）时，内核代码在进程的内核堆栈上执行；当一个进程在内核中时，它的用户堆栈仍然包含保存的数据，只是不处于活动状态。进程的线程在主动使用它的用户栈和内核栈之间交替。内核栈是独立的（并且不受用户代码的保护），因此即使一个进程破坏了它的用户栈，内核依然可以正常运行。</p>
+<p>一个进程可以通过执行RISC-V的<code>ecall</code>指令进行系统调用，该指令提升硬件特权级别，并将程序计数器（PC）更改为内核定义的入口点，，入口点的代码切换到内核栈，执行实现系统调用的内核指令，当系统调用完成时，内核切换回用户栈，并通过调用<code>sret</code>指令返回用户空间，该指令降低了硬件特权级别，并在系统调用指令刚结束时恢复执行用户指令。进程的线程可以在内核中“阻塞”等待I/O，并在I/O完成后恢复到中断的位置。</p>
+<h3 id="23-启动xv6的第一个程序" class="heading-element">
+  <a href="#23-%e5%90%af%e5%8a%a8xv6%e7%9a%84%e7%ac%ac%e4%b8%80%e4%b8%aa%e7%a8%8b%e5%ba%8f" class="heading-mark"></a>2.3 启动XV6的第一个程序</h3><p>初始化自己并运行一个存储在只读内存中的引导加载程序。引导加载程序将xv6内核加载到内存中，之后在机器模式下CPU从<code>_entry</code>开始运行，动时页式硬件（paging hardware）处于禁用模式：也就是说虚拟地址将直接映射到物理地址。</p>
+<pre tabindex="0"><code class="language-assembly" data-lang="assembly">.section .text
+_entry:
+	# set up a stack for C.
+	# stack0 is declared in start.c,
+	# with a 4096-byte stack per CPU.
+	# sp = stack0 + (hartid * 4096)
+	la sp, stack0
+	li a0, 1024*4
+	csrr a1, mhartid
+	addi a1, a1, 1
+	mul a0, a0, a1
+	add sp, sp, a0
+	# jump to start() in start.c
+	call start</code></pre><p>设置好栈区之后调用start，<code>start</code>执行一些仅在机器模式下允许的配置，然后切换到管理模式(<code>mret</code>指令)。</p>
+<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">start</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// set M Previous Privilege mode to Supervisor, for mret.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">x</span> <span class="o">=</span> <span class="nf">r_mstatus</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="n">x</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">MSTATUS_MPP_MASK</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">x</span> <span class="o">|=</span> <span class="n">MSTATUS_MPP_S</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">w_mstatus</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// set M Exception Program Counter to main, for mret.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// requires gcc -mcmodel=medany
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">w_mepc</span><span class="p">((</span><span class="n">uint64</span><span class="p">)</span><span class="n">main</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// disable paging for now.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">w_satp</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// delegate all interrupts and exceptions to supervisor mode.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">w_medeleg</span><span class="p">(</span><span class="mh">0xffff</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">w_mideleg</span><span class="p">(</span><span class="mh">0xffff</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">w_sie</span><span class="p">(</span><span class="nf">r_sie</span><span class="p">()</span> <span class="o">|</span> <span class="n">SIE_SEIE</span> <span class="o">|</span> <span class="n">SIE_STIE</span> <span class="o">|</span> <span class="n">SIE_SSIE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// ask for clock interrupts.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">timerinit</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// keep each CPU&#39;s hartid in its tp register, for cpuid().
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="nf">r_mhartid</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">w_tp</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// switch to supervisor mode and jump to main().
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">asm</span> <span class="k">volatile</span><span class="p">(</span><span class="s">&#34;mret&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>调用<code>mret</code>后会导致PC的值为main的地址<code>kernel/main.c</code></p>
+<blockquote>
+<p><strong>注：</strong><code>mret</code>执行返回，返回到先前状态，由于<code>start</code>函数将前模式改为了管理模式且返回地址改为了<code>main</code>,因此<code>mret</code>将返回到<code>main</code>函数，并以管理模式运行</p>
+</blockquote>
+<p><code>main</code>初始化几个设备和子系统后，调用<code>userinit</code>创建第一个进程（<code>kernel/proc.c</code>），第一个进程执行一个用RISC-V程序集写的小型程序：<strong>initcode. S</strong>，调用<code>exec</code>系统调用重新进入内核，<code>exec</code>使用用 <code>/init</code>（<strong>user/init.c</strong>）替换当前进程的内存和寄存器。一旦内核完成<code>exec</code>，它就返回<code>/init</code>进程中的用户空间。</p>
+<pre tabindex="0"><code class="language-assembly" data-lang="assembly">## Initial process that execs /init.
+## This code runs in user space.
+
+##include &#34;syscall.h&#34;
+
+## exec(init, argv)
+.globl start
+start:
+        la a0, init
+        la a1, argv
+        li a7, SYS_exec
+        ecall
+
+## for(;;) exit();
+exit:
+        li a7, SYS_exit
+        ecall
+        jal exit
+
+## char init[] = &#34;/init\0&#34;;
+init:
+  .string &#34;/init\0&#34;
+
+## char *argv[] = { init, 0 };
+.p2align 2
+argv:
+  .long init
+  .long 0</code></pre><p>之后的<code>/init</code>：</p>
+<div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">//user.init.c
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">pid</span><span class="p">,</span> <span class="n">wpid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="nf">open</span><span class="p">(</span><span class="s">&#34;console&#34;</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">mknod</span><span class="p">(</span><span class="s">&#34;console&#34;</span><span class="p">,</span> <span class="n">CONSOLE</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">open</span><span class="p">(</span><span class="s">&#34;console&#34;</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">dup</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// stdout
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">dup</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// stderr
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">(;;)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;init: starting sh</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">pid</span> <span class="o">=</span> <span class="nf">fork</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">pid</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;init: fork failed</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="nf">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">pid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nf">exec</span><span class="p">(</span><span class="s">&#34;sh&#34;</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;init: exec sh failed</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="nf">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="p">(;;)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="c1">// this call to wait() returns if the shell exits,
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="c1">// or if a parentless process exits.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="n">wpid</span> <span class="o">=</span> <span class="nf">wait</span><span class="p">((</span><span class="kt">int</span> <span class="o">*</span><span class="p">)</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">wpid</span> <span class="o">==</span> <span class="n">pid</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="c1">// the shell exited; restart it.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>				<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">			<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">wpid</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;init: wait returned an error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">				<span class="nf">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">			<span class="k">else</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="c1">// it was a parentless process; do nothing.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h2 id="chapter-3page-tables" class="heading-element">
+  <a href="#chapter-3page-tables" class="heading-mark"></a>Chapter 3:Page tables</h2><p>页表是操作系统为每个进程提供自己的私有地址空间和内存的机制。页表决定了内存地址的含义，以及物理内存的哪些部分可以访问。</p>
+<h3 id="31-分页硬件" class="heading-element">
+  <a href="#31-%e5%88%86%e9%a1%b5%e7%a1%ac%e4%bb%b6" class="heading-mark"></a>3.1 分页硬件</h3><p>XV6基于Sv39 RISC-V运行，只使用64位虚拟地址的低39位；而<strong>高25位不使用</strong>。在这种Sv39配置中，RISC-V页表在逻辑上是一个由$2^{27}$（134,217,728）个**页表条目（Page Table Entries/PTE）<strong>组成的数组。每个PTE包含一个44位的</strong>物理页码（Physical Page Number/PPN）**和一些标志。页式硬件通过使用虚拟地址39位中的前27位索引页表，以找到该虚拟地址对应的一个PTE，然后生成一个56位的物理地址，其前44位来自PTE中的PPN，其后12位来自原始虚拟地址。如下图3.1，页表的逻辑视图是一个简单的PTE数组如图3.2。页表通过逻辑到物理地址的转换给了操作系统控制权，转换的粒度是一个个对齐的物理块（一个物理块包含$2^{12}=4096$字节），这样的块称为页。</p>
+<p><img loading="lazy" src="p1.png" alt="p1.png" srcset="p1.png?size=small, p1.png?size=medium 1.5x, p1.png?size=large 2x" data-title="p1.png" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p><img loading="lazy" src="p2.png" alt="p2.png" srcset="p2.png?size=small, p2.png?size=medium 1.5x, p2.png?size=large 2x" data-title="p2.png" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>如果转换地址所需的三个PTE中的任何一个不存在，页式硬件就会引发页面故障异常，并让内核来处理该异常</p>
+<p>每个<code>PTE</code>包含的标志位（在<code>kernel/riscv.h</code>中定义）：</p>
+<ul>
+<li><code>PTE_V</code>指示PTE是否存在：如果它没有被设置，对页面的引用会导致异常（即不允许）。</li>
+<li><code>PTE_R</code>控制是否允许指令读取到页面。</li>
+<li><code>PTE_W</code>控制是否允许指令写入到页面。</li>
+<li><code>PTE_X</code>控制CPU是否可以将页面内容解释为指令并执行它们。</li>
+<li><code>PTE_U</code>控制用户模式下的指令是否被允许访问页面；如果没有设置<code>PTE_U</code>，PTE只能在管理模式下使用。</li>
+</ul>
+<div class="highlight" id="id-18"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##define PGSIZE 4096 </span><span class="c1">// bytes per page
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">##define PGSHIFT 12  </span><span class="c1">// bits of offset within a page
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">##define PGROUNDUP(sz)  (((sz)+PGSIZE-1) &amp; ~(PGSIZE-1))
+</span></span></span><span class="line"><span class="cl"><span class="cp">##define PGROUNDDOWN(a) (((a)) &amp; ~(PGSIZE-1))
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">##define PTE_V (1L &lt;&lt; 0) </span><span class="c1">// valid
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">##define PTE_R (1L &lt;&lt; 1)
+</span></span></span><span class="line"><span class="cl"><span class="cp">##define PTE_W (1L &lt;&lt; 2)
+</span></span></span><span class="line"><span class="cl"><span class="cp">##define PTE_X (1L &lt;&lt; 3)
+</span></span></span><span class="line"><span class="cl"><span class="cp">##define PTE_U (1L &lt;&lt; 4) </span><span class="c1">// 1 -&gt; user can access
+</span></span></span></code></pre></div><p>为了告诉硬件使用页表，内核必须将根页表页的物理地址写入到<code>satp</code>寄存器中（<code>satp</code>的作用是存放根页表页在物理内存中的地址）。每个CPU都有自己的<code>satp</code>。一个CPU将使用自己的<code>satp</code>指向的页表转换后续指令生成的所有地址。每个CPU都有自己的<code>satp</code>，这样不同的CPU就可以运行不同的进程，每个CPU都有自己的页表描述的私有地址空间。</p>
+<p>物理内存以一个字节为单位划为地址，称为物理地址。</p>
+<h3 id="32-内核地址空间" class="heading-element">
+  <a href="#32-%e5%86%85%e6%a0%b8%e5%9c%b0%e5%9d%80%e7%a9%ba%e9%97%b4" class="heading-mark"></a>3.2 内核地址空间</h3><p><strong>kernel/memlayout.h</strong>声明了xv6内核内存布局的常量，内存映射：</p>
+<!-- raw HTML omitted -->
+<p>QEMU模拟了一台计算机，它包括从物理地址<code>0x80000000</code>开始，到<code>0x86400000</code>结束的RAM（物理内存），<code>KERNBASE</code>和<code>PHYSTOP</code>；QEMU还模拟了IO等设备。</p>
+<p>有几个内核虚拟地址不是直接映射：</p>
+<ul>
+<li><code>trampoline page</code>。映射在虚拟地址空间的顶部；用户页表具有相同的映射。</li>
+<li>内核栈页面。每个进程都有自己的内核栈，它将映射到偏高一些的地址，这样xv6在它之下就可以留下一个未映射的保护页(<strong>guard page)</strong>。保护页的PTE是无效的（也就是说<code>PTE_V</code>没有设置），所以如果内核溢出内核栈就会引发一个异常，内核触发<code>panic</code>。如果没有保护页，栈溢出将会覆盖其他内核内存，引发错误操作。（注：Guard page不会浪费物理内存，它只是占据了虚拟地址空间的一段靠后的地址，但并<strong>不映射到物理地址空间</strong>。）</li>
+</ul>
+<h3 id="33-建立一个地址空间" class="heading-element">
+  <a href="#33-%e5%bb%ba%e7%ab%8b%e4%b8%80%e4%b8%aa%e5%9c%b0%e5%9d%80%e7%a9%ba%e9%97%b4" class="heading-mark"></a>3.3 建立一个地址空间</h3><p>大多数用于操作地址空间和页表的xv6代码都写在<strong>kernel/vm.c</strong>中，核心数据结构是<code>pagetable_t</code>(uint64)，一个<code>pagetable_t</code>可以是内核页表，也可以是一个进程页表。</p>
+<p>最核心的函数是<code>walk</code>和<code>mappages</code>，前者为虚拟地址找到PTE，后者为新映射装载PTE。名称以<code>kvm</code>开头的函数操作内核页表；以<code>uvm</code>开头的函数操作用户页表；其他函数用于二者。<code>copyout</code>和<code>copyin</code>复制数据到用户虚拟地址或从用户虚拟地址复制数据。</p>
+<div class="highlight" id="id-19"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">kvminit</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">kernel_pagetable</span> <span class="o">=</span> <span class="p">(</span><span class="kt">pagetable_t</span><span class="p">)</span><span class="nf">kalloc</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">memset</span><span class="p">(</span><span class="n">kernel_pagetable</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">PGSIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// uart registers
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">kvmmap</span><span class="p">(</span><span class="n">UART0</span><span class="p">,</span> <span class="n">UART0</span><span class="p">,</span> <span class="n">PGSIZE</span><span class="p">,</span> <span class="n">PTE_R</span> <span class="o">|</span> <span class="n">PTE_W</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// virtio mmio disk interface
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">kvmmap</span><span class="p">(</span><span class="n">VIRTIO0</span><span class="p">,</span> <span class="n">VIRTIO0</span><span class="p">,</span> <span class="n">PGSIZE</span><span class="p">,</span> <span class="n">PTE_R</span> <span class="o">|</span> <span class="n">PTE_W</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// CLINT
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">kvmmap</span><span class="p">(</span><span class="n">CLINT</span><span class="p">,</span> <span class="n">CLINT</span><span class="p">,</span> <span class="mh">0x10000</span><span class="p">,</span> <span class="n">PTE_R</span> <span class="o">|</span> <span class="n">PTE_W</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// PLIC
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">kvmmap</span><span class="p">(</span><span class="n">PLIC</span><span class="p">,</span> <span class="n">PLIC</span><span class="p">,</span> <span class="mh">0x400000</span><span class="p">,</span> <span class="n">PTE_R</span> <span class="o">|</span> <span class="n">PTE_W</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// map kernel text executable and read-only.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">kvmmap</span><span class="p">(</span><span class="n">KERNBASE</span><span class="p">,</span> <span class="n">KERNBASE</span><span class="p">,</span> <span class="p">(</span><span class="n">uint64</span><span class="p">)</span><span class="n">etext</span> <span class="o">-</span> <span class="n">KERNBASE</span><span class="p">,</span> <span class="n">PTE_R</span> <span class="o">|</span> <span class="n">PTE_X</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// map kernel data and the physical RAM we&#39;ll make use of.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">kvmmap</span><span class="p">((</span><span class="n">uint64</span><span class="p">)</span><span class="n">etext</span><span class="p">,</span> <span class="p">(</span><span class="n">uint64</span><span class="p">)</span><span class="n">etext</span><span class="p">,</span> <span class="n">PHYSTOP</span> <span class="o">-</span> <span class="p">(</span><span class="n">uint64</span><span class="p">)</span><span class="n">etext</span><span class="p">,</span> <span class="n">PTE_R</span> <span class="o">|</span> <span class="n">PTE_W</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// map the trampoline for trap entry/exit to
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// the highest virtual address in the kernel.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">kvmmap</span><span class="p">(</span><span class="n">TRAMPOLINE</span><span class="p">,</span> <span class="p">(</span><span class="n">uint64</span><span class="p">)</span><span class="n">trampoline</span><span class="p">,</span> <span class="n">PGSIZE</span><span class="p">,</span> <span class="n">PTE_R</span> <span class="o">|</span> <span class="n">PTE_X</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>在最开始<code>main</code>调用<code>kvninit</code> 来创建内核的页表。这个调用发生在xv6使能RISC-V分页之前，所以地址直接引用物理内存。</p>
+<p>首先分配一个物理页保存根页表页，之后调用<code>kvmmap</code>装载内核需要的转换，</p>
+<p><code>kvmmap</code>：调用<code>mappages</code>，<code>mappages</code>将范围虚拟地址到同等范围物理地址的映射装载到一个页表中。</p>
+<div class="highlight" id="id-20"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// add a mapping to the kernel page table.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// only used when booting.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// does not flush TLB or enable paging.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">kvmmap</span><span class="p">(</span><span class="n">uint64</span> <span class="n">va</span><span class="p">,</span> <span class="n">uint64</span> <span class="n">pa</span><span class="p">,</span> <span class="n">uint64</span> <span class="n">sz</span><span class="p">,</span> <span class="kt">int</span> <span class="n">perm</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="nf">mappages</span><span class="p">(</span><span class="n">kernel_pagetable</span><span class="p">,</span> <span class="n">va</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">pa</span><span class="p">,</span> <span class="n">perm</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">panic</span><span class="p">(</span><span class="s">&#34;kvmmap&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><code>walk</code>：为虚拟地址找到PTE，模仿RISC-V分页硬件。每次从三级页表中读9位，使用上一级的9位虚拟地址来查找下一级页表或最终页面的PTE。</p>
+<div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// Return the address of the PTE in page table pagetable
+</span></span></span><span class="line"><span class="cl"><span class="c1">// that corresponds to virtual address va.  If alloc!=0,
+</span></span></span><span class="line"><span class="cl"><span class="c1">// create any required page-table pages.
+</span></span></span><span class="line"><span class="cl"><span class="c1">//
+</span></span></span><span class="line"><span class="cl"><span class="c1">// The risc-v Sv39 scheme has three levels of page-table
+</span></span></span><span class="line"><span class="cl"><span class="c1">// pages. A page-table page contains 512 64-bit PTEs.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// A 64-bit virtual address is split into five fields:
+</span></span></span><span class="line"><span class="cl"><span class="c1">//   39..63 -- must be zero.
+</span></span></span><span class="line"><span class="cl"><span class="c1">//   30..38 -- 9 bits of level-2 index.
+</span></span></span><span class="line"><span class="cl"><span class="c1">//   21..29 -- 9 bits of level-1 index.
+</span></span></span><span class="line"><span class="cl"><span class="c1">//   12..20 -- 9 bits of level-0 index.
+</span></span></span><span class="line"><span class="cl"><span class="c1">//    0..11 -- 12 bits of byte offset within the page.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">pte_t</span> <span class="o">*</span><span class="nf">walk</span><span class="p">(</span><span class="kt">pagetable_t</span> <span class="n">pagetable</span><span class="p">,</span> <span class="n">uint64</span> <span class="n">va</span><span class="p">,</span> <span class="kt">int</span> <span class="n">alloc</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">va</span> <span class="o">&gt;=</span> <span class="n">MAXVA</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">panic</span><span class="p">(</span><span class="s">&#34;walk&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">level</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">level</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span> <span class="n">level</span><span class="o">--</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">pte_t</span> <span class="o">*</span><span class="n">pte</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">pagetable</span><span class="p">[</span><span class="nf">PX</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">va</span><span class="p">)];</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">pte</span> <span class="o">&amp;</span> <span class="n">PTE_V</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">pagetable</span> <span class="o">=</span> <span class="p">(</span><span class="kt">pagetable_t</span><span class="p">)</span><span class="nf">PTE2PA</span><span class="p">(</span><span class="o">*</span><span class="n">pte</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">alloc</span> <span class="o">||</span> <span class="p">(</span><span class="n">pagetable</span> <span class="o">=</span> <span class="p">(</span><span class="kt">pde_t</span> <span class="o">*</span><span class="p">)</span><span class="nf">kalloc</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="nf">memset</span><span class="p">(</span><span class="n">pagetable</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">PGSIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="o">*</span><span class="n">pte</span> <span class="o">=</span> <span class="nf">PA2PTE</span><span class="p">(</span><span class="n">pagetable</span><span class="p">)</span> <span class="o">|</span> <span class="n">PTE_V</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="o">&amp;</span><span class="n">pagetable</span><span class="p">[</span><span class="nf">PX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">va</span><span class="p">)];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><code>kvninit</code>结束后，<code>main</code>调用<code>kvminithart</code>来安装内核页表。它将根页表页的物理地址写入寄存器<code>satp</code>。之后，CPU将使用内核页表转换地址。由于内核使用标识映射，下一条指令的当前虚拟地址将映射到正确的物理内存地址。</p>
+<div class="highlight" id="id-22"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// Switch h/w page table register to the kernel&#39;s page table,
+</span></span></span><span class="line"><span class="cl"><span class="c1">// and enable paging.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">kvminithart</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">w_satp</span><span class="p">(</span><span class="nf">MAKE_SATP</span><span class="p">(</span><span class="n">kernel_pagetable</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">sfence_vma</span><span class="p">();</span><span class="c1">// flush the TLB.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div><p>之后<code>main</code>调用<code>procinit</code>，为每个进程分配一个内核栈，它将每个栈映射到<code>KSTACK</code>生成的虚拟地址。</p>
+<div class="highlight" id="id-23"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// initialize the proc table at boot time.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">procinit</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">proc</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">initlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pid_lock</span><span class="p">,</span> <span class="s">&#34;nextpid&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="n">proc</span><span class="p">;</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="o">&amp;</span><span class="n">proc</span><span class="p">[</span><span class="n">NPROC</span><span class="p">];</span> <span class="n">p</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">initlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">,</span> <span class="s">&#34;proc&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="c1">// Allocate a page for the process&#39;s kernel stack.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">// Map it high in memory, followed by an invalid
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">// guard page.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="kt">char</span> <span class="o">*</span><span class="n">pa</span> <span class="o">=</span> <span class="nf">kalloc</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">pa</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nf">panic</span><span class="p">(</span><span class="s">&#34;kalloc&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">uint64</span> <span class="n">va</span> <span class="o">=</span> <span class="nf">KSTACK</span><span class="p">((</span><span class="kt">int</span><span class="p">)(</span><span class="n">p</span> <span class="o">-</span> <span class="n">proc</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">kvmmap</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="p">(</span><span class="n">uint64</span><span class="p">)</span><span class="n">pa</span><span class="p">,</span> <span class="n">PGSIZE</span><span class="p">,</span> <span class="n">PTE_R</span> <span class="o">|</span> <span class="n">PTE_W</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">kstack</span> <span class="o">=</span> <span class="n">va</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">kvminithart</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>每个RISC-V CPU都将页表条目缓存在转译后备缓冲器（快表/TLB）中，RISC-V有一个指令<code>sfence.vma</code>，用于刷新当前CPU的TLB</p>
+<h3 id="34-物理内存分配" class="heading-element">
+  <a href="#34-%e7%89%a9%e7%90%86%e5%86%85%e5%ad%98%e5%88%86%e9%85%8d" class="heading-mark"></a>3.4 物理内存分配</h3><p><code>kalloc</code>代码位于<code>kernelkalloc.c</code>，<code>kalloc</code>的数据结构是可供分配的物理内存页的空闲列表，空闲列表受到自旋锁（spin lock）的保护</p>
+<div class="highlight" id="id-24"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// Allocate one 4096-byte page of physical memory.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Returns a pointer that the kernel can use.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Returns 0 if the memory cannot be allocated.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="o">*</span>
+</span></span><span class="line"><span class="cl"><span class="nf">kalloc</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">run</span> <span class="o">*</span><span class="n">r</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">acquire</span><span class="p">(</span><span class="o">&amp;</span><span class="n">kmem</span><span class="p">.</span><span class="n">lock</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">r</span> <span class="o">=</span> <span class="n">kmem</span><span class="p">.</span><span class="n">freelist</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="n">kmem</span><span class="p">.</span><span class="n">freelist</span> <span class="o">=</span> <span class="n">r</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">release</span><span class="p">(</span><span class="o">&amp;</span><span class="n">kmem</span><span class="p">.</span><span class="n">lock</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">memset</span><span class="p">((</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">r</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">PGSIZE</span><span class="p">);</span> <span class="c1">// fill with junk
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">return</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">r</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><code>main</code>调用<code>kinit</code>来初始化分配器，<code>kinit</code>初始化空闲列表以保存从内核结束到<code>PHYSTOP</code>之间的每一页。</p>
+<div class="highlight" id="id-25"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">kinit</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">initlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">kmem</span><span class="p">.</span><span class="n">lock</span><span class="p">,</span> <span class="s">&#34;kmem&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">freerange</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">PHYSTOP</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">freerange</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">pa_start</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">pa_end</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">char</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="nf">PGROUNDUP</span><span class="p">((</span><span class="n">uint64</span><span class="p">)</span><span class="n">pa_start</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">(;</span> <span class="n">p</span> <span class="o">+</span> <span class="n">PGSIZE</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">pa_end</span><span class="p">;</span> <span class="n">p</span> <span class="o">+=</span> <span class="n">PGSIZE</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">kfree</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Free the page of physical memory pointed at by v,
+</span></span></span><span class="line"><span class="cl"><span class="c1">// which normally should have been returned by a
+</span></span></span><span class="line"><span class="cl"><span class="c1">// call to kalloc().  (The exception is when
+</span></span></span><span class="line"><span class="cl"><span class="c1">// initializing the allocator; see kinit above.)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">kfree</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">pa</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">run</span> <span class="o">*</span><span class="n">r</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(((</span><span class="n">uint64</span><span class="p">)</span><span class="n">pa</span> <span class="o">%</span> <span class="n">PGSIZE</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">||</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">pa</span> <span class="o">&lt;</span> <span class="n">end</span> <span class="o">||</span> <span class="p">(</span><span class="n">uint64</span><span class="p">)</span><span class="n">pa</span> <span class="o">&gt;=</span> <span class="n">PHYSTOP</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">panic</span><span class="p">(</span><span class="s">&#34;kfree&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// Fill with junk to catch dangling refs.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">memset</span><span class="p">(</span><span class="n">pa</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">PGSIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">r</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">run</span> <span class="o">*</span><span class="p">)</span><span class="n">pa</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">acquire</span><span class="p">(</span><span class="o">&amp;</span><span class="n">kmem</span><span class="p">.</span><span class="n">lock</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">r</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">kmem</span><span class="p">.</span><span class="n">freelist</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">kmem</span><span class="p">.</span><span class="n">freelist</span> <span class="o">=</span> <span class="n">r</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">release</span><span class="p">(</span><span class="o">&amp;</span><span class="n">kmem</span><span class="p">.</span><span class="n">lock</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="35-进程地址空间" class="heading-element">
+  <a href="#35-%e8%bf%9b%e7%a8%8b%e5%9c%b0%e5%9d%80%e7%a9%ba%e9%97%b4" class="heading-mark"></a>3.5 进程地址空间</h3><p>每个进程都有一个单独的页表，当xv6在进程之间切换时，也会更改页表。一个进程的用户内存从虚拟地址零开始，可以增长到MAXVA，原则上允许一个进程内存寻址空间为256G。</p>
+<div class="highlight" id="id-26"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// one beyond the highest possible virtual address.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// MAXVA is actually one bit less than the max allowed by
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Sv39, to avoid having to sign-extend virtual addresses
+</span></span></span><span class="line"><span class="cl"><span class="c1">// that have the high bit set.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">##define MAXVA (1L &lt;&lt; (9 + 9 + 9 + 12 - 1))</span></span></span></code></pre></div><p><img loading="lazy" src="image-20220713121236349.png" alt="image-20220713121236349.png" srcset="image-20220713121236349.png?size=small, image-20220713121236349.png?size=medium 1.5x, image-20220713121236349.png?size=large 2x" data-title="image-20220713121236349.png" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>当进程向xv6请求更多的用户内存时，首先使用<code>kalloc</code>来分配物理页面。</p>
+<p>内核在用户地址空间的顶部映射一个带有蹦床（trampoline）代码的页面，这样在所有地址空间都可以看到一个单独的物理内存页面。</p>
+<p>为了检测用户栈是否溢出了所分配栈内存，xv6在栈正下方放置了一个无效的保护页（guard page）。如果用户栈溢出并且进程试图使用栈下方的地址，那么由于映射无效（<code>PTE_V</code>为0）硬件将生成一个页面故障异常。</p>
+<h3 id="36-sbrk" class="heading-element">
+  <a href="#36-sbrk" class="heading-mark"></a>3.6 sbrk</h3><p><code>sbrk</code>是一个用于进程减少或增长其内存的系统调用。其实是调用<code>growproc</code>实现</p>
+<div class="highlight" id="id-27"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">uint64</span>
+</span></span><span class="line"><span class="cl"><span class="nf">sys_sbrk</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">addr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span><span class="p">(</span><span class="nf">argint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">n</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">addr</span> <span class="o">=</span> <span class="nf">myproc</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">sz</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span><span class="p">(</span><span class="nf">growproc</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">addr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><code>growproc</code>根据<code>n</code>是正的还是负的调用<code>uvmalloc</code>或<code>uvmdealloc</code>。<code>uvmalloc</code>用<code>kalloc</code>分配物理内存，并用<code>mappages</code>将PTE添加到用户页表中；<code>uvmdealloc</code>调用<code>uvmunmap</code>，<code>uvmunmap</code>使用<code>walk</code>来查找对应的PTE，并使用<code>kfree</code>来释放PTE引用的物理内存。</p>
+<div class="highlight" id="id-28"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// Grow or shrink user memory by n bytes.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Return 0 on success, -1 on failure.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span> <span class="nf">growproc</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">uint</span> <span class="n">sz</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">proc</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="nf">myproc</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">sz</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">sz</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">((</span><span class="n">sz</span> <span class="o">=</span> <span class="nf">uvmalloc</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pagetable</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">sz</span> <span class="o">+</span> <span class="n">n</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sz</span> <span class="o">=</span> <span class="nf">uvmdealloc</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pagetable</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">sz</span> <span class="o">+</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">sz</span> <span class="o">=</span> <span class="n">sz</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="37-exec" class="heading-element">
+  <a href="#37-exec" class="heading-mark"></a>3.7 exec</h3><p>代码在<code>kernel/exec.c</code>中</p>
+<div class="highlight" id="id-29"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">exec</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="o">*</span><span class="n">last</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">uint64</span> <span class="n">argc</span><span class="p">,</span> <span class="n">sz</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">ustack</span><span class="p">[</span><span class="n">MAXARG</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">stackbase</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">elfhdr</span> <span class="n">elf</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">inode</span> <span class="o">*</span><span class="n">ip</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">proghdr</span> <span class="n">ph</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">pagetable_t</span> <span class="n">pagetable</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">oldpagetable</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">proc</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="nf">myproc</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">begin_op</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">((</span><span class="n">ip</span> <span class="o">=</span> <span class="nf">namei</span><span class="p">(</span><span class="n">path</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">end_op</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">ilock</span><span class="p">(</span><span class="n">ip</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// Check ELF header
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="p">(</span><span class="nf">readi</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">uint64</span><span class="p">)</span><span class="o">&amp;</span><span class="n">elf</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">elf</span><span class="p">))</span> <span class="o">!=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">elf</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">elf</span><span class="p">.</span><span class="n">magic</span> <span class="o">!=</span> <span class="n">ELF_MAGIC</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">((</span><span class="n">pagetable</span> <span class="o">=</span> <span class="nf">proc_pagetable</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// Load program into memory.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">off</span> <span class="o">=</span> <span class="n">elf</span><span class="p">.</span><span class="n">phoff</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">elf</span><span class="p">.</span><span class="n">phnum</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">,</span> <span class="n">off</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ph</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nf">readi</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">uint64</span><span class="p">)</span><span class="o">&amp;</span><span class="n">ph</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ph</span><span class="p">))</span> <span class="o">!=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ph</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">			<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">ph</span><span class="p">.</span><span class="n">type</span> <span class="o">!=</span> <span class="n">ELF_PROG_LOAD</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">continue</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">ph</span><span class="p">.</span><span class="n">memsz</span> <span class="o">&lt;</span> <span class="n">ph</span><span class="p">.</span><span class="n">filesz</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">ph</span><span class="p">.</span><span class="n">vaddr</span> <span class="o">+</span> <span class="n">ph</span><span class="p">.</span><span class="n">memsz</span> <span class="o">&lt;</span> <span class="n">ph</span><span class="p">.</span><span class="n">vaddr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">uint64</span> <span class="n">sz1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">((</span><span class="n">sz1</span> <span class="o">=</span> <span class="nf">uvmalloc</span><span class="p">(</span><span class="n">pagetable</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">ph</span><span class="p">.</span><span class="n">vaddr</span> <span class="o">+</span> <span class="n">ph</span><span class="p">.</span><span class="n">memsz</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sz</span> <span class="o">=</span> <span class="n">sz1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">ph</span><span class="p">.</span><span class="n">vaddr</span> <span class="o">%</span> <span class="n">PGSIZE</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nf">loadseg</span><span class="p">(</span><span class="n">pagetable</span><span class="p">,</span> <span class="n">ph</span><span class="p">.</span><span class="n">vaddr</span><span class="p">,</span> <span class="n">ip</span><span class="p">,</span> <span class="n">ph</span><span class="p">.</span><span class="n">off</span><span class="p">,</span> <span class="n">ph</span><span class="p">.</span><span class="n">filesz</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">iunlockput</span><span class="p">(</span><span class="n">ip</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">end_op</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ip</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">p</span> <span class="o">=</span> <span class="nf">myproc</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="n">uint64</span> <span class="n">oldsz</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">sz</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// Allocate two pages at the next page boundary.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// Use the second as the user stack.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">sz</span> <span class="o">=</span> <span class="nf">PGROUNDUP</span><span class="p">(</span><span class="n">sz</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">uint64</span> <span class="n">sz1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">((</span><span class="n">sz1</span> <span class="o">=</span> <span class="nf">uvmalloc</span><span class="p">(</span><span class="n">pagetable</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">sz</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">PGSIZE</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">sz</span> <span class="o">=</span> <span class="n">sz1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">uvmclear</span><span class="p">(</span><span class="n">pagetable</span><span class="p">,</span> <span class="n">sz</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">PGSIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">sp</span> <span class="o">=</span> <span class="n">sz</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">stackbase</span> <span class="o">=</span> <span class="n">sp</span> <span class="o">-</span> <span class="n">PGSIZE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// Push argument strings, prepare rest of stack in ustack.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="p">(</span><span class="n">argc</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">argv</span><span class="p">[</span><span class="n">argc</span><span class="p">];</span> <span class="n">argc</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">&gt;=</span> <span class="n">MAXARG</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sp</span> <span class="o">-=</span> <span class="nf">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">argc</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sp</span> <span class="o">-=</span> <span class="n">sp</span> <span class="o">%</span> <span class="mi">16</span><span class="p">;</span> <span class="c1">// riscv sp must be 16-byte aligned
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="n">sp</span> <span class="o">&lt;</span> <span class="n">stackbase</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nf">copyout</span><span class="p">(</span><span class="n">pagetable</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="n">argc</span><span class="p">],</span> <span class="nf">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">argc</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">ustack</span><span class="p">[</span><span class="n">argc</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ustack</span><span class="p">[</span><span class="n">argc</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// push the array of argv[] pointers.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">sp</span> <span class="o">-=</span> <span class="p">(</span><span class="n">argc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">uint64</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">sp</span> <span class="o">-=</span> <span class="n">sp</span> <span class="o">%</span> <span class="mi">16</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">sp</span> <span class="o">&lt;</span> <span class="n">stackbase</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="nf">copyout</span><span class="p">(</span><span class="n">pagetable</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">ustack</span><span class="p">,</span> <span class="p">(</span><span class="n">argc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">uint64</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">bad</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// arguments to user main(argc, argv)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// argc is returned via the system call return
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// value, which goes in a0.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">p</span><span class="o">-&gt;</span><span class="n">trapframe</span><span class="o">-&gt;</span><span class="n">a1</span> <span class="o">=</span> <span class="n">sp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// Save program name for debugging.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">for</span> <span class="p">(</span><span class="n">last</span> <span class="o">=</span> <span class="n">s</span> <span class="o">=</span> <span class="n">path</span><span class="p">;</span> <span class="o">*</span><span class="n">s</span><span class="p">;</span> <span class="n">s</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">s</span> <span class="o">==</span> <span class="sc">&#39;/&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">last</span> <span class="o">=</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">safestrcpy</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">,</span> <span class="n">last</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// Commit to the user image.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">oldpagetable</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">pagetable</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">pagetable</span> <span class="o">=</span> <span class="n">pagetable</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">sz</span> <span class="o">=</span> <span class="n">sz</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">trapframe</span><span class="o">-&gt;</span><span class="n">epc</span> <span class="o">=</span> <span class="n">elf</span><span class="p">.</span><span class="n">entry</span><span class="p">;</span> <span class="c1">// initial program counter = main
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">p</span><span class="o">-&gt;</span><span class="n">trapframe</span><span class="o">-&gt;</span><span class="n">sp</span> <span class="o">=</span> <span class="n">sp</span><span class="p">;</span>		   <span class="c1">// initial stack pointer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">proc_freepagetable</span><span class="p">(</span><span class="n">oldpagetable</span><span class="p">,</span> <span class="n">oldsz</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">argc</span><span class="p">;</span> <span class="c1">// this ends up in a0, the first argument to main(argc, argv)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="nl">bad</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">pagetable</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">proc_freepagetable</span><span class="p">(</span><span class="n">pagetable</span><span class="p">,</span> <span class="n">sz</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">ip</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">iunlockput</span><span class="p">(</span><span class="n">ip</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">end_op</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>首先使用<code>namei</code>打开指定二进制path，之后读ELF的文件头，检查magic。</p>
+<p>之后使用<code>proc_pagetable</code>分配一个没有用户映射的新页表，使用<code>uvmalloc</code> 为每个ELF段分配内存，并使用<code>loadseg</code> 将每个段加载到内存中。<code>loadseg</code>使用<code>walkaddr</code>找到分配内存的物理地址，在该地址写入ELF段的每一页，并使用<code>readi</code>从文件中读取。</p>
+<p>现在<code>exec</code>分配并初始化用户栈。它只分配一个栈页面。<code>exec</code>一次将参数中的一个字符串复制到栈顶，并在<code>ustack</code>中记录指向它们的指针。它在传递给<code>main</code>的<code>argv</code>列表的末尾放置一个空指针。<code>ustack</code>中的前三个条目是伪返回程序计数器（fake return program counter）、<code>argc</code>和<code>argv</code>指针。</p>
+<p><code>exec</code>在栈页面的正下方放置了一个不可访问的页面，这样试图使用超过一个页面的程序就会出错。</p>
+<p>在准备新内存映像的过程中，如果<code>exec</code>检测到像无效程序段这样的错误，它会跳到标签<code>bad</code>，释放新映像，并返回-1。<code>exec</code>必须等待系统调用会成功后再释放旧映像：因为如果旧映像消失了，系统调用将无法返回-1。<code>exec</code>中唯一的错误情况发生在映像的创建过程中。一旦映像完成，<code>exec</code>就可以提交到新的页表(上述代码104行)并释放旧的页表(上述代码108行)。</p>
+<h3 id="38-real-world" class="heading-element">
+  <a href="#38-real-world" class="heading-mark"></a>3.8 Real world</h3><p>RISC-V支持物理地址级别的保护，但xv6没有使用这个特性。</p>
+<p>xv6内核缺少一个类似<code>malloc</code>可以为小对象提供内存的分配器，这使得内核无法使用需要动态分配的复杂数据结构。</p>
+<h2 id="chapter-4traps-and-system-calls" class="heading-element">
+  <a href="#chapter-4traps-and-system-calls" class="heading-mark"></a>Chapter 4:Traps and system calls</h2><p>有三种事件会导致中央处理器搁置普通指令的执行，并强制将控制权转移到处理该事件的特殊代码上：陷阱（trap）</p>
+<ol>
+<li>系统调用：当用户程序执行<code>ecall</code>指令要求内核为其做些什么时</li>
+<li>异常：（用户或内核）指令做了一些非法的事情，例如除以零或使用无效的虚拟地址</li>
+<li>设备中断：例如当磁盘硬件完成读或写请求时，向系统表明它需要被关注</li>
+</ol>
+<p>通常，陷阱发生时正在执行的任何代码都需要稍后恢复。</p>
+<p>通常的顺序是陷阱强制将控制权转移到内核；内核保存寄存器和其他状态，以便可以恢复执行；内核执行适当的处理程序代码（例如，系统调用接口或设备驱动程序）；内核恢复保存的状态并从陷阱中返回；原始代码从它停止的地方恢复。</p>
+<h3 id="41-risc-v陷入机制" class="heading-element">
+  <a href="#41-risc-v%e9%99%b7%e5%85%a5%e6%9c%ba%e5%88%b6" class="heading-mark"></a>4.1 RISC-V陷入机制</h3><p>每个RISC-V CPU都有一组控制寄存器，内核通过向这些寄存器写入内容来告诉CPU如何处理陷阱，内核可以读取这些寄存器来明确已经发生的陷阱。</p>
+<p>一些重要的寄存器介绍：</p>
+<ul>
+<li><code>stvec</code>：内核在这里写入其陷阱处理程序的地址；RISC-V跳转到这里处理陷阱。</li>
+<li><code>sepc</code>：当发生陷阱时，RISC-V会在这里保存程序计数器<code>pc</code>（因为<code>pc</code>会被<code>stvec</code>覆盖）。<code>sret</code>（从陷阱返回）指令会将<code>sepc</code>复制到<code>pc</code>。内核可以写入<code>sepc</code>来控制<code>sret</code>的去向。</li>
+<li><code>scause</code>： RISC-V在这里放置一个描述陷阱原因的数字。</li>
+<li><code>sscratch</code>：内核在这里放置了一个值，这个值在陷阱处理程序一开始就会派上用场。</li>
+<li><code>sstatus</code>：其中的<strong>SIE</strong>位控制设备中断是否启用。如果内核清空<strong>SIE</strong>，RISC-V将推迟设备中断，直到内核重新设置<strong>SIE</strong>。<strong>SPP</strong>位指示陷阱是来自用户模式还是管理模式，并控制<code>sret</code>返回的模式。</li>
+</ul>
+<p>上述寄存器在用户模式下不能读取和写入。</p>
+<p>当需要强制执行陷阱时，RISC-V硬件对所有陷阱类型（计时器中断除外）执行以下操作：</p>
+<ol>
+<li>如果陷阱是设备中断，并且状态<strong>SIE</strong>位被清空，则不执行以下任何操作。</li>
+<li>清除<strong>SIE</strong>以禁用中断。</li>
+<li>将<code>pc</code>复制到<code>sepc</code>。</li>
+<li>将当前模式（用户或管理）保存在状态的<strong>SPP</strong>位中。</li>
+<li>设置<code>scause</code>以反映产生陷阱的原因。</li>
+<li>将模式设置为管理模式。</li>
+<li>将<code>stvec</code>复制到<code>pc</code>。</li>
+<li>在新的<code>pc</code>上开始执行。</li>
+</ol>
+<blockquote>
+<p><strong>CPU不会切换到内核页表，不会切换到内核栈，也不会保存除<code>pc</code>之外的任何寄存器。</strong></p>
+</blockquote>
+<h3 id="42-从用户空间陷入" class="heading-element">
+  <a href="#42-%e4%bb%8e%e7%94%a8%e6%88%b7%e7%a9%ba%e9%97%b4%e9%99%b7%e5%85%a5" class="heading-mark"></a>4.2 从用户空间陷入</h3><blockquote>
+<p>来自用户空间的陷阱的高级路径是<code>uservec</code> (<strong>kernel/trampoline.S</strong>)，然后是<code>usertrap</code> (<strong>kernel/trap.c</strong>)；返回时，先是<code>usertrapret</code> (<strong>kernel/trap.c</strong>)，然后是<code>userret</code> (<strong>kernel/trampoline.S</strong>)。</p>
+<p>由于RISC-V硬件在陷阱期间不会切换页表，所以用户页表必须包括<code>uservec</code>（<strong>stvec</strong>指向的陷阱向量指令）的映射。<code>uservec</code>必须切换<code>satp</code>以指向内核页表；为了在切换后继续执行指令，<code>uservec</code>必须在内核页表中与用户页表中映射相同的地址。</p>
+<p>xv6使用包含<code>uservec</code>的蹦床页面（trampoline page）来满足这些约束。xv6将蹦床页面映射到内核页表和每个用户页表中相同的虚拟地址。这个虚拟地址是<code>TRAMPOLINE</code>。蹦床内容在<strong>trampoline.S</strong>中设置，并且（当执行用户代码时）<code>stvec</code>设置为<code>uservec</code> 。</p>
+</blockquote>
+<blockquote>
+<p><a href="http://xv6.dgs.zone/tranlate_books/book-riscv-rev1/c4/s2.html"target="_blank" rel="external nofollow noopener noreferrer">http://xv6.dgs.zone/tranlate_books/book-riscv-rev1/c4/s2.html</a></p>
+</blockquote>
+<p>陷入：</p>
+<p><code>uservec</code>：</p>
+<div class="highlight" id="id-30"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="p">.</span><span class="n">globl</span> <span class="n">uservec</span>
+</span></span><span class="line"><span class="cl"><span class="nl">uservec</span><span class="p">:</span>    
+</span></span><span class="line"><span class="cl">        <span class="err">#</span> <span class="n">trap</span><span class="p">.</span><span class="n">c</span> <span class="n">sets</span> <span class="n">stvec</span> <span class="n">to</span> <span class="n">point</span> <span class="n">here</span><span class="p">,</span> <span class="n">so</span>
+</span></span><span class="line"><span class="cl">        <span class="cp"># traps from user space start here,
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="cp"># in supervisor mode, but with a
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="cp"># user page table.
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="cp">#
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="cp"># sscratch points to where the process&#39;s p-&gt;trapframe is
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="cp"># mapped into user space, at TRAPFRAME.
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="cp">#
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        
+</span></span><span class="line"><span class="cl">	<span class="cp"># swap a0 and sscratch
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="cp"># so that a0 is TRAPFRAME
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="n">csrrw</span> <span class="n">a0</span><span class="p">,</span> <span class="n">sscratch</span><span class="p">,</span> <span class="n">a0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cp"># save the user registers in TRAPFRAME
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="n">sd</span> <span class="n">ra</span><span class="p">,</span> <span class="mi">40</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">sp</span><span class="p">,</span> <span class="mi">48</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">gp</span><span class="p">,</span> <span class="mi">56</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">tp</span><span class="p">,</span> <span class="mi">64</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">t0</span><span class="p">,</span> <span class="mi">72</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">t1</span><span class="p">,</span> <span class="mi">80</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">t2</span><span class="p">,</span> <span class="mi">88</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">s0</span><span class="p">,</span> <span class="mi">96</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">s1</span><span class="p">,</span> <span class="mi">104</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">a1</span><span class="p">,</span> <span class="mi">120</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">a2</span><span class="p">,</span> <span class="mi">128</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">a3</span><span class="p">,</span> <span class="mi">136</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">a4</span><span class="p">,</span> <span class="mi">144</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">a5</span><span class="p">,</span> <span class="mi">152</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">a6</span><span class="p">,</span> <span class="mi">160</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">a7</span><span class="p">,</span> <span class="mi">168</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">s2</span><span class="p">,</span> <span class="mi">176</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">s3</span><span class="p">,</span> <span class="mi">184</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">s4</span><span class="p">,</span> <span class="mi">192</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">s5</span><span class="p">,</span> <span class="mi">200</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">s6</span><span class="p">,</span> <span class="mi">208</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">s7</span><span class="p">,</span> <span class="mi">216</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">s8</span><span class="p">,</span> <span class="mi">224</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">s9</span><span class="p">,</span> <span class="mi">232</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">s10</span><span class="p">,</span> <span class="mi">240</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">s11</span><span class="p">,</span> <span class="mi">248</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">t3</span><span class="p">,</span> <span class="mi">256</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">t4</span><span class="p">,</span> <span class="mi">264</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">t5</span><span class="p">,</span> <span class="mi">272</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">t6</span><span class="p">,</span> <span class="mi">280</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cp"># save the user a0 in p-&gt;trapframe-&gt;a0
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="n">csrr</span> <span class="n">t0</span><span class="p">,</span> <span class="n">sscratch</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sd</span> <span class="n">t0</span><span class="p">,</span> <span class="mi">112</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cp"># restore kernel stack pointer from p-&gt;trapframe-&gt;kernel_sp
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="n">ld</span> <span class="n">sp</span><span class="p">,</span> <span class="mi">8</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cp"># make tp hold the current hartid, from p-&gt;trapframe-&gt;kernel_hartid
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="n">ld</span> <span class="n">tp</span><span class="p">,</span> <span class="mi">32</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cp"># load the address of usertrap(), p-&gt;trapframe-&gt;kernel_trap
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="n">ld</span> <span class="n">t0</span><span class="p">,</span> <span class="mi">16</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cp"># restore kernel page table from p-&gt;trapframe-&gt;kernel_satp
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="n">ld</span> <span class="n">t1</span><span class="p">,</span> <span class="mi">0</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">csrw</span> <span class="n">satp</span><span class="p">,</span> <span class="n">t1</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sfence</span><span class="p">.</span><span class="n">vma</span> <span class="n">zero</span><span class="p">,</span> <span class="n">zero</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cp"># a0 is no longer valid, since the kernel page
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="cp"># table does not specially map p-&gt;tf.
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">        <span class="cp"># jump to usertrap(), which does not return
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="n">jr</span> <span class="n">t0</span></span></span></code></pre></div><p><code>uservec</code>启动时，所有32个寄存器都包含被中断代码所拥有的值。</p>
+<p><code>uservec</code>开始时的<code>csrrw</code>指令交换了<code>a0</code>和<code>sscratch</code>的内容。现在用户代码的<code>a0</code>被保存了；<code>uservec</code>有一个寄存器（<code>a0</code>）可以使用；<code>a0</code>包含内核以前放在<code>sscratch</code>中的值。</p>
+<blockquote>
+<p>这块先过，，，有点跟不懂</p>
+</blockquote>
+<h3 id="43-调用系统调用" class="heading-element">
+  <a href="#43-%e8%b0%83%e7%94%a8%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8" class="heading-mark"></a>4.3 调用系统调用</h3><p>第二章的时候<strong>initcode.S</strong>调用<code>exec</code>系统调用后，看看用户调用是如何在内核中实现<code>exec</code>系统调用的。</p>
+<p>用户代码将<code>exec</code>需要的参数放在寄存器<code>a0</code>和<code>a1</code>中，并将系统调用号放在<code>a7</code>中。</p>
+<p><code>ecall</code>指令陷入(trap)到内核中，执行<code>uservec</code>、<code>usertrap</code>和<code>syscall</code>，和$(4.2)$步骤一样</p>
+<div class="highlight" id="id-31"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/syscall.c
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">syscall</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">num</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">proc</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="nf">myproc</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">num</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">trapframe</span><span class="o">-&gt;</span><span class="n">a7</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">num</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">num</span> <span class="o">&lt;</span> <span class="nf">NELEM</span><span class="p">(</span><span class="n">syscalls</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">syscalls</span><span class="p">[</span><span class="n">num</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">trapframe</span><span class="o">-&gt;</span><span class="n">a0</span> <span class="o">=</span> <span class="n">syscalls</span><span class="p">[</span><span class="n">num</span><span class="p">]();</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%d %s: unknown sys call %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			   <span class="n">p</span><span class="o">-&gt;</span><span class="n">pid</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">,</span> <span class="n">num</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">trapframe</span><span class="o">-&gt;</span><span class="n">a0</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><code>syscall</code>首先从陷阱帧(trapframe)中保存的a7检索系统调用号，并用它索引到<code>syscalls</code>中，对于第一次系统调用，<code>a7</code>中的内容是<code>SYS_exec</code>（<strong>kernel/syscall. h</strong>），导致了对系统调用接口函数<code>sys_exec</code>的调用。</p>
+<p>当系统调用接口函数返回时，<code>syscall</code>将其返回值记录在<code>p-&gt;trapframe-&gt;a0</code>中。这将导致原始用户空间对<code>exec()</code>的调用返回该值，因为RISC-V上的C调用约定将返回值放在<code>a0</code>中。系统调用通常返回负数表示错误，返回零或正数表示成功。如果系统调用号无效，<code>syscall</code>打印错误并返回-1。</p>
+<h3 id="44-系统调用参数" class="heading-element">
+  <a href="#44-%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e5%8f%82%e6%95%b0" class="heading-mark"></a>4.4 系统调用参数</h3><p>函数<code>artint</code>、<code>artaddr</code>和<code>artfd</code>从陷阱框架中检索第n个<strong>系统调用参数</strong>并以整数、指针或文件描述符的形式保存。他们都调用<code>argraw</code>来检索相应的保存的用户寄存器（<strong>kernel/syscall.c</strong>）。</p>
+<div class="highlight" id="id-32"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// Fetch the nth 32-bit system call argument.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span> <span class="nf">argint</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">ip</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="o">*</span><span class="n">ip</span> <span class="o">=</span> <span class="nf">argraw</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Retrieve an argument as a pointer.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Doesn&#39;t check for legality, since
+</span></span></span><span class="line"><span class="cl"><span class="c1">// copyin/copyout will do that.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span> <span class="nf">argaddr</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="n">uint64</span> <span class="o">*</span><span class="n">ip</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="o">*</span><span class="n">ip</span> <span class="o">=</span> <span class="nf">argraw</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Fetch the nth word-sized system call argument as a null-terminated string.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Copies into buf, at most max.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Returns string length if OK (including nul), -1 if error.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span> <span class="nf">argstr</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">int</span> <span class="n">max</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">uint64</span> <span class="n">addr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="nf">argaddr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">addr</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nf">fetchstr</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">max</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="n">uint64</span>
+</span></span><span class="line"><span class="cl"><span class="nf">argraw</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">proc</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="nf">myproc</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="k">switch</span> <span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">case</span> <span class="mi">0</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">trapframe</span><span class="o">-&gt;</span><span class="n">a0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">trapframe</span><span class="o">-&gt;</span><span class="n">a1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">case</span> <span class="mi">2</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">trapframe</span><span class="o">-&gt;</span><span class="n">a2</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">case</span> <span class="mi">3</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">trapframe</span><span class="o">-&gt;</span><span class="n">a3</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">case</span> <span class="mi">4</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">trapframe</span><span class="o">-&gt;</span><span class="n">a4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">case</span> <span class="mi">5</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">trapframe</span><span class="o">-&gt;</span><span class="n">a5</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">panic</span><span class="p">(</span><span class="s">&#34;argraw&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>内核实现了安全地将数据传输到用户提供的地址和从用户提供的地址传输数据的功能。<code>fetchstr</code>是一个例子（<strong>kernel/syscall.c</strong>）。文件系统调用，如<code>exec</code>，使用<code>fetchstr</code>从用户空间检索字符串文件名参数。<code>fetchstr</code>调用<code>copyinstr</code>来完成。</p>
+<div class="highlight" id="id-33"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// Fetch the nul-terminated string at addr from the current process.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Returns length of string, not including nul, or -1 for error.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span> <span class="nf">fetchstr</span><span class="p">(</span><span class="n">uint64</span> <span class="n">addr</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">int</span> <span class="n">max</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">proc</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="nf">myproc</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">err</span> <span class="o">=</span> <span class="nf">copyinstr</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pagetable</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">max</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">err</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">err</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nf">strlen</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><code>copyinstr</code>（<strong>kernel/vm.c</strong>）从用户页表页表中的虚拟地址<code>srcva</code>复制<code>max</code>字节到<code>dst</code>。又调用<code>walk</code>遍历页表，以确定<code>srcva</code>的物理地址<code>pa0</code>。由于内核将所有物理RAM地址映射到同一个内核虚拟地址，<code>copyinstr</code>可以直接将字符串字节从<code>pa0</code>复制到<code>dst</code>。<code>walkaddr</code>（<strong>kernel/vm.c</strong>）检查用户提供的虚拟地址是否为进程用户地址空间的一部分，因此程序不能欺骗内核读取其他内存。一个类似的函数<code>copyout</code>，将数据从内核复制到用户提供的地址。</p>
+<div class="highlight" id="id-34"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// Copy a null-terminated string from user to kernel.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Copy bytes to dst from virtual address srcva in a given page table,
+</span></span></span><span class="line"><span class="cl"><span class="c1">// until a &#39;\0&#39;, or max.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Return 0 on success, -1 on error.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span> <span class="nf">copyinstr</span><span class="p">(</span><span class="kt">pagetable_t</span> <span class="n">pagetable</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">dst</span><span class="p">,</span> <span class="n">uint64</span> <span class="n">srcva</span><span class="p">,</span> <span class="n">uint64</span> <span class="n">max</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">uint64</span> <span class="n">n</span><span class="p">,</span> <span class="n">va0</span><span class="p">,</span> <span class="n">pa0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">got_null</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">while</span> <span class="p">(</span><span class="n">got_null</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">max</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">va0</span> <span class="o">=</span> <span class="nf">PGROUNDDOWN</span><span class="p">(</span><span class="n">srcva</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">pa0</span> <span class="o">=</span> <span class="nf">walkaddr</span><span class="p">(</span><span class="n">pagetable</span><span class="p">,</span> <span class="n">va0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">pa0</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">n</span> <span class="o">=</span> <span class="n">PGSIZE</span> <span class="o">-</span> <span class="p">(</span><span class="n">srcva</span> <span class="o">-</span> <span class="n">va0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="n">max</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">n</span> <span class="o">=</span> <span class="n">max</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="kt">char</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)(</span><span class="n">pa0</span> <span class="o">+</span> <span class="p">(</span><span class="n">srcva</span> <span class="o">-</span> <span class="n">va0</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">		<span class="k">while</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">p</span> <span class="o">==</span> <span class="sc">&#39;\0&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="o">*</span><span class="n">dst</span> <span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">				<span class="n">got_null</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">				<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">			<span class="k">else</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="o">*</span><span class="n">dst</span> <span class="o">=</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">			<span class="o">--</span><span class="n">n</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="o">--</span><span class="n">max</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="n">p</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="n">dst</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">srcva</span> <span class="o">=</span> <span class="n">va0</span> <span class="o">+</span> <span class="n">PGSIZE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">got_null</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="45-从内核空间陷入" class="heading-element">
+  <a href="#45-%e4%bb%8e%e5%86%85%e6%a0%b8%e7%a9%ba%e9%97%b4%e9%99%b7%e5%85%a5" class="heading-mark"></a>4.5 从内核空间陷入</h3><p>xv6根据执行的是用户代码还是内核代码，对CPU陷阱寄存器的配置有所不同。当在CPU上执行内核时，内核将<code>stvec</code>指向<code>kernelvec</code>(<strong>kernel/kernelvec.S</strong>)的汇编代码。由于xv6已经在内核中，<code>kernelvec</code>可以依赖于设置为内核页表的<code>satp</code>，以及指向有效内核栈的栈指针。</p>
+<p><code>Kernelvec</code>在保存寄存器后跳转到<code>kerneltrap</code>(<strong>kernel/trap.c</strong>)。为两种类型的陷阱做好了准备：设备中断和异常。调用<code>devintr</code>(<strong>kernel/trap.c</strong>)来检查和处理中断。如果陷阱不是设备中断，则必定是一个异常，内核中的异常将是一个致命的错误；内核调用<code>panic</code>并停止执行。</p>
+<p>如果由于计时器中断而调用了<code>kerneltrap</code>，并且一个进程的内核线程正在运行（而不是调度程序线程），<code>kerneltrap</code>会调用<code>yield</code>，给其他线程一个运行的机会。</p>
+<div class="highlight" id="id-35"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// interrupts and exceptions from kernel code go here via kernelvec,
+</span></span></span><span class="line"><span class="cl"><span class="c1">// on whatever the current kernel stack is.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">kerneltrap</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">which_dev</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">uint64</span> <span class="n">sepc</span> <span class="o">=</span> <span class="nf">r_sepc</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="n">uint64</span> <span class="n">sstatus</span> <span class="o">=</span> <span class="nf">r_sstatus</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="n">uint64</span> <span class="n">scause</span> <span class="o">=</span> <span class="nf">r_scause</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">((</span><span class="n">sstatus</span> <span class="o">&amp;</span> <span class="n">SSTATUS_SPP</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">panic</span><span class="p">(</span><span class="s">&#34;kerneltrap: not from supervisor mode&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="nf">intr_get</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">panic</span><span class="p">(</span><span class="s">&#34;kerneltrap: interrupts enabled&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">((</span><span class="n">which_dev</span> <span class="o">=</span> <span class="nf">devintr</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;scause %p</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">scause</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;sepc=%p stval=%p</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="nf">r_sepc</span><span class="p">(),</span> <span class="nf">r_stval</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">panic</span><span class="p">(</span><span class="s">&#34;kerneltrap&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// give up the CPU if this is a timer interrupt.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="p">(</span><span class="n">which_dev</span> <span class="o">==</span> <span class="mi">2</span> <span class="o">&amp;&amp;</span> <span class="nf">myproc</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nf">myproc</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">==</span> <span class="n">RUNNING</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">yield</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// the yield() may have caused some traps to occur,
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// so restore trap registers for use by kernelvec.S&#39;s sepc instruction.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">w_sepc</span><span class="p">(</span><span class="n">sepc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	
+</span></span></code></pre></div><p><code>kerneltrap</code>完成后，返回到任何被陷阱中断的代码。恢复这些控制寄存器并返回到<code>kernelvec</code>(<strong>kernel/kernelvec.S</strong>)，之后<code>sret</code>，将<code>sepc</code>复制到<code>pc</code>并恢复中断的内核代码。</p>
+<h2 id="chapter-5interrupts-and-device-drivers" class="heading-element">
+  <a href="#chapter-5interrupts-and-device-drivers" class="heading-mark"></a>Chapter 5:Interrupts and device drivers</h2></div><div class="post-footer" id="post-footer">
+  <div class="post-info">
+    <div class="post-info-line">
+      <div class="post-info-mod">
+        <span title="更新于 2022-07-12 00:00:00">更新于 2022-07-12&nbsp;</span>
+      </div><div class="post-info-license">
+            <span><a rel="license external nofollow noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a></span>
+          </div></div><div class="post-info-line">
+        <div class="post-info-md"></div>
+        <div class="post-info-share">
+          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/xv6/" data-title="XV6阅读笔记" data-hashtags="OS"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/xv6/" data-hashtag="OS"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/xv6/" data-title="XV6阅读笔记"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+  </span>
+        </div>
+      </div></div>
+
+  <div class="post-info-more">
+    <section class="post-tags"><i class="fa-solid fa-tags fa-fw me-1" aria-hidden="true"></i><a href="/tags/os/" class="post-tag" title="标签 - OS">OS</a></section>
+    <section>
+      <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+    </section>
+  </div>
+
+  <div class="post-nav"><a href="/posts/2022-7-12/" class="post-nav-item" rel="prev" title="关于读研or就业，还有理想"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>关于读研or就业，还有理想</a>
+      <a href="/posts/javasec-url/" class="post-nav-item" rel="next" title="java_URL链分析">java_URL链分析<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article>
+
+  <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
+      <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+        </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
+            <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
+              <a href="/"></a></span></div></div>
+  </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
+        </div></div><div id="mask"></div><noscript>
+    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+  </noscript>
+</div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+</html>

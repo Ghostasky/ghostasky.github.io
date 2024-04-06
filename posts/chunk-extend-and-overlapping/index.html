@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <meta name="robots" content="noodp" />
+    <title>Chunk Extend and Overlapping - Ghostasky&#39;s Blog</title><meta name="author" content="">
+<meta name="author-link" content="">
+<meta name="description" content="" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="Chunk Extend and Overlapping">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2021-03-22T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2021-03-22T00:00:00+00:00" />
+<meta itemprop="wordCount" content="5688">
+<meta itemprop="keywords" content="PWN," /><meta property="og:title" content="Chunk Extend and Overlapping" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/chunk-extend-and-overlapping/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-03-22T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-03-22T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Chunk Extend and Overlapping"/>
+<meta name="twitter:description" content=""/>
+<meta name="application-name" content="FixIt">
+<meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/chunk-extend-and-overlapping/" /><link rel="prev" href="http://ghostasky.github.io/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" /><link rel="next" href="http://ghostasky.github.io/posts/pwndbg%E5%92%8Clinux%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E5%8F%8A%E5%AF%86%E7%A0%81%E8%B8%A9%E5%9D%91/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Chunk Extend and Overlapping",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http:\/\/ghostasky.github.io\/posts\/chunk-extend-and-overlapping\/"
+    },"genre": "posts","keywords": "PWN","wordcount":  5688 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/chunk-extend-and-overlapping\/","datePublished": "2021-03-22T00:00:00+00:00","dateModified": "2021-03-22T00:00:00+00:00","publisher": {
+      "@type": "Organization",
+      "name": ""},"author": {
+        "@type": "Person",
+        "name": "作者"
+      },"description": ""
+  }
+  </script></head>
+  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <div class="header-wrapper">
+    <div class="header-title">
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+    <nav>
+      <ul class="menu"><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/posts/"
+                
+                
+              >文章</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/categories/"
+                
+                
+              >分类</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/tags/"
+                
+                
+              >标签</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/about/"
+                
+                
+              >关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title="切换主题">
+          <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+        </li></ul>
+    </nav>
+  </div>
+</header><header class="mobile animate__faster" id="header-mobile">
+  <div class="header-container">
+    <div class="header-wrapper">
+      <div class="header-title">
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <div class="menu-toggle" id="menu-toggle-mobile">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <nav>
+      <ul class="menu" id="menu-mobile"><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/posts/"
+                  
+                  
+                >文章</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/categories/"
+                  
+                  
+                >分类</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/tags/"
+                  
+                  
+                >标签</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/about/"
+                  
+                  
+                >关于</a></li><li class="menu-item menu-system">
+          <span class="menu-system-item theme-switch" title="切换主题"><i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i></span></li>
+      </ul>
+    </nav>
+  </div>
+</header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
+
+  <article class="page single">
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>Chunk Extend and Overlapping</span>
+      </h1></div><div class="post-meta">
+      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
+      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-03-22 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-03-22">2021-03-22</time></span>&nbsp;<span title="5688 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 5700 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 12 分钟</span>&nbsp;</div>
+    </div><div class="details toc" id="toc-static" data-kept="false">
+        <div class="details-summary toc-title">
+          <span>目录</span>
+          <span><i class="details-icon fa-solid fa-angle-right" aria-hidden="true"></i></span>
+        </div>
+        <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#chunk-extend-and-overlapping">Chunk Extend and Overlapping</a>
+      <ul>
+        <li><a href="#介绍">介绍</a></li>
+        <li><a href="#原理">原理</a></li>
+        <li><a href="#基本示例">基本示例</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+      </div><div class="content" id="content"><p>[TOC]</p>
+<h2 id="chunk-extend-and-overlapping" class="heading-element">
+  <a href="#chunk-extend-and-overlapping" class="heading-mark"></a>Chunk Extend and Overlapping</h2><h3 id="介绍" class="heading-element">
+  <a href="#%e4%bb%8b%e7%bb%8d" class="heading-mark"></a>介绍</h3><p>chunk extend 是堆漏洞的一种常见利用手法，通过extend可以实现chunk overlapping（块重叠）的效果。这种利用的方法需要以下的条件：</p>
+<ul>
+<li>程序中存在堆的漏洞</li>
+<li>漏洞可以控制chunk header中的数据</li>
+</ul>
+<h3 id="原理" class="heading-element">
+  <a href="#%e5%8e%9f%e7%90%86" class="heading-mark"></a>原理</h3><p>这种利用的技术能够产生在于ptmalloc在对堆chunk进行操作时使用的各种宏。</p>
+<p>在ptmalloc中，获取chunk块大小的宏：</p>
+<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/* Get size, ignoring use bits */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">##define chunksize(p) (chunksize_nomask(p) &amp; ~(SIZE_BITS))
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Like chunksize, but do not mask SIZE_BITS.  */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">##define chunksize_nomask(p) ((p)-&gt;mchunk_size)</span></span></span></code></pre></div><p>一种是直接获取，不忽略掩码部分，另外一种是忽略掩码部分。</p>
+<p>在 ptmalloc 中，获取下一 chunk 块地址的宏：</p>
+<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/* Ptr to next physical malloc_chunk. */</span> 
+</span></span><span class="line"><span class="cl"><span class="cp">##define next_chunk(p) ((mchunkptr)(((char *) (p)) + chunksize(p)))</span></span></span></code></pre></div><p>在 ptmalloc 中，获取前一个 chunk 信息的宏：</p>
+<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/* Size of the chunk below P.  Only valid if prev_inuse (P).  */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">##define prev_size(p) ((p)-&gt;mchunk_prev_size)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Ptr to previous physical malloc_chunk.  Only valid if prev_inuse (P).  */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">##define prev_chunk(p) ((mchunkptr)(((char *) (p)) - prev_size(p)))</span></span></span></code></pre></div><p>在 ptmalloc 中，判断当前 chunk 是否是 use 状态的宏：</p>
+<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##define inuse(p)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>    <span class="p">((((</span><span class="n">mchunkptr</span><span class="p">)(((</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="o">+</span> <span class="nf">chunksize</span><span class="p">(</span><span class="n">p</span><span class="p">)))</span><span class="o">-&gt;</span><span class="n">mchunk_size</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">PREV_INUSE</span><span class="p">)</span></span></span></code></pre></div><p>chunk extend 就是通过控制 size 、prev_size 、prev_inuse域来实现跨越块操作从而导致 overlapping 的。</p>
+<h3 id="基本示例" class="heading-element">
+  <a href="#%e5%9f%ba%e6%9c%ac%e7%a4%ba%e4%be%8b" class="heading-mark"></a>基本示例</h3><h4 id="示例1对inuse的fastbin进行extend" class="heading-element">
+  <a href="#%e7%a4%ba%e4%be%8b1%e5%af%b9inuse%e7%9a%84fastbin%e8%bf%9b%e8%a1%8cextend" class="heading-mark"></a>示例1：对inuse的fastbin进行extend</h4><p>示例代码：</p>
+<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp">##include&lt;stdlib.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">q</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">);</span><span class="c1">//分配第一个0x10的chunk
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">);</span><span class="c1">//分配第二个0x10的chunk
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="o">*</span><span class="p">(</span><span class="kt">long</span> <span class="kt">long</span> <span class="o">*</span><span class="p">)((</span><span class="kt">long</span> <span class="kt">long</span><span class="p">)</span><span class="n">p</span> <span class="o">-</span> <span class="mh">0x8</span><span class="p">)</span> <span class="o">=</span> <span class="mh">0x41</span><span class="p">;</span><span class="c1">// 修改第一个块的size域
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">free</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">q</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x30</span><span class="p">);</span><span class="c1">// 实现extend，控制了第二个块的内容
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>这里编译的时候使用了<code>-g</code>参数，可以在gdb调试的时候在任意行下断点。方法：b + 行号</p>
+<pre tabindex="0"><code>pwndbg&gt; n
+8	    malloc(0x10);//分配第二个0x10的chunk
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+─────────────────────────────────────────────────────────────────────────[ REGISTERS ]─────────────────────────────────────────────────────────────────────────
+ RAX  0x602010 ◂— 0x0
+ RBX  0x0
+ RCX  0x7ffff7dd1b20 (main_arena) ◂— 0x100000000
+ RDX  0x602010 ◂— 0x0
+ RDI  0x7ffff7dd1b20 (main_arena) ◂— 0x100000000
+ RSI  0x602020 ◂— 0x0
+ R8   0x602000 ◂— 0x0
+ R9   0xd
+ R10  0x7ffff7dd1b78 (main_arena+88) —▸ 0x602020 ◂— 0x0
+ R11  0x0
+ R12  0x400470 (_start) ◂— xor    ebp, ebp
+ R13  0x7fffffffdf90 ◂— 0x1
+ R14  0x0
+ R15  0x0
+ RBP  0x7fffffffdeb0 —▸ 0x4005c0 (__libc_csu_init) ◂— push   r15
+ RSP  0x7fffffffdea0 —▸ 0x602010 ◂— 0x0
+ RIP  0x40057c (main+22) ◂— mov    edi, 0x10
+──────────────────────────────────────────────────────────────────────────[ DISASM ]───────────────────────────────────────────────────────────────────────────
+   0x40056e &lt;main+8&gt;     mov    edi, 0x10
+   0x400573 &lt;main+13&gt;    call   malloc@plt &lt;0x400450&gt;
+ 
+   0x400578 &lt;main+18&gt;    mov    qword ptr [rbp - 0x10], rax
+ ► 0x40057c &lt;main+22&gt;    mov    edi, 0x10
+   0x400581 &lt;main+27&gt;    call   malloc@plt &lt;0x400450&gt;
+ 
+   0x400586 &lt;main+32&gt;    mov    rax, qword ptr [rbp - 0x10]
+   0x40058a &lt;main+36&gt;    sub    rax, 8
+   0x40058e &lt;main+40&gt;    mov    qword ptr [rax], 0x41
+   0x400595 &lt;main+47&gt;    mov    rax, qword ptr [rbp - 0x10]
+   0x400599 &lt;main+51&gt;    mov    rdi, rax
+   0x40059c &lt;main+54&gt;    call   free@plt &lt;0x400430&gt;
+───────────────────────────────────────────────────────────────────────[ SOURCE (CODE) ]───────────────────────────────────────────────────────────────────────
+In file: /home/gwt/Desktop/1.c
+    3 #include&lt;stdlib.h&gt;
+    4 int main()
+    5 {
+    6     void *p, *q;
+    7     p = malloc(0x10);//分配第一个0x10的chunk
+ ►  8     malloc(0x10);//分配第二个0x10的chunk
+    9     *(long long *)((long long)p - 0x8) = 0x41;// 修改第一个块的size域
+   10     free(p);
+   11     q = malloc(0x30);// 实现extend，控制了第二个块的内容
+   12     return 0;
+   13 }
+───────────────────────────────────────────────────────────────────────────[ STACK ]───────────────────────────────────────────────────────────────────────────
+00:0000│ rsp  0x7fffffffdea0 —▸ 0x602010 ◂— 0x0
+01:0008│      0x7fffffffdea8 ◂— 0x0
+02:0010│ rbp  0x7fffffffdeb0 —▸ 0x4005c0 (__libc_csu_init) ◂— push   r15
+03:0018│      0x7fffffffdeb8 —▸ 0x7ffff7a2d830 (__libc_start_main+240) ◂— mov    edi, eax
+04:0020│      0x7fffffffdec0 ◂— 0x0
+05:0028│      0x7fffffffdec8 —▸ 0x7fffffffdf98 —▸ 0x7fffffffe30e ◂— 0x77672f656d6f682f (&#39;/home/gw&#39;)
+06:0030│      0x7fffffffded0 ◂— 0x100000000
+07:0038│      0x7fffffffded8 —▸ 0x400566 (main) ◂— push   rbp
+─────────────────────────────────────────────────────────────────────────[ BACKTRACE ]─────────────────────────────────────────────────────────────────────────
+ ► f 0           40057c main+22
+   f 1     7ffff7a2d830 __libc_start_main+240
+pwndbg&gt; vmmap
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+          0x400000           0x401000 r-xp     1000 0      /home/gwt/Desktop/a.out
+          0x600000           0x601000 r--p     1000 0      /home/gwt/Desktop/a.out
+          0x601000           0x602000 rw-p     1000 1000   /home/gwt/Desktop/a.out
+          0x602000           0x623000 rw-p    21000 0      [heap]
+    0x7ffff7a0d000     0x7ffff7bcd000 r-xp   1c0000 0      /lib/x86_64-linux-gnu/libc-2.23.so
+    0x7ffff7bcd000     0x7ffff7dcd000 ---p   200000 1c0000 /lib/x86_64-linux-gnu/libc-2.23.so
+    0x7ffff7dcd000     0x7ffff7dd1000 r--p     4000 1c0000 /lib/x86_64-linux-gnu/libc-2.23.so
+    0x7ffff7dd1000     0x7ffff7dd3000 rw-p     2000 1c4000 /lib/x86_64-linux-gnu/libc-2.23.so
+    0x7ffff7dd3000     0x7ffff7dd7000 rw-p     4000 0      
+    0x7ffff7dd7000     0x7ffff7dfd000 r-xp    26000 0      /lib/x86_64-linux-gnu/ld-2.23.so
+    0x7ffff7fdc000     0x7ffff7fdf000 rw-p     3000 0      
+    0x7ffff7ff7000     0x7ffff7ffa000 r--p     3000 0      [vvar]
+    0x7ffff7ffa000     0x7ffff7ffc000 r-xp     2000 0      [vdso]
+    0x7ffff7ffc000     0x7ffff7ffd000 r--p     1000 25000  /lib/x86_64-linux-gnu/ld-2.23.so
+    0x7ffff7ffd000     0x7ffff7ffe000 rw-p     1000 26000  /lib/x86_64-linux-gnu/ld-2.23.so
+    0x7ffff7ffe000     0x7ffff7fff000 rw-p     1000 0      
+    0x7ffffffde000     0x7ffffffff000 rw-p    21000 0      [stack]
+0xffffffffff600000 0xffffffffff601000 r-xp     1000 0      [vsyscall]</code></pre><pre tabindex="0"><code>pwndbg&gt; info locals 
+p = 0x602010
+q = 0x0
+pwndbg&gt; x/10gx 0x602020
+0x602020:	0x0000000000000000	0x0000000000000021 &lt;=chunk1
+0x602030:	0x0000000000000000	0x0000000000000000
+0x602040:	0x0000000000000000	0x0000000000020fc1 &lt;=top chunk
+0x602050:	0x0000000000000000	0x0000000000000000
+0x602060:	0x0000000000000000	0x0000000000000000</code></pre><p>info local可以查看指针指向的地址，即user_data的起始地址</p>
+<p>继续执行</p>
+<pre tabindex="0"><code>pwndbg&gt; x/32gx 0x602000
+0x602000:	0x0000000000000000	0x0000000000000021 &lt;=chunk1
+0x602010:	0x0000000000000000	0x0000000000000000
+0x602020:	0x0000000000000000	0x0000000000000021 &lt;=chunk2
+0x602030:	0x0000000000000000	0x0000000000000000
+0x602040:	0x0000000000000000	0x0000000000020fc1 &lt;=top chunk
+0x602050:	0x0000000000000000	0x0000000000000000
+0x602060:	0x0000000000000000	0x0000000000000000
+0x602070:	0x0000000000000000	0x0000000000000000
+0x602080:	0x0000000000000000	0x0000000000000000
+0x602090:	0x0000000000000000	0x0000000000000000
+0x6020a0:	0x0000000000000000	0x0000000000000000
+0x6020b0:	0x0000000000000000	0x0000000000000000
+0x6020c0:	0x0000000000000000	0x0000000000000000
+0x6020d0:	0x0000000000000000	0x0000000000000000
+0x6020e0:	0x0000000000000000	0x0000000000000000
+0x6020f0:	0x0000000000000000	0x0000000000000000
+pwndbg&gt; heap
+0x602000 FASTBIN {
+  prev_size = 0, 
+  size = 33, 
+  fd = 0x0, 
+  bk = 0x0, 
+  fd_nextsize = 0x0, 
+  bk_nextsize = 0x21
+}
+0x602020 FASTBIN {
+  prev_size = 0, 
+  size = 33, 
+  fd = 0x0, 
+  bk = 0x0, 
+  fd_nextsize = 0x0, 
+  bk_nextsize = 0x20fc1
+}
+0x602040 PREV_INUSE {
+  prev_size = 0, 
+  size = 135105, 
+  fd = 0x0, 
+  bk = 0x0, 
+  fd_nextsize = 0x0, 
+  bk_nextsize = 0x0
+}</code></pre><p>size = 33 = 0x21 = 0x8(prev_size) + 0x8(size) + 0x1(内容) + 0x1(标志位)</p>
+<p>继续执行：<code>*(long long *)((long long)p - 0x8) = 0x41</code>后</p>
+<pre tabindex="0"><code>pwndbg&gt; x/32gx 0x602000
+0x602000:	0x0000000000000000	0x0000000000000041
+0x602010:	0x0000000000000000	0x0000000000000000
+0x602020:	0x0000000000000000	0x0000000000000021
+0x602030:	0x0000000000000000	0x0000000000000000
+0x602040:	0x0000000000000000	0x0000000000020fc1
+0x602050:	0x0000000000000000	0x0000000000000000
+0x602060:	0x0000000000000000	0x0000000000000000
+0x602070:	0x0000000000000000	0x0000000000000000
+0x602080:	0x0000000000000000	0x0000000000000000
+0x602090:	0x0000000000000000	0x0000000000000000
+0x6020a0:	0x0000000000000000	0x0000000000000000
+0x6020b0:	0x0000000000000000	0x0000000000000000
+0x6020c0:	0x0000000000000000	0x0000000000000000
+0x6020d0:	0x0000000000000000	0x0000000000000000
+0x6020e0:	0x0000000000000000	0x0000000000000000
+0x6020f0:	0x0000000000000000	0x0000000000000000</code></pre><p>可以看到chunk1的size 已经变为了0x41，也就是说chunk1的现在大小包含了原来的chunk1和chunk2的大小。</p>
+<p>继续执行：free后</p>
+<pre tabindex="0"><code>pwndbg&gt; x/32gx 0x602000
+0x602000:	0x0000000000000000	0x0000000000000041
+0x602010:	0x0000000000000000	0x0000000000000000
+0x602020:	0x0000000000000000	0x0000000000000021
+0x602030:	0x0000000000000000	0x0000000000000000
+0x602040:	0x0000000000000000	0x0000000000020fc1
+0x602050:	0x0000000000000000	0x0000000000000000
+0x602060:	0x0000000000000000	0x0000000000000000
+0x602070:	0x0000000000000000	0x0000000000000000
+0x602080:	0x0000000000000000	0x0000000000000000
+0x602090:	0x0000000000000000	0x0000000000000000
+0x6020a0:	0x0000000000000000	0x0000000000000000
+0x6020b0:	0x0000000000000000	0x0000000000000000
+0x6020c0:	0x0000000000000000	0x0000000000000000
+0x6020d0:	0x0000000000000000	0x0000000000000000
+0x6020e0:	0x0000000000000000	0x0000000000000000
+0x6020f0:	0x0000000000000000	0x0000000000000000
+pwndbg&gt; bin
+fastbins
+0x20: 0x0
+0x30: 0x0
+0x40: 0x602000 ◂— 0x0
+0x50: 0x0
+0x60: 0x0
+0x70: 0x0
+0x80: 0x0
+unsortedbin
+all: 0x0
+smallbins
+empty
+largebins
+empty
+pwndbg&gt; info locals 
+p = 0x602010
+q = 0x0</code></pre><p>这里虽然free了chunk1，但是内容并没有清空。</p>
+<p>之后将chunk1（也就是合并之后的）放进了fastbin中。</p>
+<p>继续执行：malloc</p>
+<pre tabindex="0"><code>pwndbg&gt; x/32gx 0x602000
+0x602000:	0x0000000000000000	0x0000000000000041
+0x602010:	0x0000000000000000	0x0000000000000000
+0x602020:	0x0000000000000000	0x0000000000000021
+0x602030:	0x0000000000000000	0x0000000000000000
+0x602040:	0x0000000000000000	0x0000000000020fc1
+0x602050:	0x0000000000000000	0x0000000000000000
+0x602060:	0x0000000000000000	0x0000000000000000
+0x602070:	0x0000000000000000	0x0000000000000000
+0x602080:	0x0000000000000000	0x0000000000000000
+0x602090:	0x0000000000000000	0x0000000000000000
+0x6020a0:	0x0000000000000000	0x0000000000000000
+0x6020b0:	0x0000000000000000	0x0000000000000000
+0x6020c0:	0x0000000000000000	0x0000000000000000
+0x6020d0:	0x0000000000000000	0x0000000000000000
+0x6020e0:	0x0000000000000000	0x0000000000000000
+0x6020f0:	0x0000000000000000	0x0000000000000000
+pwndbg&gt; info bin
+Undefined info command: &#34;bin&#34;.  Try &#34;help info&#34;.
+pwndbg&gt; bins
+fastbins
+0x20: 0x0
+0x30: 0x0
+0x40: 0x0
+0x50: 0x0
+0x60: 0x0
+0x70: 0x0
+0x80: 0x0
+unsortedbin
+all: 0x0
+smallbins
+empty
+largebins
+empty
+pwndbg&gt; info locals 
+p = 0x602010
+q = 0x602010</code></pre><p>malloc后的空间给了q，这样就可以通过新分配的chunk来对chunk2中的内容进行操作了，将这种状态称为overlapping chunk。</p>
+<h4 id="示例2对inuse的smallbin进行extend" class="heading-element">
+  <a href="#%e7%a4%ba%e4%be%8b2%e5%af%b9inuse%e7%9a%84smallbin%e8%bf%9b%e8%a1%8cextend" class="heading-mark"></a>示例2：对inuse的smallbin进行extend</h4><p>示例代码：</p>
+<div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp">##include&lt;stdlib.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">q</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x80</span><span class="p">);</span><span class="c1">//分配第一个 0x80 的chunk1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">);</span> <span class="c1">//分配第二个 0x10 的chunk2
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">);</span> <span class="c1">//防止与top chunk合并
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="o">*</span><span class="p">(</span><span class="kt">long</span> <span class="o">*</span><span class="p">)((</span><span class="kt">long</span><span class="p">)</span><span class="n">p</span><span class="o">-</span><span class="mh">0x8</span><span class="p">)</span> <span class="o">=</span> <span class="mh">0xb1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">free</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">q</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mh">0xa0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><pre tabindex="0"><code>pwndbg&gt; r
+Starting program: /home/gwt/Desktop/a.out 
+
+Breakpoint 1, main () at 1.c:9
+9	    *(long *)((long)p-0x8) = 0xb1;
+LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
+─────────────────────────────────────────────────────────────────────────[ REGISTERS ]─────────────────────────────────────────────────────────────────────────
+ RAX  0x6020c0 ◂— 0x0
+ RBX  0x0
+ RCX  0x7ffff7dd1b20 (main_arena) ◂— 0x100000000
+ RDX  0x6020c0 ◂— 0x0
+ RDI  0x0
+ RSI  0x6020d0 ◂— 0x0
+ R8   0x602000 ◂— 0x0
+ R9   0xd
+ R10  0x7ffff7dd1b78 (main_arena+88) —▸ 0x6020d0 ◂— 0x0
+ R11  0x0
+ R12  0x400470 (_start) ◂— xor    ebp, ebp
+ R13  0x7fffffffdf90 ◂— 0x1
+ R14  0x0
+ R15  0x0
+ RBP  0x7fffffffdeb0 —▸ 0x4005c0 (__libc_csu_init) ◂— push   r15
+ RSP  0x7fffffffdea0 —▸ 0x602010 ◂— 0x0
+ RIP  0x400590 (main+42) ◂— mov    rax, qword ptr [rbp - 0x10]
+──────────────────────────────────────────────────────────────────────────[ DISASM ]───────────────────────────────────────────────────────────────────────────
+ ► 0x400590 &lt;main+42&gt;    mov    rax, qword ptr [rbp - 0x10]
+   0x400594 &lt;main+46&gt;    sub    rax, 8
+   0x400598 &lt;main+50&gt;    mov    qword ptr [rax], 0xb1
+   0x40059f &lt;main+57&gt;    mov    rax, qword ptr [rbp - 0x10]
+   0x4005a3 &lt;main+61&gt;    mov    rdi, rax
+   0x4005a6 &lt;main+64&gt;    call   free@plt &lt;0x400430&gt;
+ 
+   0x4005ab &lt;main+69&gt;    mov    edi, 0xa0
+   0x4005b0 &lt;main+74&gt;    call   malloc@plt &lt;0x400450&gt;
+ 
+   0x4005b5 &lt;main+79&gt;    mov    qword ptr [rbp - 8], rax
+   0x4005b9 &lt;main+83&gt;    mov    eax, 0
+   0x4005be &lt;main+88&gt;    leave  
+───────────────────────────────────────────────────────────────────────[ SOURCE (CODE) ]───────────────────────────────────────────────────────────────────────
+In file: /home/gwt/Desktop/1.c
+    4 {
+    5     void *p, *q;
+    6     p = malloc(0x80);//分配第一个 0x80 的chunk1
+    7     malloc(0x10); //分配第二个 0x10 的chunk2
+    8     malloc(0x10); //防止与top chunk合并
+ ►  9     *(long *)((long)p-0x8) = 0xb1;
+   10     free(p);
+   11     q = malloc(0xa0);
+   12 }
+───────────────────────────────────────────────────────────────────────────[ STACK ]───────────────────────────────────────────────────────────────────────────
+00:0000│ rsp  0x7fffffffdea0 —▸ 0x602010 ◂— 0x0
+01:0008│      0x7fffffffdea8 ◂— 0x0
+02:0010│ rbp  0x7fffffffdeb0 —▸ 0x4005c0 (__libc_csu_init) ◂— push   r15
+03:0018│      0x7fffffffdeb8 —▸ 0x7ffff7a2d830 (__libc_start_main+240) ◂— mov    edi, eax
+04:0020│      0x7fffffffdec0 ◂— 0x0
+05:0028│      0x7fffffffdec8 —▸ 0x7fffffffdf98 —▸ 0x7fffffffe30e ◂— 0x77672f656d6f682f (&#39;/home/gw&#39;)
+06:0030│      0x7fffffffded0 ◂— 0x100000000
+07:0038│      0x7fffffffded8 —▸ 0x400566 (main) ◂— push   rbp
+─────────────────────────────────────────────────────────────────────────[ BACKTRACE ]─────────────────────────────────────────────────────────────────────────
+ ► f 0           400590 main+42
+   f 1     7ffff7a2d830 __libc_start_main+240
+Breakpoint /home/gwt/Desktop/1.c:9
+pwndbg&gt; x/50gx 0x602000 
+0x602000:	0x0000000000000000	0x0000000000000091 &lt;=chunk1
+0x602010:	0x0000000000000000	0x0000000000000000
+0x602020:	0x0000000000000000	0x0000000000000000
+0x602030:	0x0000000000000000	0x0000000000000000
+0x602040:	0x0000000000000000	0x0000000000000000
+0x602050:	0x0000000000000000	0x0000000000000000
+0x602060:	0x0000000000000000	0x0000000000000000
+0x602070:	0x0000000000000000	0x0000000000000000
+0x602080:	0x0000000000000000	0x0000000000000000 &lt;=chunk1_end
+0x602090:	0x0000000000000000	0x0000000000000021 &lt;=chunk2
+0x6020a0:	0x0000000000000000	0x0000000000000000
+0x6020b0:	0x0000000000000000	0x0000000000000021 &lt;=chunk3
+0x6020c0:	0x0000000000000000	0x0000000000000000
+0x6020d0:	0x0000000000000000	0x0000000000020f31 &lt;=top_chunk
+0x6020e0:	0x0000000000000000	0x0000000000000000
+0x6020f0:	0x0000000000000000	0x0000000000000000
+0x602100:	0x0000000000000000	0x0000000000000000
+0x602110:	0x0000000000000000	0x0000000000000000
+0x602120:	0x0000000000000000	0x0000000000000000
+0x602130:	0x0000000000000000	0x0000000000000000
+0x602140:	0x0000000000000000	0x0000000000000000
+0x602150:	0x0000000000000000	0x0000000000000000
+0x602160:	0x0000000000000000	0x0000000000000000
+0x602170:	0x0000000000000000	0x0000000000000000
+0x602180:	0x0000000000000000	0x0000000000000000</code></pre><p>继续执行后和上一个示例一样，chunk1的大小变为了原来的chunk1+chunk2。</p>
+<p>执行free：</p>
+<pre tabindex="0"><code>pwndbg&gt; x/50gx 0x602000 
+0x602000:	0x0000000000000000	0x00000000000000b1
+0x602010:	0x00007ffff7dd1b78	0x00007ffff7dd1b78
+0x602020:	0x0000000000000000	0x0000000000000000
+0x602030:	0x0000000000000000	0x0000000000000000
+0x602040:	0x0000000000000000	0x0000000000000000
+0x602050:	0x0000000000000000	0x0000000000000000
+0x602060:	0x0000000000000000	0x0000000000000000
+0x602070:	0x0000000000000000	0x0000000000000000
+0x602080:	0x0000000000000000	0x0000000000000000
+0x602090:	0x0000000000000000	0x0000000000000021
+0x6020a0:	0x0000000000000000	0x0000000000000000
+0x6020b0:	0x00000000000000b0	0x0000000000000020
+0x6020c0:	0x0000000000000000	0x0000000000000000
+0x6020d0:	0x0000000000000000	0x0000000000020f31
+0x6020e0:	0x0000000000000000	0x0000000000000000
+0x6020f0:	0x0000000000000000	0x0000000000000000
+0x602100:	0x0000000000000000	0x0000000000000000
+0x602110:	0x0000000000000000	0x0000000000000000
+0x602120:	0x0000000000000000	0x0000000000000000
+0x602130:	0x0000000000000000	0x0000000000000000
+0x602140:	0x0000000000000000	0x0000000000000000
+0x602150:	0x0000000000000000	0x0000000000000000
+0x602160:	0x0000000000000000	0x0000000000000000
+0x602170:	0x0000000000000000	0x0000000000000000
+0x602180:	0x0000000000000000	0x0000000000000000
+pwndbg&gt; bin
+fastbins
+0x20: 0x0
+0x30: 0x0
+0x40: 0x0
+0x50: 0x0
+0x60: 0x0
+0x70: 0x0
+0x80: 0x0
+unsortedbin
+all: 0x602000 —▸ 0x7ffff7dd1b78 (main_arena+88) ◂— 0x602000
+smallbins
+empty
+largebins
+empty</code></pre><p>可以看到chunk3 的size变为了0x20。free后的chunk1进入了unsortedbin，有两种情况下进入unsortedbin：</p>
+<ul>
+<li>当一个较大的chunk被分割为两部分后，如果剩下的部分大于minsize，就会放入unsortedbin中。</li>
+<li>释放一个不属于fastbin的chunk，并且这个chunk不和top chunk紧邻时，这个chunk就会授信啊被放到unsortedbin中。</li>
+</ul>
+<p>这个例子就是上面的第二种情况，不属于fastbin，且不和top chunk紧邻。同样，之后的malloc后也可以达到对chunk2进行操作的目的。</p>
+<h4 id="示例3对-free-的-smallbin-进行-extend" class="heading-element">
+  <a href="#%e7%a4%ba%e4%be%8b3%e5%af%b9-free-%e7%9a%84-smallbin-%e8%bf%9b%e8%a1%8c-extend" class="heading-mark"></a>示例3：对 free 的 smallbin 进行 extend</h4><p>示例代码：</p>
+<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp">##include&lt;stdlib.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">q</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x80</span><span class="p">);</span><span class="c1">//分配第一个0x80的chunk1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">);</span><span class="c1">//分配第二个0x10的chunk2
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">free</span><span class="p">(</span><span class="n">p</span><span class="p">);</span><span class="c1">//首先进行释放，使得chunk1进入unsorted bin
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="o">*</span><span class="p">(</span><span class="kt">long</span> <span class="o">*</span><span class="p">)((</span><span class="kt">long</span><span class="p">)</span><span class="n">p</span> <span class="o">-</span> <span class="mh">0x8</span><span class="p">)</span> <span class="o">=</span> <span class="mh">0xb1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">q</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mh">0xa0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>执行free后：</p>
+<pre tabindex="0"><code>pwndbg&gt; bin
+fastbins
+0x20: 0x0
+0x30: 0x0
+0x40: 0x0
+0x50: 0x0
+0x60: 0x0
+0x70: 0x0
+0x80: 0x0
+unsortedbin
+all: 0x602000 —▸ 0x7ffff7dd1b78 (main_arena+88) ◂— 0x602000
+smallbins
+empty
+largebins
+empty
+pwndbg&gt; x/40gx  0x602000
+0x602000:	0x0000000000000000	0x0000000000000091
+0x602010:	0x00007ffff7dd1b78	0x00007ffff7dd1b78
+0x602020:	0x0000000000000000	0x0000000000000000
+0x602030:	0x0000000000000000	0x0000000000000000
+0x602040:	0x0000000000000000	0x0000000000000000
+0x602050:	0x0000000000000000	0x0000000000000000
+0x602060:	0x0000000000000000	0x0000000000000000
+0x602070:	0x0000000000000000	0x0000000000000000
+0x602080:	0x0000000000000000	0x0000000000000000
+0x602090:	0x0000000000000090	0x0000000000000020
+0x6020a0:	0x0000000000000000	0x0000000000000000
+0x6020b0:	0x0000000000000000	0x0000000000020f51
+0x6020c0:	0x0000000000000000	0x0000000000000000
+0x6020d0:	0x0000000000000000	0x0000000000000000
+0x6020e0:	0x0000000000000000	0x0000000000000000
+0x6020f0:	0x0000000000000000	0x0000000000000000
+0x602100:	0x0000000000000000	0x0000000000000000
+0x602110:	0x0000000000000000	0x0000000000000000
+0x602120:	0x0000000000000000	0x0000000000000000
+0x602130:	0x0000000000000000	0x0000000000000000</code></pre><p>接下来执行：<code>*(long *)((long)p - 0x8) = 0xb1;</code></p>
+<pre tabindex="0"><code>pwndbg&gt; x/40gx  0x602000
+0x602000:	0x0000000000000000	0x00000000000000b1
+0x602010:	0x00007ffff7dd1b78	0x00007ffff7dd1b78
+0x602020:	0x0000000000000000	0x0000000000000000
+0x602030:	0x0000000000000000	0x0000000000000000
+0x602040:	0x0000000000000000	0x0000000000000000
+0x602050:	0x0000000000000000	0x0000000000000000
+0x602060:	0x0000000000000000	0x0000000000000000
+0x602070:	0x0000000000000000	0x0000000000000000
+0x602080:	0x0000000000000000	0x0000000000000000
+0x602090:	0x0000000000000090	0x0000000000000020
+0x6020a0:	0x0000000000000000	0x0000000000000000
+0x6020b0:	0x0000000000000000	0x0000000000020f51
+0x6020c0:	0x0000000000000000	0x0000000000000000
+0x6020d0:	0x0000000000000000	0x0000000000000000
+0x6020e0:	0x0000000000000000	0x0000000000000000
+0x6020f0:	0x0000000000000000	0x0000000000000000
+0x602100:	0x0000000000000000	0x0000000000000000
+0x602110:	0x0000000000000000	0x0000000000000000
+0x602120:	0x0000000000000000	0x0000000000000000
+0x602130:	0x0000000000000000	0x0000000000000000
+pwndbg&gt; bins
+fastbins
+0x20: 0x0
+0x30: 0x0
+0x40: 0x0
+0x50: 0x0
+0x60: 0x0
+0x70: 0x0
+0x80: 0x0
+unsortedbin
+all: 0x602000 —▸ 0x7ffff7dd1b78 (main_arena+88) ◂— 0x602000
+smallbins
+empty
+largebins
+empty</code></pre><p>继续malloc：</p>
+<pre tabindex="0"><code>pwndbg&gt; bins
+fastbins
+0x20: 0x0
+0x30: 0x0
+0x40: 0x0
+0x50: 0x0
+0x60: 0x0
+0x70: 0x0
+0x80: 0x0
+unsortedbin
+all: 0x0
+smallbins
+empty
+largebins
+empty
+pwndbg&gt; info locals 
+p = 0x602010
+q = 0x602010</code></pre><p>依然可以达到对chunk2进行控制。</p>
+<h4 id="示例4通过extend后向overlapping" class="heading-element">
+  <a href="#%e7%a4%ba%e4%be%8b4%e9%80%9a%e8%bf%87extend%e5%90%8e%e5%90%91overlapping" class="heading-mark"></a>示例4：通过extend后向overlapping</h4><p>示例代码：</p>
+<div class="highlight" id="id-19"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">q</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">);</span><span class="c1">//分配第1个 0x10 的chunk1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">);</span> <span class="c1">//分配第2个 0x10 的chunk2
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">);</span> <span class="c1">//分配第3个 0x10 的chunk3
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">);</span> <span class="c1">//分配第4个 0x10 的chunk4    
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="o">*</span><span class="p">(</span><span class="kt">long</span> <span class="o">*</span><span class="p">)((</span><span class="kt">long</span><span class="p">)</span><span class="n">p</span> <span class="o">-</span> <span class="mh">0x8</span><span class="p">)</span> <span class="o">=</span> <span class="mh">0x61</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">free</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">q</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x50</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>free：</p>
+<pre tabindex="0"><code>pwndbg&gt; bin
+fastbins
+0x20: 0x0
+0x30: 0x0
+0x40: 0x0
+0x50: 0x0
+0x60: 0x602000 ◂— 0x0
+0x70: 0x0
+0x80: 0x0
+unsortedbin
+all: 0x0
+smallbins
+empty
+largebins
+empty</code></pre><p>在 malloc(0x50) 后，其中 0x10 的 fastbin 块依然可以正常的分配和释放，此时已经构成 overlapping，通过对 overlapping 的进行操作可以实现 fastbin attack</p>
+<h4 id="示例5通过-extend-前向-overlapping" class="heading-element">
+  <a href="#%e7%a4%ba%e4%be%8b5%e9%80%9a%e8%bf%87-extend-%e5%89%8d%e5%90%91-overlapping" class="heading-mark"></a>示例5：通过 extend 前向 overlapping</h4><p>这里展示通过修改 pre_inuse 域和 pre_size 域实现合并前面的块。</p>
+<p>示例代码：</p>
+<div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdlib.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">q</span><span class="p">,</span> <span class="o">*</span><span class="n">r</span><span class="p">,</span> <span class="o">*</span><span class="n">t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mi">128</span><span class="p">);</span><span class="c1">//smallbin1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">q</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">);</span><span class="c1">//fastbin1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">r</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">);</span><span class="c1">//fastbin2
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">t</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mi">128</span><span class="p">);</span><span class="c1">//smallbin2
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x10</span><span class="p">);</span><span class="c1">//防止与top合并
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">free</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">*</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)((</span><span class="kt">long</span> <span class="kt">long</span><span class="p">)</span><span class="n">t</span> <span class="o">-</span> <span class="mh">0x8</span><span class="p">)</span> <span class="o">=</span> <span class="mh">0x90</span><span class="p">;</span><span class="c1">//修改prev_inuse域
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="o">*</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="p">)((</span><span class="kt">long</span> <span class="kt">long</span><span class="p">)</span><span class="n">t</span> <span class="o">-</span> <span class="mh">0x10</span><span class="p">)</span> <span class="o">=</span> <span class="mh">0xd0</span><span class="p">;</span><span class="c1">//修改prev_size域
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">free</span><span class="p">(</span><span class="n">t</span><span class="p">);</span><span class="c1">//unlink进行前向extend
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x150</span><span class="p">);</span><span class="c1">//占位块
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div><p>前面的几个malloc后：</p>
+<pre tabindex="0"><code>pwndbg&gt; x/80gx 0x602000
+0x602000:	0x0000000000000000	0x0000000000000091 &lt;=chunk1
+0x602010:	0x0000000000000000	0x0000000000000000
+0x602020:	0x0000000000000000	0x0000000000000000
+0x602030:	0x0000000000000000	0x0000000000000000
+0x602040:	0x0000000000000000	0x0000000000000000
+0x602050:	0x0000000000000000	0x0000000000000000
+0x602060:	0x0000000000000000	0x0000000000000000
+0x602070:	0x0000000000000000	0x0000000000000000
+0x602080:	0x0000000000000000	0x0000000000000000 &lt;=chunk1_end
+0x602090:	0x0000000000000000	0x0000000000000021 &lt;=chunk2
+0x6020a0:	0x0000000000000000	0x0000000000000000
+0x6020b0:	0x0000000000000000	0x0000000000000021 &lt;=chunk3
+0x6020c0:	0x0000000000000000	0x0000000000000000
+0x6020d0:	0x0000000000000000	0x0000000000000091 &lt;=chunk4
+0x6020e0:	0x0000000000000000	0x0000000000000000
+0x6020f0:	0x0000000000000000	0x0000000000000000
+0x602100:	0x0000000000000000	0x0000000000000000
+0x602110:	0x0000000000000000	0x0000000000000000
+0x602120:	0x0000000000000000	0x0000000000000000
+0x602130:	0x0000000000000000	0x0000000000000000
+0x602140:	0x0000000000000000	0x0000000000000000
+0x602150:	0x0000000000000000	0x0000000000000000 &lt;=chunk4_end
+0x602160:	0x0000000000000000	0x0000000000000021
+0x602170:	0x0000000000000000	0x0000000000000000
+0x602180:	0x0000000000000000	0x0000000000020e81
+0x602190:	0x0000000000000000	0x0000000000000000
+0x6021a0:	0x0000000000000000	0x0000000000000000
+0x6021b0:	0x0000000000000000	0x0000000000000000
+0x6021c0:	0x0000000000000000	0x0000000000000000
+0x6021d0:	0x0000000000000000	0x0000000000000000
+0x6021e0:	0x0000000000000000	0x0000000000000000
+0x6021f0:	0x0000000000000000	0x0000000000000000
+0x602200:	0x0000000000000000	0x0000000000000000
+0x602210:	0x0000000000000000	0x0000000000000000
+0x602220:	0x0000000000000000	0x0000000000000000
+0x602230:	0x0000000000000000	0x0000000000000000
+0x602240:	0x0000000000000000	0x0000000000000000
+0x602250:	0x0000000000000000	0x0000000000000000
+0x602260:	0x0000000000000000	0x0000000000000000
+0x602270:	0x0000000000000000	0x0000000000000000</code></pre><p>修改prev_inuse域和prev_size后：</p>
+<pre tabindex="0"><code>pwndbg&gt; x/60gx 0x602000
+0x602000:	0x0000000000000000	0x0000000000000091
+0x602010:	0x00007ffff7dd1b78	0x00007ffff7dd1b78
+0x602020:	0x0000000000000000	0x0000000000000000
+0x602030:	0x0000000000000000	0x0000000000000000
+0x602040:	0x0000000000000000	0x0000000000000000
+0x602050:	0x0000000000000000	0x0000000000000000
+0x602060:	0x0000000000000000	0x0000000000000000
+0x602070:	0x0000000000000000	0x0000000000000000
+0x602080:	0x0000000000000000	0x0000000000000000
+0x602090:	0x0000000000000090	0x0000000000000020
+0x6020a0:	0x0000000000000000	0x0000000000000000
+0x6020b0:	0x0000000000000000	0x0000000000000021
+0x6020c0:	0x0000000000000000	0x0000000000000000
+0x6020d0:	0x00000000000000d0	0x0000000000000090
+0x6020e0:	0x0000000000000000	0x0000000000000000
+0x6020f0:	0x0000000000000000	0x0000000000000000
+0x602100:	0x0000000000000000	0x0000000000000000
+0x602110:	0x0000000000000000	0x0000000000000000
+0x602120:	0x0000000000000000	0x0000000000000000
+0x602130:	0x0000000000000000	0x0000000000000000
+0x602140:	0x0000000000000000	0x0000000000000000
+0x602150:	0x0000000000000000	0x0000000000000000
+0x602160:	0x0000000000000000	0x0000000000000021
+0x602170:	0x0000000000000000	0x0000000000000000
+0x602180:	0x0000000000000000	0x0000000000020e81
+0x602190:	0x0000000000000000	0x0000000000000000
+0x6021a0:	0x0000000000000000	0x0000000000000000
+0x6021b0:	0x0000000000000000	0x0000000000000000
+0x6021c0:	0x0000000000000000	0x0000000000000000
+0x6021d0:	0x0000000000000000	0x0000000000000000</code></pre><p>注意0x602097和0x6020d7。此时chunk1为之前malloc的4个大小之和。</p>
+<p>通过修改prev_size域和prev_inuse域可以跨越多个chunk进行合并。</p>
+</div><div class="post-footer" id="post-footer">
+  <div class="post-info">
+    <div class="post-info-line">
+      <div class="post-info-mod">
+        <span title="更新于 2021-03-22 00:00:00">更新于 2021-03-22&nbsp;</span>
+      </div><div class="post-info-license">
+            <span><a rel="license external nofollow noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a></span>
+          </div></div><div class="post-info-line">
+        <div class="post-info-md"></div>
+        <div class="post-info-share">
+          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/chunk-extend-and-overlapping/" data-title="Chunk Extend and Overlapping" data-hashtags="PWN"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/chunk-extend-and-overlapping/" data-hashtag="PWN"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/chunk-extend-and-overlapping/" data-title="Chunk Extend and Overlapping"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+  </span>
+        </div>
+      </div></div>
+
+  <div class="post-info-more">
+    <section class="post-tags"><i class="fa-solid fa-tags fa-fw me-1" aria-hidden="true"></i><a href="/tags/pwn/" class="post-tag" title="标签 - PWN">PWN</a></section>
+    <section>
+      <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+    </section>
+  </div>
+
+  <div class="post-nav"><a href="/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" class="post-nav-item" rel="prev" title="堆中的off-by-one"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>堆中的off-by-one</a>
+      <a href="/posts/pwndbg%E5%92%8Clinux%E6%94%B9%E7%94%A8%E6%88%B7%E5%90%8D%E5%8F%8A%E5%AF%86%E7%A0%81%E8%B8%A9%E5%9D%91/" class="post-nav-item" rel="next" title="pwndbg和Linux改用户名及密码踩坑">pwndbg和Linux改用户名及密码踩坑<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article>
+
+  <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
+      <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+        </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
+            <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
+              <a href="/"></a></span></div></div>
+  </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
+        </div></div><div id="mask"></div><noscript>
+    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+  </noscript>
+</div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+</html>

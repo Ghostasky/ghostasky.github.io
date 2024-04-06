@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <meta name="robots" content="noodp" />
+    <title>Python__request，socket模块 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+<meta name="author-link" content="">
+<meta name="description" content="" /><meta name="keywords" content='Python' /><meta itemprop="name" content="Python__request，socket模块">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2020-11-23T20:18:54+00:00" />
+<meta itemprop="dateModified" content="2020-11-23T20:18:54+00:00" />
+<meta itemprop="wordCount" content="1979">
+<meta itemprop="keywords" content="Python," /><meta property="og:title" content="Python__request，socket模块" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/python__requestsocket%E6%A8%A1%E5%9D%97/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2020-11-23T20:18:54+00:00" />
+<meta property="article:modified_time" content="2020-11-23T20:18:54+00:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Python__request，socket模块"/>
+<meta name="twitter:description" content=""/>
+<meta name="application-name" content="FixIt">
+<meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/python__requestsocket%E6%A8%A1%E5%9D%97/" /><link rel="prev" href="http://ghostasky.github.io/posts/buu-re-1/" /><link rel="next" href="http://ghostasky.github.io/posts/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Python__request，socket模块",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http:\/\/ghostasky.github.io\/posts\/python__requestsocket%E6%A8%A1%E5%9D%97\/"
+    },"genre": "posts","keywords": "Python","wordcount":  1979 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/python__requestsocket%E6%A8%A1%E5%9D%97\/","datePublished": "2020-11-23T20:18:54+00:00","dateModified": "2020-11-23T20:18:54+00:00","publisher": {
+      "@type": "Organization",
+      "name": ""},"author": {
+        "@type": "Person",
+        "name": "作者"
+      },"description": ""
+  }
+  </script></head>
+  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <div class="header-wrapper">
+    <div class="header-title">
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+    <nav>
+      <ul class="menu"><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/posts/"
+                
+                
+              >文章</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/categories/"
+                
+                
+              >分类</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/tags/"
+                
+                
+              >标签</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/about/"
+                
+                
+              >关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title="切换主题">
+          <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+        </li></ul>
+    </nav>
+  </div>
+</header><header class="mobile animate__faster" id="header-mobile">
+  <div class="header-container">
+    <div class="header-wrapper">
+      <div class="header-title">
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <div class="menu-toggle" id="menu-toggle-mobile">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <nav>
+      <ul class="menu" id="menu-mobile"><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/posts/"
+                  
+                  
+                >文章</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/categories/"
+                  
+                  
+                >分类</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/tags/"
+                  
+                  
+                >标签</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/about/"
+                  
+                  
+                >关于</a></li><li class="menu-item menu-system">
+          <span class="menu-system-item theme-switch" title="切换主题"><i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i></span></li>
+      </ul>
+    </nav>
+  </div>
+</header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
+
+  <article class="page single">
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>Python__request，socket模块</span>
+      </h1></div><div class="post-meta">
+      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
+      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2020-11-23 20:18:54"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2020-11-23">2020-11-23</time></span>&nbsp;<span title="1979 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 2000 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 4 分钟</span>&nbsp;</div>
+    </div><div class="details toc" id="toc-static" data-kept="false">
+        <div class="details-summary toc-title">
+          <span>目录</span>
+          <span><i class="details-icon fa-solid fa-angle-right" aria-hidden="true"></i></span>
+        </div>
+        <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#一requests库基本使用">一、requests库基本使用</a>
+      <ul>
+        <li><a href="#1requestgeturlparamskwargs">1.request.get(url,params=*,**kwargs)</a></li>
+        <li><a href="#2requestsposturldatanonejsonnonekwargs">2.requests.post(url,data=None,json=None,**kwargs)</a></li>
+        <li><a href="#3requestheadurlkwargs">3.request.head(url,**kwargs)</a></li>
+        <li><a href="#4requestsputurldatanonekwargs">4.requests.put(url,data=None,**kwargs)</a></li>
+        <li><a href="#5requestpatchurldatanonekwargs">5.request.patch(url,data=None,**kwargs)</a></li>
+        <li><a href="#6requestdeleteurlkwargs">6.request.delete(url,**kwargs)</a></li>
+      </ul>
+    </li>
+    <li><a href="#二socket库">二、socket库</a>
+      <ul>
+        <li><a href="#1socket常用函数介绍">1.socket常用函数介绍</a></li>
+        <li><a href="#服务器端函数">服务器端函数：</a></li>
+        <li><a href="#客户端函数">客户端函数：</a></li>
+        <li><a href="#公共函数">公共函数：</a></li>
+        <li><a href="#2举例">2.举例：</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+      </div><div class="content" id="content"><p>[TOC]</p>
+<hr>
+<h2 id="一requests库基本使用" class="heading-element">
+  <a href="#%e4%b8%80requests%e5%ba%93%e5%9f%ba%e6%9c%ac%e4%bd%bf%e7%94%a8" class="heading-mark"></a>一、requests库基本使用</h2><p>请求方式：</p>
+<p>​	get，post，head，put，delete，options。</p>
+<p>**kwargs访问控制参数：</p>
+<ul>
+<li>params：字典或字节序列，作为参数加到URL中</li>
+<li>data：字典、字节序列或文件对象，作为request的内容</li>
+<li>json：json格式的数据，作为request的内容</li>
+<li>headers：字典，http定制头</li>
+<li>cookies：字典或cookiejar</li>
+<li>files：字典类型，传输文件</li>
+<li>timeout：设定超时时间，秒为单位、</li>
+<li>proxies：字典类型，设定访问代理服务器，可以增加登陆认证</li>
+<li>allow_redirects：true/false，默认true，重定向开关</li>
+<li>stream：true/false，默认true，获取内容立即下载开关</li>
+<li>verify：true/false，默认true，认证SSL证书开关</li>
+<li>cert：本地SSL证书</li>
+<li>auth：元组，支持http认证功能</li>
+</ul>
+<p>使用requests方法后，会返回一个response对象。</p>
+<p>response对象的属性：</p>
+<blockquote>
+<p>r.status_code：http请求的返回状态</p>
+<p>r.text：http响应内容的字符串形式</p>
+<p>r.encoding：从http header中猜测的响应内容编码方式</p>
+<p>r.apparent_encodign：从内容中分析出的响应内容编码格式</p>
+<p>r.content：http响应内容的二进制形式</p>
+</blockquote>
+<p>requests库的异常：</p>
+<blockquote>
+<p>requests.ConnectionError：网络连接错误异常，如DNS查询失败、拒绝连接等</p>
+<p>requests.HTTPErroe：http错误异常</p>
+<p>requests.URLRequired：URL缺失异常</p>
+<p>requests.TooManyRedirects：超过最大重定向次数，产生重定向异常</p>
+<p>requests.ConnectTimeout：连接远程服务器超时异常</p>
+<p>requests.Timeyout请求URL是，产生超时异常</p>
+<p>requests.raise_for_status()：如果不是200，产生requests.HTTPError</p>
+</blockquote>
+<h3 id="1requestgeturlparamskwargs" class="heading-element">
+  <a href="#1requestgeturlparamskwargs" class="heading-mark"></a>1.request.get(url,params=*,**kwargs)</h3><p>其中后两个参数可选</p>
+<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">requests</span>
+</span></span><span class="line"><span class="cl"><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http://xxxx.xx&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http://xxxx.xx/?a=xxx&amp;b=sss&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="o">=</span><span class="s1">&#39;xxx&#39;</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="o">=</span><span class="s1">&#39;sss&#39;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http://xxxx.xx&#39;</span><span class="p">,</span><span class="n">params</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;key1&#39;</span><span class="p">:</span> <span class="s1">&#39;value1&#39;</span><span class="p">,</span> <span class="s1">&#39;key2&#39;</span><span class="p">:</span> <span class="s1">&#39;value2&#39;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;content-type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;http://xxx.xx&#34;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">##response的一些属性：</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;https://www.baidu.com&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="n">r</span><span class="o">.</span><span class="n">status_code</span>
+</span></span><span class="line"><span class="cl"><span class="c1">##print r.text</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="n">r</span><span class="o">.</span><span class="n">encoding</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="n">r</span><span class="o">.</span><span class="n">apparent_encoding</span>
+</span></span><span class="line"><span class="cl"><span class="c1">##print r.content</span>
+</span></span><span class="line"><span class="cl"><span class="c1">##print r.json()</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="n">r</span><span class="o">.</span><span class="n">reason</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="n">r</span><span class="o">.</span><span class="n">headers</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="n">r</span><span class="o">.</span><span class="n">cookies</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="n">r</span><span class="o">.</span><span class="n">raw</span></span></span></code></pre></div><h3 id="2requestsposturldatanonejsonnonekwargs" class="heading-element">
+  <a href="#2requestsposturldatanonejsonnonekwargs" class="heading-mark"></a>2.requests.post(url,data=None,json=None,**kwargs)</h3><pre tabindex="0"><code>import requests
+data={&#39;a&#39;=&#39;xxx&#39;,&#39;b&#39;=&#39;sss&#39;}
+response = requests.post(&#39;http://xxx.xx&#39;,data=data)
+
+url = &#39;http://httpbin.org/post&#39;
+files = {&#39;file&#39;: open(&#39;test.txt&#39;, &#39;rb&#39;)}
+r = requests.post(url, files=files)
+print r.text</code></pre><h3 id="3requestheadurlkwargs" class="heading-element">
+  <a href="#3requestheadurlkwargs" class="heading-mark"></a>3.request.head(url,**kwargs)</h3><h3 id="4requestsputurldatanonekwargs" class="heading-element">
+  <a href="#4requestsputurldatanonekwargs" class="heading-mark"></a>4.requests.put(url,data=None,**kwargs)</h3><h3 id="5requestpatchurldatanonekwargs" class="heading-element">
+  <a href="#5requestpatchurldatanonekwargs" class="heading-mark"></a>5.request.patch(url,data=None,**kwargs)</h3><h3 id="6requestdeleteurlkwargs" class="heading-element">
+  <a href="#6requestdeleteurlkwargs" class="heading-mark"></a>6.request.delete(url,**kwargs)</h3><p>以上都大同小异，就不写了。。。</p>
+<h2 id="二socket库" class="heading-element">
+  <a href="#%e4%ba%8csocket%e5%ba%93" class="heading-mark"></a>二、socket库</h2><ul>
+<li>
+<p>sk.socket.socket(socket.AF_INET,socket.SOCK_STREAM,0)</p>
+<p>参数一：</p>
+<p>​	默认为socket.AF_INET(IPv4)，还有socket.AF_INET6(IPv6),socket.AF_UNIX，其中最后一个只能用于单一的UNIX系统进程间通信</p>
+<p>参数二：类型</p>
+<p>​	socket.SOCK_STREAM  //流式socket，tcp（默认）</p>
+<p>​	socket.SOCK_DREAM  //数据报式socket，udp</p>
+<p>参数三：协议</p>
+<p>​	（默认）与特定的地址家族相关的协议,如果是 0 ，则系统就会根据地址格式和套接类别,自动选择一个合适的协议(非必填)</p>
+<pre tabindex="0"><code>#创建socket：
+    #TCP socket
+    sk = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    # UDP socke
+    sk = socket.socket(socket.AF_INET,socket.SOCK_DREAM)</code></pre></li>
+</ul>
+<h3 id="1socket常用函数介绍" class="heading-element">
+  <a href="#1socket%e5%b8%b8%e7%94%a8%e5%87%bd%e6%95%b0%e4%bb%8b%e7%bb%8d" class="heading-mark"></a>1.socket常用函数介绍</h3><pre><code>因为TCP发送数据时已经建立好链接，所以不需要指定地，UDP是面向无链接的，每次发送需要指定。
+</code></pre>
+<ul>
+<li>
+<h3 id="服务器端函数" class="heading-element">
+  <a href="#%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%ab%af%e5%87%bd%e6%95%b0" class="heading-mark"></a>服务器端函数：</h3><table>
+<thead>
+<tr>
+<th>函数名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sk.bind(address)</td>
+<td>将套接字绑定到地址，address是元组(host,port)</td>
+</tr>
+<tr>
+<td>sk.listen(backlog)</td>
+<td>开始监听TCP传入链接，backlog指定在拒绝连接前，操作系统可以连接的最大连接数，最少为1</td>
+</tr>
+<tr>
+<td>sk.accept()</td>
+<td>接收TCP连接并返回(conn,address)，其中conn是新的套接字对象</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<h3 id="客户端函数" class="heading-element">
+  <a href="#%e5%ae%a2%e6%88%b7%e7%ab%af%e5%87%bd%e6%95%b0" class="heading-mark"></a>客户端函数：</h3><table>
+<thead>
+<tr>
+<th>函数名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sk.connect(address)</td>
+<td>连接到address处的套接字，address是元组(host,port)，如果连接出错，返回socket.error</td>
+</tr>
+<tr>
+<td>sk.connect_ex(address)</td>
+<td>功能与上相同，但成功返回0，失败返回erron的值</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<h3 id="公共函数" class="heading-element">
+  <a href="#%e5%85%ac%e5%85%b1%e5%87%bd%e6%95%b0" class="heading-mark"></a>公共函数：</h3><table>
+<thead>
+<tr>
+<th>函数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sk.recv(bufsize[,flag])</td>
+<td>接收TCP套接字的数据，数据已字符串形式返回，bufsize指定接收最大数据量，flag提供有关消息的其他信息，可省略</td>
+</tr>
+<tr>
+<td>sk.send(string[,flag])</td>
+<td>发送TCP数据，返回值是要发送的字节数量</td>
+</tr>
+<tr>
+<td>sk.sendall(string[,flag])</td>
+<td>发送完整TCP数据，在返回之前尝试发送所有数据，成功返回none，失败跑出异常</td>
+</tr>
+<tr>
+<td>sk.recvfro(bufsize[,flag])</td>
+<td>接收UDP套接字数据，返回值是(data,address)。data是包含接收数据的字符串，address是发送数据的套接字地址</td>
+</tr>
+<tr>
+<td>sk.sendto(string[,flag],address)</td>
+<td>发送UDP数据，address是元组(host,port)，返回值是发送的字节数</td>
+</tr>
+<tr>
+<td>sk.close()</td>
+<td>关闭套接字</td>
+</tr>
+<tr>
+<td>sk.getpeername()</td>
+<td>返回套接字的远程地址，返回值是(host,port)</td>
+</tr>
+<tr>
+<td>sk.getsockname()</td>
+<td>返回套接字自己的地址</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<h3 id="2举例" class="heading-element">
+  <a href="#2%e4%b8%be%e4%be%8b" class="heading-mark"></a>2.举例：</h3><div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">##服务器端</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">socket</span>
+</span></span><span class="line"><span class="cl"><span class="n">host</span> <span class="o">=</span> <span class="s1">&#39;192.168.1.123&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">port</span> <span class="o">=</span> <span class="mi">4444</span>
+</span></span><span class="line"><span class="cl"><span class="n">sk</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span><span class="n">socket_STREAM</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">sk</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="n">host</span><span class="p">,</span><span class="n">port</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">sk</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="s1">&#39;Conn...&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span> <span class="s1">&#39;conn ok&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">conn</span><span class="p">,</span><span class="n">addr</span> <span class="o">=</span> <span class="n">accept</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span> <span class="s1">&#39;conne form &#39;</span><span class="p">,</span><span class="n">addr</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">data</span> <span class="o">=</span> <span class="n">sk</span><span class="o">.</span><span class="n">soket</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span> <span class="n">data</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span> <span class="s1">&#39;server received your msg&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">sk</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">##客户端</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">socket</span>
+</span></span><span class="line"><span class="cl"><span class="n">host</span> <span class="o">=</span> <span class="s1">&#39;192.168.1.123&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">port</span> <span class="o">=</span> <span class="mi">4444</span>
+</span></span><span class="line"><span class="cl"><span class="n">sk</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span><span class="n">socket</span><span class="p">,</span><span class="n">STREAM</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">sk</span><span class="o">.</span><span class="n">connet</span><span class="p">((</span><span class="n">host</span><span class="p">,</span><span class="n">port</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">msg</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;input msg:&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sk</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">data</span> <span class="o">=</span> <span class="n">sk</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span> <span class="n">data</span>
+</span></span><span class="line"><span class="cl"><span class="n">sk</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></span></span></code></pre></div><p>查看socket状态： <code>netstart -an</code></p>
+<blockquote>
+<p>request和socket大致介绍就这样了，不是很全，但基本用法都在这了</p>
+</blockquote>
+</div><div class="post-footer" id="post-footer">
+  <div class="post-info">
+    <div class="post-info-line">
+      <div class="post-info-mod">
+        <span title="更新于 2020-11-23 20:18:54">更新于 2020-11-23&nbsp;</span>
+      </div><div class="post-info-license">
+            <span><a rel="license external nofollow noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a></span>
+          </div></div><div class="post-info-line">
+        <div class="post-info-md"></div>
+        <div class="post-info-share">
+          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/python__requestsocket%E6%A8%A1%E5%9D%97/" data-title="Python__request，socket模块" data-hashtags="Python"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/python__requestsocket%E6%A8%A1%E5%9D%97/" data-hashtag="Python"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/python__requestsocket%E6%A8%A1%E5%9D%97/" data-title="Python__request，socket模块"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+  </span>
+        </div>
+      </div></div>
+
+  <div class="post-info-more">
+    <section class="post-tags"><i class="fa-solid fa-tags fa-fw me-1" aria-hidden="true"></i><a href="/tags/python/" class="post-tag" title="标签 - Python">Python</a></section>
+    <section>
+      <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+    </section>
+  </div>
+
+  <div class="post-nav"><a href="/posts/buu-re-1/" class="post-nav-item" rel="prev" title="BUU_RE_1"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>BUU_RE_1</a>
+      <a href="/posts/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/" class="post-nav-item" rel="next" title="文件包含漏洞">文件包含漏洞<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article>
+
+  <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
+      <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+        </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
+            <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
+              <a href="/"></a></span></div></div>
+  </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
+        </div></div><div id="mask"></div><noscript>
+    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+  </noscript>
+</div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+</html>

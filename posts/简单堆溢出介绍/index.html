@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <meta name="robots" content="noodp" />
+    <title>简单堆溢出介绍 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+<meta name="author-link" content="">
+<meta name="description" content="" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="简单堆溢出介绍">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2021-03-14T00:58:32+00:00" />
+<meta itemprop="dateModified" content="2021-03-14T00:58:32+00:00" />
+<meta itemprop="wordCount" content="1226">
+<meta itemprop="keywords" content="PWN," /><meta property="og:title" content="简单堆溢出介绍" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-03-14T00:58:32+00:00" />
+<meta property="article:modified_time" content="2021-03-14T00:58:32+00:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="简单堆溢出介绍"/>
+<meta name="twitter:description" content=""/>
+<meta name="application-name" content="FixIt">
+<meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/" /><link rel="prev" href="http://ghostasky.github.io/posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" /><link rel="next" href="http://ghostasky.github.io/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "简单堆溢出介绍",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http:\/\/ghostasky.github.io\/posts\/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D\/"
+    },"genre": "posts","keywords": "PWN","wordcount":  1226 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D\/","datePublished": "2021-03-14T00:58:32+00:00","dateModified": "2021-03-14T00:58:32+00:00","publisher": {
+      "@type": "Organization",
+      "name": ""},"author": {
+        "@type": "Person",
+        "name": "作者"
+      },"description": ""
+  }
+  </script></head>
+  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <div class="header-wrapper">
+    <div class="header-title">
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+    <nav>
+      <ul class="menu"><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/posts/"
+                
+                
+              >文章</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/categories/"
+                
+                
+              >分类</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/tags/"
+                
+                
+              >标签</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/about/"
+                
+                
+              >关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title="切换主题">
+          <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+        </li></ul>
+    </nav>
+  </div>
+</header><header class="mobile animate__faster" id="header-mobile">
+  <div class="header-container">
+    <div class="header-wrapper">
+      <div class="header-title">
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <div class="menu-toggle" id="menu-toggle-mobile">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <nav>
+      <ul class="menu" id="menu-mobile"><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/posts/"
+                  
+                  
+                >文章</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/categories/"
+                  
+                  
+                >分类</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/tags/"
+                  
+                  
+                >标签</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/about/"
+                  
+                  
+                >关于</a></li><li class="menu-item menu-system">
+          <span class="menu-system-item theme-switch" title="切换主题"><i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i></span></li>
+      </ul>
+    </nav>
+  </div>
+</header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
+
+  <article class="page single">
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>简单堆溢出介绍</span>
+      </h1></div><div class="post-meta">
+      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
+      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-03-14 00:58:32"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-03-14">2021-03-14</time></span>&nbsp;<span title="1226 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 1300 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 3 分钟</span>&nbsp;</div>
+    </div><div class="details toc" id="toc-static" data-kept="false">
+        <div class="details-summary toc-title">
+          <span>目录</span>
+          <span><i class="details-icon fa-solid fa-angle-right" aria-hidden="true"></i></span>
+        </div>
+        <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#介绍">介绍</a></li>
+        <li><a href="#基本示例">基本示例</a></li>
+        <li><a href="#小总结">小总结</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+      </div><div class="content" id="content"><p>[TOC]</p>
+<h3 id="介绍" class="heading-element">
+  <a href="#%e4%bb%8b%e7%bb%8d" class="heading-mark"></a>介绍</h3><p>​	堆溢出是指程序向某个堆块中写入的字节数超过了堆块本身可用的字节数，因而导致了数据的溢出，并覆盖到了<strong>物理相邻</strong>的高地址的下一个堆块。</p>
+<p>​	so，堆溢出漏洞发生的前提：</p>
+<ul>
+<li>写入的数据写到了堆上</li>
+<li>写入数据的大小没有被控制</li>
+</ul>
+<p>堆溢出是一种特定的缓冲区溢出（还有栈溢出，bss段溢出等）。但是堆溢出并不会像栈溢出那样覆盖ret地址进而控制程序执行流。一般来说，利用堆溢出的策略：</p>
+<ol>
+<li>覆盖<strong>物理相邻</strong>的下一个chunk的内容</li>
+<li>利用堆中的机制（如unlink等）来实现任意地址写入（write-anything-anwhere），或控制堆块中的内容等效果，从而控制程序的执行流。</li>
+</ol>
+<h3 id="基本示例" class="heading-element">
+  <a href="#%e5%9f%ba%e6%9c%ac%e7%a4%ba%e4%be%8b" class="heading-mark"></a>基本示例</h3><p>例子：</p>
+<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> 
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="o">*</span><span class="n">chunk1</span><span class="p">,</span><span class="o">*</span><span class="n">chunk2</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">chunk1</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mi">24</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">chunk2</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mi">24</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="nf">puts</span><span class="p">(</span><span class="s">&#34;Get input:&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="nf">gets</span><span class="p">(</span><span class="n">chunk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>写入：AAAAAAAABBBBBBBBAAAAAAAA</p>
+<pre tabindex="0"><code>pwndbg&gt; x/32gx 0x56558150
+0x56558150:	0x0000000000000000	0x0000002100000000 &lt;= chunk1
+0x56558160:	0x4141414141414141	0x4242424242424242
+0x56558170:	0x4141414141414141	0x0000002100000000 &lt;= chunk2
+0x56558180:	0x0000000000000000	0x0000000000000000
+0x56558190:	0x0000000000000000	0x0000041100000000 &lt;=other</code></pre><p>如果输入字符串过长，会覆盖下一个chunk，比如：</p>
+<pre tabindex="0"><code>pwndbg&gt; x/32gx 0x56558150
+0x56558150:	0x0000000000000000	0x0000002100000000 &lt;= chunk1
+0x56558160:	0x4141414141414141	0x4242424242424242
+0x56558170:	0x4141414141414141	0x4242424242424242 &lt;= chunk2
+0x56558180:	0x0000000000000000	0x0000000000000000
+0x56558190:	0x0000000000000000	0x0000041100000000 &lt;=other</code></pre><h3 id="小总结" class="heading-element">
+  <a href="#%e5%b0%8f%e6%80%bb%e7%bb%93" class="heading-mark"></a>小总结</h3><p>比较重要的几个步骤</p>
+<h4 id="寻找堆分配函数" class="heading-element">
+  <a href="#%e5%af%bb%e6%89%be%e5%a0%86%e5%88%86%e9%85%8d%e5%87%bd%e6%95%b0" class="heading-mark"></a>寻找堆分配函数</h4><p>通常堆是通过调用glibc的malloc函数进行分配的，某些情况会使用calloc来分配。</p>
+<p>malloc与calloc区别：calloc在分配后会自动清空。</p>
+<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">calloc</span><span class="p">(</span><span class="mh">0x20</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//等价于
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">ptr</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x20</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nf">memset</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mh">0x20</span><span class="p">);</span></span></span></code></pre></div><p>此外，还有一种是由realloc进行分配的，realloc函数可以同时具备malloc和free两个函数的功能。</p>
+<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">char</span> <span class="o">*</span><span class="n">chunk</span><span class="p">,</span><span class="o">*</span><span class="n">chunk1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">chunk</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mi">16</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">chunk1</span> <span class="o">=</span> <span class="nf">realloc</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span><span class="mi">32</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>realloc内部会根据不同的情况进行不同的操作：</p>
+<ul>
+<li>当realloc(ptr,size)的size不等于ptr的size时：
+<ul>
+<li>如果申请的size&gt;原来的size：
+<ul>
+<li>如果chunk与top chunk相邻，直接扩展这个chunk到新的size大小</li>
+<li>如果chunk与top chunk不相邻，相当于free(ptr)，malloc(new_size)</li>
+</ul>
+</li>
+<li>如果申请的size&lt;原来的size：
+<ul>
+<li>如果相差不足以容下一个最小的chunk（64位下为32字节，32位下为16字节），则保持不变</li>
+<li>如果相差可以容下一个最小chunk，则切割原chunk为两部分，free掉后一部分。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>当realloc(otr,size)的size==0时，相当于free(ptr)</li>
+<li>当realloc(otr,size)的size==ptr的size时，不进行任何操作</li>
+</ul>
+<h4 id="寻找危险函数" class="heading-element">
+  <a href="#%e5%af%bb%e6%89%be%e5%8d%b1%e9%99%a9%e5%87%bd%e6%95%b0" class="heading-mark"></a>寻找危险函数</h4><p>常见危险函数：</p>
+<ul>
+<li>INPUT：
+<ul>
+<li>gets：直接读取一行，忽略<code>\x00</code></li>
+<li>scanf</li>
+<li>vscanf</li>
+</ul>
+</li>
+<li>OUTPUT：
+<ul>
+<li>sprintf</li>
+</ul>
+</li>
+<li>String:
+<ul>
+<li>strcpy：字符串复制，遇到<code>\x00</code>停止</li>
+<li>strcat：字符串拼接，遇到<code>\x00</code>停止</li>
+<li>bcopy</li>
+</ul>
+</li>
+</ul>
+<h4 id="确定填充长度" class="heading-element">
+  <a href="#%e7%a1%ae%e5%ae%9a%e5%a1%ab%e5%85%85%e9%95%bf%e5%ba%a6" class="heading-mark"></a>确定填充长度</h4><p>这一部分主要是计算开始写入的地址与要覆盖的地址之间的距离。</p>
+<p>一个常见的误区是malloc的参数等于实际分配堆块的大小，但实际上ptmalloc分配的大小是对其的，这个长度一般是机器字长的2倍。对于不大于2倍机器字长的请求，malloc会直接返回2倍的机器字长，也就是最小chunk。</p>
+<p>比如64位系统malloc(0)是会返回16字节的块。</p>
+</div><div class="post-footer" id="post-footer">
+  <div class="post-info">
+    <div class="post-info-line">
+      <div class="post-info-mod">
+        <span title="更新于 2021-03-14 00:58:32">更新于 2021-03-14&nbsp;</span>
+      </div><div class="post-info-license">
+            <span><a rel="license external nofollow noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a></span>
+          </div></div><div class="post-info-line">
+        <div class="post-info-md"></div>
+        <div class="post-info-share">
+          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/" data-title="简单堆溢出介绍" data-hashtags="PWN"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/" data-hashtag="PWN"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/" data-title="简单堆溢出介绍"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+  </span>
+        </div>
+      </div></div>
+
+  <div class="post-info-more">
+    <section class="post-tags"><i class="fa-solid fa-tags fa-fw me-1" aria-hidden="true"></i><a href="/tags/pwn/" class="post-tag" title="标签 - PWN">PWN</a></section>
+    <section>
+      <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+    </section>
+  </div>
+
+  <div class="post-nav"><a href="/posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" class="post-nav-item" rel="prev" title="堆概述及其相关数据结构"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>堆概述及其相关数据结构</a>
+      <a href="/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" class="post-nav-item" rel="next" title="堆中的off-by-one">堆中的off-by-one<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article>
+
+  <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
+      <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+        </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
+            <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
+              <a href="/"></a></span></div></div>
+  </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
+        </div></div><div id="mask"></div><noscript>
+    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+  </noscript>
+</div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+</html>

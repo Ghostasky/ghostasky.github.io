@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <meta name="robots" content="noodp" />
+    <title>Windows Program Learn_0x1 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+<meta name="author-link" content="">
+<meta name="description" content="" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows Program Learn_0x1">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2022-10-10T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2022-10-10T00:00:00+00:00" />
+<meta itemprop="wordCount" content="7365">
+<meta itemprop="keywords" content="Win32," /><meta property="og:title" content="Windows Program Learn_0x1" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/2022-9-wincode1/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-10-10T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-10-10T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Windows Program Learn_0x1"/>
+<meta name="twitter:description" content=""/>
+<meta name="application-name" content="FixIt">
+<meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/2022-9-wincode1/" /><link rel="prev" href="http://ghostasky.github.io/posts/2022-10-http/" /><link rel="next" href="http://ghostasky.github.io/posts/dir815/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Windows Program Learn_0x1",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http:\/\/ghostasky.github.io\/posts\/2022-9-wincode1\/"
+    },"genre": "posts","keywords": "Win32","wordcount":  7365 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/2022-9-wincode1\/","datePublished": "2022-10-10T00:00:00+00:00","dateModified": "2022-10-10T00:00:00+00:00","publisher": {
+      "@type": "Organization",
+      "name": ""},"author": {
+        "@type": "Person",
+        "name": "作者"
+      },"description": ""
+  }
+  </script></head>
+  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <div class="header-wrapper">
+    <div class="header-title">
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+    <nav>
+      <ul class="menu"><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/posts/"
+                
+                
+              >文章</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/categories/"
+                
+                
+              >分类</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/tags/"
+                
+                
+              >标签</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/about/"
+                
+                
+              >关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title="切换主题">
+          <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+        </li></ul>
+    </nav>
+  </div>
+</header><header class="mobile animate__faster" id="header-mobile">
+  <div class="header-container">
+    <div class="header-wrapper">
+      <div class="header-title">
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <div class="menu-toggle" id="menu-toggle-mobile">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <nav>
+      <ul class="menu" id="menu-mobile"><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/posts/"
+                  
+                  
+                >文章</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/categories/"
+                  
+                  
+                >分类</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/tags/"
+                  
+                  
+                >标签</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/about/"
+                  
+                  
+                >关于</a></li><li class="menu-item menu-system">
+          <span class="menu-system-item theme-switch" title="切换主题"><i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i></span></li>
+      </ul>
+    </nav>
+  </div>
+</header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
+
+  <article class="page single">
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>Windows Program Learn_0x1</span>
+      </h1></div><div class="post-meta">
+      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
+      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2022-10-10 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2022-10-10">2022-10-10</time></span>&nbsp;<span title="7365 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 7400 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 15 分钟</span>&nbsp;</div>
+    </div><div class="details toc" id="toc-static" data-kept="false">
+        <div class="details-summary toc-title">
+          <span>目录</span>
+          <span><i class="details-icon fa-solid fa-angle-right" aria-hidden="true"></i></span>
+        </div>
+        <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#基础">基础</a>
+      <ul>
+        <li><a href="#单一实例">单一实例</a></li>
+      </ul>
+    </li>
+    <li><a href="#注入">注入</a>
+      <ul>
+        <li><a href="#全局钩子">全局钩子</a></li>
+        <li><a href="#远程线程注入dll">远程线程注入DLL</a></li>
+        <li><a href="#突破session-0隔离的远线程注入">突破SESSION 0隔离的远线程注入</a></li>
+        <li><a href="#apc注入未完成">APC注入(未完成)</a></li>
+      </ul>
+    </li>
+    <li><a href="#启动">启动</a>
+      <ul>
+        <li><a href="#创建进程api">创建进程API</a></li>
+        <li><a href="#突破session-0隔离创建用户进程">突破SESSION 0隔离创建用户进程</a></li>
+        <li><a href="#内存加载执行未完成">内存加载执行(未完成)</a></li>
+      </ul>
+    </li>
+    <li><a href="#提权技术bypass-uac部分未完成">提权技术(Bypass UAC部分未完成)</a>
+      <ul>
+        <li><a href="#进程访问令牌权限提升">进程访问令牌权限提升</a></li>
+        <li><a href="#bypassuac">BypassUAC</a></li>
+      </ul>
+    </li>
+    <li><a href="#隐藏技术">隐藏技术</a></li>
+  </ul>
+</nav></div>
+      </div><div class="content" id="content"><p>[toc]</p>
+<p>准备开个系列，就叫“Windows Program Learn”，记录《Windows黑客编程技术详解》书的代码和笔记。</p>
+<blockquote>
+<p><a href="https://github.com/jash-git/Windows-Hack-Programming-backup"target="_blank" rel="external nofollow noopener noreferrer">https://github.com/jash-git/Windows-Hack-Programming-backup</a></p>
+</blockquote>
+<h2 id="基础" class="heading-element">
+  <a href="#%e5%9f%ba%e7%a1%80" class="heading-mark"></a>基础</h2><p>最开始是环境的搭建，这里就不搞了，好像也没啥。</p>
+<h3 id="单一实例" class="heading-element">
+  <a href="#%e5%8d%95%e4%b8%80%e5%ae%9e%e4%be%8b" class="heading-mark"></a>单一实例</h3><p>也就是实现进程互斥。</p>
+<h4 id="createmutexa" class="heading-element">
+  <a href="#createmutexa" class="heading-mark"></a>CreateMutexA</h4><div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">HANDLE</span> <span class="nf">CreateMutexA</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">LPSECURITY_ATTRIBUTES</span> <span class="n">lpMutexAttributes</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>           <span class="n">BOOL</span>                  <span class="n">bInitialOwner</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">LPCSTR</span>                <span class="n">lpName</span>
+</span></span><span class="line"><span class="cl"><span class="p">);</span></span></span></code></pre></div><p>参数：</p>
+<ul>
+<li>
+<p><code>lpMutexAttributes</code>：指向 <a href="https://learn.microsoft.com/en-us/previous-versions/windows/desktop/legacy/aa379560%28v=vs.85%29"target="_blank" rel="external nofollow noopener noreferrer">SECURITY_ATTRIBUTES</a>结构的指针。如果此参数为<code>NULL</code>，则句柄不能被子进程继承。</p>
+<p>结构的<strong>lpSecurityDescriptor</strong>成员指定新互斥体的安全描述符。如果<code>lpMutexAttributes</code>为<code>NULL</code>，则互斥锁将获得默认的安全描述符。</p>
+</li>
+<li>
+<p><code>bInitialOwner</code>：如果此值为<strong>TRUE</strong>并且调用者创建了互斥锁，则调用线程将获得互斥锁对象的初始所有权。否则，调用线程不会获得互斥锁的所有权。</p>
+</li>
+<li>
+<p><code>lpName</code>：互斥对象的名称。</p>
+</li>
+</ul>
+<p>返回值：</p>
+<ul>
+<li>如果函数成功，则返回值是新创建的互斥对象的句柄。</li>
+<li>如果函数失败，则返回值为<strong>NULL</strong>。</li>
+<li>如果互斥锁是一个命名互斥锁并且该对象在此函数调用之前存在，则返回值是现有对象的句柄，并且<a href="https://learn.microsoft.com/en-us/windows/desktop/api/errhandlingapi/nf-errhandlingapi-getlasterror"target="_blank" rel="external nofollow noopener noreferrer">GetLastError</a>函数返回<code>ERROR_ALREADY_EXISTS</code>。</li>
+</ul>
+<blockquote>
+<p>进程、线程、文件、互斥体、事件等等在内核都有一个对应的结构体，这些结构体都由内核负责管理，所以我们都可以称之为内核对象。</p>
+<p>只有进程才会有句柄表，并且<strong>每一个进程都会有一个句柄表</strong>。</p>
+</blockquote>
+<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">IsAlreadyRun</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">HANDLE</span> <span class="n">hMutex</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">hMutex</span> <span class="o">=</span> <span class="nf">CreateMutex</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">FALSE</span><span class="p">,</span> <span class="nf">TEXT</span><span class="p">(</span><span class="s">&#34;TEST&#34;</span><span class="p">));</span><span class="c1">//TEST需要唯一
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">hMutex</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">ERROR_ALREADY_EXISTS</span> <span class="o">==</span> <span class="o">::</span><span class="nf">GetLastError</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">TRUE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h2 id="注入" class="heading-element">
+  <a href="#%e6%b3%a8%e5%85%a5" class="heading-mark"></a>注入</h2><p>内容</p>
+<ul>
+<li>全局钩子</li>
+<li>远程线程钩子</li>
+<li>突破SESSION 0隔离的远程线程注入</li>
+<li>APC注入</li>
+</ul>
+<h3 id="全局钩子" class="heading-element">
+  <a href="#%e5%85%a8%e5%b1%80%e9%92%a9%e5%ad%90" class="heading-mark"></a>全局钩子</h3><blockquote>
+<p>ok，这里搞了两天终于搞通了，搞个虚拟机在里面写吧，，差点给电脑干出问题。。。</p>
+</blockquote>
+<p>Windows系统中，大部分的应用程序都是基于消息机制的，它们都有一个消息过程函数，根据不同的消息完成不同的功能。</p>
+<p>Windows操作系统提供的钩子机制就是用来截获和监控系统中这些消息的。</p>
+<p>按照钩子作用的范围不同，它们分为局部钩子和全局钩子。</p>
+<ul>
+<li>局部钩子： 针对某个线程的</li>
+<li>全部钩子： 针对整个系统基于消息的应用，需要使用DLL文件，在DLL中实现相应的钩子函数</li>
+</ul>
+<h4 id="api" class="heading-element">
+  <a href="#api" class="heading-mark"></a>API</h4><h5 id="setwindowshookexa" class="heading-element">
+  <a href="#setwindowshookexa" class="heading-mark"></a>SetWindowsHookExA</h5><div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">HHOOK</span> <span class="nf">SetWindowsHookExA</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="kt">int</span> <span class="n">idHook</span><span class="p">,</span>      <span class="c1">//要安装的钩子程序的类型，具体见官方文档
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="n">HOOKPROC</span> <span class="n">lpfn</span><span class="p">,</span>   <span class="c1">//指向挂钩过程的指针。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="n">HINSTANCE</span> <span class="n">hmod</span><span class="p">,</span>  <span class="c1">//包含lpfn参数指向的钩子过程的 DLL 句柄。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="n">DWORD</span> <span class="n">dwThreadId</span> <span class="c1">//与挂钩过程关联的线程的标识符。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span></span></span></code></pre></div><p>返回值：</p>
+<ul>
+<li>成功，则返回值是钩子过程的句柄。</li>
+<li>失败，则返回值为<strong>NULL</strong></li>
+</ul>
+<h4 id="实现" class="heading-element">
+  <a href="#%e5%ae%9e%e7%8e%b0" class="heading-mark"></a>实现</h4><p>全局钩子的话那钩子函数就必须在DLL中，这样才能“全局”，懂吧？</p>
+<p>在操作系统中安装全局钩子后，只要进程接收到可以发出钩子的消息，全局钩子的DLL文件就会由操作系统自动或强行地加载到该进程中。创建一个全局钩子后，在对应事件发生时，系统就会把DLL加载到发生事件的进程中，从而实现DLL注入。</p>
+<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// 钩子回调函数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">LRESULT</span> <span class="n">MYWINDAPIEXPORT</span> <span class="nf">GetMsgProc</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">code</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">WPARAM</span> <span class="n">wParam</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPARAM</span> <span class="n">lParam</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Messagebox</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="o">::</span><span class="nf">CallNextHookEx</span><span class="p">(</span><span class="n">g_hHook</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">wParam</span><span class="p">,</span> <span class="n">lParam</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 设置全局钩子
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">BOOL</span> <span class="n">MYWINDAPIEXPORT</span> <span class="nf">SetGlobalHook</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">g_hHook</span> <span class="o">=</span> <span class="o">::</span><span class="nf">SetWindowsHookEx</span><span class="p">(</span><span class="n">WH_GETMESSAGE</span><span class="p">,</span> <span class="p">(</span><span class="n">HOOKPROC</span><span class="p">)</span><span class="n">GetMsgProc</span><span class="p">,</span> <span class="nf">GetModuleHandle</span><span class="p">(</span><span class="nf">TEXT</span><span class="p">(</span><span class="s">&#34;MyDLL.dll&#34;</span><span class="p">))</span> <span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;SetGlobalHook %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,(</span><span class="kt">int</span><span class="o">&amp;</span><span class="p">)</span><span class="n">g_hHook</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">g_hHook</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">TRUE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 卸载钩子
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="n">MYWINDAPIEXPORT</span> <span class="nf">UnsetGlobalHook</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;UnsetGlobalHook %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="o">&amp;</span><span class="p">)</span><span class="n">g_hHook</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">UnhookWindowsHookEx</span><span class="p">(</span><span class="n">g_hHook</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>如何将钩子句柄传递给其他进程？
+可以在DLL中创建共享内存。共享内存是指突破进程独立性，多个进程共享同一段内存。在DLL中创建共享内存，就是在DLL中创建一个变量，然后将DLL加载到多个进程空间，只要一个进程修改了该变量值，其他进程DLL中的这个值也会改变，相当
+于多个进程共享一个内存。</p>
+<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">HMODULE</span> <span class="n">g_hDllModule</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 共享内存
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">##pragma data_seg(&#34;mydata&#34;)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>    <span class="n">HHOOK</span> <span class="n">g_hHook</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">##pragma data_seg()
+</span></span></span><span class="line"><span class="cl"><span class="cp">##pragma comment(linker, &#34;/SECTION:mydata,RWS&#34;)</span><span class="c1">//设置可读可写可共享
+</span></span></span></code></pre></div><p>成功装载hook：</p>
+<p><img loading="lazy" src="/posts/2022-9-wincode1/image-20220923221139302.png" alt="image-20220923221139302" srcset="/posts/2022-9-wincode1/image-20220923221139302.png?size=small, /posts/2022-9-wincode1/image-20220923221139302.png?size=medium 1.5x, /posts/2022-9-wincode1/image-20220923221139302.png?size=large 2x" data-title="image-20220923221139302" style="--width: 1198px;--aspect-ratio: 1198 / 808;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<h3 id="远程线程注入dll" class="heading-element">
+  <a href="#%e8%bf%9c%e7%a8%8b%e7%ba%bf%e7%a8%8b%e6%b3%a8%e5%85%a5dll" class="heading-mark"></a>远程线程注入DLL</h3><p>就是在另一个进程中创建线程。</p>
+<h4 id="api-1" class="heading-element">
+  <a href="#api-1" class="heading-mark"></a>API</h4><h5 id="openprocess" class="heading-element">
+  <a href="#openprocess" class="heading-mark"></a>OpenProcess</h5><div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">HANDLE</span> <span class="nf">OpenProcess</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="n">DWORD</span> <span class="n">dwDesiredAccess</span><span class="p">,</span><span class="c1">//对进程对象的访问
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="n">BOOL</span>  <span class="n">bInheritHandle</span><span class="p">,</span><span class="c1">//如果该值为 TRUE，则由该进程创建的进程将继承句柄。否则，进程不会继承此句柄。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="n">DWORD</span> <span class="n">dwProcessId</span><span class="c1">//要打开的本地进程的标识符
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span></span></span></code></pre></div><p>返回值：</p>
+<ul>
+<li>如果函数成功，则返回值是指定进程的打开句柄。</li>
+<li>如果函数失败，则返回值为 NULL。要获取扩展的错误信息，请调用 <a href="https://learn.microsoft.com/en-us/windows/desktop/api/errhandlingapi/nf-errhandlingapi-getlasterror"target="_blank" rel="external nofollow noopener noreferrer">GetLastError</a>。</li>
+</ul>
+<h5 id="virtualallocex" class="heading-element">
+  <a href="#virtualallocex" class="heading-mark"></a>VirtualAllocEx</h5><div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">LPVOID</span> <span class="nf">VirtualAllocEx</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>           <span class="n">HANDLE</span> <span class="n">hProcess</span><span class="p">,</span><span class="c1">//进程的句柄
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">LPVOID</span> <span class="n">lpAddress</span><span class="p">,</span><span class="c1">//为要分配的页面区域指定所需起始地址的指针
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>           <span class="n">SIZE_T</span> <span class="n">dwSize</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>           <span class="n">DWORD</span>  <span class="n">flAllocationType</span><span class="p">,</span><span class="c1">//内存分配的类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>           <span class="n">DWORD</span>  <span class="n">flProtect</span><span class="c1">//要分配的页面区域的内存保护
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span></span></span></code></pre></div><p>返回值</p>
+<ul>
+<li>如果函数成功，则返回值是分配的页面区域的基地址。</li>
+<li>如果函数失败，则返回值为<strong>NULL</strong>。要获取扩展的错误信息，请调用<a href="https://learn.microsoft.com/en-us/windows/desktop/api/errhandlingapi/nf-errhandlingapi-getlasterror"target="_blank" rel="external nofollow noopener noreferrer">GetLastError</a></li>
+</ul>
+<h5 id="writeprocessmemory" class="heading-element">
+  <a href="#writeprocessmemory" class="heading-mark"></a>WriteProcessMemory</h5><div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">WriteProcessMemory</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>  <span class="n">HANDLE</span>  <span class="n">hProcess</span><span class="p">,</span><span class="c1">//要修改的进程内存的句柄
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>  <span class="n">LPVOID</span>  <span class="n">lpBaseAddress</span><span class="p">,</span><span class="c1">//指向要写入数据的指定进程中的基地址的指针
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>  <span class="n">LPCVOID</span> <span class="n">lpBuffer</span><span class="p">,</span><span class="c1">//指向缓冲区的指针,要写入的数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>  <span class="n">SIZE_T</span>  <span class="n">nSize</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="n">SIZE_T</span>  <span class="o">*</span><span class="n">lpNumberOfBytesWritten</span><span class="c1">//可选，指向变量的指针
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span></span></span></code></pre></div><p>返回值：</p>
+<ul>
+<li>如果函数成功，则返回值非零。</li>
+<li>如果函数失败，则返回值为 0（零）。</li>
+</ul>
+<h5 id="createremotethread" class="heading-element">
+  <a href="#createremotethread" class="heading-mark"></a>CreateRemoteThread</h5><p>在另一个进程创建线程</p>
+<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">HANDLE</span> <span class="nf">CreateRemoteThread</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>  <span class="n">HANDLE</span>                 <span class="n">hProcess</span><span class="p">,</span><span class="c1">//进程的句柄
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>  <span class="n">LPSECURITY_ATTRIBUTES</span>  <span class="n">lpThreadAttributes</span><span class="p">,</span><span class="c1">//指向 SECURITY_ATTRIBUTES结构的指针
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>  <span class="n">SIZE_T</span>                 <span class="n">dwStackSize</span><span class="p">,</span><span class="c1">//堆栈的初始大小，以字节为单位
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>  <span class="n">LPTHREAD_START_ROUTINE</span> <span class="n">lpStartAddress</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//指向要由线程执行的LPTHREAD_START_ROUTINE 类型的应用程序定义函数的指针，表示远程进程中线程的起始地址。该函数必须存在于远程进程中。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>  <span class="n">LPVOID</span>                 <span class="n">lpParameter</span><span class="p">,</span><span class="c1">//指向要传递给线程函数的变量的指针
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>  <span class="n">DWORD</span>                  <span class="n">dwCreationFlags</span><span class="p">,</span><span class="c1">//控制线程创建的标志
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="n">LPDWORD</span>                <span class="n">lpThreadId</span><span class="c1">//指向接收线程标识符的变量的指针
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span></span></span></code></pre></div><p>返回值：</p>
+<ul>
+<li>如果函数成功，则返回值是新线程的句柄。</li>
+<li>如果函数失败，则返回值为<strong>NULL</strong>。</li>
+</ul>
+<h4 id="实现-1" class="heading-element">
+  <a href="#%e5%ae%9e%e7%8e%b0-1" class="heading-mark"></a>实现</h4><p>使用<code>LoadLibrary</code>加载DLL，使用<code>VirtualAllocEx</code>在目标进程创建空间，使用<code>WriteProcessMemory</code>将指定的DLL路径写到指定进程空间，使用<code>CreateRemoteThread</code>在目标进程创建线程，完成线程注入DLL</p>
+<ul>
+<li>OpenProcess</li>
+<li>VirtualAllocEx</li>
+<li>WriteProcessMemory</li>
+<li>GetProcAddress</li>
+<li>CreateRemoteThread</li>
+</ul>
+<div class="highlight" id="id-10"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">CreaeteRemoteThreadInjectDLL</span><span class="p">(</span><span class="n">DWORD</span> <span class="n">dwprocessId</span><span class="p">,</span><span class="kt">char</span><span class="o">*</span> <span class="n">pszDLLFilename</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HANDLE</span> <span class="n">hProcess</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">SIZE_T</span> <span class="n">dwSize</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPVOID</span> <span class="n">pDLLAddr</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">FARPROC</span> <span class="n">pFuncProcAddr</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HANDLE</span> <span class="n">hRemoteThread</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//PROCESS_ALL_ACCESS: 进程对象的所有可能访问权限
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">hProcess</span> <span class="o">=</span> <span class="nf">OpenProcess</span><span class="p">(</span><span class="n">PROCESS_ALL_ACCESS</span><span class="p">,</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">dwprocessId</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">hProcess</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;OpenProcess Error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">dwSize</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nf">strlen</span><span class="p">(</span><span class="n">pszDLLFilename</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//MEM_COMMIT: 为指定的保留内存页面分配内存，初始化为0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">pDLLAddr</span> <span class="o">=</span> <span class="nf">VirtualAllocEx</span><span class="p">(</span><span class="n">hProcess</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">dwSize</span><span class="p">,</span> <span class="n">MEM_COMMIT</span><span class="p">,</span> <span class="n">PAGE_READWRITE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">pDLLAddr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;VirtualAllocEx Error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">FALSE</span> <span class="o">==</span> <span class="nf">WriteProcessMemory</span><span class="p">(</span><span class="n">hProcess</span><span class="p">,</span><span class="n">pDLLAddr</span><span class="p">,</span><span class="n">pszDLLFilename</span><span class="p">,</span><span class="n">dwSize</span><span class="p">,</span><span class="nb">NULL</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;WriteProcessMemory Error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">pFuncProcAddr</span> <span class="o">=</span> <span class="nf">GetProcAddress</span><span class="p">(</span><span class="nf">GetModuleHandle</span><span class="p">(</span><span class="sa">L</span><span class="s">&#34;kernel32.dll&#34;</span><span class="p">),</span> <span class="s">&#34;LoadLibraryA&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">pFuncProcAddr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;GetProcAddress Error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">hRemoteThread</span> <span class="o">=</span> <span class="nf">CreateRemoteThread</span><span class="p">(</span><span class="n">hProcess</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">LPTHREAD_START_ROUTINE</span><span class="p">)</span><span class="n">pFuncProcAddr</span><span class="p">,</span> <span class="n">pDLLAddr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">CloseHandle</span><span class="p">(</span><span class="n">hProcess</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">TRUE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nf">mian</span><span class="p">()</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">	<span class="n">BOOL</span> <span class="n">res</span> <span class="o">=</span> <span class="nf">CreaeteRemoteThreadInjectDLL</span><span class="p">(</span><span class="mi">18556</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="s">&#34;E:</span><span class="se">\\</span><span class="s">B</span><span class="se">\\</span><span class="s">win32Code</span><span class="se">\\</span><span class="s">Chapter3</span><span class="se">\\</span><span class="s">Project4</span><span class="se">\\</span><span class="s">x64</span><span class="se">\\</span><span class="s">Debug</span><span class="se">\\</span><span class="s">CreateRemoteThreadDLL.dll&#34;</span><span class="p">);</span></span></span></code></pre></div><p>成功远程线程注入：</p>
+<p><img loading="lazy" src="/posts/2022-9-wincode1/image-20221010221215587.png" alt="/posts/2022-9-wincode1/image-20221010221215587.png" srcset="/posts/2022-9-wincode1/image-20221010221215587.png?size=small, /posts/2022-9-wincode1/image-20221010221215587.png?size=medium 1.5x, /posts/2022-9-wincode1/image-20221010221215587.png?size=large 2x" data-title="/posts/2022-9-wincode1/image-20221010221215587.png" style="--width: 1355px;--aspect-ratio: 1355 / 668;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<h3 id="突破session-0隔离的远线程注入" class="heading-element">
+  <a href="#%e7%aa%81%e7%a0%b4session-0%e9%9a%94%e7%a6%bb%e7%9a%84%e8%bf%9c%e7%ba%bf%e7%a8%8b%e6%b3%a8%e5%85%a5" class="heading-mark"></a>突破SESSION 0隔离的远线程注入</h3><p>如果上面的远线程注入对于系统的一些服务注入的话会失败，这是由于系统存在SESSION 0隔离的安全机制。</p>
+<p>可以使用<code>ZwCreateThreadEx</code>进行远线程注入，还可以突破SESSION0隔离。</p>
+<p>简单看下SESSION0隔离：<a href="https://learn.microsoft.com/zh-cn/previous-versions/ee663077%28v=msdn.10%29?redirectedfrom=MSDN"target="_blank" rel="external nofollow noopener noreferrer">SESSION0隔离</a>，<a href="https://learn.microsoft.com/zh-cn/previous-versions/msdn10/Ee791007%28v=MSDN.10%29"target="_blank" rel="external nofollow noopener noreferrer">SESSION0隔离</a></p>
+<p>Windows Vista之前：</p>
+<p><img loading="lazy" src="2022-9-WinCode1/ee791007.image2%28zh-cn,msdn.10%29.png" alt="img" srcset="2022-9-WinCode1/ee791007.image2%28zh-cn%2cmsdn.10%29.png?size=small, 2022-9-WinCode1/ee791007.image2%28zh-cn%2cmsdn.10%29.png?size=medium 1.5x, 2022-9-WinCode1/ee791007.image2%28zh-cn%2cmsdn.10%29.png?size=large 2x" data-title="img" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>之后：</p>
+<p><img loading="lazy" src="2022-9-WinCode1/ee791007.image3%28zh-cn,msdn.10%29.png" alt="img" srcset="2022-9-WinCode1/ee791007.image3%28zh-cn%2cmsdn.10%29.png?size=small, 2022-9-WinCode1/ee791007.image3%28zh-cn%2cmsdn.10%29.png?size=medium 1.5x, 2022-9-WinCode1/ee791007.image3%28zh-cn%2cmsdn.10%29.png?size=large 2x" data-title="img" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<h4 id="api-2" class="heading-element">
+  <a href="#api-2" class="heading-mark"></a>API</h4><h5 id="zwcreatethreadex" class="heading-element">
+  <a href="#zwcreatethreadex" class="heading-mark"></a>ZwCreateThreadEx</h5><p>其实这个不应该放到API这个标题下面的，因为微软其实并没有给出文档，在ntdll.dll中并没有声明，需要GetProcAddress导出。</p>
+<p>其实<code>CreateRemoteThread</code>最终底层调用的就是<code>ZwCreateThreadEx</code>，在内核6.0后引入会话隔离机制。他在创建一个进城后不立即执行，而是挂起，也就是第七个参数<code>CreateSuspended</code>为1，从而导致DLL注入失败。（所以说置0就行了。</p>
+<p>函数声明（注意32位与64位的声明是有区别的）：</p>
+<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="cp">##ifdef _WIN64
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="k">typedef</span> <span class="nf">DWORD</span><span class="p">(</span><span class="n">WINAPI</span> <span class="o">*</span><span class="n">typedef_ZwCreateThreadEx</span><span class="p">)(</span>
+</span></span><span class="line"><span class="cl">	<span class="n">PHANDLE</span> <span class="n">ThreadHandle</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ACCESS_MASK</span> <span class="n">DesiredAccess</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPVOID</span> <span class="n">ObjectAttributes</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HANDLE</span> <span class="n">ProcessHandle</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPTHREAD_START_ROUTINE</span> <span class="n">lpStartAddress</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPVOID</span> <span class="n">lpParameter</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ULONG</span> <span class="n">CreateThreadFlags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">SIZE_T</span> <span class="n">ZeroBits</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">SIZE_T</span> <span class="n">StackSize</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">SIZE_T</span> <span class="n">MaximumStackSize</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPVOID</span> <span class="n">pUnkown</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="cp">##else
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="k">typedef</span> <span class="nf">DWORD</span><span class="p">(</span><span class="n">WINAPI</span> <span class="o">*</span><span class="n">typedef_ZwCreateThreadEx</span><span class="p">)(</span>
+</span></span><span class="line"><span class="cl">	<span class="n">PHANDLE</span> <span class="n">ThreadHandle</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ACCESS_MASK</span> <span class="n">DesiredAccess</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPVOID</span> <span class="n">ObjectAttributes</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HANDLE</span> <span class="n">ProcessHandle</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPTHREAD_START_ROUTINE</span> <span class="n">lpStartAddress</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPVOID</span> <span class="n">lpParameter</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">BOOL</span> <span class="n">CreateSuspended</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">DWORD</span> <span class="n">dwStackSize</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">DWORD</span> <span class="n">dw1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">DWORD</span> <span class="n">dw2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPVOID</span> <span class="n">pUnkown</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="cp">##endif</span></span></span></code></pre></div><h4 id="实现-2" class="heading-element">
+  <a href="#%e5%ae%9e%e7%8e%b0-2" class="heading-mark"></a>实现</h4><p>跟上面的差不多</p>
+<div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="nf">DWORD</span><span class="p">(</span><span class="n">WINAPI</span><span class="o">*</span> <span class="n">typedef_ZwCreateThreadEx</span><span class="p">)(</span>
+</span></span><span class="line"><span class="cl">	<span class="n">PHANDLE</span> <span class="n">ThreadHandle</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ACCESS_MASK</span> <span class="n">DesiredAccess</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPVOID</span> <span class="n">ObjectAttributes</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HANDLE</span> <span class="n">ProcessHandle</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPTHREAD_START_ROUTINE</span> <span class="n">lpStartAddress</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPVOID</span> <span class="n">lpParameter</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ULONG</span> <span class="n">CreateThreadFlags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">SIZE_T</span> <span class="n">ZeroBits</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">SIZE_T</span> <span class="n">StackSize</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">SIZE_T</span> <span class="n">MaximumStackSize</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPVOID</span> <span class="n">pUnkown</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">ZwCreateThreadExInjectDLL</span><span class="p">(</span><span class="n">DWORD</span> <span class="n">dwProcssId</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">pszDLLFileName</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HANDLE</span> <span class="n">hProcess</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">SIZE_T</span> <span class="n">dwSize</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPVOID</span> <span class="n">pDLLAddr</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">FARPROC</span> <span class="n">pFuncProcAddr</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HANDLE</span> <span class="n">hRemoteThread</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HMODULE</span> <span class="n">hNtdll</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//PROCESS_ALL_ACCESS: 进程对象的所有可能访问权限
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">hProcess</span> <span class="o">=</span> <span class="nf">OpenProcess</span><span class="p">(</span><span class="n">PROCESS_ALL_ACCESS</span><span class="p">,</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">dwProcssId</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">hProcess</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;OpenProcess Error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">dwSize</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nf">strlen</span><span class="p">(</span><span class="n">pszDLLFileName</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//MEM_COMMIT: 为指定的保留内存页面分配内存，初始化为0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">pDLLAddr</span> <span class="o">=</span> <span class="nf">VirtualAllocEx</span><span class="p">(</span><span class="n">hProcess</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">dwSize</span><span class="p">,</span> <span class="n">MEM_COMMIT</span><span class="p">,</span> <span class="n">PAGE_READWRITE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">pDLLAddr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;VirtualAllocEx Error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">FALSE</span> <span class="o">==</span> <span class="nf">WriteProcessMemory</span><span class="p">(</span><span class="n">hProcess</span><span class="p">,</span> <span class="n">pDLLAddr</span><span class="p">,</span> <span class="n">pszDLLFileName</span><span class="p">,</span> <span class="n">dwSize</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;WriteProcessMemory Error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">hNtdll</span> <span class="o">=</span> <span class="nf">LoadLibrary</span><span class="p">(</span><span class="sa">L</span><span class="s">&#34;ntdll.dll&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">pFuncProcAddr</span> <span class="o">=</span> <span class="nf">GetProcAddress</span><span class="p">(</span><span class="nf">GetModuleHandle</span><span class="p">(</span><span class="sa">L</span><span class="s">&#34;kernel32.dll&#34;</span><span class="p">),</span> <span class="s">&#34;LoadLibraryA&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">pFuncProcAddr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;GetProcAddress Error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">typedef_ZwCreateThreadEx</span> <span class="n">ZwCreateThreadEx</span> <span class="o">=</span> <span class="p">(</span><span class="n">typedef_ZwCreateThreadEx</span><span class="p">)</span><span class="nf">GetProcAddress</span><span class="p">(</span><span class="n">hNtdll</span><span class="p">,</span> <span class="s">&#34;ZwCreateThreadEx&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">DWORD</span> <span class="n">status</span> <span class="o">=</span> <span class="nf">ZwCreateThreadEx</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hRemoteThread</span><span class="p">,</span> <span class="n">PROCESS_ALL_ACCESS</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">hProcess</span><span class="p">,</span> <span class="p">(</span><span class="n">LPTHREAD_START_ROUTINE</span><span class="p">)</span><span class="n">pFuncProcAddr</span><span class="p">,</span> <span class="n">pDLLAddr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//hRemoteThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)pFuncProcAddr, pDLLAddr, 0, NULL);
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">CloseHandle</span><span class="p">(</span><span class="n">hProcess</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">FreeLibrary</span><span class="p">(</span><span class="n">hNtdll</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">TRUE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>在这如果想通过MessageBox判断是否注入成功，会失败。由于会话隔离，在系统程序中不能显示程序窗体，也不能用常规方式来建立用户进程。可以使用cs的dll来判断注入是否成功。为了解决服务层和用户层交互的问题，微软设计了一系列以WTS(windows terminal service)开头的API来实现这些功能，下面几章会写。</p>
+<h3 id="apc注入未完成" class="heading-element">
+  <a href="#apc%e6%b3%a8%e5%85%a5%e6%9c%aa%e5%ae%8c%e6%88%90" class="heading-mark"></a>APC注入(未完成)</h3><p>APC(Asynchronous Procedure Calls)异步过程调用，<a href="https://learn.microsoft.com/en-us/windows/win32/sync/asynchronous-procedure-callss"target="_blank" rel="external nofollow noopener noreferrer">微软 APC</a></p>
+<blockquote>
+<p>每个线程都有自己的 APC 队列。应用程序通过调用QueueUserAPC函数将 APC 排队到线程中。调用线程在对QueueUserAPC的调用中指定 APC 函数的地址。APC的排队是线程调用APC函数的请求。</p>
+<p>当用户模式 APC 排队时，它排队的线程不会被定向调用 APC 函数，除非它处于警报状态。线程在调用SleepEx、SignalObjectAndWait、MsgWaitForMultipleObjectsEx、WaitForMultipleObjectsEx或WaitForSingleObjectEx函数时进入警报状态。如果在 APC 排队之前等待满足，则线程不再处于警报等待状态，因此不会执行 APC 函数。但是，APC 仍然在排队，因此当线程调用另一个可警报等待函数时，将执行 APC 函数。</p>
+</blockquote>
+<h4 id="api-3" class="heading-element">
+  <a href="#api-3" class="heading-mark"></a>API</h4><h5 id="queueuserapc" class="heading-element">
+  <a href="#queueuserapc" class="heading-mark"></a>QueueUserAPC</h5><p>将用户模式<a href="https://learn.microsoft.com/en-us/windows/win32/sync/asynchronous-procedure-calls"target="_blank" rel="external nofollow noopener noreferrer">异步过程调用</a>(APC) 对象添加到指定线程的 APC 队列。</p>
+<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">DWORD</span> <span class="nf">QueueUserAPC</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="n">PAPCFUNC</span>  <span class="n">pfnAPC</span><span class="p">,</span><span class="c1">//APC函数指针
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="n">HANDLE</span>    <span class="n">hThread</span><span class="p">,</span><span class="c1">//线程句柄，必须包含THREAD_SET_CONTEXT访问权限
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="n">ULONG_PTR</span> <span class="n">dwData</span><span class="c1">//传递给APC函数的参数，单个值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span></span></span></code></pre></div><h5 id="createtoolhelp32snapshot" class="heading-element">
+  <a href="#createtoolhelp32snapshot" class="heading-mark"></a>CreateToolhelp32Snapshot</h5><p>拍摄指定进程的快照，以及这些进程使用的堆、模块和线程。</p>
+<div class="highlight" id="id-14"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">HANDLE</span> <span class="nf">CreateToolhelp32Snapshot</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="n">DWORD</span> <span class="n">dwFlags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="n">DWORD</span> <span class="n">th32ProcessID</span><span class="c1">//进程标识符，0表示当前进程
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span></span></span></code></pre></div><h5 id="process32first" class="heading-element">
+  <a href="#process32first" class="heading-mark"></a>Process32First</h5><p>第一个进程信息</p>
+<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">Process32First</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>      <span class="n">HANDLE</span>           <span class="n">hSnapshot</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">out</span><span class="p">]</span> <span class="n">LPPROCESSENTRY32</span> <span class="n">lppe</span><span class="c1">//指向 PROCESSENTRY32结构的指针
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span></span></span></code></pre></div><h4 id="实现-3" class="heading-element">
+  <a href="#%e5%ae%9e%e7%8e%b0-3" class="heading-mark"></a>实现</h4><p>一个进程有多个线程，为了确保能够执行插入的APC，需要向每个线程都插入APC。</p>
+<p>具体流程：</p>
+<ol>
+<li></li>
+</ol>
+<h2 id="启动" class="heading-element">
+  <a href="#%e5%90%af%e5%8a%a8" class="heading-mark"></a>启动</h2><p>三部分：</p>
+<ol>
+<li>创建进程API</li>
+<li>突破SESSION0隔离创建进程</li>
+<li>内存加载直接执行</li>
+</ol>
+<h3 id="创建进程api" class="heading-element">
+  <a href="#%e5%88%9b%e5%bb%ba%e8%bf%9b%e7%a8%8bapi" class="heading-mark"></a>创建进程API</h3><p>Windows常用3个创建进程的API</p>
+<ul>
+<li>WinExec</li>
+<li>ShellExecute</li>
+<li>CreateProcess</li>
+</ul>
+<h4 id="api-4" class="heading-element">
+  <a href="#api-4" class="heading-mark"></a>API</h4><h5 id="winexec" class="heading-element">
+  <a href="#winexec" class="heading-mark"></a>WinExec</h5><div class="highlight" id="id-16"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">UINT</span> <span class="nf">WinExec</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="n">LPCSTR</span> <span class="n">lpCmdLine</span><span class="p">,</span><span class="c1">//文件名+参数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span> <span class="n">UINT</span>   <span class="n">uCmdShow</span><span class="c1">//显示选项
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span></span></span></code></pre></div><p>返回值：</p>
+<ul>
+<li>成功：返回值大于31</li>
+</ul>
+<h5 id="shellexecutea" class="heading-element">
+  <a href="#shellexecutea" class="heading-mark"></a>ShellExecuteA</h5><div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">HINSTANCE</span> <span class="nf">ShellExecuteA</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">HWND</span>   <span class="n">hwnd</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">LPCSTR</span> <span class="n">lpOperation</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>           <span class="n">LPCSTR</span> <span class="n">lpFile</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">LPCSTR</span> <span class="n">lpParameters</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">LPCSTR</span> <span class="n">lpDirectory</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>           <span class="n">INT</span>    <span class="n">nShowCmd</span>
+</span></span><span class="line"><span class="cl"><span class="p">);</span><span class="n">s</span></span></span></code></pre></div><p>返回值：</p>
+<ul>
+<li>成功：返回值大于31</li>
+</ul>
+<h5 id="createprocessa" class="heading-element">
+  <a href="#createprocessa" class="heading-mark"></a>CreateProcessA</h5><div class="highlight" id="id-18"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">CreateProcessA</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span>      <span class="n">LPCSTR</span>                <span class="n">lpApplicationName</span><span class="p">,</span><span class="c1">//程序名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">LPSTR</span>                 <span class="n">lpCommandLine</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span>      <span class="n">LPSECURITY_ATTRIBUTES</span> <span class="n">lpProcessAttributes</span><span class="p">,</span><span class="c1">//指向 SECURITY_ATTRIBUTES结构的指针
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span>      <span class="n">LPSECURITY_ATTRIBUTES</span> <span class="n">lpThreadAttributes</span><span class="p">,</span><span class="c1">//指向 SECURITY_ATTRIBUTES结构的指
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>                <span class="n">BOOL</span>                  <span class="n">bInheritHandles</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>                <span class="n">DWORD</span>                 <span class="n">dwCreationFlags</span><span class="p">,</span><span class="c1">//控制优先级和进程创建的标志
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span>      <span class="n">LPVOID</span>                <span class="n">lpEnvironment</span><span class="p">,</span><span class="c1">//指向新进程的环境块的指针。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span>      <span class="n">LPCSTR</span>                <span class="n">lpCurrentDirectory</span><span class="p">,</span><span class="c1">//当前进程完整目录
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>                <span class="n">LPSTARTUPINFOA</span>        <span class="n">lpStartupInfo</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">out</span><span class="p">]</span>               <span class="n">LPPROCESS_INFORMATION</span> <span class="n">lpProcessInformation</span>
+</span></span><span class="line"><span class="cl"><span class="p">);</span></span></span></code></pre></div><h4 id="实现-4" class="heading-element">
+  <a href="#%e5%ae%9e%e7%8e%b0-4" class="heading-mark"></a>实现</h4><div class="highlight" id="id-19"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">ExecTest</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">pszFileName</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">UINT</span> <span class="n">a</span> <span class="o">=</span> <span class="nf">WinExec</span><span class="p">(</span><span class="n">pszFileName</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">ShellExecuteTest</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">pszFileName</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HINSTANCE</span> <span class="n">hInstance</span> <span class="o">=</span> <span class="nf">ShellExecuteA</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">pszFileName</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">CreateProcessTest</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">pszFileName</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">STARTUPINFO</span> <span class="n">si</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">	<span class="n">PROCESS_INFORMATION</span> <span class="n">pi</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">si</span><span class="p">.</span><span class="n">cb</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">si</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">si</span><span class="p">.</span><span class="n">dwFlags</span> <span class="o">=</span> <span class="n">STARTF_USESHOWWINDOW</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">si</span><span class="p">.</span><span class="n">wShowWindow</span> <span class="o">=</span> <span class="n">SW_SHOWNORMAL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">BOOL</span> <span class="n">res</span> <span class="o">=</span> <span class="nf">CreateProcessA</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="n">pszFileName</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">FALSE</span><span class="p">,</span> <span class="n">CREATE_NEW_CONSOLE</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">si</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pi</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="n">TRUE</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;true</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">CloseHandle</span><span class="p">(</span><span class="n">pi</span><span class="p">.</span><span class="n">hProcess</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">CloseHandle</span><span class="p">(</span><span class="n">pi</span><span class="p">.</span><span class="n">hThread</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;false&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> 
+</span></span></code></pre></div><h3 id="突破session-0隔离创建用户进程" class="heading-element">
+  <a href="#%e7%aa%81%e7%a0%b4session-0%e9%9a%94%e7%a6%bb%e5%88%9b%e5%bb%ba%e7%94%a8%e6%88%b7%e8%bf%9b%e7%a8%8b" class="heading-mark"></a>突破SESSION 0隔离创建用户进程</h3><p>SESSION 0的内容见上文，为了解决服务层和用户层交互的问题，微软设计了一系列以WTS(windows terminal service)开头的API来实现这些功能。</p>
+<h4 id="api-5" class="heading-element">
+  <a href="#api-5" class="heading-mark"></a>API</h4><h5 id="wtsgetactiveconsolesessionid" class="heading-element">
+  <a href="#wtsgetactiveconsolesessionid" class="heading-mark"></a>WTSGetActiveConsoleSessionId</h5><p>检索控制台会话的会话标识符。</p>
+<div class="highlight" id="id-20"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">DWORD</span> <span class="nf">WTSGetActiveConsoleSessionId</span><span class="p">();</span></span></span></code></pre></div><h5 id="wtsqueryusertoken" class="heading-element">
+  <a href="#wtsqueryusertoken" class="heading-mark"></a>WTSQueryUserToken</h5><p>获取会话 ID 指定的登录用户的主要访问令牌。</p>
+<div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">WTSQueryUserToken</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>  <span class="n">ULONG</span>   <span class="n">SessionId</span><span class="p">,</span><span class="c1">//远程桌面服务会话标识符。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="n">PHANDLE</span> <span class="n">phToken</span>
+</span></span><span class="line"><span class="cl"><span class="p">);</span></span></span></code></pre></div><h5 id="duplicatetokenex" class="heading-element">
+  <a href="#duplicatetokenex" class="heading-mark"></a>DuplicateTokenEx</h5><p>创建一个复制现有令牌的新<a href="https://learn.microsoft.com/en-us/windows/desktop/SecGloss/a-gly"target="_blank" rel="external nofollow noopener noreferrer">访问令牌。</a></p>
+<div class="highlight" id="id-22"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">DuplicateTokenEx</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>           <span class="n">HANDLE</span>                       <span class="n">hExistingToken</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>           <span class="n">DWORD</span>                        <span class="n">dwDesiredAccess</span><span class="p">,</span><span class="c1">//指定新令牌的请求访问权限
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">LPSECURITY_ATTRIBUTES</span>        <span class="n">lpTokenAttributes</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>           <span class="n">SECURITY_IMPERSONATION_LEVEL</span> <span class="n">ImpersonationLevel</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>           <span class="n">TOKEN_TYPE</span>                   <span class="n">TokenType</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">out</span><span class="p">]</span>          <span class="n">PHANDLE</span>                      <span class="n">phNewToken</span>
+</span></span><span class="line"><span class="cl"><span class="p">);</span></span></span></code></pre></div><h5 id="createenvironmentblock" class="heading-element">
+  <a href="#createenvironmentblock" class="heading-mark"></a>CreateEnvironmentBlock</h5><p>检索指定用户的环境变量。</p>
+<div class="highlight" id="id-23"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">CreateEnvironmentBlock</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">out</span><span class="p">]</span>          <span class="n">LPVOID</span> <span class="o">*</span><span class="n">lpEnvironment</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">HANDLE</span> <span class="n">hToken</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>           <span class="n">BOOL</span>   <span class="n">bInherit</span>
+</span></span><span class="line"><span class="cl"><span class="p">);</span></span></span></code></pre></div><h5 id="createprocessasusera" class="heading-element">
+  <a href="#createprocessasusera" class="heading-mark"></a>CreateProcessAsUserA</h5><p>创建一个新进程及其主线程。新进程在由指定令牌表示的用户的安全上下文中运行。</p>
+<div class="highlight" id="id-24"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">CreateProcessAsUserA</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span>      <span class="n">HANDLE</span>                <span class="n">hToken</span><span class="p">,</span><span class="c1">//用户的主令牌的句柄
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span>      <span class="n">LPCSTR</span>                <span class="n">lpApplicationName</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">LPSTR</span>                 <span class="n">lpCommandLine</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span>      <span class="n">LPSECURITY_ATTRIBUTES</span> <span class="n">lpProcessAttributes</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span>      <span class="n">LPSECURITY_ATTRIBUTES</span> <span class="n">lpThreadAttributes</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>                <span class="n">BOOL</span>                  <span class="n">bInheritHandles</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>                <span class="n">DWORD</span>                 <span class="n">dwCreationFlags</span><span class="p">,</span><span class="c1">//控制优先级和进程创建的标志。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span>      <span class="n">LPVOID</span>                <span class="n">lpEnvironment</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span>      <span class="n">LPCSTR</span>                <span class="n">lpCurrentDirectory</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>                <span class="n">LPSTARTUPINFOA</span>        <span class="n">lpStartupInfo</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">out</span><span class="p">]</span>               <span class="n">LPPROCESS_INFORMATION</span> <span class="n">lpProcessInformation</span>
+</span></span><span class="line"><span class="cl"><span class="p">);</span></span></span></code></pre></div><h4 id="实现-5" class="heading-element">
+  <a href="#%e5%ae%9e%e7%8e%b0-5" class="heading-mark"></a>实现</h4><p>首先使用<code>WTSGetActiveConsoleSessionId</code>获取当前sessionID，之后调用<code>WTSQueryUserToken</code>返回用户令牌句柄，之后使用<code>DuplicateToken</code>创建新的令牌，并复制上面获取的用户令牌，之后使用<code>CreateEnvironmentBlock</code>创建一个环境块，再之后就是调用<code>CreateProcessAsUserA</code>创建</p>
+<div class="highlight" id="id-25"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">createUserProcess</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">pszFileName</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">DWORD</span> <span class="n">dwSessionId</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HANDLE</span> <span class="n">hToken</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HANDLE</span> <span class="n">hDuplicatedToken</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LPVOID</span> <span class="n">lpEnvironment</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">STARTUPINFO</span> <span class="n">si</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span> <span class="p">};</span>
+</span></span><span class="line"><span class="cl">	<span class="n">PROCESS_INFORMATION</span> <span class="n">pi</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span> <span class="p">};</span>
+</span></span><span class="line"><span class="cl">	<span class="n">si</span><span class="p">.</span><span class="n">cb</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">si</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 获得当前Session ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">dwSessionId</span> <span class="o">=</span> <span class="nf">WTSGetActiveConsoleSessionId</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 获得当前Session的用户令牌
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="p">(</span><span class="nf">WTSQueryUserToken</span><span class="p">(</span><span class="n">dwSessionId</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hToken</span><span class="p">)</span> <span class="o">==</span> <span class="n">FALSE</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;WTSGetActiveConsoleSessionId Error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 复制令牌
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="p">(</span><span class="n">FALSE</span> <span class="o">==</span> <span class="nf">DuplicateTokenEx</span><span class="p">(</span><span class="n">hToken</span><span class="p">,</span> <span class="n">MAXIMUM_ALLOWED</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">SecurityIdentification</span><span class="p">,</span> <span class="n">TokenPrimary</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hDuplicatedToken</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;DuplicateTokenEx Error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 创建用户Session环境
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="p">(</span><span class="n">FALSE</span> <span class="o">==</span> <span class="nf">CreateEnvironmentBlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lpEnvironment</span><span class="p">,</span> <span class="n">hDuplicatedToken</span><span class="p">,</span> <span class="n">FALSE</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;CreateEnvironmentBlock Error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">FALSE</span> <span class="o">==</span> <span class="nf">CreateProcessAsUser</span><span class="p">(</span><span class="n">hDuplicatedToken</span><span class="p">,</span> <span class="p">(</span><span class="n">LPCWSTR</span><span class="p">)</span><span class="n">pszFileName</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">FALSE</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="n">NORMAL_PRIORITY_CLASS</span> <span class="o">|</span> <span class="n">CREATE_NEW_CONSOLE</span> <span class="o">|</span> <span class="n">CREATE_UNICODE_ENVIRONMENT</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="n">lpEnvironment</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">si</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pi</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;CreateProcessAsUser Error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">lpEnvironment</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">DestroyEnvironmentBlock</span><span class="p">(</span><span class="n">lpEnvironment</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">hDuplicatedToken</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">CloseHandle</span><span class="p">(</span><span class="n">hDuplicatedToken</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">hToken</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">CloseHandle</span><span class="p">(</span><span class="n">hToken</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">TRUE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>要实现突破SESSION 0隔离的话，必须将程序注册为一个系统服务进程 ，这样才在SESSION 0中，服务程序的入口点和普通的程序不同，需要调用<code>StartServiceCtrlDispatcher</code>函数来设置服务入口点函数，这里不写了，见<a href="https://github.com/jash-git/Windows-Hack-Programming-backup/blob/master/WINDOWS%E9%BB%91%E5%AE%A2%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF%E8%AF%A6%E8%A7%A3-%E9%85%8D%E5%A5%97%E8%B5%84%E6%BA%90/%E7%94%A8%E6%88%B7%E5%B1%82/4/%E7%AA%81%E7%A0%B4SESSION%200%E9%9A%94%E7%A6%BB%E5%88%9B%E5%BB%BA%E7%94%A8%E6%88%B7%E8%BF%9B%E7%A8%8B/CreateProcessAsUser_Test/CreateProcessAsUser_Test/CreateProcessAsUser_Test.cpp"target="_blank" rel="external nofollow noopener noreferrer">代码</a>。</p>
+<h3 id="内存加载执行未完成" class="heading-element">
+  <a href="#%e5%86%85%e5%ad%98%e5%8a%a0%e8%bd%bd%e6%89%a7%e8%a1%8c%e6%9c%aa%e5%ae%8c%e6%88%90" class="heading-mark"></a>内存加载执行(未完成)</h3><p>就是把程序放到内存执行，不需要<code>LoadLibrary</code>，需要PE的知识。</p>
+<p>代码见：<a href="https://github.com/jash-git/Windows-Hack-Programming-backup/blob/master/WINDOWS%E9%BB%91%E5%AE%A2%E7%BC%96%E7%A8%8B%E6%8A%80%E6%9C%AF%E8%AF%A6%E8%A7%A3-%E9%85%8D%E5%A5%97%E8%B5%84%E6%BA%90/%E7%94%A8%E6%88%B7%E5%B1%82/4/%E5%86%85%E5%AD%98%E7%9B%B4%E6%8E%A5%E5%8A%A0%E8%BD%BD%E8%BF%90%E8%A1%8C/RunDllInMem_Test/RunDllInMem_Test/MmLoadDll.cpp"target="_blank" rel="external nofollow noopener noreferrer">代码</a></p>
+<h2 id="提权技术bypass-uac部分未完成" class="heading-element">
+  <a href="#%e6%8f%90%e6%9d%83%e6%8a%80%e6%9c%afbypass-uac%e9%83%a8%e5%88%86%e6%9c%aa%e5%ae%8c%e6%88%90" class="heading-mark"></a>提权技术(Bypass UAC部分未完成)</h2><p>主要是两种：</p>
+<ol>
+<li>进程访问令牌权限提升</li>
+<li>Bypass UAC</li>
+</ol>
+<h3 id="进程访问令牌权限提升" class="heading-element">
+  <a href="#%e8%bf%9b%e7%a8%8b%e8%ae%bf%e9%97%ae%e4%bb%a4%e7%89%8c%e6%9d%83%e9%99%90%e6%8f%90%e5%8d%87" class="heading-mark"></a>进程访问令牌权限提升</h3><h4 id="api-6" class="heading-element">
+  <a href="#api-6" class="heading-mark"></a>API</h4><h5 id="openprocesstoken" class="heading-element">
+  <a href="#openprocesstoken" class="heading-mark"></a>OpenProcessToken</h5><p>打开与进程关联的<a href="https://learn.microsoft.com/en-us/windows/desktop/SecGloss/a-gly"target="_blank" rel="external nofollow noopener noreferrer">访问令牌</a></p>
+<div class="highlight" id="id-26"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">OpenProcessToken</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>  <span class="n">HANDLE</span>  <span class="n">ProcessHandle</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>  <span class="n">DWORD</span>   <span class="n">DesiredAccess</span><span class="p">,</span><span class="c1">//指定一个访问掩码
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">out</span><span class="p">]</span> <span class="n">PHANDLE</span> <span class="n">TokenHandle</span>
+</span></span><span class="line"><span class="cl"><span class="p">);</span></span></span></code></pre></div><h5 id="lookupprivilegevalue" class="heading-element">
+  <a href="#lookupprivilegevalue" class="heading-mark"></a>LookupPrivilegeValue</h5><p>查看系统权限的特权值，返回LUID结构体</p>
+<div class="highlight" id="id-27"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">LookupPrivilegeValueA</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">LPCSTR</span> <span class="n">lpSystemName</span><span class="p">,</span><span class="c1">//指向以空字符结尾的字符串的指针，该字符串指定在其上检索特权名称的系统名称。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>           <span class="n">LPCSTR</span> <span class="n">lpName</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">out</span><span class="p">]</span>          <span class="n">PLUID</span>  <span class="n">lpLuid</span>
+</span></span><span class="line"><span class="cl"><span class="p">);</span></span></span></code></pre></div><h5 id="adjusttokenprivileges" class="heading-element">
+  <a href="#adjusttokenprivileges" class="heading-mark"></a>AdjustTokenPrivileges</h5><p>启用或禁用指定<a href="https://learn.microsoft.com/en-us/windows/desktop/SecGloss/a-gly"target="_blank" rel="external nofollow noopener noreferrer">访问令牌</a>中的权限</p>
+<div class="highlight" id="id-28"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">AdjustTokenPrivileges</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>            <span class="n">HANDLE</span>            <span class="n">TokenHandle</span><span class="p">,</span><span class="c1">//要修改的权限的访问令牌的句柄
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">in</span><span class="p">]</span>            <span class="n">BOOL</span>              <span class="n">DisableAllPrivileges</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span>  <span class="n">PTOKEN_PRIVILEGES</span> <span class="n">NewState</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">in</span><span class="p">]</span>            <span class="n">DWORD</span>             <span class="n">BufferLength</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="n">out</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">PTOKEN_PRIVILEGES</span> <span class="n">PreviousState</span><span class="p">,</span><span class="c1">//一个指向缓冲区的指针，函数用TOKEN_PRIVILEGES结构填充该结构，该结构包含函数修改的任何特权的先前状态
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">[</span><span class="n">out</span><span class="p">,</span> <span class="n">optional</span><span class="p">]</span> <span class="n">PDWORD</span>            <span class="n">ReturnLength</span><span class="c1">//PreviousState大小，字节
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span></span></span></code></pre></div><h4 id="实现-6" class="heading-element">
+  <a href="#%e5%ae%9e%e7%8e%b0-6" class="heading-mark"></a>实现</h4><div class="highlight" id="id-29"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">enablePrivileges</span><span class="p">(</span><span class="n">HANDLE</span> <span class="n">hProcess</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">pszPrivilegesName</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HANDLE</span> <span class="n">hToken</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">BOOL</span> <span class="n">res</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">LUID</span> <span class="n">luidValue</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">	<span class="n">TOKEN_PRIVILEGES</span> <span class="n">tokenPrivileges</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span> <span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">OpenProcessToken</span><span class="p">(</span><span class="n">hProcess</span><span class="p">,</span> <span class="n">TOKEN_ADJUST_PRIVILEGES</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hToken</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">LookupPrivilegeValue</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,(</span><span class="n">LPCWSTR</span><span class="p">)</span><span class="n">pszPrivilegesName</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">luidValue</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">tokenPrivileges</span><span class="p">.</span><span class="n">PrivilegeCount</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">tokenPrivileges</span><span class="p">.</span><span class="n">Privileges</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">Luid</span> <span class="o">=</span> <span class="n">luidValue</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">tokenPrivileges</span><span class="p">.</span><span class="n">Privileges</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">Attributes</span> <span class="o">=</span> <span class="n">SE_PRIVILEGE_ENABLED</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">res</span><span class="o">=</span><span class="nf">AdjustTokenPrivileges</span><span class="p">(</span><span class="n">hToken</span><span class="p">,</span> <span class="n">FALSE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">tokenPrivileges</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%d,&#34;</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%d&#34;</span><span class="p">,</span> <span class="nf">GetLastError</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="nf">GetLastError</span><span class="p">()</span> <span class="o">==</span> <span class="n">ERROR_SUCCESS</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">TRUE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FALSE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><code>AdjustTokenPrivileges</code>的返回值为true也不代表特权设置成功，必须要<code>GetLastError</code>的值为<code>ERROR_SUCCESS</code>才成功，如果再程序中只提升一个访问令牌特权，且错误码为<code>ERROR_NOT_ALL_ASSIGNED</code>,则提升失败。如果程序运行再Windows 7或者以上版本的操作系统，可以尝试以管理员身份运行程序，然后再进行测试。</p>
+<p><img loading="lazy" src="/posts/2022-9-wincode1/image-20221011224037542.png" alt="image-20221011224037542" srcset="/posts/2022-9-wincode1/image-20221011224037542.png?size=small, /posts/2022-9-wincode1/image-20221011224037542.png?size=medium 1.5x, /posts/2022-9-wincode1/image-20221011224037542.png?size=large 2x" data-title="image-20221011224037542" style="--width: 1062px;--aspect-ratio: 1062 / 604;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<h3 id="bypassuac" class="heading-element">
+  <a href="#bypassuac" class="heading-mark"></a>BypassUAC</h3><blockquote>
+<p>UAC需要授权的动作包括：</p>
+<ul>
+<li>以管理员身份运行程序</li>
+<li>配置<a href="https://zh.wikipedia.org/wiki/Windows_Update"target="_blank" rel="external nofollow noopener noreferrer">Windows Update</a></li>
+<li>增加或删除用户账户</li>
+<li>改变用户的账户类型</li>
+<li>配置来宾（Guest）账户（Windows 7和8.1）</li>
+<li>改变UAC设置</li>
+<li>安装<a href="https://zh.wikipedia.org/wiki/ActiveX"target="_blank" rel="external nofollow noopener noreferrer">ActiveX</a></li>
+<li>安装或移除<a href="https://zh.wikipedia.org/wiki/%e8%ae%a1%e7%ae%97%e6%9c%ba%e7%a8%8b%e5%ba%8f"target="_blank" rel="external nofollow noopener noreferrer">程序</a></li>
+<li>安装设备<a href="https://zh.wikipedia.org/wiki/%e9%a9%85%e5%8b%95%e7%a8%8b%e5%bc%8f"target="_blank" rel="external nofollow noopener noreferrer">驱动程序</a></li>
+<li>设置家长控制</li>
+<li>修改系统盘根目录、<strong>Program Files</strong>（x86和x64）目录或<strong>Windows</strong>目录</li>
+<li>查看其他用户文件夹</li>
+<li>配置文件共享或<a href="https://zh.wikipedia.org/wiki/%e6%b5%81%e5%aa%92%e9%ab%94"target="_blank" rel="external nofollow noopener noreferrer">流媒体</a></li>
+<li>配置家长控制面板</li>
+<li>运行<a href="https://zh.wikipedia.org/wiki/%e5%be%ae%e8%bd%af%e7%ae%a1%e7%90%86%e6%8e%a7%e5%88%b6%e5%8f%b0"target="_blank" rel="external nofollow noopener noreferrer">Microsoft Management Console</a>控制台和以.msc为后缀名程序（部分.mmc程序除外）</li>
+<li>运行<a href="https://zh.wikipedia.org/wiki/%e7%b3%bb%e7%b5%b1%e9%82%84%e5%8e%9f"target="_blank" rel="external nofollow noopener noreferrer">系统还原</a>程序</li>
+<li>运行<a href="https://zh.wikipedia.org/w/index.php?title=%e7%a3%81%e7%9b%a4%e7%a2%8e%e7%89%87%e6%95%b4%e7%90%86&amp;action=edit&amp;redlink=1"target="_blank" rel="external nofollow noopener noreferrer">磁盘碎片整理</a>程序</li>
+<li>运行<a href="https://zh.wikipedia.org/w/index.php?title=%e8%a8%bb%e5%86%8a%e8%a1%a8%e7%b7%a8%e8%bc%af%e5%99%a8&amp;action=edit&amp;redlink=1"target="_blank" rel="external nofollow noopener noreferrer">注册表编辑器</a>或修改注册表</li>
+<li>安装或卸载显示语言（Windows 7）</li>
+<li>运行Windows评估程序</li>
+<li>配置Windows电源程序，</li>
+<li>配置Windows功能</li>
+<li>运行日期和时间控制台</li>
+<li>配置轻松访问</li>
+<li>激活、修改产品密钥</li>
+</ul>
+</blockquote>
+<p>在触发 UAC 时，操作系统会创建一个<code>consent.exe</code>进程，用来确定是否创建具有管理员权限的进程（通过白名单和用户选择判断），然后<code>CreateProcess</code>。请求进程将要请求的进程cmdline和进程路径，通过LPC接口传递给appinfo的<code>RAiLuanchAdminProcess</code>函数，该函数首先验证路径是否在白名单中，并将结果传递给consent.exe进程，该进程验证被请求的进程签名，以及发起者的权限，是否符合要求，然后决定是否弹出UAC框，让用户确认。这个UAC框会创建新的安全桌面，遮挡之前的界面。同时这个UAC框进程是SYSTEM账户的进程，其他标准用户进程无法与其通信交互。用户确认之后，会调用<code>CreateProcessAsUser</code>函数，以管理员权限启动请求的进程。</p>
+<p>UAC Bypass方法：</p>
+<ul>
+<li>白名单提权</li>
+<li>COM组件接口技术</li>
+</ul>
+<h5 id="bypass-uac-白名单提权" class="heading-element">
+  <a href="#bypass-uac-%e7%99%bd%e5%90%8d%e5%8d%95%e6%8f%90%e6%9d%83" class="heading-mark"></a>Bypass UAC-白名单提权</h5><p>使用进程监控工具：<code>Procmon.exe</code>，监控<code>CompMgmtLauncher.exe</code></p>
+<p><code>CompMgmtLauncher.exe</code>进程会先查询注册表<code>HKCU\Software\Classes\mscfile\shell\open\command</code>中的数据，发现该路路径不存在后，继续查询注册表<code>HKCR\mscfile\shell\open\command(Default)</code>中的数据并读取，该注册表路径中存储着mmc.exe进程的路径信息。</p>
+<p>可以在<code>HKCU\Software\Classes\mscfile\shell\open\command(Default)</code>写入自定义路径，实现代码如下：</p>
+<div class="highlight" id="id-30"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">setReg</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">lpzEXEpath</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HKEY</span> <span class="n">hKey</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 创建项
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">RegCreateKeyEx</span><span class="p">(</span><span class="n">HKEY_CURRENT_USER</span><span class="p">,</span> <span class="p">(</span><span class="n">LPCWSTR</span><span class="p">)</span><span class="s">&#34;Software</span><span class="se">\\</span><span class="s">Classes</span><span class="se">\\</span><span class="s">mscfile</span><span class="se">\\</span><span class="s">Shell</span><span class="se">\\</span><span class="s">Open</span><span class="se">\\</span><span class="s">Command&#34;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">KEY_WOW64_64KEY</span> <span class="o">|</span> <span class="n">KEY_ALL_ACCESS</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hKey</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 设置键值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">RegSetValueEx</span><span class="p">(</span><span class="n">hKey</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">REG_SZ</span><span class="p">,</span> <span class="p">(</span><span class="n">BYTE</span><span class="o">*</span><span class="p">)</span><span class="n">lpzEXEpath</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nf">lstrlen</span><span class="p">((</span><span class="n">LPCWSTR</span><span class="p">)</span><span class="n">lpzEXEpath</span><span class="p">)));</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 关闭注册表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">RegCloseKey</span><span class="p">(</span><span class="n">hKey</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">TRUE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h2 id="隐藏技术" class="heading-element">
+  <a href="#%e9%9a%90%e8%97%8f%e6%8a%80%e6%9c%af" class="heading-mark"></a>隐藏技术</h2></div><div class="post-footer" id="post-footer">
+  <div class="post-info">
+    <div class="post-info-line">
+      <div class="post-info-mod">
+        <span title="更新于 2022-10-10 00:00:00">更新于 2022-10-10&nbsp;</span>
+      </div><div class="post-info-license">
+            <span><a rel="license external nofollow noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a></span>
+          </div></div><div class="post-info-line">
+        <div class="post-info-md"></div>
+        <div class="post-info-share">
+          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/2022-9-wincode1/" data-title="Windows Program Learn_0x1" data-hashtags="Win32"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/2022-9-wincode1/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/2022-9-wincode1/" data-title="Windows Program Learn_0x1"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+  </span>
+        </div>
+      </div></div>
+
+  <div class="post-info-more">
+    <section class="post-tags"><i class="fa-solid fa-tags fa-fw me-1" aria-hidden="true"></i><a href="/tags/win32/" class="post-tag" title="标签 - Win32">Win32</a></section>
+    <section>
+      <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+    </section>
+  </div>
+
+  <div class="post-nav"><a href="/posts/2022-10-http/" class="post-nav-item" rel="prev" title="HTTP Smuggling攻击"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>HTTP Smuggling攻击</a>
+      <a href="/posts/dir815/" class="post-nav-item" rel="next" title="DLink 815路由器栈溢出漏洞分析与复现">DLink 815路由器栈溢出漏洞分析与复现<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article>
+
+  <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
+      <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+        </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
+            <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
+              <a href="/"></a></span></div></div>
+  </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
+        </div></div><div id="mask"></div><noscript>
+    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+  </noscript>
+</div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+</html>

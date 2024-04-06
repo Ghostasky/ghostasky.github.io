@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+    <meta name="robots" content="noodp" />
+    <title>AFL源码阅读 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+<meta name="author-link" content="">
+<meta name="description" content="" /><meta name="keywords" content='AFL' /><meta itemprop="name" content="AFL源码阅读">
+<meta itemprop="description" content=""><meta itemprop="datePublished" content="2023-09-16T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2023-09-16T00:00:00+00:00" />
+<meta itemprop="wordCount" content="16638">
+<meta itemprop="keywords" content="AFL," /><meta property="og:title" content="AFL源码阅读" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/2023-9-aflsourceread/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-09-16T00:00:00+00:00" />
+<meta property="article:modified_time" content="2023-09-16T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="AFL源码阅读"/>
+<meta name="twitter:description" content=""/>
+<meta name="application-name" content="FixIt">
+<meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/2023-9-aflsourceread/" /><link rel="prev" href="http://ghostasky.github.io/posts/2023-9-wrkprocessthread/" /><link rel="next" href="http://ghostasky.github.io/posts/2023-11-%E7%A7%8B%E6%8B%9B/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "AFL源码阅读",
+    "inLanguage": "zh-CN",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "http:\/\/ghostasky.github.io\/posts\/2023-9-aflsourceread\/"
+    },"genre": "posts","keywords": "AFL","wordcount":  16638 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/2023-9-aflsourceread\/","datePublished": "2023-09-16T00:00:00+00:00","dateModified": "2023-09-16T00:00:00+00:00","publisher": {
+      "@type": "Organization",
+      "name": ""},"author": {
+        "@type": "Person",
+        "name": "作者"
+      },"description": ""
+  }
+  </script></head>
+  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <div class="header-wrapper">
+    <div class="header-title">
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+    <nav>
+      <ul class="menu"><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/posts/"
+                
+                
+              >文章</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/categories/"
+                
+                
+              >分类</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/tags/"
+                
+                
+              >标签</a></li><li class="menu-item">
+              <a
+                class="menu-link"
+                href="/about/"
+                
+                
+              >关于</a></li><li class="menu-item delimiter"></li><li class="menu-item theme-switch" title="切换主题">
+          <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+        </li></ul>
+    </nav>
+  </div>
+</header><header class="mobile animate__faster" id="header-mobile">
+  <div class="header-container">
+    <div class="header-wrapper">
+      <div class="header-title">
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <div class="menu-toggle" id="menu-toggle-mobile">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <nav>
+      <ul class="menu" id="menu-mobile"><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/posts/"
+                  
+                  
+                >文章</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/categories/"
+                  
+                  
+                >分类</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/tags/"
+                  
+                  
+                >标签</a></li><li
+              class="menu-item"
+            ><a
+                  class="menu-link"
+                  href="/about/"
+                  
+                  
+                >关于</a></li><li class="menu-item menu-system">
+          <span class="menu-system-item theme-switch" title="切换主题"><i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i></span></li>
+      </ul>
+    </nav>
+  </div>
+</header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
+
+  <article class="page single">
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>AFL源码阅读</span>
+      </h1></div><div class="post-meta">
+      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
+      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-09-16 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-09-16">2023-09-16</time></span>&nbsp;<span title="16638 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 16700 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 34 分钟</span>&nbsp;</div>
+    </div><div class="details toc" id="toc-static" data-kept="false">
+        <div class="details-summary toc-title">
+          <span>目录</span>
+          <span><i class="details-icon fa-solid fa-angle-right" aria-hidden="true"></i></span>
+        </div>
+        <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#afl_gcc">afl_gcc</a>
+      <ul>
+        <li><a href="#main">main</a></li>
+        <li><a href="#find_as">find_as</a></li>
+        <li><a href="#edit_params">edit_params</a></li>
+      </ul>
+    </li>
+    <li><a href="#afl_as">afl_as</a>
+      <ul>
+        <li><a href="#main-1">main</a></li>
+        <li><a href="#edit_params-1">edit_params</a></li>
+        <li><a href="#add_instrumentation">add_instrumentation</a></li>
+      </ul>
+    </li>
+    <li><a href="#afl_tmin">afl_tmin</a>
+      <ul>
+        <li><a href="#main-2">main</a></li>
+        <li><a href="#run_target">run_target</a></li>
+        <li><a href="#minimize">minimize</a></li>
+      </ul>
+    </li>
+    <li><a href="#afl-fast-clang">afl-fast-clang</a>
+      <ul>
+        <li><a href="#clang-wrapper">Clang wrapper</a></li>
+      </ul>
+    </li>
+    <li><a href="#afl-llvm-pass">afl-llvm-pass</a>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+    <li><a href="#afl-llvm-rt">afl-llvm-rt</a></li>
+    <li><a href="#afl-showmap">afl-showmap</a>
+      <ul>
+        <li><a href="#write_results">write_results</a></li>
+      </ul>
+    </li>
+    <li><a href="#afl-analyze">afl-analyze</a>
+      <ul>
+        <li><a href="#analyze">analyze</a></li>
+        <li><a href="#dump_hex">dump_hex</a></li>
+      </ul>
+    </li>
+    <li><a href="#afl-fuzz">afl-fuzz</a>
+      <ul>
+        <li><a href="#main-4">main</a></li>
+        <li><a href="#perform_dry_run">perform_dry_run</a></li>
+        <li><a href="#calibrate_case">calibrate_case</a></li>
+        <li><a href="#update_bitmap_score">update_bitmap_score</a></li>
+        <li><a href="#cull_queue">cull_queue</a></li>
+        <li><a href="#fuzz_one">fuzz_one</a></li>
+      </ul>
+    </li>
+    <li><a href="#ref">REF</a></li>
+  </ul>
+</nav></div>
+      </div><div class="content" id="content"><p>阅读源码的主要目标应该是：</p>
+<ol>
+<li>理清静态插桩过程（gcc、clang、llvm mode）</li>
+<li>理清 fuzz 过程：如何变异、如何将 input 传递给程序、如何收集覆盖度信息</li>
+<li>理清 qemu mode 的插桩和执行过程</li>
+</ol>
+<p>因此，我们决定阅读顺序：</p>
+<ol>
+<li>阅读 afl-gcc.c 和 afl-as.c，即静态插桩相关代码</li>
+<li>阅读 afl-tmin.c ，这个工具的用途是「将一个 input case 缩小，但与原 input 拥有相同的覆盖度」。它会完整地演示如何收集程序的覆盖度信息，而不涉及 afl-fuzz.c 中的其他流程。这将给我们提供一个绝佳的切面，以研究 AFL 收集覆盖度的方法</li>
+<li>阅读 afl-fuzz.c</li>
+</ol>
+<h2 id="afl_gcc" class="heading-element">
+  <a href="#afl_gcc" class="heading-mark"></a>afl_gcc</h2><p>afl-gcc 是 gcc, g++, clang, clang++ 的包装器。它的作用是设置一些编译参数，然后调用这些编译器</p>
+<p>编译出来的 afl-clang, afl-g++ 等文件都是指向 afl-gcc 的软链接。</p>
+<h3 id="main" class="heading-element">
+  <a href="#main" class="heading-mark"></a>main</h3><div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="nf">isatty</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nf">getenv</span><span class="p">(</span><span class="s">&#34;AFL_QUIET&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">SAYF</span><span class="p">(</span><span class="n">cCYA</span> <span class="s">&#34;afl-cc &#34;</span> <span class="n">cBRI</span> <span class="n">VERSION</span> <span class="n">cRST</span> <span class="s">&#34; by &lt;lcamtuf@google.com&gt;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="cl">        <span class="n">be_quiet</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="p">.....</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 从环境变量中获取afl-as的路径
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">find_as</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 编辑参数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">edit_params</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/*在CC前打印下参数：*/</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">cc_par_cnt</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\t</span><span class="s">arg:%d : %s &#34;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">cc_params</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 执行下游编译器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">execvp</span><span class="p">(</span><span class="n">cc_params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="kt">char</span> <span class="o">**</span><span class="p">)</span><span class="n">cc_params</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">FATAL</span><span class="p">(</span><span class="s">&#34;Oops, failed to execute &#39;%s&#39; - check your PATH&#34;</span><span class="p">,</span> <span class="n">cc_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="find_as" class="heading-element">
+  <a href="#find_as" class="heading-mark"></a>find_as</h3><p>主要工作：</p>
+<ul>
+<li>检查<code>AFL_PATH</code>环境变量是否存在，之后检查该目录下as文件，如果存在，赋值给<code>as_path</code>，返回</li>
+<li>如果环境变量和该文件都不存在，检查<code>argv0</code>变量，检查该目录下afl-as文件是否存在并且可访问，赋值后返回。</li>
+<li>都不存在，抛出异常，返回</li>
+</ul>
+<h3 id="edit_params" class="heading-element">
+  <a href="#edit_params" class="heading-mark"></a>edit_params</h3><p>最关键的一步是加入了 <code>-B as_path</code> 这个 flag，使得下游编译器在汇编过程中，以 afl-as 替换了原生的汇编器。而具体的插桩过程，则是 afl-as 负责实现</p>
+<p>主要工作：</p>
+<ul>
+<li>使用<code>ck_alloc</code>分配内存，大小为<code>(argc+128)*sizeof(u8 *)</code></li>
+<li>检查<code>argv[0]</code>中是否存在<code>\</code>，如果没有，直接赋值给name；如果有，找到最后的<code>\</code>，并将后面的字符串给name</li>
+<li>将name与afl-clang比较（判断下游编译器是否是afl-clang）
+<ul>
+<li>如果相同，置clang_mode为1，并将环境变量<code>CLANG_ENV_VAR</code>置1，之后比较name与afl-clang++
+<ul>
+<li>如果相同，取环境变量<code>AFL_CXX</code>给<code>cc_params[0]</code>，如果环境变量不存在，则赋值<code>clang++</code>给<code>cc_params[0]</code></li>
+<li>如果不同，取环境变量<code>AFL_CC</code>给<code>cc_params[0]</code>，如果环境变量不存在，则赋值<code>clang</code>给<code>cc_params[0]</code></li>
+</ul>
+</li>
+<li>如果不相同（判断下游编译器是否是<code>afl-g++</code>和<code>afl-gcj</code>）
+<ul>
+<li>将name与<code>afl-g++</code>比较，如果相同，取环境变量<code>AFL_CXX</code>给<code>cc_params[0]</code>，如果环境变量不存在，则赋值<code>g++</code>给<code>cc_params[0]</code></li>
+<li>如果不相同，继续将name与<code>afl-gcj</code>比较，取环境变量<code>AFL_GCJ</code>给<code>cc_params[0]</code>，如果环境变量不存在，则赋值<code>gcj</code>给<code>cc_params[0]</code></li>
+<li>如果还不相同，取环境变量<code>AFL_CC</code>给<code>cc_params[0]</code>，如果环境变量不存在，则赋值<code>gcc</code>给<code>cc_params[0]</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>之后遍历argv参数
+<ul>
+<li>跳过<code>-B/integrated-as/-pipe</code></li>
+<li>如果存在<code>-fsanitize=address</code>或者<code>-fsanitize=memory</code>，置asan_set为1</li>
+<li>如果存在<code>FORTIFY_SOURCE</code>，置fortify_set为1</li>
+<li><code>cc_params[cc_par_cnt++] = cur</code></li>
+</ul>
+</li>
+<li>接下来设置cc_params的其他参数
+<ul>
+<li>取之前设置的as_path，然后设置<code>-B as_path</code></li>
+<li>如果clang_mode设置，则设置<code>-no-integrated-as</code></li>
+<li>如果环境变量<code>AFL_HARDEN</code>存在，则设置<code>-fstack-protector-all</code>，进一步，如果<code>fortify_set</code>未设置，则设置<code>-D_FORTIFY_SOURCE=2</code></li>
+<li>判断<code>asan_set</code>是否已设置，
+<ul>
+<li>如果已设置，则设置环境变量<code>AFL_USE_ASAN</code>为1</li>
+<li>如果未设置，获取环境变量<code>AFL_USE_ASAN</code>，判断环境变量<code>AFL_USE_MSAN</code>和<code>AFL_HARDEN</code>是否存在，若都存在，设置<code>-U_FORTIFY_SOURCE</code>和<code>-fsanitize=address</code></li>
+<li>如果未设置<code>AFL_USE_ASAN</code>环境变量，则获取<code>AFL_USE_MSAN</code>环境变量，并判断<code>AFL_USE_ASAN</code>和<code>AFL_HARDEN</code>环境变量是否设置，如果都存在，则设置<code>-U_FORTIFY_SOURCE</code>和<code>-fsanitize=memory</code></li>
+</ul>
+</li>
+<li>如果不存在<code>AFL_DONT_OPTIMIZE</code>环境变量，则设置<code>-g -O3 -funroll-loops -D__AFL_COMPILER=1 -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1</code></li>
+<li>如果存在<code>AFL_NO_BUILTIN</code>环境变量，则设置<code>xxxxxxxxxxx</code>等</li>
+<li>最后设置<code>cc_params[cc_par_cnt] = NULL</code>终止编辑</li>
+</ul>
+</li>
+</ul>
+<h2 id="afl_as" class="heading-element">
+  <a href="#afl_as" class="heading-mark"></a>afl_as</h2><p>afl-as 是原生 GNU as 的 包装器</p>
+<h3 id="main-1" class="heading-element">
+  <a href="#main-1" class="heading-mark"></a>main</h3><p>主要工作流程</p>
+<ol>
+<li>初始化随机数种子</li>
+<li>在汇编指令序列上插桩</li>
+<li>修改 as 参数(edit_params)</li>
+<li>调用 as 生成可执行文件，并清理现场</li>
+</ol>
+<p>详细：</p>
+<ul>
+<li>读环境变量<code>AFL_INST_RATIO</code>的值</li>
+<li>初始化随机数种子</li>
+<li>设置环境变量<code>AS_LOOP_ENV_VAR</code>为1</li>
+<li>读取环境变量AFL_USE_ASAN和AFL_USE_MSAN的值，如果其中有一个为1，则设置sanitizer为1，且将inst_ratio除3，这是因为AFL无法在插桩的时候识别出ASAN specific branches，所以会插入很多无意义的桩，为了降低这种概率，粗暴的将整个插桩的概率都除以3</li>
+<li><code>edit_params(argc, argv)</code></li>
+<li><code>add_instrumentation()</code></li>
+<li>fork出一个子进程，让子进程来执行<code>execvp(as_params[0], (char **) as_params);</code></li>
+<li><code>(waitpid(pid, &amp;status, 0)</code></li>
+<li>读取环境变量<code>AFL_KEEP_ASSEMBLY</code>的值，如果没有设置这个环境变量，就unlink掉modified_file</li>
+</ul>
+<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">s32</span> <span class="n">pid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">u32</span> <span class="n">rand_seed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">status</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">u8</span> <span class="o">*</span><span class="n">inst_ratio_str</span> <span class="o">=</span> <span class="nf">getenv</span><span class="p">(</span><span class="s">&#34;AFL_INST_RATIO&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">timeval</span> <span class="n">tv</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">timezone</span> <span class="n">tz</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">clang_mode</span> <span class="o">=</span> <span class="o">!!</span><span class="nf">getenv</span><span class="p">(</span><span class="n">CLANG_ENV_VAR</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="nf">isatty</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nf">getenv</span><span class="p">(</span><span class="s">&#34;AFL_QUIET&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">SAYF</span><span class="p">(</span><span class="n">cCYA</span> <span class="s">&#34;afl-as &#34;</span> <span class="n">cBRI</span> <span class="n">VERSION</span> <span class="n">cRST</span> <span class="s">&#34; by &lt;lcamtuf@google.com&gt;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="cl">        <span class="n">be_quiet</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">SAYF</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">             <span class="s">&#34;This is a helper application for afl-fuzz. It is a wrapper around GNU &#39;as&#39;,</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">             <span class="s">&#34;executed by the toolchain whenever using afl-gcc or afl-clang. You probably</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">             <span class="s">&#34;don&#39;t want to run this program directly.</span><span class="se">\n\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">             <span class="s">&#34;Rarely, when dealing with extremely complex projects, it may be advisable to</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">             <span class="s">&#34;set AFL_INST_RATIO to a value less than 100 in order to reduce the odds of</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">             <span class="s">&#34;instrumenting every discovered branch.</span><span class="se">\n\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tv</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">tz</span><span class="p">);</span>                        <span class="c1">// 获取当前时间
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">rand_seed</span> <span class="o">=</span> <span class="n">tv</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">^</span> <span class="n">tv</span><span class="p">.</span><span class="n">tv_usec</span> <span class="o">^</span> <span class="nf">getpid</span><span class="p">();</span> <span class="c1">// 用于随机数生成的种子
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">srandom</span><span class="p">(</span><span class="n">rand_seed</span><span class="p">);</span>                            <span class="c1">// 设置随机数种子
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">edit_params</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>                       <span class="c1">// 处理参数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">inst_ratio_str</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="nf">sscanf</span><span class="p">(</span><span class="n">inst_ratio_str</span><span class="p">,</span> <span class="s">&#34;%u&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">inst_ratio</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">inst_ratio</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">)</span> <span class="c1">// inst_ratio 为 0-100 之间的整数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="nf">FATAL</span><span class="p">(</span><span class="s">&#34;Bad value of AFL_INST_RATIO (must be between 0 and 100)&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="nf">getenv</span><span class="p">(</span><span class="n">AS_LOOP_ENV_VAR</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">FATAL</span><span class="p">(</span><span class="s">&#34;Endless loop when calling &#39;as&#39; (remove &#39;.&#39; from your PATH)&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">setenv</span><span class="p">(</span><span class="n">AS_LOOP_ENV_VAR</span><span class="p">,</span> <span class="s">&#34;1&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/* When compiling with ASAN, we don&#39;t have a particularly elegant way to skip
+</span></span></span><span class="line"><span class="cl"><span class="cm">       ASAN-specific branches. But we can probabilistically compensate for
+</span></span></span><span class="line"><span class="cl"><span class="cm">       that...
+</span></span></span><span class="line"><span class="cl"><span class="cm">       zh: 当使用 ASAN 时，我们没有一个特别优雅的方法来跳过 ASAN 特定的分支。但是我们可以以概率补偿这一点...
+</span></span></span><span class="line"><span class="cl"><span class="cm">       */</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// ASAN/MSAN 会插入一些分支，这里设置 inst_ratio 为原来的 1/3
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="nf">getenv</span><span class="p">(</span><span class="s">&#34;AFL_USE_ASAN&#34;</span><span class="p">)</span> <span class="o">||</span> <span class="nf">getenv</span><span class="p">(</span><span class="s">&#34;AFL_USE_MSAN&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sanitizer</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">inst_ratio</span> <span class="o">/=</span> <span class="mi">3</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">just_version</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">add_instrumentation</span><span class="p">();</span> <span class="c1">// 添加插桩
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">pid</span> <span class="o">=</span> <span class="nf">fork</span><span class="p">()))</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">execvp</span><span class="p">(</span><span class="n">as_params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="kt">char</span> <span class="o">**</span><span class="p">)</span><span class="n">as_params</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">FATAL</span><span class="p">(</span><span class="s">&#34;Oops, failed to execute &#39;%s&#39; - check your PATH&#34;</span><span class="p">,</span> <span class="n">as_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">pid</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">PFATAL</span><span class="p">(</span><span class="s">&#34;fork() failed&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="nf">waitpid</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="c1">// 等待子进程结束
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nf">PFATAL</span><span class="p">(</span><span class="s">&#34;waitpid() failed&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nf">getenv</span><span class="p">(</span><span class="s">&#34;AFL_KEEP_ASSEMBLY&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">unlink</span><span class="p">(</span><span class="n">modified_file</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">exit</span><span class="p">(</span><span class="nf">WEXITSTATUS</span><span class="p">(</span><span class="n">status</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="edit_params-1" class="heading-element">
+  <a href="#edit_params-1" class="heading-mark"></a>edit_params</h3><p>与afl_gcc的修改参数的逻辑类似：读入原来的汇编代码，生成一个插了桩的新汇编代码（存放在临时目录），调用 GNU as 来将新汇编代码转化成机器码。</p>
+<ul>
+<li>使用<code>ck_alloc</code>分配空间，大小为<code>(argc + 32) * sizeof(u8 *)</code></li>
+<li>设置<code>as_params</code>参数，如果<code>AFL_AS</code>环境变量存在，则赋值给<code>as_params</code>，如果不存在，则设置为<code>as</code></li>
+<li>获取临时目录给<code>tmp_dir</code></li>
+<li>遍历<code>argv[1]</code>开始,到<code>argv[argc-1]</code>参数
+<ul>
+<li>判断参数，如果是<code>--64</code>，则<code>use_64bit</code>置1，如果是<code>--32</code>，则<code>use_64bit</code>置0</li>
+<li>as_params[as_par_cnt++] = argv[i];设置as_params的值为argv对应的参数值</li>
+</ul>
+</li>
+<li>设置其他参数：
+<ul>
+<li>读取argv[argc - 1]的值,赋给input_file的值,也就是传递的最后一个参数的值作为input_file</li>
+<li>比较input_file和tmp_dir//var/tmp///tmp/的前strlen(tmp_dir)/9/5个字节是否相同，如果不相同，就设置pass_thru为1</li>
+<li>设置modified_file的值为alloc_printf(&quot;%s/.afl-%u-%u.s&quot;, tmp_dir, getpid(),(u32) time(NULL));,简单的说就是tmp_dir/.afl-pid-time.s这样的字符串。</li>
+<li>设置as_params[as_par_cnt++] = modified_file</li>
+<li><code>as_params[as_par_cnt] = NULL;</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="add_instrumentation" class="heading-element">
+  <a href="#add_instrumentation" class="heading-mark"></a>add_instrumentation</h3><blockquote>
+<p>插桩过程的核心部分</p>
+</blockquote>
+<p>可以写一段简单代码测试：</p>
+<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">work</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Hello, world %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">work</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// AFL_DONT_OPTIMIZE=1 ../afl-gcc target.c -o target -O0 -fno-asynchronous-unwind-tables
+</span></span></span></code></pre></div><p>之后观察插桩前后的汇编代码，可以看到在每一个基本块入口处，afl-as 插入了一段代码，除此之外，在整个程序的末尾，插入了一段 300 多行的 AFL main payload。</p>
+<p>在每个 branch 开始的位置插入的代码，这类代码形如：</p>
+<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="cm">/* --- AFL TRAMPOLINE (64-BIT) --- */</span>
+</span></span><span class="line"><span class="cl"><span class="na">.align</span> <span class="mi">4</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nf">leaq</span> <span class="p">-(</span><span class="mi">128</span><span class="err">+</span><span class="mi">24</span><span class="p">)(</span><span class="nv">%rsp</span><span class="p">),</span> <span class="nv">%rsp</span>
+</span></span><span class="line"><span class="cl"><span class="nf">movq</span> <span class="nv">%rdx</span><span class="p">,</span>  <span class="mi">0</span><span class="p">(</span><span class="nv">%rsp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nf">movq</span> <span class="nv">%rcx</span><span class="p">,</span>  <span class="mi">8</span><span class="p">(</span><span class="nv">%rsp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nf">movq</span> <span class="nv">%rax</span><span class="p">,</span> <span class="mi">16</span><span class="p">(</span><span class="nv">%rsp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nf">movq</span> <span class="no">$0x000078e0</span><span class="p">,</span> <span class="nv">%rcx</span>
+</span></span><span class="line"><span class="cl"><span class="nf">call</span> <span class="no">__afl_maybe_log</span>
+</span></span><span class="line"><span class="cl"><span class="nf">movq</span> <span class="mi">16</span><span class="p">(</span><span class="nv">%rsp</span><span class="p">),</span> <span class="nv">%rax</span>
+</span></span><span class="line"><span class="cl"><span class="nf">movq</span>  <span class="mi">8</span><span class="p">(</span><span class="nv">%rsp</span><span class="p">),</span> <span class="nv">%rcx</span>
+</span></span><span class="line"><span class="cl"><span class="nf">movq</span>  <span class="mi">0</span><span class="p">(</span><span class="nv">%rsp</span><span class="p">),</span> <span class="nv">%rdx</span>
+</span></span><span class="line"><span class="cl"><span class="nf">leaq</span> <span class="p">(</span><span class="mi">128</span><span class="err">+</span><span class="mi">24</span><span class="p">)(</span><span class="nv">%rsp</span><span class="p">),</span> <span class="nv">%rsp</span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* --- END --- */</span></span></span></code></pre></div><p>AFL 白皮书中说，上述代码本质上实现了如下逻辑：</p>
+<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">cur_location</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">COMPILE_TIME_RANDOM</span><span class="o">&gt;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">shared_mem</span><span class="p">[</span><span class="n">cur_location</span> <span class="o">^</span> <span class="n">prev_location</span><span class="p">]</span><span class="o">++</span><span class="p">;</span> 
+</span></span><span class="line"><span class="cl"><span class="n">prev_location</span> <span class="o">=</span> <span class="n">cur_location</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">;</span></span></span></code></pre></div><div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nl">__afl_maybe_log</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">lahf</span>
+</span></span><span class="line"><span class="cl">  <span class="n">seto</span> <span class="o">%</span><span class="n">al</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">movq</span>  <span class="nf">__afl_area_ptr</span><span class="p">(</span><span class="o">%</span><span class="n">rip</span><span class="p">),</span> <span class="o">%</span><span class="n">rdx</span>
+</span></span><span class="line"><span class="cl">  <span class="n">testq</span> <span class="o">%</span><span class="n">rdx</span><span class="p">,</span> <span class="o">%</span><span class="n">rdx</span>
+</span></span><span class="line"><span class="cl">  <span class="n">je</span>    <span class="n">__afl_setup</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//先检查共享内存区域是否已经映射，如果没有映射，就跳转到__afl_setup进行初始化；如果已经映射，就继续执行__afl_store，rdx指向共享内存区域
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="nl">__afl_store</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">xorq</span> <span class="nf">__afl_prev_loc</span><span class="p">(</span><span class="o">%</span><span class="n">rip</span><span class="p">),</span> <span class="o">%</span><span class="n">rcx</span>
+</span></span><span class="line"><span class="cl">  <span class="n">xorq</span> <span class="o">%</span><span class="n">rcx</span><span class="p">,</span> <span class="nf">__afl_prev_loc</span><span class="p">(</span><span class="o">%</span><span class="n">rip</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">shrq</span> <span class="err">$</span><span class="mi">1</span><span class="p">,</span> <span class="nf">__afl_prev_loc</span><span class="p">(</span><span class="o">%</span><span class="n">rip</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nf">incb</span> <span class="p">(</span><span class="o">%</span><span class="n">rdx</span><span class="p">,</span> <span class="o">%</span><span class="n">rcx</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">执行流程：
+</span></span></span><span class="line"><span class="cl"><span class="cm">
+</span></span></span><span class="line"><span class="cl"><span class="cm">1. 将目前存储着cur_loc的rcx与prev_loc进行异或
+</span></span></span><span class="line"><span class="cl"><span class="cm">2. 将 prev_loc 设为 cur_loc （这里利用了异或运算的自反性）
+</span></span></span><span class="line"><span class="cl"><span class="cm">3. 将 prev_loc 右移一位
+</span></span></span><span class="line"><span class="cl"><span class="cm">4. 增加hit count
+</span></span></span><span class="line"><span class="cl"><span class="cm">
+</span></span></span><span class="line"><span class="cl"><span class="cm">执行完后，恢复 eflags 并返回
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span></span></span></code></pre></div><pre tabindex="0"><code>桩代码将几个寄存器的值保存在栈上，然后调用 __afl_maybe_log ；__afl_maybe_log 首先保存当前 EFLAGS 寄存器状态，然后检查 shm 区域是否准备好；如果已经准备好，则进入 __afl_store 过程，给 shm 区域增加 hit count 后返回。</code></pre><p>处理输入文件，生成<code>modified_file</code>，将<code>instrumentation</code>插入所有适当的位置。</p>
+<ul>
+<li>如果input_file不为空，则打开；如果为空，则读取标准输</li>
+<li>打开modified_file对应的临时文件，</li>
+<li>从输入的文件逐行读取，并保存到line数组，每行最多读MAX_LINE(8192)，从line数组里将读取的内容写入到outf对应的文件里。</li>
+</ul>
+<p>接下来是真正有趣的地方，首先，只想在<code>.text</code>段中插桩</p>
+<ul>
+<li>检查instrument_next和instr_ok是否都为 1，以及line是否以<code>\t</code>开始，且line[1]是否为字母
+<ul>
+<li>如果都满足，向outf中写入<code>trampoline_fmt</code>，并将插桩计数器<code>ins_lines++</code></li>
+<li><code>这其实是因为我们想要插入instrumentation trampoline到所有的标签，宏，注释之后</code></li>
+</ul>
+</li>
+<li>首先要设置instr_ok的值，这个值是一个flag，instr_ok 为 1 表示当前处于 .text 段中，否则就不在。于是如果instr_ok为1，就会在分支处执行插桩逻辑，否则就不插桩。</li>
+<li>如果line的值为<code>\t.[text\n|section\t.text|section\t__TEXT,__text|section __TEXT,__text]...</code>其中之一，置<code>instr_ok</code>为1，然后跳到while头读下一行数据到line数组</li>
+<li>如果line的值为<code>\t.[section\t|section |bss\n|data\n]...</code>之一，则置<code>instr_ok</code>为0，然后跳到while头读下一行数据到line数组</li>
+</ul>
+<pre tabindex="0"><code>
+            zh: 如果我们的mood适合插桩，检查函数名称或条件标签。这有点混乱，但本质上，我们想捕获:
+                ^main:      - 函数入口点（始终插桩）
+                ^.L0:       - GCC 分支标签
+                ^.LBB0_0:   - clang 分支标签（但仅在 clang 模式下）
+                ^\tjnz foo  - 条件分支
+            ...但不是:
+                ^# BB#0:    - clang 注释
+                ^ # BB#0:   - 同上
+                ^.Ltmp0:    - clang 非分支标签
+                ^.LC0       - GCC 非分支标签
+                ^.LBB0_0:   - 同上（在 GCC 模式下）
+                ^\tjmp foo  - 非条件跳转
+            此外，MacOS X 上的 clang 和 GCC 遵循不同的约定，标签没有前导点，因此稍后的 #ifdefs 中有奇怪的迷宫。</code></pre><ul>
+<li>
+<p>插桩<code>^\tjnz foo</code>指令</p>
+<ul>
+<li>如果line的值为<code>\tj[!m]...</code>，且<code>R(100) &lt; inst_ratio</code>，R(100)会返回一个100以内的随机数，inst_ratio是之前设置的插桩密度，默认为100，如果设置了asan之类的就会默认设置成30左右。</li>
+<li>根据use_64bit判断插桩内容，
+<ul>
+<li><code>define R(x) (random() % (x))</code>，可能产生碰撞</li>
+<li>这里的R(x)实际上是用来区分每个桩的，也就是是一个标识</li>
+</ul>
+</li>
+<li><code>ins_lines++;</code></li>
+</ul>
+</li>
+<li>
+<p>检查该行中是否包含<code>:</code>，并以<code>.</code>开始</p>
+<ul>
+<li>如果以<code>.</code>开始，则代表想要插桩<code>^.L0:</code>或者<code>^.LBB0_0:</code>这样的 branch label，即style jump destination
+<ul>
+<li>如果结果为真，则设置<code>instrument_next = 1</code></li>
+</ul>
+</li>
+<li>否则表示这是一个function，插桩<code>^func:function entry point</code></li>
+</ul>
+</li>
+<li>
+<p>如果插桩计数器<code>ins_lines</code>不为0，完全拷贝input_file之后，依据架构，像outf中写入main_payload_64或者main_payload_32，然后关闭这两个文件</p>
+</li>
+</ul>
+<p>afl插桩就是通过汇编的前导命令来判断这是否是一个分支或者函数，之后插入instrumentation trampoline（插桩跳板），后面将讲这个东西</p>
+<h2 id="afl_tmin" class="heading-element">
+  <a href="#afl_tmin" class="heading-mark"></a>afl_tmin</h2><p>afl-tmin 是一个简单的测试用例最小化器，它接受输入文件并尝试删除尽可能多的数据，同时使二进制文件保持崩溃状态或生成一致的仪器输出（该模式是根据最初观察到的行为自动选择的）。</p>
+<p>它拿到一个 input 文件，尝试删除其中尽可能多的内容，但同时保持覆盖度。</p>
+<p>有两个工作模式：</p>
+<ul>
+<li>non-crash 模式，目标程序必须被插桩。afl-tmin 在缩小 input 的过程中，维持覆盖度不变。</li>
+<li>crash 模式，目标程序可以被插桩，也可以不被插桩。afl-tmin 将保持程序 crash。</li>
+</ul>
+<h3 id="main-2" class="heading-element">
+  <a href="#main-2" class="heading-mark"></a>main</h3><p>主要是 parse 一下输入参数，并做一些初始化工作</p>
+<ul>
+<li>
+<p>根据 argv，设置变量。这包括原始 input 位置、优化结果的输出位置、目标程序运行时的输入文件该放在哪里（如果不是从 stdin 输入的话）、是否只考虑 edge 覆盖率而不考虑 hit count、是否将非 0 返回码视为 crash、程序内存限制、程序运行时间限制、是否使用 qemu 模式，以及一个神秘的 -B 选项，具体用途见注释。</p>
+</li>
+<li>
+<p>初始化shm</p>
+<ul>
+<li>其中的shmget函数，size 为 <code>MAP_SIZE</code>，它被预设为 <code>(1 &lt;&lt; 16)</code>，即 65536 字节。</li>
+</ul>
+</li>
+<li>
+<p>设置几个信号处理函数，例如当用户按下 Ctrl+C 时，要优雅地结束程序。</p>
+</li>
+<li>
+<p>处理环境变量</p>
+</li>
+<li>
+<p>分析将要传递给目标程序的 argv（也就是 afl-tmin 自己的命令行中， &ndash; 之后的那部分）；如果有 @@，则把它覆写为输入文件位置 prog_in</p>
+</li>
+<li>
+<p>设置 qemu 相关参数。与我们无关。</p>
+</li>
+<li>
+<p>看一眼初始 input 文件。如果大于 10MB，就喷我们一句「Input file is too large」。</p>
+</li>
+<li>
+<p>调用 run_target() 进行一次 dry run。主要看是否超时、是否 crash。</p>
+</li>
+<li>
+<p>调用 minimize() 执行优化。</p>
+</li>
+<li>
+<p>删除 prog_in 文件并输出优化结果。</p>
+</li>
+</ul>
+<h3 id="run_target" class="heading-element">
+  <a href="#run_target" class="heading-mark"></a>run_target</h3><p>首先是fork之前：</p>
+<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">static</span> <span class="k">struct</span> <span class="n">itimerval</span> <span class="n">it</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">s32</span> <span class="n">prog_in_fd</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">u32</span> <span class="n">cksum</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nf">memset</span><span class="p">(</span><span class="n">trace_bits</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">MAP_SIZE</span><span class="p">);</span><span class="c1">// trace_bits就是共享内存区域
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">MEM_BARRIER</span><span class="p">();</span><span class="c1">//告知编译器「not re-order memory accesses across the barrier」。这大概是作者在某次实验中，发现编译器的激进优化违反了自己意图（默认条件下是 -O3 编译的），故加这一句话来约束编译器。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">//将 input 内容写进 prog_in 文件中，记录 fd
+</span></span></span><span class="line"><span class="cl"><span class="c1">//由于父子进程共享 fd，故子进程也可以使用这个 fd。
+</span></span></span><span class="line"><span class="cl"><span class="c1">//write_to_file的作用是删除prog_in 文件、重新创建prog_in 文件并以 rw 模式打开，所以父进程写入、子进程读取是没问题的。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">prog_in_fd</span> <span class="o">=</span> <span class="nf">write_to_file</span><span class="p">(</span><span class="n">prog_in</span><span class="p">,</span> <span class="n">mem</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">child_pid</span> <span class="o">=</span> <span class="nf">fork</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">child_pid</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="nf">PFATAL</span><span class="p">(</span><span class="s">&#34;fork() failed&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">child_pid</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// ... 子进程代码
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div><p>接下来是fork之后的逻辑：
+子进程部分：</p>
+<ul>
+<li>如果目标程序是吃 stdin 输入的，则将 stdin 重定向到 prog_in_fd，否则将 stdin 重定向到 /dev/null 。</li>
+<li>另外，将 stdout 和 stderr 重定向到 /dev/null。</li>
+<li>创建新的进程组，自己为 leader。</li>
+<li>设置内存限制。</li>
+<li>execv 到目标程序。</li>
+<li>若 execv 调用失败，则把 shm 的前四个字节设为 0xfee1dead 并退出。</li>
+</ul>
+<div class="highlight" id="id-10"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">child_pid</span><span class="p">)</span> <span class="c1">// 子进程
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">struct</span> <span class="n">rlimit</span> <span class="n">r</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// stdin 指向输入文件，stdout 和 stderr 指向 /dev/null
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="nf">dup2</span><span class="p">(</span><span class="n">use_stdin</span> <span class="o">?</span> <span class="nl">prog_in_fd</span> <span class="p">:</span> <span class="n">dev_null_fd</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span>
+</span></span><span class="line"><span class="cl">            <span class="nf">dup2</span><span class="p">(</span><span class="n">dev_null_fd</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span>
+</span></span><span class="line"><span class="cl">            <span class="nf">dup2</span><span class="p">(</span><span class="n">dev_null_fd</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="o">*</span><span class="p">(</span><span class="n">u32</span> <span class="o">*</span><span class="p">)</span><span class="n">trace_bits</span> <span class="o">=</span> <span class="n">EXEC_FAIL_SIG</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="nf">PFATAL</span><span class="p">(</span><span class="s">&#34;dup2() failed&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">close</span><span class="p">(</span><span class="n">dev_null_fd</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">close</span><span class="p">(</span><span class="n">prog_in_fd</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">setsid</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">mem_limit</span><span class="p">)</span> <span class="c1">// 设置内存限制
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">r</span><span class="p">.</span><span class="n">rlim_max</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">rlim_cur</span> <span class="o">=</span> <span class="p">((</span><span class="kt">rlim_t</span><span class="p">)</span><span class="n">mem_limit</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">20</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">##ifdef RLIMIT_AS
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>            <span class="nf">setrlimit</span><span class="p">(</span><span class="n">RLIMIT_AS</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">r</span><span class="p">);</span> <span class="cm">/* Ignore errors */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">##else
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>            <span class="nf">setrlimit</span><span class="p">(</span><span class="n">RLIMIT_DATA</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">r</span><span class="p">);</span> <span class="cm">/* Ignore errors */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">##endif </span><span class="cm">/* ^RLIMIT_AS */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">r</span><span class="p">.</span><span class="n">rlim_max</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">rlim_cur</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">setrlimit</span><span class="p">(</span><span class="n">RLIMIT_CORE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">r</span><span class="p">);</span> <span class="cm">/* Ignore errors */</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">execv</span><span class="p">(</span><span class="n">target_path</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span> <span class="c1">// 执行目标程序
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// 如果执行到这里，说明 execv() 失败了，将 shm 的前 4 个字节设置为 EXEC_FAIL_SIG
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="o">*</span><span class="p">(</span><span class="n">u32</span> <span class="o">*</span><span class="p">)</span><span class="n">trace_bits</span> <span class="o">=</span> <span class="n">EXEC_FAIL_SIG</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span></span></span></code></pre></div><p>于是，父进程只需要监控子进程的退出状态，即可知道目标程序是否崩溃；另外，从 shm 的前 4 字节，能得知 execv 调用是否失败。</p>
+<p>父进程：</p>
+<ul>
+<li>给子进程定时，并等待子进程结束。</li>
+<li>对 hit count 分桶，并计算 hash，与原始 input 的运行 hash 比对。若一致，则本 input 有效。</li>
+</ul>
+<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">    <span class="nf">close</span><span class="p">(</span><span class="n">prog_in_fd</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 设置 timeout
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">child_timed_out</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">it</span><span class="p">.</span><span class="n">it_value</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">=</span> <span class="p">(</span><span class="n">exec_tmout</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">it</span><span class="p">.</span><span class="n">it_value</span><span class="p">.</span><span class="n">tv_usec</span> <span class="o">=</span> <span class="p">(</span><span class="n">exec_tmout</span> <span class="o">%</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// SIGALRM 的 handler 此前已被设为「kill 掉 child_pid」
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">setitimer</span><span class="p">(</span><span class="n">ITIMER_REAL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">it</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 等待子进程结束
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="nf">waitpid</span><span class="p">(</span><span class="n">child_pid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">FATAL</span><span class="p">(</span><span class="s">&#34;waitpid() failed&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">child_pid</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">it</span><span class="p">.</span><span class="n">it_value</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">it</span><span class="p">.</span><span class="n">it_value</span><span class="p">.</span><span class="n">tv_usec</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nf">setitimer</span><span class="p">(</span><span class="n">ITIMER_REAL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">it</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nf">MEM_BARRIER</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// execv 是否成功执行
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">u32</span> <span class="o">*</span><span class="p">)</span><span class="n">trace_bits</span> <span class="o">==</span> <span class="n">EXEC_FAIL_SIG</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">FATAL</span><span class="p">(</span><span class="s">&#34;Unable to execute &#39;%s&#39;&#34;</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nf">classify_counts</span><span class="p">(</span><span class="n">trace_bits</span><span class="p">);</span>                       <span class="c1">// 对 hit count 分桶
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">apply_mask</span><span class="p">((</span><span class="n">u32</span> <span class="o">*</span><span class="p">)</span><span class="n">trace_bits</span><span class="p">,</span> <span class="p">(</span><span class="n">u32</span> <span class="o">*</span><span class="p">)</span><span class="n">mask_bitmap</span><span class="p">);</span> <span class="c1">// 将 mask 应用到 hit count 上
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">total_execs</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">stop_soon</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nf">SAYF</span><span class="p">(</span><span class="n">cRST</span> <span class="n">cLRD</span> <span class="s">&#34;</span><span class="se">\n</span><span class="s">+++ Minimization aborted by user +++</span><span class="se">\n</span><span class="s">&#34;</span> <span class="n">cRST</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">close</span><span class="p">(</span><span class="nf">write_to_file</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="n">in_data</span><span class="p">,</span> <span class="n">in_len</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 如果执行超时，则返回 0，表示这个 input 应该忽略
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">child_timed_out</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">missed_hangs</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 如果发现目标程序 crash
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="nf">WIFSIGNALED</span><span class="p">(</span><span class="n">status</span><span class="p">)</span> <span class="o">||</span>
+</span></span><span class="line"><span class="cl">        <span class="p">(</span><span class="nf">WIFEXITED</span><span class="p">(</span><span class="n">status</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nf">WEXITSTATUS</span><span class="p">(</span><span class="n">status</span><span class="p">)</span> <span class="o">==</span> <span class="n">MSAN_ERROR</span><span class="p">)</span> <span class="o">||</span>
+</span></span><span class="line"><span class="cl">        <span class="p">(</span><span class="nf">WIFEXITED</span><span class="p">(</span><span class="n">status</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nf">WEXITSTATUS</span><span class="p">(</span><span class="n">status</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">exit_crash</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">first_run</span><span class="p">)</span> <span class="c1">// 如果是第一次执行，那么就将 crash_mode 设置为 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">crash_mode</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">crash_mode</span><span class="p">)</span> <span class="c1">// 如果是 crash mode，且不要求 crash 路径与原 input 相同，则立即报告 input 有效，该保留
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">exact_mode</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 是 non-crash mode，但现在 crash 了，说明这个 input 与原 input 路径不同，该丢弃
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">missed_crashes</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="cl">        <span class="cm">/* Handle non-crashing inputs appropriately. */</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">crash_mode</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 发现目标程序没有 crash，而目前处于 crash mode，则本 input 与原 input 路径不同，该丢弃
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">missed_paths</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 对 shm 计算 hash，注意这里的 shm 已经是 hit count 分桶处理之后的了
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">cksum</span> <span class="o">=</span> <span class="nf">hash32</span><span class="p">(</span><span class="n">trace_bits</span><span class="p">,</span> <span class="n">MAP_SIZE</span><span class="p">,</span> <span class="n">HASH_CONST</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">first_run</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">orig_cksum</span> <span class="o">=</span> <span class="n">cksum</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 若本 input 的 shm hash 与原始 input 相同，则本 input 有效，予以保留
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">orig_cksum</span> <span class="o">==</span> <span class="n">cksum</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">missed_paths</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span></span></span></code></pre></div><p>classify_counts 函数负责将 hit count 分桶</p>
+<blockquote>
+<p>AFL 的思路是这两个方案的折中——既要避免 corpus 爆炸，又要在循环次数增加的过程中给一些奖励。所以，AFL 设计了 8 个 hit count 桶
+<code>1, 2, 3, 4-7, 8-15, 16-31, 32-127, 128+</code></p>
+</blockquote>
+<p>classify_counts 函数的意图就很明确了：若没有打开 -e 开关，则将 hit count 分桶；若打开了 -e 开关，则只关心是否命中，不关心命中多少次。</p>
+<p>classify_counts() 过程结束后，本质相同的 input，其生成的 shm 也相同了。接下来， apply_mask() 过程是配合 -B 开关用的，只留下我们所关心的那些 edge 的 hit count 信息。由于正常情况下，我们关心所有 edge，故 apply_mask() 对我们没有影响。
+前文提到，shm 的大小是 65536 字节。如果将 shm 的全文都保留下来用于比较，会产生很大的开销（afl-fuzz 运行时，要把新 input 的运行路径与所有 corpus 的运行路径相比较）。因此，我们不妨用 shm 的「消息摘要」来代替它的全文。AFL 采用的 hash32() 是一个自创的简单算法，我们无需关心其细节。总之，它从 65536 字节的 shm 中，计算出 4 字节的消息摘要，用来代表这个 input 的执行路径。如果本 input 的 hash 与原始 input 相同，则本 input 是有效的；否则丢弃本 input。</p>
+<h3 id="minimize" class="heading-element">
+  <a href="#minimize" class="heading-mark"></a>minimize</h3><p>结构：</p>
+<ul>
+<li>先做一遍 block normalization</li>
+<li>循环执行 block deletion、alphabet minimization、character minimization 三个优化，直到无法再进一步优化为止。</li>
+</ul>
+<div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">void</span> <span class="nf">minimize</span><span class="p">(</span><span class="kt">char</span><span class="o">**</span> <span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// ... BLOCK NORMALIZATION
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="nl">next_pass</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// ... BLOCK DELETION
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  
+</span></span><span class="line"><span class="cl">  <span class="c1">// ... ALPHABET MINIMIZATION
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// ... CHARACTER MINIMIZATION
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">changed_any</span><span class="p">)</span> <span class="k">goto</span> <span class="n">next_pass</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nl">finalize_all</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// 输出结果
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div><h4 id="block-normalization" class="heading-element">
+  <a href="#block-normalization" class="heading-mark"></a>block normalization</h4><ul>
+<li>首先，输入被划分为大约 128 个块（除了最后一个块外，块长度为 2 的幂次）</li>
+<li>对于每个块，afl-tmin 尝试将其改为全 &lsquo;0&rsquo;，若其运行路径与原始 input 相同，则保留该更改。</li>
+</ul>
+<p>block normalization 的意义在于，如果 input 中有一部分内容是不敏感的（例如，一个负责报告 bmp 图片尺寸的程序，显然不会关心像素颜色），则这部分不敏感内容块会被以 &lsquo;0&rsquo; 代替。这对后续进行的优化有好处</p>
+<h4 id="block-deletion" class="heading-element">
+  <a href="#block-deletion" class="heading-mark"></a>block deletion</h4><ul>
+<li>首先将 input 分为 16 个块</li>
+<li>然后从前往后尝试删除每一个块</li>
+<li>结束一轮之后，将块大小减半，再尝试上述步骤，直到块大小为 1</li>
+</ul>
+<p>另外，有一个小小的加速逻辑：从前往后删除块的过程中，若前一个块不可删除，且这个块与前一个块一模一样，则直接推断这个块也不可删除，不必去实际运行程序。由于 block normalization 过程过程产生了大量的连续 &lsquo;0&rsquo;，故这个加速逻辑是可以取得一定效果的。</p>
+<h4 id="alphabet-minimization" class="heading-element">
+  <a href="#alphabet-minimization" class="heading-mark"></a>alphabet minimization</h4><p>这是一个非常简单的优化，旨在缩小 input 文件的字符集。其逻辑是：对于每种字符（共有 256 种），尝试在 input 中将其替换为 &lsquo;0&rsquo;。</p>
+<h4 id="character-minimization" class="heading-element">
+  <a href="#character-minimization" class="heading-mark"></a>character minimization</h4><p>这个优化比字符集优化更简单：从前往后扫描 input 中的每个字节，尝试将其替换为 &lsquo;0&rsquo;。</p>
+<h2 id="afl-fast-clang" class="heading-element">
+  <a href="#afl-fast-clang" class="heading-mark"></a>afl-fast-clang</h2><p>AFL对于上述通过<code>afl-gcc</code>来插桩这种做法已经属于不建议，并提供了更好的工具<code>afl-clang-fast</code>，通过llvm pass来插桩。</p>
+<h3 id="clang-wrapper" class="heading-element">
+  <a href="#clang-wrapper" class="heading-mark"></a>Clang wrapper</h3><p><code>afl-clang-fast.c</code>这个文件其实是clang的一层封装，和之前的<code>afl-gcc</code>一样，只是定义了一些宏，和传递了一些参数给真正的clang。</p>
+<h4 id="find_obj" class="heading-element">
+  <a href="#find_obj" class="heading-mark"></a>find_obj</h4><blockquote>
+<p>尝试找到运行时库，如果失败则终止。</p>
+</blockquote>
+<ul>
+<li>获取<code>AFL_PATH</code> 环境变量的值，并检查该目录下<code>afl-llvm-rt.o</code>文件是否存在，存在就设置为<code>obj_path</code>，返回</li>
+<li>如果没有这个环境变量，检查arg0中是否存在<code>/</code>，例如可能是通过<code>/home/xxx/AFL/afl-clang-fast</code>去调用afl-clang-fast的，所以它此时就认为最后一个/之前的/home/sakura/AFL是AFL的根目录，然后读取其下的afl-llvm-rt.o文件，看是否能够访问，如果可以就设置这个目录为obj_path，然后直接返回。</li>
+<li>如果还是没有，在<code>AFL_PATH</code>这个宏的目录下找<code>afl-llvm-rt.o</code>文件，然后返回</li>
+<li>如果都没有，抛出异常然后返回</li>
+</ul>
+<h4 id="edit_params未完成" class="heading-element">
+  <a href="#edit_params%e6%9c%aa%e5%ae%8c%e6%88%90" class="heading-mark"></a>edit_params(未完成，)</h4><blockquote>
+<p>将 argv 复制到 cc_params，进行必要的编辑。</p>
+</blockquote>
+<ul>
+<li>分配<code>(argc + 128) * sizeof(u8 *)</code>大小的内存给<code>cc_params</code></li>
+<li>首先根据我们执行的是afl-clang-fast还是afl-clang-fast++来决定cc_params[0]的值是clang++还是clang。
+<ul>
+<li>如果执行的是afl-clang-fast++，读取环境变量AFL_CXX，如果存在，就将其值设置为cc_params[0]，如果不存在，就直接设置成clang++</li>
+<li>如果执行的是afl-clang-fast，读取环境变量AFL_CC，如果存在，就将其值设置为cc_params[0]，如果不存在，就直接设置成clang</li>
+</ul>
+</li>
+<li>默认情况下，我们通过afl-llvm-pass.so来注入instrumentation，但是现在也支持trace-pc-guard模式，可以参考llvm的文档
+然后如果定义了USE_TRACE_PC宏，就将-fsanitize-coverage=trace-pc-guard -mllvm -sanitizer-coverage-block-threshold=0添加到参数里
+如果没有定义，就依次将-Xclang -load -Xclang obj_path/afl-llvm-pass.so -Qunused-arguments
+依次读取我们传给afl-clang-fast的参数，并添加到cc_params里，不过这里会做一些检查和设置。
+如果传入参数里有-m32或者armv7a-linux-androideabi，就设置bit_mode为32
+如果传入参数里有-m64，就设置bit_mode为64
+如果传入参数里有-x，就设置x_set为1
+如果传入参数里有-fsanitize=address或者-fsanitize=memory，就设置asan_set为1
+如果传入参数里有-Wl,-z,defs或者-Wl,&ndash;no-undefined，就直接pass掉，不传给clang。
+读取环境变量AFL_HARDEN，如果存在，就在cc_params里添加-fstack-protector-all
+如果参数里没有-fsanitize=address/memory，即asan_set是0，就读取环境变量AFL_USE_ASAN，如果存在就添加-fsanitize=address到cc_params里，环境变量AFL_USE_MSAN同理
+如果定义了USE_TRACE_PC宏，就检查是否存在环境变量AFL_INST_RATIO，如果存在就抛出异常AFL_INST_RATIO not available at compile time with &rsquo;trace-pc&rsquo;.
+读取环境变量AFL_DONT_OPTIMIZE，如果不存在就添加-g -O3 -funroll-loops到参数里
+读取环境变量AFL_NO_BUILTIN，如果存在就添加-fno-builtin-strcmp等。
+添加参数-D__AFL_HAVE_MANUAL_CONTROL=1 -D__AFL_COMPILER=1 -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION=1，定义一些宏</li>
+</ul>
+<h4 id="main-3" class="heading-element">
+  <a href="#main-3" class="heading-mark"></a>main</h4><ul>
+<li>寻找obj_path路径</li>
+<li>编辑参数cc_params</li>
+<li>替换进程空间，执行要调用的clang和为其传递参数
+<ul>
+<li><code>execvp(cc_params[0], (char**)cc_params);</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="afl-llvm-pass" class="heading-element">
+  <a href="#afl-llvm-pass" class="heading-mark"></a>afl-llvm-pass</h2><blockquote>
+<p>关于llvm不懂的可以看CSCD70，顺便可以学一下优化，这里放一下我之前抽空做的笔记, 以及这篇文章可以列为查询和参考.</p>
+</blockquote>
+<blockquote>
+<p>afl-llvm-pass里只有一个Transform pass AFLCoverage，其继承自ModulePass，所以我们主要分析一下它的runOnModule函数，这里简单的介绍一下llvm里的一些层次关系，粗略理解就是Module相当于你的程序，里面包含所有Function和全局变量，而Function里包含所有BasicBlock和函数参数，BasicBlock里包含所有Instruction,Instruction包含Opcode和Operands。</p>
+</blockquote>
+<h4 id="registeraflpass" class="heading-element">
+  <a href="#registeraflpass" class="heading-mark"></a>registerAFLPass</h4><p>这些都是向PassManager来注册新的pass，每个pass彼此独立，通过PM统一注册和调度，更加模块化。</p>
+<p>具体的可以参考定义，我摘取了必要的代码和注释，请仔细阅读。</p>
+<p>简单的理解就是当我创建了一个类RegisterStandardPasses之后，就会调用它的构造函数，然后调用PassManagerBuilder::addGlobalExtension，这是一个静态函数，这个函数会创建一个tuple保存Ty和Fn还有一个id，并将其添加到一个静态全局vector里，以供PassManagerBuilder在需要的时候，将其添加到PM里。
+而这个添加的时机就是ExtensionPointTy来指定的。</p>
+<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">void</span> <span class="nf">registerAFLPass</span><span class="p">(</span><span class="k">const</span> <span class="n">PassManagerBuilder</span> <span class="o">&amp;</span><span class="p">,</span> <span class="n">legacy</span><span class="o">::</span><span class="n">PassManagerBase</span> <span class="o">&amp;</span><span class="n">PM</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">PM</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">new</span> <span class="nf">AFLCoverage</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="n">RegisterStandardPasses</span> <span class="nf">RegisterAFLPass</span><span class="p">(</span><span class="n">PassManagerBuilder</span><span class="o">::</span><span class="n">EP_ModuleOptimizerEarly</span><span class="p">,</span> <span class="n">registerAFLPass</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="n">RegisterStandardPasses</span> <span class="nf">RegisterAFLPass0</span><span class="p">(</span><span class="n">PassManagerBuilder</span><span class="o">::</span><span class="n">EP_EnabledOnOptLevel0</span><span class="p">,</span> <span class="n">registerAFLPass</span><span class="p">);</span></span></span></code></pre></div><h4 id="runonmodule" class="heading-element">
+  <a href="#runonmodule" class="heading-mark"></a>runOnModule</h4><ul>
+<li>通过getContext来获取LLVMContext，其保存了整个程序里分配的类型和常量信息。</li>
+<li>通过这个Context来获取type实例Int8Ty和Int32Ty</li>
+<li>读取环境变量AFL_INST_RATIO给变量inst_ratio，其值默认为100，这个值代表一个插桩概率，本来应该每个分支都必定插桩，而这是一个随机的概率决定是否要在这个分支插桩。</li>
+<li>获取全局变量中指向共享内存的指针，以及上一个基础块的编号。（获取SHM区域和上一个位置的全局变量）</li>
+<li>遍历每个基本块，找到此基本块中适合插入instrument的位置，后续通过初始化IRBuilder的一个实例进行插入</li>
+<li>随机创建一个当前基本块的编号，并通过插入load指令来获取前一个基本块的编号</li>
+<li>通过插入load指令来获取共享内存的地址，并通过CreateGEP函数来获取共享内存里指定index的地址，这个index通过cur_loc和prev_loc取xor计算得到。</li>
+<li>通过插入load指令来读取对应index地址的值，并通过插入add指令来将其加一，然后通过创建store指令将新值写入，更新共享内存</li>
+</ul>
+<h2 id="afl-llvm-rt" class="heading-element">
+  <a href="#afl-llvm-rt" class="heading-mark"></a>afl-llvm-rt</h2><p>AFL LLVM_Mode中存在着三个特殊的功能。这三个功能的源码位于afl-llvm-rt.o.c中。</p>
+<h2 id="afl-showmap" class="heading-element">
+  <a href="#afl-showmap" class="heading-mark"></a>afl-showmap</h2><p>afl-showmap 用于运行一遍目标程序，并以「人类可读的方式」展示 hit count。</p>
+<div class="highlight" id="id-14"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;unistd.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">50</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">100</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">do</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">len</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span> <span class="k">while</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">len</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;a&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 编译指令：AFL_DONT_OPTIMIZE=1  ../afl-gcc app.c -o app -g
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">echo &#39;aaaaaaabbbc&#39; &gt; in
+</span></span></span><span class="line"><span class="cl"><span class="cm">afl-showmap -o trace -- ./app &lt; in
+</span></span></span><span class="line"><span class="cl"><span class="cm">## afl-showmap 2.57b by &lt;lcamtuf@google.com&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cm">## [*] Executing &#39;./app&#39;...
+</span></span></span><span class="line"><span class="cl"><span class="cm">## 
+</span></span></span><span class="line"><span class="cl"><span class="cm">## -- Program output begins --
+</span></span></span><span class="line"><span class="cl"><span class="cm">## 7
+</span></span></span><span class="line"><span class="cl"><span class="cm">## -- Program output ends --
+</span></span></span><span class="line"><span class="cl"><span class="cm">## [+] Captured 4 tuples in &#39;trace&#39;.
+</span></span></span><span class="line"><span class="cl"><span class="cm">
+</span></span></span><span class="line"><span class="cl"><span class="cm">
+</span></span></span><span class="line"><span class="cl"><span class="cm">006783:1
+</span></span></span><span class="line"><span class="cl"><span class="cm">015732:1
+</span></span></span><span class="line"><span class="cl"><span class="cm">035029:1
+</span></span></span><span class="line"><span class="cl"><span class="cm">050165:4
+</span></span></span><span class="line"><span class="cl"><span class="cm">050892:1
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span></span></span></code></pre></div><p>050165这个边命中了4次：</p>
+<p><img loading="lazy" src="image-20231215233518269.png" alt="image-20231215233518269" srcset="image-20231215233518269.png?size=small, image-20231215233518269.png?size=medium 1.5x, image-20231215233518269.png?size=large 2x" data-title="image-20231215233518269" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p>afl-as 插入的每条桩代码都有一个 id，它在编译器随机生成。而「前一个 id」与「后一个 id」的组合，即可代表一条边。hit count 更新方法如下：</p>
+<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">cur_location</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">COMPILE_TIME_RANDOM</span><span class="o">&gt;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">shared_mem</span><span class="p">[</span><span class="n">cur_location</span> <span class="o">^</span> <span class="n">prev_location</span><span class="p">]</span><span class="o">++</span><span class="p">;</span> 
+</span></span><span class="line"><span class="cl"><span class="n">prev_location</span> <span class="o">=</span> <span class="n">cur_location</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">;</span></span></span></code></pre></div><p>个循环体中的桩代码 id 为 <code>0x82A6</code>，按上面的逻辑计算一下</p>
+<div class="highlight" id="id-16"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="o">&gt;&gt;&gt;</span> <span class="mh">0x82A6</span> <span class="o">^</span> <span class="p">(</span> <span class="mh">0x82A6</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="mi">50165</span></span></span></code></pre></div><p>可见 50165 确实是指的这一条回跳边。但为什么 trace 中，这条边的数据是「4」而非实际的跳转次数 7 次呢？这得等到看代码的时候才能明白</p>
+<p>afl-showmap 的大部分函数与 afl-tmin 中的几乎一样，不过 run_target 过程中，给 hit count 分桶的逻辑有细微区别：</p>
+<div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/* Classify tuple counts. Instead of mapping to individual bits, as in
+</span></span></span><span class="line"><span class="cl"><span class="cm">   afl-fuzz.c, we map to more user-friendly numbers between 1 and 8. */</span>
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="k">const</span> <span class="n">u8</span> <span class="n">count_class_human</span><span class="p">[</span><span class="mi">256</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">0</span><span class="p">]</span>           <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">1</span><span class="p">]</span>           <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">2</span><span class="p">]</span>           <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">3</span><span class="p">]</span>           <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">4</span> <span class="p">...</span> <span class="mi">7</span><span class="p">]</span>     <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">8</span> <span class="p">...</span> <span class="mi">15</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">16</span> <span class="p">...</span> <span class="mi">31</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">32</span> <span class="p">...</span> <span class="mi">127</span><span class="p">]</span>  <span class="o">=</span> <span class="mi">7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">128</span> <span class="p">...</span> <span class="mi">255</span><span class="p">]</span> <span class="o">=</span> <span class="mi">8</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="k">const</span> <span class="n">u8</span> <span class="n">count_class_binary</span><span class="p">[</span><span class="mi">256</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">0</span><span class="p">]</span>           <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">1</span><span class="p">]</span>           <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">2</span><span class="p">]</span>           <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">3</span><span class="p">]</span>           <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">4</span> <span class="p">...</span> <span class="mi">7</span><span class="p">]</span>     <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">8</span> <span class="p">...</span> <span class="mi">15</span><span class="p">]</span>    <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">16</span> <span class="p">...</span> <span class="mi">31</span><span class="p">]</span>   <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">32</span> <span class="p">...</span> <span class="mi">127</span><span class="p">]</span>  <span class="o">=</span> <span class="mi">64</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">[</span><span class="mi">128</span> <span class="p">...</span> <span class="mi">255</span><span class="p">]</span> <span class="o">=</span> <span class="mi">128</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">void</span> <span class="nf">classify_counts</span><span class="p">(</span><span class="n">u8</span><span class="o">*</span> <span class="n">mem</span><span class="p">,</span> <span class="k">const</span> <span class="n">u8</span><span class="o">*</span> <span class="n">map</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">u32</span> <span class="n">i</span> <span class="o">=</span> <span class="n">MAP_SIZE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">edges_only</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="p">(</span><span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">mem</span><span class="p">)</span> <span class="o">*</span><span class="n">mem</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">mem</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="p">(</span><span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="o">*</span><span class="n">mem</span> <span class="o">=</span> <span class="n">map</span><span class="p">[</span><span class="o">*</span><span class="n">mem</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">      <span class="n">mem</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>在分桶时，有两种分桶方案：binary mode 下，桶 id 与 afl-tmin 是一致的；人类可读模式下，桶 id 是从 0 到 8 的自然数。因此，我们刚刚实验中遇到的问题——为什么那条边的 trace 数据是 4 而不是 7——便得到解答了。hit count 为 7 次时，它的桶 id 是 4。若循环被执行 8 次，那桶 id 就该是 5 了。</p>
+<p>至于为什么在人类可读模式下输出这样的 id，推测作者是希望保证输出中每一行的长度都相等。</p>
+<h3 id="write_results" class="heading-element">
+  <a href="#write_results" class="heading-mark"></a>write_results</h3><p>把所有命中过的边都输出。这里作者使用了 %06u:%u 占位符。所以 afl-showmap 的输出文件，其每一行长度都是 8 个字节。这不仅便于人类阅读，也便于机器阅读。</p>
+<h2 id="afl-analyze" class="heading-element">
+  <a href="#afl-analyze" class="heading-mark"></a>afl-analyze</h2><p>afl-analyze 的用途是分析一个输入文件，猜测它各个部分的语义——例如 magic number、checksum、length 等。我们提到过，AFL 面对 magic number 和 checksum 比较无力，因此找到这些特殊结构有助于我们进一步 fuzz。</p>
+<p>为做实验，先来设计一个文件格式。</p>
+<p><img loading="lazy" src="image-20231213230030759.png" alt="image-20231213230030759.png" srcset="image-20231213230030759.png?size=small, image-20231213230030759.png?size=medium 1.5x, image-20231213230030759.png?size=large 2x" data-title="image-20231213230030759.png" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<ul>
+<li>头部 4 个字节为 haha</li>
+<li>接下来 4 个字节为小端序的 uint32 数据，表示数据长度</li>
+<li>接下来 len 个字节，为用户数据</li>
+<li>接下来 4 个字节为 done</li>
+<li>接下来 4 个字节为用户数据的 checksum，文件到此为止</li>
+</ul>
+<p>为这个文件格式写一个 parser：</p>
+<div class="highlight" id="id-18"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;stdlib.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;string.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;unistd.h&gt;
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">300</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">file_len</span> <span class="o">=</span> <span class="nf">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">400</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span><span class="p">(</span><span class="nf">strncmp</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">&#34;haha&#34;</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">puts</span><span class="p">(</span><span class="s">&#34;header error&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span><span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">s</span><span class="p">[</span><span class="mi">4</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span><span class="p">(</span><span class="n">file_len</span> <span class="o">!=</span> <span class="n">len</span> <span class="o">+</span> <span class="mi">16</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">puts</span><span class="p">(</span><span class="s">&#34;len error&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">sum</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">len</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sum</span> <span class="o">+=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="p">)</span><span class="n">s</span><span class="p">[</span><span class="mi">8</span> <span class="o">+</span> <span class="n">i</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span><span class="p">(</span><span class="nf">strncmp</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">+</span> <span class="n">len</span><span class="p">,</span> <span class="s">&#34;done&#34;</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">puts</span><span class="p">(</span><span class="s">&#34;header error&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span><span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">s</span><span class="p">[</span><span class="mi">12</span> <span class="o">+</span> <span class="n">len</span><span class="p">])</span> <span class="o">!=</span> <span class="n">sum</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">puts</span><span class="p">(</span><span class="s">&#34;checksum error&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">puts</span><span class="p">(</span><span class="s">&#34;accepted&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><div class="highlight" id="id-19"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">python -c <span class="s1">&#39;open(&#34;in&#34;, &#34;wb&#34;).write(b&#34;haha&#34; + b&#34;\x50\x00\x00\x00&#34; + b&#34;a&#34; * 0x50 + b&#34;done\x50\x1e\x00\x00&#34;)&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">afl-analyze -i in -- ./check</span></span></code></pre></div><p><img loading="lazy" src="image-20231213230200293.png" alt="image-20231213230200293.png" srcset="image-20231213230200293.png?size=small, image-20231213230200293.png?size=medium 1.5x, image-20231213230200293.png?size=large 2x" data-title="image-20231213230200293.png" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>
+可见 afl-analyze 顺利找出了两个 magic、一个 length，并发现了被计算 checksum 的用户数据字段。然而，afl-analyze 认为文件末尾不是 checksum 值，而是 magic。不过这样的结果已经足够好了</p>
+<h3 id="analyze" class="heading-element">
+  <a href="#analyze" class="heading-mark"></a>analyze</h3><p>对于 input 文件中的每一个位置，将 a 改为<code>a^0xff</code>、<code>a^0x01</code>、<code>a+0x10</code>、<code>a-0x10</code> 这四个数，分别运行实验。分类讨论实验结果：</p>
+<ul>
+<li>四次实验的运行路径全部与原始路径相同。说明这个位置对程序没什么影响。（典型例子是，一个负责输出图片 exif 信息的程序不会管每个像素是什么颜色）</li>
+<li>有至少一次实验的运行路径与原始路径相同。说明这个位置不太重要，可以改。（例如，这个位置是什么不太重要，但唯独不能是 <code>\x00</code> ，因为会造成截断）</li>
+<li>四次实验的运行路径与原始路径不同，且这四次实验的路径一致。说明这个位置不能改。（典型例子是 magic number 检查，只要 magic 不对，程序就结束）</li>
+<li>四次实验都与原始路径不同，且各自路径不一致。说明这个地方严重影响控制流，应该狠狠地改。（典型例子是 type 字段，决定程序接下来如何处理数据）</li>
+</ul>
+<p>另外，对于每个位置，如果对它的修改造成的影响，与修改前一个字节完全不一样，则认为它与前一个字节分别属于不同的 field。这是有道理的，例如 uint32 magic number 的第二、第三个字节被修改后的行为，肯定是完全一样的。而当前后两个字节分属不同的 field 时，对它们的修改大概率会产生完全不同的效果。</p>
+<p>上面的代码把文件划分成了若干个 field，并给每个字节标注了「不重要 / 不太重要 / 不能改 / 敏感」四种标签。那么，afl-analyzer 是如何进一步标记 length、magic、checksum 等字段的呢？来继续看 dump_hex 函数。</p>
+<div class="highlight" id="id-20"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">void</span> <span class="nf">analyze</span><span class="p">(</span><span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">u32</span> <span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">u32</span> <span class="n">boring_len</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">prev_xff</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">prev_x01</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">prev_s10</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">prev_a10</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">u8</span> <span class="o">*</span><span class="n">b_data</span> <span class="o">=</span> <span class="nf">ck_alloc</span><span class="p">(</span><span class="n">in_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">u8</span> <span class="n">seq_byte</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">b_data</span><span class="p">[</span><span class="n">in_len</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0xff</span><span class="p">;</span> <span class="cm">/* Intentional terminator. */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nf">ACTF</span><span class="p">(</span><span class="s">&#34;Analyzing input file (this may take a while)...</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">##ifdef USE_COLOR
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>    <span class="nf">show_legend</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="cp">##endif </span><span class="cm">/* USE_COLOR */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">in_len</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">u32</span> <span class="n">xor_ff</span><span class="p">,</span> <span class="n">xor_01</span><span class="p">,</span> <span class="n">sub_10</span><span class="p">,</span> <span class="n">add_10</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">u8</span> <span class="n">xff_orig</span><span class="p">,</span> <span class="n">x01_orig</span><span class="p">,</span> <span class="n">s10_orig</span><span class="p">,</span> <span class="n">a10_orig</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cm">/* Perform walking byte adjustments across the file. We perform four
+</span></span></span><span class="line"><span class="cl"><span class="cm">           operations designed to elicit some response from the underlying
+</span></span></span><span class="line"><span class="cl"><span class="cm">           code. */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">in_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">^=</span> <span class="mh">0xff</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">xor_ff</span> <span class="o">=</span> <span class="nf">run_target</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">in_data</span><span class="p">,</span> <span class="n">in_len</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">in_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">^=</span> <span class="mh">0xfe</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">xor_01</span> <span class="o">=</span> <span class="nf">run_target</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">in_data</span><span class="p">,</span> <span class="n">in_len</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">in_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">in_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">^</span> <span class="mh">0x01</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x10</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sub_10</span> <span class="o">=</span> <span class="nf">run_target</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">in_data</span><span class="p">,</span> <span class="n">in_len</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">in_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mh">0x20</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">add_10</span> <span class="o">=</span> <span class="nf">run_target</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">in_data</span><span class="p">,</span> <span class="n">in_len</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">in_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-=</span> <span class="mh">0x10</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cm">/* Classify current behavior. */</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// 观察 4 次运行路径与原始路径是否相同
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">xff_orig</span> <span class="o">=</span> <span class="p">(</span><span class="n">xor_ff</span> <span class="o">==</span> <span class="n">orig_cksum</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x01_orig</span> <span class="o">=</span> <span class="p">(</span><span class="n">xor_01</span> <span class="o">==</span> <span class="n">orig_cksum</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">s10_orig</span> <span class="o">=</span> <span class="p">(</span><span class="n">sub_10</span> <span class="o">==</span> <span class="n">orig_cksum</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">a10_orig</span> <span class="o">=</span> <span class="p">(</span><span class="n">add_10</span> <span class="o">==</span> <span class="n">orig_cksum</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">xff_orig</span> <span class="o">&amp;&amp;</span> <span class="n">x01_orig</span> <span class="o">&amp;&amp;</span> <span class="n">s10_orig</span> <span class="o">&amp;&amp;</span> <span class="n">a10_orig</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="c1">// 4 次变异都不改变路径，则这个位置不重要
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">b_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">RESP_NONE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">boring_len</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">xff_orig</span> <span class="o">||</span> <span class="n">x01_orig</span> <span class="o">||</span> <span class="n">s10_orig</span> <span class="o">||</span> <span class="n">a10_orig</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="c1">// 有至少一个不改变路径的变异，说明这个位置不关键，可以变异
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">b_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">RESP_MINOR</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">boring_len</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">xor_ff</span> <span class="o">==</span> <span class="n">xor_01</span> <span class="o">&amp;&amp;</span> <span class="n">xor_ff</span> <span class="o">==</span> <span class="n">sub_10</span> <span class="o">&amp;&amp;</span> <span class="n">xor_ff</span> <span class="o">==</span> <span class="n">add_10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="c1">// 4 次实验都与原路径不同，且这 4 次实验的路径一致，说明这个地方不能改
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		    <span class="c1">// 典型场景是 magic 检查，magic 不对就退出程序
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">b_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">RESP_FIXED</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span> <span class="c1">// 4 次实验都与原路径不同，且各次实验的执行路径也不一致，说明这位置对控制流很重要
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">b_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">RESP_VARIABLE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="cm">/* When all checksums change, flip most significant bit of b_data. */</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// 看这个位置与前一个位置的行为是否完全不一样，给 field 划定边界
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">prev_xff</span> <span class="o">!=</span> <span class="n">xor_ff</span> <span class="o">&amp;&amp;</span> <span class="n">prev_x01</span> <span class="o">!=</span> <span class="n">xor_01</span> <span class="o">&amp;&amp;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">prev_s10</span> <span class="o">!=</span> <span class="n">sub_10</span> <span class="o">&amp;&amp;</span> <span class="n">prev_a10</span> <span class="o">!=</span> <span class="n">add_10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">seq_byte</span> <span class="o">^=</span> <span class="mh">0x80</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">b_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">|=</span> <span class="n">seq_byte</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">prev_xff</span> <span class="o">=</span> <span class="n">xor_ff</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">prev_x01</span> <span class="o">=</span> <span class="n">xor_01</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">prev_s10</span> <span class="o">=</span> <span class="n">sub_10</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">prev_a10</span> <span class="o">=</span> <span class="n">add_10</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">dump_hex</span><span class="p">(</span><span class="n">in_data</span><span class="p">,</span> <span class="n">in_len</span><span class="p">,</span> <span class="n">b_data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">SAYF</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">OKF</span><span class="p">(</span><span class="s">&#34;Analysis complete. Interesting bits: %0.02f%% of the input file.&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="mf">100.0</span> <span class="o">-</span> <span class="p">((</span><span class="kt">double</span><span class="p">)</span><span class="n">boring_len</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">/</span> <span class="n">in_len</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">exec_hangs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">WARNF</span><span class="p">(</span><span class="n">cLRD</span> <span class="s">&#34;Encountered %u timeouts - results may be skewed.&#34;</span> <span class="n">cRST</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">              <span class="n">exec_hangs</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">ck_free</span><span class="p">(</span><span class="n">b_data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="dump_hex" class="heading-element">
+  <a href="#dump_hex" class="heading-mark"></a>dump_hex</h3><p>dump_hex 函数不仅负责输出十六进制数据，还给各个 field 打上了细化的标签</p>
+<p>可见，被标为「不能改」的块会被细分，其他块（不重要、不太重要、敏感）则保持原标签。具体而言，对于一个被标为「不能改」的块，其处理逻辑如下：</p>
+<p>若长度为 2 字节，且值比输入数据总长度小，则认为是 length 字段
+若长度为 2 字节，且两个字节之差大于 32，则认为是 checksum 字段
+若长度为 4 字节，且值比输入数据总长度小，则认为是 length 字段
+若长度为 4 字节，且第一个字节的 MSB 与其他三个字节不同，则认为是 checksum 字段
+若长度为小于 32 的奇数，则继续认为是 magic ，不改标签
+如果以上情况都不是，则认为是被计算 checksum 的字段</p>
+<h2 id="afl-fuzz" class="heading-element">
+  <a href="#afl-fuzz" class="heading-mark"></a>afl-fuzz</h2><p><code>afl-fuzz.c</code> 这份文件中，混杂了终端 UI、种子变异策略、队列维护、fork server 通讯等各种逻辑</p>
+<p>参数：</p>
+<ul>
+<li><strong><code>-i in_dir</code></strong>：表示初始 corpus 目录。</li>
+<li><strong><code>-o out_dir</code></strong>：表示工作目录。这里存放 fuzz 过程中的各种信息、当前的 corpus、crash 用例等。</li>
+<li><strong><code>-M sync_id</code></strong>：表示以 master 身份运行。在这种模式下，deterministic（确定性）变异会被打开。</li>
+<li><strong><code>-S sync_id</code></strong>：表示以 slave 身份运行。在这种模式下，deterministic 变异会被关闭。</li>
+<li><strong><code>-f out_file</code></strong>：如果目标程序需要从某个特定文件读入（例如 <code>/etc/nginx/nginx.conf</code>），可以用这个选项指定 AFL 将变异出的输入写入那个文件。</li>
+<li><strong><code>-x extras_dir</code></strong>：如果有 dictionary，可以用此选项将其提供给 AFL。</li>
+<li><strong><code>-t exec_tmout</code></strong>：设置执行超时时间。</li>
+<li><strong><code>-m ...</code></strong>：设置内存限制。</li>
+<li><strong><code>-b cpu</code></strong>：绑定指定的 CPU 核。</li>
+<li><strong><code>-d</code></strong>：跳过 deterministic 变异阶段。</li>
+<li><strong><code>-B</code></strong>：秘密选项，与 afl-tmin 的 <code>-B</code> 类似，让 fuzzer 只关心共享内存（shm）中的某些位置。</li>
+<li><strong><code>-C</code></strong>：打开 crash exploration（崩溃探索）模式。根据白皮书，此模式用于探索某个 crash 的潜力。输入一个 crash 用例，fuzzer 将生成许多相关的 crash。</li>
+<li><strong><code>-n</code></strong>：打开 dumb 模式（黑盒模式），不进行插桩运行。在此模式下，目标程序不挂载共享内存（shm）。如果没有设置环境变量 <code>AFL_DUMB_FORKSRV</code>，则也不使用 fork server。</li>
+<li><strong><code>-T</code></strong>：给用户界面换一个 banner。</li>
+<li><strong><code>-Q</code></strong>：qemu 模式，与当前情境暂时不相关。</li>
+</ul>
+<h3 id="main-4" class="heading-element">
+  <a href="#main-4" class="heading-mark"></a>main</h3><ul>
+<li>
+<p>获取时间，与pid异或后做为种子</p>
+</li>
+<li>
+<p>接下来是个while，从argv中获取并准备参数</p>
+</li>
+<li>
+<p><code>setup_signal_handlers()</code>设置一些信号的 handler，例如 alarm 响了就要关闭 child 进程</p>
+</li>
+<li>
+<p>检测asan设置</p>
+<ul>
+<li>如果用户设置了 <code>ASAN_OPTIONS</code> 环境变量，那就必须使用 <code>abort_on_error=1</code> 和 <code>symbolize=0</code></li>
+<li>若用户设置了 <code>MSAN_OPTIONS</code> 环境变量，那就必须设置 <code>exit_codd=86</code> 和 <code>symbolize=0</code>。</li>
+</ul>
+</li>
+<li>
+<p>从环境变量获取并设置某些值</p>
+</li>
+<li>
+<p>将 fuzzer 运行参数存进 <code>orig_cmdline</code></p>
+</li>
+<li>
+<p>fix_up_banner：修改ui相关</p>
+</li>
+<li>
+<p>check_if_tty：检查终端是否为tty（若有环境变量 <code>AFL_NO_UI</code>，则 <code>not_on_tty</code> = 1）</p>
+<ul>
+<li>由于 AFL 默认的 ui 会定期刷新，我们可以用 <code>AFL_NO_UI</code> 来让它不画 ui，而是逐行输出日志。</li>
+</ul>
+</li>
+<li>
+<p>get_core_count：获取核心数量</p>
+</li>
+<li>
+<p>check_cpu_governor：若发现 cpu 频率可调，则唆使用户把 cpu 定在最高频率</p>
+</li>
+<li>
+<p>setup_post：设置后处理函数</p>
+</li>
+<li>
+<p>setup_shm：初始化 shm，若处于 dumb 模式则不设置 <code>__AFL_SHM_ID</code></p>
+</li>
+<li>
+<p>init_count_class16：初始化 16bit 查找表（性能优化用途）</p>
+<ul>
+<li>这里的 16bit 查找表是为了进一步加速——afl-fuzz 的 <code>classify_counts</code> 函数比 afl-tmin 那个版本要更快。</li>
+<li>在 afl-tmin 中，是<strong>逐字节</strong>将 hit count 替换为桶 id；</li>
+<li>在 afl-fuzz 中，是<strong>逐双字节</strong>替换，还使用了循环展开等其他优化技巧</li>
+<li>16bit 查找表的大小是 65536 字节，也可以装在 L2 缓存里面。这是一个非常用心的优化。</li>
+</ul>
+</li>
+<li>
+<p>setup_dirs_fds：<em>在工作目录下创建一些文件夹，并打开一些 fd 备用，例如 /dev/urandom</em>  setup_dirs_fds();</p>
+</li>
+<li>
+<p>read_testcases：<em>把初始 corpus 读入 queue</em></p>
+</li>
+<li>
+<p>load_auto：<em>读入自动生成的 extra（如果有）</em></p>
+</li>
+<li>
+<p>pivot_inputs：<em>把初始 corpus 复制到工作目录的 queue 文件夹下</em></p>
+</li>
+<li>
+<p>perform_dry_run(use_argv)：对所有测试用例执行试运行，以确认该应用程序按照预期正常运行。仅对初始输入执行此操作，并且仅执行一次。</p>
+</li>
+<li>
+<p>cull_queue()：精简队列</p>
+</li>
+<li>
+<p>find_start_position():</p>
+<ul>
+<li>只有在resuming_fuzz时才起作用。</li>
+<li>打开out_dir/fuzzer_stats，读4095字节到tmp中。查找子串&quot;cur_path : &ldquo;的位置为off。设置ret = atoi(off + 20);</li>
+</ul>
+</li>
+<li>
+<p>write_stats_file():更新统计信息文件以进行无人值守的监视。</p>
+</li>
+<li>
+<p>如果设置了stop_soon，跳转到stop_fuzzing</p>
+</li>
+<li>
+<p>如果是tty启动（终端），那么先sleep 4 秒，start_time += 4000。</p>
+<ul>
+<li>再检测如果设置了stop_soon，跳转到stop_fuzzing</li>
+</ul>
+</li>
+</ul>
+<p>接下来是fuzz的主循环</p>
+<ul>
+<li>cull_queue():再次简化队列</li>
+<li>queue_cur指向当前队列中的元素</li>
+<li>判断一次循环是否结束，是则初始化队列，queue_cur指向当前队列的元素，为空说明遍历到结尾
+<ul>
+<li>queue_cycle队列循环次数加一</li>
+<li>current_entry=0，cur_skipped_paths=0，queue_cur指向队列头</li>
+<li>如果seek_to不为0，（用于指定开始位置，把queue_cur抬高到seek_to位置，恢复重启前的状态）</li>
+<li>show_stats()：显示状态</li>
+<li>如果不是终端模式，输出当前是第几个循环</li>
+<li>如果经历了一个完整的扫描周期后都没有新的路径发现，那么尝试调整策略。</li>
+</ul>
+</li>
+</ul>
+<h3 id="perform_dry_run" class="heading-element">
+  <a href="#perform_dry_run" class="heading-mark"></a>perform_dry_run</h3><p>afl-fuzz 的 dry run 比 afl-tmin 的 dry run 要复杂，因为它不是只运行目标程序一次，而是用 queue 中的所有用例跑一遍程序；另外，它使用了 fork server。在代码中，这种 dry run 称为「calibrate（校准）」</p>
+<p>对于 queue 中的每一个用例，调用 <code>calibrate_case</code> 函数进行校准。用例会被运行多次（默认是 8 次，这个函数的具体细节我们下文讨论）。对于校准结果：</p>
+<ul>
+<li>若 timeout 了，且 <code>-t</code> 参数里面没有容忍超时、也不处于 resume 模式，则直接退出。</li>
+<li>若 crash 了，则直接退出（除非有 <code>AFL_SKIP_CRASHES</code> 环境变量）。</li>
+<li>若无法执行目标程序，或目标程序没被插桩，则直接退出。</li>
+<li>另外，若该用例多次运行的行为不一致，则向用户抱怨两句。</li>
+</ul>
+<p>在执行完所有用例的校准之后，若存在校准失败的用例（例如超时或 crash 但被容忍），则向用户报告情况。</p>
+<h3 id="calibrate_case" class="heading-element">
+  <a href="#calibrate_case" class="heading-mark"></a>calibrate_case</h3><p>校准用例</p>
+<p><code>calibrate_case</code> 函数的运行时机至少有两个：</p>
+<ul>
+<li>
+<p>一是程序运行之初，用于校准初始 corpus；</p>
+</li>
+<li>
+<p>二是发现了新路径，将有趣的用例加入 queue 时。</p>
+</li>
+</ul>
+<p>总结一句：<strong>进了 queue 的用例，都要被运行一遍<code>calibrate_case</code> 函数。</strong></p>
+<p>校准过程是多次运行用例（默认是 8 次），统计各次运行的结果。</p>
+<ul>
+<li>若 fork server 没有准备好，就<strong>调用 <code>init_forkserver()</code> 初始化 fork server</strong></li>
+<li><strong>多次调用 <code>run_target()</code> 运行目标程序</strong>，观察结果。若没有任何 hit count 命中，则认为程序未插桩，报告错误。</li>
+<li>如果发现对某用例多次运行程序，其表现不一致，则将执行次数提升到 40 次，并更新 <code>var_bytes[]</code> （这个全局变量表示 shm 中哪些位置存在不一致性）。另外，将 queue entry 的 <code>var_behavior</code> 标记设为 <code>1</code>。</li>
+<li>更新 queue entry 信息，例如将 <code>exec_us</code> 字段设为校准过程中的执行时间均值。</li>
+<li><strong>给这个用例打分，并更新 <code>top_rated</code> 指针数组。</strong></li>
+</ul>
+<h3 id="update_bitmap_score" class="heading-element">
+  <a href="#update_bitmap_score" class="heading-mark"></a>update_bitmap_score</h3><p>「打分」算法</p>
+<p>这个还有点看不懂，之后再说</p>
+<h3 id="cull_queue" class="heading-element">
+  <a href="#cull_queue" class="heading-mark"></a>cull_queue</h3><p>精简队列</p>
+<h3 id="fuzz_one" class="heading-element">
+  <a href="#fuzz_one" class="heading-mark"></a>fuzz_one</h3><p>大致过程：</p>
+<div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">static</span> <span class="n">u8</span> <span class="nf">fuzz_one</span><span class="p">(</span><span class="kt">char</span><span class="o">**</span> <span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 决定是否直接跳过这个用例
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 准备用例文件
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// 校准（若有必要）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// 用例裁剪
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// 计算 perf_score
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// 决定是否要跳过 deterministic 阶段
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 下面开始 deterministic 阶段
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// ..................
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// ..................
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 下面开始 havoc 阶段
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// ..................
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// ..................
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 下面开始 splicing 阶段
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// ..................
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// ..................
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 打扫现场
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div><p>上述代码的功能是概率性地跳过 non-favored 用例。白皮书中提到，当考虑 fuzz 一个 non-favored 用例时：</p>
+<ul>
+<li>若队列中存在一个从来没被 fuzz 过的 favored 用例，则以 99% 概率跳过当前用例（要尽快去 fuzz 全新 favored 用例）</li>
+<li>若没有全新的 favored 用例，且当前用例已经被 fuzz 过，则以 95% 概率跳过</li>
+<li>若没有全新的 favored 用例，而当前用例没被 fuzz 过，则以 75% 概率跳过</li>
+</ul>
+<p>于是，在 fuzz 运行后期，一个 non-favored 用例被跳过的几率高达 95%。这节省下来的时间，投入到 favored 用例的 fuzz 去了。这究竟是否合理，有待商榷（事实上 favored 集的选取过程也不是无懈可击）——存在很多论文，通过改进 AFL 对各个种子的资源分配，提升了挖漏洞的效率。AFLFast 就是其代表</p>
+<p>把用例文件 mmap 进地址空间，并给 <code>out_buf</code> 分配内存。这个 <code>out_buf</code> 用于存储变异出来的用例</p>
+<p>afl-fuzz 中的用例裁剪算法，就是 afl-tmin 的子集。它只使用了 afl-tmin 中的 block deletion 优化，而没有使用 alphabet minimization 和 character(字符) minimization。这显然是为了提升 fuzz 效率，尽量少浪费时间</p>
+<p>评分标准。简而言之，跑得越快、覆盖度越高、深度越大，分数就会越高，在 havoc 阶段就会有更多资源来尝试变异。</p>
+<p>bitflip a/b 的意思是翻转连续的 a 个 bit、步长为 b。例如 bitflip 2/1 就是翻转所有连续 2bit，bitflip 8/8 是每隔 8 个 bit 尝试翻转连续 8bit，也就是尝试翻转每一个字节</p>
+<p>从代码中可以看到，arith 变异就是给每个 uint8、uint16、uint32 加上和减去一个量（1 到 35 之间），进行实验。另外，如果 bitflip 已经覆盖到了，则不重复实验。由于 arith 变异对每个位置要尝试大约 35×3 次实验，耗时很长</p>
+<p>interest 8/8 就是对于每个字节，把它替换成有趣的值。8bit 的有趣的值包括： <code>-128, -1, 0, 1, 16, 32, 64, 100, 127</code>。不敏感的位置不参与这个变异，被 bitflip 和 arith 覆盖过的也不再重复实验。</p>
+<p>interest 16/8 和 32/8 大致逻辑与 8/8 相同，但大小端都会尝试。16bit 的有趣值，是在 8bit 有趣值的基础上添加 <code>-32768, -129, 128, 255, 256, 512, 1000, 1024, 4096, 32767</code>。32bit 的有趣值是在 8bit、16bit 的基础上添加 <code>-2147483648LL, -100663046, -32769, 32768, 65535, 65536, 100663045, 2147483647</code>。</p>
+<p>user extras (over) 变异，对于每一个位置，尝试将那里替换为用户词典中的每一个元素</p>
+<p><strong>如果某次实验发现了新成果，那么剩余的 havoc 执行次数会翻倍</strong>，</p>
+<p>splicing 阶段执行「杂交」操作。也就是说，将这个用例的一部分拼接上其他用例的一部分</p>
+<h2 id="ref" class="heading-element">
+  <a href="#ref" class="heading-mark"></a>REF</h2><blockquote>
+<p><a href="https://eternalsakura13.com/2020/08/23/afl/"target="_blank" rel="external nofollow noopener noreferrer">https://eternalsakura13.com/2020/08/23/afl/</a></p>
+<p><a href="https://bbs.kanxue.com/thread-265936.htm#msg_header_h2_5"target="_blank" rel="external nofollow noopener noreferrer">https://bbs.kanxue.com/thread-265936.htm#msg_header_h2_5</a></p>
+<p><a href="https://www.ruanx.net/afl-source-1/"target="_blank" rel="external nofollow noopener noreferrer">https://www.ruanx.net/afl-source-1/</a>
+<a href="https://xidoo.top/2022/01/afl-white-book/"target="_blank" rel="external nofollow noopener noreferrer">https://xidoo.top/2022/01/afl-white-book/</a></p>
+<p><a href="http://rk700.github.io/2018/01/04/afl-mutations/"target="_blank" rel="external nofollow noopener noreferrer">http://rk700.github.io/2018/01/04/afl-mutations/</a></p>
+</blockquote>
+</div><div class="post-footer" id="post-footer">
+  <div class="post-info">
+    <div class="post-info-line">
+      <div class="post-info-mod">
+        <span title="更新于 2023-09-16 00:00:00">更新于 2023-09-16&nbsp;</span>
+      </div><div class="post-info-license">
+            <span><a rel="license external nofollow noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a></span>
+          </div></div><div class="post-info-line">
+        <div class="post-info-md"></div>
+        <div class="post-info-share">
+          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/2023-9-aflsourceread/" data-title="AFL源码阅读" data-hashtags="AFL"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/2023-9-aflsourceread/" data-hashtag="AFL"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/2023-9-aflsourceread/" data-title="AFL源码阅读"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+  </span>
+        </div>
+      </div></div>
+
+  <div class="post-info-more">
+    <section class="post-tags"><i class="fa-solid fa-tags fa-fw me-1" aria-hidden="true"></i><a href="/tags/afl/" class="post-tag" title="标签 - AFL">AFL</a></section>
+    <section>
+      <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+    </section>
+  </div>
+
+  <div class="post-nav"><a href="/posts/2023-9-wrkprocessthread/" class="post-nav-item" rel="prev" title="浅析WRK进程与线程"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>浅析WRK进程与线程</a>
+      <a href="/posts/2023-11-%E7%A7%8B%E6%8B%9B/" class="post-nav-item" rel="next" title="秋招 | 终">秋招 | 终<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+</article>
+
+  <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
+      <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.123.8"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+        </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
+            <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
+              <a href="/"></a></span></div></div>
+  </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
+        </div></div><div id="mask"></div><noscript>
+    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+  </noscript>
+</div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+</html>
