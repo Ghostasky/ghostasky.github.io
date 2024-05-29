@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>YARA规则 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>YARA规则 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='Antivirus' /><meta itemprop="name" content="YARA规则">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2022-08-13T00:00:00+00:00" />
+<meta name="description" content="[toc] 1.YARA简介 YARA 是一个旨在（但不限于）帮助恶意软件研究人员识别和分类恶意软件样本的开源工具。 YARA的每一条描述、规则都由一系列字符串和一个布尔型表达式构成，并阐述其逻辑。YARA规则可以与文件或在运行的进程，以帮助研究人员识别其是否属" /><meta name="keywords" content='Antivirus' /><meta itemprop="name" content="YARA规则">
+<meta itemprop="description" content="[toc] 1.YARA简介 YARA 是一个旨在（但不限于）帮助恶意软件研究人员识别和分类恶意软件样本的开源工具。 YARA的每一条描述、规则都由一系列字符串和一个布尔型表达式构成，并阐述其逻辑。YARA规则可以与文件或在运行的进程，以帮助研究人员识别其是否属"><meta itemprop="datePublished" content="2022-08-13T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-08-13T00:00:00+00:00" />
-<meta itemprop="wordCount" content="3535">
+<meta itemprop="wordCount" content="3445">
 <meta itemprop="keywords" content="Antivirus," /><meta property="og:title" content="YARA规则" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[toc] 1.YARA简介 YARA 是一个旨在（但不限于）帮助恶意软件研究人员识别和分类恶意软件样本的开源工具。 YARA的每一条描述、规则都由一系列字符串和一个布尔型表达式构成，并阐述其逻辑。YARA规则可以与文件或在运行的进程，以帮助研究人员识别其是否属" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/2022-8-13-yara/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/2022-8-13-yara/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-08-13T00:00:00+00:00" />
 <meta property="article:modified_time" content="2022-08-13T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="YARA规则"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[toc] 1.YARA简介 YARA 是一个旨在（但不限于）帮助恶意软件研究人员识别和分类恶意软件样本的开源工具。 YARA的每一条描述、规则都由一系列字符串和一个布尔型表达式构成，并阐述其逻辑。YARA规则可以与文件或在运行的进程，以帮助研究人员识别其是否属"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/2022-8-13-yara/" /><link rel="prev" href="http://localhost:1313/posts/rc4/" /><link rel="next" href="http://localhost:1313/posts/2022-9-winkernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/2022-8-13-yara/" /><link rel="prev" href="http://ghostasky.github.io/posts/rc4/" /><link rel="next" href="http://ghostasky.github.io/posts/2022-9-winkernel%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/2022-8-13-yara\/"
-    },"genre": "posts","keywords": "Antivirus","wordcount":  3535 ,
-    "url": "http:\/\/localhost:1313\/posts\/2022-8-13-yara\/","datePublished": "2022-08-13T00:00:00+00:00","dateModified": "2022-08-13T00:00:00+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/2022-8-13-yara\/"
+    },"genre": "posts","keywords": "Antivirus","wordcount":  3445 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/2022-8-13-yara\/","datePublished": "2022-08-13T00:00:00+00:00","dateModified": "2022-08-13T00:00:00+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>YARA规则</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2022-08-13 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2022-08-13">2022-08-13</time></span>&nbsp;<span title="3535 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 3600 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 8 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2022-08-13 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2022-08-13">2022-08-13</time></span>&nbsp;<span title="3445 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 3500 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 7 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -155,16 +154,22 @@
   </ul>
 </nav></div>
       </div><div class="content" id="content"><p>[toc]</p>
-<h2 id="1yara简介" class="heading-element">
-  <a href="#1yara%e7%ae%80%e4%bb%8b" class="heading-mark"></a>1.YARA简介</h2><p>YARA 是一个旨在（但不限于）帮助恶意软件研究人员识别和分类恶意软件样本的开源工具。</p>
+<h2 id="1yara简介" class="heading-element"><span>1.YARA简介</span>
+  <a href="#1yara%e7%ae%80%e4%bb%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>YARA 是一个旨在（但不限于）帮助恶意软件研究人员识别和分类恶意软件样本的开源工具。</p>
 <p>YARA的每一条描述、规则都由一系列字符串和一个布尔型表达式构成，并阐述其逻辑。YARA规则可以与文件或在运行的进程，以帮助研究人员识别其是否属于某个已进行规则描述的恶意软件等。</p>
 <blockquote>
 <p>项目地址：https://github.com/VirusTotal/yara，（yara64.exe ， yarac64.exe ）</p>
 <p>python：https://github.com/VirusTotal/yara-python</p>
 <p>官方文档：https://yara.readthedocs.io/</p>
 </blockquote>
-<h2 id="2yara示例" class="heading-element">
-  <a href="#2yara%e7%a4%ba%e4%be%8b" class="heading-mark"></a>2.YARA示例</h2><div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="nl">silent_banker</span> <span class="p">:</span> <span class="n">banker</span>
+<h2 id="2yara示例" class="heading-element"><span>2.YARA示例</span>
+  <a href="#2yara%e7%a4%ba%e4%be%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="nl">silent_banker</span> <span class="p">:</span> <span class="n">banker</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">meta</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="n">description</span> <span class="o">=</span> <span class="s">&#34;This is just an example&#34;</span>
@@ -183,8 +188,11 @@
 <li><code>strings</code>是规则字段</li>
 <li><code>condition</code>则是条件判断的字段</li>
 </ol>
-<h2 id="3yara规则" class="heading-element">
-  <a href="#3yara%e8%a7%84%e5%88%99" class="heading-mark"></a>3.yara规则</h2><blockquote>
+<h2 id="3yara规则" class="heading-element"><span>3.yara规则</span>
+  <a href="#3yara%e8%a7%84%e5%88%99" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><blockquote>
 <p>官方文档：https://yara.readthedocs.io/en/v4.2.3/writingrules.html</p>
 </blockquote>
 <p>yara中的规则都以<code>rule</code>开头，后面跟着的是<code>identifier</code>（标识符），标识符和编程中的变量命名差不多，部分保留的关键字不能用作标识符：</p>
@@ -265,7 +273,7 @@
 </tbody>
 </table>
 <p>strings的部分由<code>$</code>后跟一系列字母数字字符和下划线组成，strings可以以文本或十六进制形式定义，示例：</p>
-<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">ExampleRule</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">ExampleRule</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">my_text_string</span> <span class="o">=</span> <span class="s">&#34;text here&#34;</span>
@@ -276,23 +284,41 @@
 <li>文本使用引号括起来</li>
 <li>十六进制使用大括号（只能是16进制</li>
 </ol>
-<h3 id="31-注释" class="heading-element">
-  <a href="#31-%e6%b3%a8%e9%87%8a" class="heading-mark"></a>3.1 注释</h3><p>跟c语言一样，行注释和段注释都一样。</p>
-<h3 id="32-strings" class="heading-element">
-  <a href="#32-strings" class="heading-mark"></a>3.2 Strings</h3><h4 id="321-hex" class="heading-element">
-  <a href="#321-hex" class="heading-mark"></a>3.2.1 Hex</h4><p>这里其实有三种，文本，十六进制，还有一种是正则。</p>
+<h3 id="31-注释" class="heading-element"><span>3.1 注释</span>
+  <a href="#31-%e6%b3%a8%e9%87%8a" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>跟c语言一样，行注释和段注释都一样。</p>
+<h3 id="32-strings" class="heading-element"><span>3.2 Strings</span>
+  <a href="#32-strings" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="321-hex" class="heading-element"><span>3.2.1 Hex</span>
+  <a href="#321-hex" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>这里其实有三种，文本，十六进制，还有一种是正则。</p>
 <p>十六进制可以使用占位符<code>?</code>，通配符使用<code>[]</code></p>
-<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="err">$</span><span class="n">hex_string</span> <span class="o">=</span> <span class="p">{</span> <span class="n">E2</span> <span class="mi">34</span> <span class="o">??</span> <span class="n">C8</span> <span class="n">A</span><span class="o">?</span> <span class="n">FB</span> <span class="p">}</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="err">$</span><span class="n">hex_string</span> <span class="o">=</span> <span class="p">{</span> <span class="n">E2</span> <span class="mi">34</span> <span class="o">??</span> <span class="n">C8</span> <span class="n">A</span><span class="o">?</span> <span class="n">FB</span> <span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="err">$</span><span class="n">hex_string</span> <span class="o">=</span> <span class="p">{</span> <span class="n">F4</span> <span class="mi">23</span> <span class="p">[</span><span class="mi">4</span><span class="o">-</span><span class="mi">6</span><span class="p">]</span> <span class="mi">62</span> <span class="n">B4</span> <span class="p">}</span></span></span></code></pre></div><p>yara2.0之后可以使用无界跳转：</p>
-<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">FE</span> <span class="mi">39</span> <span class="mi">45</span> <span class="p">[</span><span class="mi">10</span><span class="o">-</span><span class="p">]</span> <span class="mi">89</span> <span class="mo">00</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">FE</span> <span class="mi">39</span> <span class="mi">45</span> <span class="p">[</span><span class="mi">10</span><span class="o">-</span><span class="p">]</span> <span class="mi">89</span> <span class="mo">00</span>
 </span></span><span class="line"><span class="cl"><span class="n">FE</span> <span class="mi">39</span> <span class="mi">45</span> <span class="p">[</span><span class="o">-</span><span class="p">]</span> <span class="mi">89</span> <span class="mo">00</span></span></span></code></pre></div><p>还有一种给定部分的替换方案：</p>
-<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="err">$</span><span class="n">hex_string</span> <span class="o">=</span> <span class="p">{</span> <span class="n">F4</span> <span class="mi">23</span> <span class="p">(</span> <span class="mi">62</span> <span class="n">B4</span> <span class="o">|</span> <span class="mi">56</span> <span class="p">)</span> <span class="mi">45</span> <span class="p">}</span></span></span></code></pre></div><p>他会匹配：<code>F42362B445 or F4235645</code></p>
-<h4 id="322-text-strings" class="heading-element">
-  <a href="#322-text-strings" class="heading-mark"></a>3.2.2 Text strings</h4><h5 id="不区分大小写nocase" class="heading-element">
-  <a href="#%e4%b8%8d%e5%8c%ba%e5%88%86%e5%a4%a7%e5%b0%8f%e5%86%99nocase" class="heading-mark"></a>不区分大小写：nocase</h5><p>不区分大小写：</p>
-<div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="err">$</span><span class="n">text_string</span> <span class="o">=</span> <span class="s">&#34;foobar&#34;</span> <span class="n">nocase</span></span></span></code></pre></div><h5 id="宽字节wide" class="heading-element">
-  <a href="#%e5%ae%bd%e5%ad%97%e8%8a%82wide" class="heading-mark"></a>宽字节：wide</h5><p>如果字符串“Borland”的编码为每个字符两个字节（即B\x00o\x00r\x00l\x00a\x00n\x00d\x00），则以下规则将匹配：</p>
-<div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">WideCharTextExample1</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="err">$</span><span class="n">hex_string</span> <span class="o">=</span> <span class="p">{</span> <span class="n">F4</span> <span class="mi">23</span> <span class="p">(</span> <span class="mi">62</span> <span class="n">B4</span> <span class="o">|</span> <span class="mi">56</span> <span class="p">)</span> <span class="mi">45</span> <span class="p">}</span></span></span></code></pre></div><p>他会匹配：<code>F42362B445 or F4235645</code></p>
+<h4 id="322-text-strings" class="heading-element"><span>3.2.2 Text strings</span>
+  <a href="#322-text-strings" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><h5 id="不区分大小写nocase" class="heading-element"><span>不区分大小写：nocase</span>
+  <a href="#%e4%b8%8d%e5%8c%ba%e5%88%86%e5%a4%a7%e5%b0%8f%e5%86%99nocase" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h5><p>不区分大小写：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="err">$</span><span class="n">text_string</span> <span class="o">=</span> <span class="s">&#34;foobar&#34;</span> <span class="n">nocase</span></span></span></code></pre></div><h5 id="宽字节wide" class="heading-element"><span>宽字节：wide</span>
+  <a href="#%e5%ae%bd%e5%ad%97%e8%8a%82wide" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h5><p>如果字符串“Borland”的编码为每个字符两个字节（即B\x00o\x00r\x00l\x00a\x00n\x00d\x00），则以下规则将匹配：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">WideCharTextExample1</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">wide_string</span> <span class="o">=</span> <span class="s">&#34;Borland&#34;</span> <span class="n">wide</span>
@@ -300,12 +326,15 @@
 </span></span><span class="line"><span class="cl">    <span class="nl">condition</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">wide_string</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>如果要同时搜索ASCII和wide格式的字符串，可以将ASCII修饰符与wide结合使用，先后顺序无所谓：</p>
-<div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="err">$</span><span class="n">wide_and_ascii_string</span> <span class="o">=</span> <span class="s">&#34;Borland&#34;</span> <span class="n">wide</span> <span class="n">ascii</span></span></span></code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="err">$</span><span class="n">wide_and_ascii_string</span> <span class="o">=</span> <span class="s">&#34;Borland&#34;</span> <span class="n">wide</span> <span class="n">ascii</span></span></span></code></pre></div><blockquote>
 <p>默认情况下Text就是ascii的。</p>
 </blockquote>
-<h5 id="xorxor" class="heading-element">
-  <a href="#xorxor" class="heading-mark"></a>XOR：xor</h5><p>以下规则将搜索应用于字符串“This program cannot”（包括明文字符串）的每个单字节XOR：</p>
-<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">XorExample1</span>
+<h5 id="xorxor" class="heading-element"><span>XOR：xor</span>
+  <a href="#xorxor" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h5><p>以下规则将搜索应用于字符串“This program cannot”（包括明文字符串）的每个单字节XOR：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">XorExample1</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">xor_string</span> <span class="o">=</span> <span class="s">&#34;This program cannot&#34;</span> <span class="n">xor</span>
@@ -313,7 +342,7 @@
 </span></span><span class="line"><span class="cl">    <span class="nl">condition</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">xor_string</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>等价于：</p>
-<div class="highlight" id="id-10"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">XorExample2</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">XorExample2</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">xor_string_00</span> <span class="o">=</span> <span class="s">&#34;This program cannot&#34;</span>
@@ -323,9 +352,12 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nl">condition</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="n">any</span> <span class="n">of</span> <span class="n">them</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>同样可以结合<code>wide</code>和<code>ascii</code>使用</p>
-<h5 id="base64base64" class="heading-element">
-  <a href="#base64base64" class="heading-mark"></a>base64：base64</h5><p>以下规则将搜索字符串“此程序无法”的三个base64排列：</p>
-<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">Base64Example1</span>
+<h5 id="base64base64" class="heading-element"><span>base64：base64</span>
+  <a href="#base64base64" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h5><p>以下规则将搜索字符串“此程序无法”的三个base64排列：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">Base64Example1</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">a</span> <span class="o">=</span> <span class="s">&#34;This program cannot&#34;</span> <span class="n">base64</span>
@@ -339,11 +371,17 @@
 </span></span></span><span class="line"><span class="cl"><span class="cm">UaGlzIHByb2dyYW0gY2Fubm90
 </span></span></span><span class="line"><span class="cl"><span class="cm">*/</span></span></span></code></pre></div><p>base64wide修改器的工作方式与base64修改器类似，但base64调整器的结果将转换为wide。</p>
 <p>base64和base64宽修饰符还支持自定义字母表，当然字母表长度必须为64</p>
-<div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="err">$</span><span class="n">a</span> <span class="o">=</span> <span class="s">&#34;This program cannot&#34;</span> <span class="nf">base64</span><span class="p">(</span><span class="s">&#34;!@#$%^&amp;*(){}[].,|ABCDEFGHIJ</span><span class="se">\x09</span><span class="s">LMNOPQRSTUVWXYZabcdefghijklmnopqrstu&#34;</span><span class="p">)</span></span></span></code></pre></div><h5 id="searching-for-full-wordsfullword" class="heading-element">
-  <a href="#searching-for-full-wordsfullword" class="heading-mark"></a>Searching for full words：fullword</h5><p>比如说匹配domain的话，<code>www.mydomain.com</code>这样不会被匹配，但：<code>www.my-domain.com and www.domain.com</code>这样会被匹配</p>
-<h4 id="323-正则" class="heading-element">
-  <a href="#323-%e6%ad%a3%e5%88%99" class="heading-mark"></a>3.2.3 正则</h4><p>正则同样可以后面跟nocase，ascii等修饰符</p>
-<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">RegExpExample1</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="err">$</span><span class="n">a</span> <span class="o">=</span> <span class="s">&#34;This program cannot&#34;</span> <span class="nf">base64</span><span class="p">(</span><span class="s">&#34;!@#$%^&amp;*(){}[].,|ABCDEFGHIJ</span><span class="se">\x09</span><span class="s">LMNOPQRSTUVWXYZabcdefghijklmnopqrstu&#34;</span><span class="p">)</span></span></span></code></pre></div><h5 id="searching-for-full-wordsfullword" class="heading-element"><span>Searching for full words：fullword</span>
+  <a href="#searching-for-full-wordsfullword" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h5><p>比如说匹配domain的话，<code>www.mydomain.com</code>这样不会被匹配，但：<code>www.my-domain.com and www.domain.com</code>这样会被匹配</p>
+<h4 id="323-正则" class="heading-element"><span>3.2.3 正则</span>
+  <a href="#323-%e6%ad%a3%e5%88%99" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>正则同样可以后面跟nocase，ascii等修饰符</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">RegExpExample1</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">re1</span> <span class="o">=</span> <span class="o">/</span><span class="nl">md5</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="n">a</span><span class="o">-</span><span class="n">fA</span><span class="o">-</span><span class="n">F</span><span class="p">]{</span><span class="mi">32</span><span class="p">}</span><span class="o">/</span>
@@ -353,7 +391,7 @@
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">re1</span> <span class="n">and</span> <span class="err">$</span><span class="n">re2</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>可以在后面结束的斜杠后面加i或者s，用于指定正则表达式不区分大小写。</p>
 <p><code>.</code>可以匹配新一行的字符：</p>
-<div class="highlight" id="id-14"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">RegExpExample2</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">RegExpExample2</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">re1</span> <span class="o">=</span> <span class="o">/</span><span class="n">foo</span><span class="o">/</span><span class="n">i</span>    <span class="c1">// This regexp is case-insentitive
@@ -493,12 +531,18 @@
 </tr>
 </tbody>
 </table>
-<h3 id="33-conditions" class="heading-element">
-  <a href="#33-conditions" class="heading-mark"></a>3.3 Conditions</h3><p>conditions就是布尔表达式，and or not ，关系运算符，算数运算符，位运算等。</p>
+<h3 id="33-conditions" class="heading-element"><span>3.3 Conditions</span>
+  <a href="#33-conditions" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>conditions就是布尔表达式，and or not ，关系运算符，算数运算符，位运算等。</p>
 <p>整数的长度始终为64位，使用位运算符时（例如，~0x01不是0xFE，而是0xFFFFFFFFFE）。</p>
-<h4 id="331-counting-strings" class="heading-element">
-  <a href="#331-counting-strings" class="heading-mark"></a>3.3.1 Counting strings</h4><p>如题，就是计算string的次数，这里使用的是井号</p>
-<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">CountExample</span>
+<h4 id="331-counting-strings" class="heading-element"><span>3.3.1 Counting strings</span>
+  <a href="#331-counting-strings" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>如题，就是计算string的次数，这里使用的是井号</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">CountExample</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">a</span> <span class="o">=</span> <span class="s">&#34;dummy1&#34;</span>
@@ -507,11 +551,14 @@
 </span></span><span class="line"><span class="cl">    <span class="nl">condition</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="cp">#a == 6 and #b &gt; 10
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="p">}</span></span></span></code></pre></div><p>yara4.2.0后，</p>
-<div class="highlight" id="id-16"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##a in (filesize-500..filesize) == 2
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##a in (filesize-500..filesize) == 2
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="c1">//文件最后500个字节中的“a”字符串数必须正好等于2。
-</span></span></span></code></pre></div><h4 id="332-string-offsets-or-virtual-addresses" class="heading-element">
-  <a href="#332-string-offsets-or-virtual-addresses" class="heading-mark"></a>3.3.2 String offsets or virtual addresses</h4><p>需要知道字符串是否位于文件上的某个特定偏移量或进程地址空间中的某个虚拟地址，使用at。</p>
-<div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">AtExample</span>
+</span></span></span></code></pre></div><h4 id="332-string-offsets-or-virtual-addresses" class="heading-element"><span>3.3.2 String offsets or virtual addresses</span>
+  <a href="#332-string-offsets-or-virtual-addresses" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>需要知道字符串是否位于文件上的某个特定偏移量或进程地址空间中的某个虚拟地址，使用at。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">AtExample</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">a</span> <span class="o">=</span> <span class="s">&#34;dummy1&#34;</span>
@@ -521,7 +568,7 @@
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">a</span> <span class="n">at</span> <span class="mi">100</span> <span class="n">and</span> <span class="err">$</span><span class="n">b</span> <span class="n">at</span> <span class="mi">200</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>at的优先级高于and</p>
 <p>at运算符允许在文件或进程内存空间中的虚拟地址的某个固定偏移量处搜索字符串，而in运算符允许在偏移量或地址范围内搜索字符串。</p>
-<div class="highlight" id="id-18"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">InExample</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">InExample</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">a</span> <span class="o">=</span> <span class="s">&#34;dummy1&#34;</span>
@@ -532,15 +579,21 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><blockquote>
 <p>可以使用@a[i]获得字符串$a第i次出现的偏移量或虚拟地址。索引是基于1的，因此第一次出现是@a[1]，第二次出现是@a[2]，依此类推。如果提供的索引大于字符串的出现次数，则结果将是一个NaN（不是数字）值。</p>
 </blockquote>
-<h4 id="333-file-size" class="heading-element">
-  <a href="#333-file-size" class="heading-mark"></a>3.3.3 File size</h4><p>直接就是<code>filesize</code></p>
-<div class="highlight" id="id-19"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">FileSizeExample</span>
+<h4 id="333-file-size" class="heading-element"><span>3.3.3 File size</span>
+  <a href="#333-file-size" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>直接就是<code>filesize</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">FileSizeExample</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">condition</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="n">filesize</span> <span class="o">&gt;</span> <span class="mi">200</span><span class="n">KB</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="334-executable-entry-point" class="heading-element">
-  <a href="#334-executable-entry-point" class="heading-mark"></a>3.3.4 Executable entry point</h4><p>另个一特殊的变量就是<code>entrypoint</code>，当然，使用这个的前提必须是pe文件</p>
-<div class="highlight" id="id-20"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">EntryPointExample1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="334-executable-entry-point" class="heading-element"><span>3.3.4 Executable entry point</span>
+  <a href="#334-executable-entry-point" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>另个一特殊的变量就是<code>entrypoint</code>，当然，使用这个的前提必须是pe文件</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">EntryPointExample1</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">a</span> <span class="o">=</span> <span class="p">{</span> <span class="n">E8</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="p">}</span>
@@ -556,8 +609,11 @@
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="nl">condition</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">a</span> <span class="nf">in</span> <span class="p">(</span><span class="n">entrypoint</span><span class="p">..</span><span class="n">entrypoint</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="335-给定位置的数据访问" class="heading-element">
-  <a href="#335-%e7%bb%99%e5%ae%9a%e4%bd%8d%e7%bd%ae%e7%9a%84%e6%95%b0%e6%8d%ae%e8%ae%bf%e9%97%ae" class="heading-mark"></a>3.3.5 给定位置的数据访问</h4><div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">int8</span><span class="p">(</span><span class="o">&lt;</span><span class="n">offset</span> <span class="n">or</span> <span class="n">virtual</span> <span class="n">address</span><span class="o">&gt;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="335-给定位置的数据访问" class="heading-element"><span>3.3.5 给定位置的数据访问</span>
+  <a href="#335-%e7%bb%99%e5%ae%9a%e4%bd%8d%e7%bd%ae%e7%9a%84%e6%95%b0%e6%8d%ae%e8%ae%bf%e9%97%ae" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">int8</span><span class="p">(</span><span class="o">&lt;</span><span class="n">offset</span> <span class="n">or</span> <span class="n">virtual</span> <span class="n">address</span><span class="o">&gt;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="nf">int16</span><span class="p">(</span><span class="o">&lt;</span><span class="n">offset</span> <span class="n">or</span> <span class="n">virtual</span> <span class="n">address</span><span class="o">&gt;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="nf">int32</span><span class="p">(</span><span class="o">&lt;</span><span class="n">offset</span> <span class="n">or</span> <span class="n">virtual</span> <span class="n">address</span><span class="o">&gt;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
@@ -572,16 +628,19 @@
 </span></span><span class="line"><span class="cl"><span class="nf">uint8be</span><span class="p">(</span><span class="o">&lt;</span><span class="n">offset</span> <span class="n">or</span> <span class="n">virtual</span> <span class="n">address</span><span class="o">&gt;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="nf">uint16be</span><span class="p">(</span><span class="o">&lt;</span><span class="n">offset</span> <span class="n">or</span> <span class="n">virtual</span> <span class="n">address</span><span class="o">&gt;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="nf">uint32be</span><span class="p">(</span><span class="o">&lt;</span><span class="n">offset</span> <span class="n">or</span> <span class="n">virtual</span> <span class="n">address</span><span class="o">&gt;</span><span class="p">)</span></span></span></code></pre></div><p>举例：</p>
-<div class="highlight" id="id-22"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">IsPE</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">IsPE</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">condition</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="c1">// MZ signature at offset 0 and ...
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nf">uint16</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x5A4D</span> <span class="n">and</span>
 </span></span><span class="line"><span class="cl">        <span class="c1">// ... PE signature at offset stored in MZ header at 0x3C
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nf">uint32</span><span class="p">(</span><span class="nf">uint32</span><span class="p">(</span><span class="mh">0x3C</span><span class="p">))</span> <span class="o">==</span> <span class="mh">0x00004550</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="336-字符串集" class="heading-element">
-  <a href="#336-%e5%ad%97%e7%ac%a6%e4%b8%b2%e9%9b%86" class="heading-mark"></a>3.3.6 字符串集</h4><p>使用<code>of</code>，至少存在字符串集中的一部分。</p>
-<div class="highlight" id="id-23"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">OfExample1</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="336-字符串集" class="heading-element"><span>3.3.6 字符串集</span>
+  <a href="#336-%e5%ad%97%e7%ac%a6%e4%b8%b2%e9%9b%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>使用<code>of</code>，至少存在字符串集中的一部分。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">OfExample1</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">a</span> <span class="o">=</span> <span class="s">&#34;dummy1&#34;</span>
@@ -591,7 +650,7 @@
 </span></span><span class="line"><span class="cl">    <span class="nl">condition</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="mi">2</span> <span class="nf">of</span> <span class="p">(</span><span class="err">$</span><span class="n">a</span><span class="p">,</span><span class="err">$</span><span class="n">b</span><span class="p">,</span><span class="err">$</span><span class="n">c</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>也可以这样：</p>
-<div class="highlight" id="id-24"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">OfExample2</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">OfExample2</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">foo1</span> <span class="o">=</span> <span class="s">&#34;foo1&#34;</span>
@@ -614,7 +673,7 @@
 </span></span><span class="line"><span class="cl">    <span class="nl">condition</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="mi">3</span> <span class="nf">of</span> <span class="p">(</span><span class="err">$</span><span class="n">foo</span><span class="o">*</span><span class="p">,</span><span class="err">$</span><span class="n">bar1</span><span class="p">,</span><span class="err">$</span><span class="n">bar2</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>也可以直接使用<code>($*)</code>引用所有字符串，或者可以使用<code>them</code></p>
-<div class="highlight" id="id-25"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">OfExample4</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">OfExample4</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">a</span> <span class="o">=</span> <span class="s">&#34;dummy1&#34;</span>
@@ -624,21 +683,27 @@
 </span></span><span class="line"><span class="cl">    <span class="nl">condition</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="mi">1</span> <span class="n">of</span> <span class="n">them</span> <span class="c1">// equivalent to 1 of ($*)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div><p>还有以下几种：</p>
-<div class="highlight" id="id-26"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">all</span> <span class="n">of</span> <span class="n">them</span>       <span class="c1">// all strings in the rule
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">all</span> <span class="n">of</span> <span class="n">them</span>       <span class="c1">// all strings in the rule
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">any</span> <span class="n">of</span> <span class="n">them</span>       <span class="c1">// any string in the rule
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">all</span> <span class="nf">of</span> <span class="p">(</span><span class="err">$</span><span class="n">a</span><span class="o">*</span><span class="p">)</span>      <span class="c1">// all strings whose identifier starts by $a
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">any</span> <span class="nf">of</span> <span class="p">(</span><span class="err">$</span><span class="n">a</span><span class="p">,</span><span class="err">$</span><span class="n">b</span><span class="p">,</span><span class="err">$</span><span class="n">c</span><span class="p">)</span> <span class="c1">// any of $a, $b or $c
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span> <span class="nf">of</span> <span class="p">(</span><span class="err">$</span><span class="o">*</span><span class="p">)</span>         <span class="c1">// same that &#34;any of them&#34;
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">none</span> <span class="nf">of</span> <span class="p">(</span><span class="err">$</span><span class="n">b</span><span class="o">*</span><span class="p">)</span>     <span class="c1">// zero of the set of strings that start with &#34;$b&#34;
-</span></span></span></code></pre></div><h4 id="337-对多个字符串应用相同的条件" class="heading-element">
-  <a href="#337-%e5%af%b9%e5%a4%9a%e4%b8%aa%e5%ad%97%e7%ac%a6%e4%b8%b2%e5%ba%94%e7%94%a8%e7%9b%b8%e5%90%8c%e7%9a%84%e6%9d%a1%e4%bb%b6" class="heading-mark"></a>3.3.7 对多个字符串应用相同的条件</h4><p>使用的是<code>for...of</code>操作符：</p>
+</span></span></span></code></pre></div><h4 id="337-对多个字符串应用相同的条件" class="heading-element"><span>3.3.7 对多个字符串应用相同的条件</span>
+  <a href="#337-%e5%af%b9%e5%a4%9a%e4%b8%aa%e5%ad%97%e7%ac%a6%e4%b8%b2%e5%ba%94%e7%94%a8%e7%9b%b8%e5%90%8c%e7%9a%84%e6%9d%a1%e4%bb%b6" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>使用的是<code>for...of</code>操作符：</p>
 <p><code>for expression of string_set : ( boolean_expression )</code></p>
 <blockquote>
 <p>从string_ set中的这些字符串中，至少它们的expression必须满足boolean_expression</p>
 </blockquote>
 <p>可以使用<code>$</code>来做占位符：</p>
-<div class="highlight" id="id-27"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">any</span> <span class="nf">of</span> <span class="p">(</span><span class="err">$</span><span class="n">a</span><span class="p">,</span><span class="err">$</span><span class="n">b</span><span class="p">,</span><span class="err">$</span><span class="n">c</span><span class="p">)</span> <span class="o">:</span> <span class="p">(</span> <span class="err">$</span> <span class="n">at</span> <span class="n">pe</span><span class="p">.</span><span class="n">entry_point</span>  <span class="p">)</span></span></span></code></pre></div><h4 id="338-使用带of和forof的匿名字符串" class="heading-element">
-  <a href="#338-%e4%bd%bf%e7%94%a8%e5%b8%a6of%e5%92%8cforof%e7%9a%84%e5%8c%bf%e5%90%8d%e5%ad%97%e7%ac%a6%e4%b8%b2" class="heading-mark"></a>3.3.8 使用带of和for..of的匿名字符串</h4><div class="highlight" id="id-28"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">AnonymousStrings</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">any</span> <span class="nf">of</span> <span class="p">(</span><span class="err">$</span><span class="n">a</span><span class="p">,</span><span class="err">$</span><span class="n">b</span><span class="p">,</span><span class="err">$</span><span class="n">c</span><span class="p">)</span> <span class="o">:</span> <span class="p">(</span> <span class="err">$</span> <span class="n">at</span> <span class="n">pe</span><span class="p">.</span><span class="n">entry_point</span>  <span class="p">)</span></span></span></code></pre></div><h4 id="338-使用带of和forof的匿名字符串" class="heading-element"><span>3.3.8 使用带of和for..of的匿名字符串</span>
+  <a href="#338-%e4%bd%bf%e7%94%a8%e5%b8%a6of%e5%92%8cforof%e7%9a%84%e5%8c%bf%e5%90%8d%e5%ad%97%e7%ac%a6%e4%b8%b2" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">AnonymousStrings</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span> <span class="o">=</span> <span class="s">&#34;dummy1&#34;</span>
@@ -646,8 +711,11 @@
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="nl">condition</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="mi">1</span> <span class="n">of</span> <span class="n">them</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="339-迭代字符串出现次数" class="heading-element">
-  <a href="#339-%e8%bf%ad%e4%bb%a3%e5%ad%97%e7%ac%a6%e4%b8%b2%e5%87%ba%e7%8e%b0%e6%ac%a1%e6%95%b0" class="heading-mark"></a>3.3.9 迭代字符串出现次数</h4><div class="highlight" id="id-29"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">Occurrences</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="339-迭代字符串出现次数" class="heading-element"><span>3.3.9 迭代字符串出现次数</span>
+  <a href="#339-%e8%bf%ad%e4%bb%a3%e5%ad%97%e7%ac%a6%e4%b8%b2%e5%87%ba%e7%8e%b0%e6%ac%a1%e6%95%b0" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">rule</span> <span class="n">Occurrences</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">strings</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="err">$</span><span class="n">a</span> <span class="o">=</span> <span class="s">&#34;dummy1&#34;</span>
@@ -658,32 +726,56 @@
 </span></span><span class="line"><span class="cl">    	<span class="c1">//也可以这样写
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    	<span class="c1">//for all i in (1..3) : ( @a[i] + 10 == @b[i] )
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div><p>#a表示$a的出现次数</p>
-<div class="highlight" id="id-30"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">all</span> <span class="n">i</span> <span class="nf">in</span> <span class="p">(</span><span class="mf">1.</span><span class="p">.</span><span class="err">#</span><span class="n">a</span><span class="p">)</span> <span class="o">:</span> <span class="p">(</span> <span class="err">@</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">100</span> <span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">all</span> <span class="n">i</span> <span class="nf">in</span> <span class="p">(</span><span class="mf">1.</span><span class="p">.</span><span class="err">#</span><span class="n">a</span><span class="p">)</span> <span class="o">:</span> <span class="p">(</span> <span class="err">@</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">100</span> <span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="c1">//每次出现都在前100字节内
-</span></span></span></code></pre></div><h4 id="3310-iterators" class="heading-element">
-  <a href="#3310-iterators" class="heading-mark"></a>3.3.10 Iterators</h4><p>yara4.0后<code>for...of</code> 得到了改善</p>
-<div class="highlight" id="id-31"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">any</span> <span class="n">section</span> <span class="n">in</span> <span class="n">pe</span><span class="p">.</span><span class="nl">sections</span> <span class="p">:</span> <span class="p">(</span> <span class="n">section</span><span class="p">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#34;.text&#34;</span> <span class="p">)</span>
+</span></span></span></code></pre></div><h4 id="3310-iterators" class="heading-element"><span>3.3.10 Iterators</span>
+  <a href="#3310-iterators" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>yara4.0后<code>for...of</code> 得到了改善</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">any</span> <span class="n">section</span> <span class="n">in</span> <span class="n">pe</span><span class="p">.</span><span class="nl">sections</span> <span class="p">:</span> <span class="p">(</span> <span class="n">section</span><span class="p">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#34;.text&#34;</span> <span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="c1">//等价
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">for</span> <span class="n">any</span> <span class="n">i</span> <span class="nf">in</span> <span class="p">(</span><span class="mf">0.</span><span class="p">.</span><span class="n">pe</span><span class="p">.</span><span class="n">number_of_sections</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">:</span> <span class="p">(</span> <span class="n">pe</span><span class="p">.</span><span class="n">sections</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#34;.text&#34;</span> <span class="p">)</span></span></span></code></pre></div><h3 id="34-more-rules" class="heading-element">
-  <a href="#34-more-rules" class="heading-mark"></a>3.4 More rules</h3><h4 id="341-global-rules" class="heading-element">
-  <a href="#341-global-rules" class="heading-mark"></a>3.4.1 Global rules</h4><p>全局规则允许您同时在所有规则中施加限制。全局规则可以有很多</p>
-<div class="highlight" id="id-32"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">global</span> <span class="n">rule</span> <span class="n">SizeLimit</span>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">for</span> <span class="n">any</span> <span class="n">i</span> <span class="nf">in</span> <span class="p">(</span><span class="mf">0.</span><span class="p">.</span><span class="n">pe</span><span class="p">.</span><span class="n">number_of_sections</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">:</span> <span class="p">(</span> <span class="n">pe</span><span class="p">.</span><span class="n">sections</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#34;.text&#34;</span> <span class="p">)</span></span></span></code></pre></div><h3 id="34-more-rules" class="heading-element"><span>3.4 More rules</span>
+  <a href="#34-more-rules" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="341-global-rules" class="heading-element"><span>3.4.1 Global rules</span>
+  <a href="#341-global-rules" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>全局规则允许您同时在所有规则中施加限制。全局规则可以有很多</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">global</span> <span class="n">rule</span> <span class="n">SizeLimit</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">condition</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">        <span class="n">filesize</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="n">MB</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="342-rule-tags" class="heading-element">
-  <a href="#342-rule-tags" class="heading-mark"></a>3.4.2 Rule tags</h4><p>这些tag稍后可以用于过滤YARA的输出</p>
-<h4 id="343-metadata" class="heading-element">
-  <a href="#343-metadata" class="heading-mark"></a>3.4.3 Metadata</h4><p>没啥说的，上面写了。</p>
-<h2 id="4modules" class="heading-element">
-  <a href="#4modules" class="heading-mark"></a>4.Modules</h2><h3 id="41-pe" class="heading-element">
-  <a href="#41-pe" class="heading-mark"></a>4.1 PE</h3><blockquote>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="342-rule-tags" class="heading-element"><span>3.4.2 Rule tags</span>
+  <a href="#342-rule-tags" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>这些tag稍后可以用于过滤YARA的输出</p>
+<h4 id="343-metadata" class="heading-element"><span>3.4.3 Metadata</span>
+  <a href="#343-metadata" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>没啥说的，上面写了。</p>
+<h2 id="4modules" class="heading-element"><span>4.Modules</span>
+  <a href="#4modules" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="41-pe" class="heading-element"><span>4.1 PE</span>
+  <a href="#41-pe" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><blockquote>
 <p><a href="https://yara.readthedocs.io/en/v4.2.3/modules/pe.html"target="_blank" rel="external nofollow noopener noreferrer">https://yara.readthedocs.io/en/v4.2.3/modules/pe.html</a></p>
 </blockquote>
 <p>有点多，，没啥写的</p>
 <p>后面那个elf也是</p>
-<h3 id="42-magic" class="heading-element">
-  <a href="#42-magic" class="heading-mark"></a>4.2 Magic</h3><p>就是文件的 magic，可以file命令查看</p>
+<h3 id="42-magic" class="heading-element"><span>4.2 Magic</span>
+  <a href="#42-magic" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>就是文件的 magic，可以file命令查看</p>
 <p>Magic Module一共两个函数：</p>
 <ul>
 <li>
@@ -695,14 +787,23 @@
 <p><code>magic.mime_type() == &quot;application/pdf&quot;</code></p>
 </li>
 </ul>
-<h3 id="43-hash" class="heading-element">
-  <a href="#43-hash" class="heading-mark"></a>4.3 Hash</h3><p>不用解释了，，有：MD5，sha1，sha256</p>
-<h3 id="44-math" class="heading-element">
-  <a href="#44-math" class="heading-mark"></a>4.4 Math</h3><blockquote>
+<h3 id="43-hash" class="heading-element"><span>4.3 Hash</span>
+  <a href="#43-hash" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>不用解释了，，有：MD5，sha1，sha256</p>
+<h3 id="44-math" class="heading-element"><span>4.4 Math</span>
+  <a href="#44-math" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><blockquote>
 <p>允许您从文件的某些部分计算某些值，并基于这些结果创建签名。</p>
 </blockquote>
-<h3 id="45-console-module" class="heading-element">
-  <a href="#45-console-module" class="heading-mark"></a>4.5 Console module</h3><ul>
+<h3 id="45-console-module" class="heading-element"><span>4.5 Console module</span>
+  <a href="#45-console-module" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ul>
 <li>log(string)：<code>console.log(pe.imphash())</code></li>
 <li>log(message,string)：<code>console.log(&quot;The imphash is: &quot;, pe.imphash())</code></li>
 </ul>
@@ -717,9 +818,9 @@
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/2022-8-13-yara/" data-title="YARA规则" data-hashtags="Antivirus"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/2022-8-13-yara/" data-hashtag="Antivirus"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/2022-8-13-yara/" data-title="YARA规则"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/2022-8-13-yara/" data-title="YARA规则" data-hashtags="Antivirus"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/2022-8-13-yara/" data-hashtag="Antivirus"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/2022-8-13-yara/" data-title="YARA规则"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -738,14 +839,14 @@
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

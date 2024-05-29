@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>Windows内核(十一)——软件调试 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>Windows内核(十一)——软件调试 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(十一)——软件调试">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2023-03-12T00:00:00+00:00" />
+<meta name="description" content="[toc] 最后一部分了，接下来好好写个调试器，看看win内核的洞去了。 01.调试对象 调试器与被调试程序 示例图如下： 调试器与被调试对象建立联系的方式： CreateProcess（创建进程） DebugActiveProcess（附加进程） 这里主要是附加" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(十一)——软件调试">
+<meta itemprop="description" content="[toc] 最后一部分了，接下来好好写个调试器，看看win内核的洞去了。 01.调试对象 调试器与被调试程序 示例图如下： 调试器与被调试对象建立联系的方式： CreateProcess（创建进程） DebugActiveProcess（附加进程） 这里主要是附加"><meta itemprop="datePublished" content="2023-03-12T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2023-03-12T00:00:00+00:00" />
-<meta itemprop="wordCount" content="11678">
+<meta itemprop="wordCount" content="11704">
 <meta itemprop="keywords" content="Win32," /><meta property="og:title" content="Windows内核(十一)——软件调试" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[toc] 最后一部分了，接下来好好写个调试器，看看win内核的洞去了。 01.调试对象 调试器与被调试程序 示例图如下： 调试器与被调试对象建立联系的方式： CreateProcess（创建进程） DebugActiveProcess（附加进程） 这里主要是附加" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2023-03-12T00:00:00+00:00" />
 <meta property="article:modified_time" content="2023-03-12T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Windows内核(十一)——软件调试"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[toc] 最后一部分了，接下来好好写个调试器，看看win内核的洞去了。 01.调试对象 调试器与被调试程序 示例图如下： 调试器与被调试对象建立联系的方式： CreateProcess（创建进程） DebugActiveProcess（附加进程） 这里主要是附加"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/" /><link rel="prev" href="http://localhost:1313/posts/2023-3-winkernel%E6%B6%88%E6%81%AF%E6%9C%BA%E5%88%B6/" /><link rel="next" href="http://localhost:1313/posts/2023-3%E9%9D%A2%E8%AF%95/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/" /><link rel="prev" href="http://ghostasky.github.io/posts/2023-3-winkernel%E6%B6%88%E6%81%AF%E6%9C%BA%E5%88%B6/" /><link rel="next" href="http://ghostasky.github.io/posts/2023-3%E9%9D%A2%E8%AF%95/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/2023-3-winkernel%E8%B0%83%E8%AF%95\/"
-    },"genre": "posts","keywords": "Win32","wordcount":  11678 ,
-    "url": "http:\/\/localhost:1313\/posts\/2023-3-winkernel%E8%B0%83%E8%AF%95\/","datePublished": "2023-03-12T00:00:00+00:00","dateModified": "2023-03-12T00:00:00+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/2023-3-winkernel%E8%B0%83%E8%AF%95\/"
+    },"genre": "posts","keywords": "Win32","wordcount":  11704 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/2023-3-winkernel%E8%B0%83%E8%AF%95\/","datePublished": "2023-03-12T00:00:00+00:00","dateModified": "2023-03-12T00:00:00+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>Windows内核(十一)——软件调试</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-03-12 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-03-12">2023-03-12</time></span>&nbsp;<span title="11678 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 11700 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 24 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-03-12 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-03-12">2023-03-12</time></span>&nbsp;<span title="11704 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 11800 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 24 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -182,9 +181,15 @@
 </nav></div>
       </div><div class="content" id="content"><p>[toc]</p>
 <p>最后一部分了，接下来好好写个调试器，看看win内核的洞去了。</p>
-<h2 id="01调试对象" class="heading-element">
-  <a href="#01%e8%b0%83%e8%af%95%e5%af%b9%e8%b1%a1" class="heading-mark"></a>01.调试对象</h2><h3 id="调试器与被调试程序" class="heading-element">
-  <a href="#%e8%b0%83%e8%af%95%e5%99%a8%e4%b8%8e%e8%a2%ab%e8%b0%83%e8%af%95%e7%a8%8b%e5%ba%8f" class="heading-mark"></a>调试器与被调试程序</h3><p>示例图如下：</p>
+<h2 id="01调试对象" class="heading-element"><span>01.调试对象</span>
+  <a href="#01%e8%b0%83%e8%af%95%e5%af%b9%e8%b1%a1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="调试器与被调试程序" class="heading-element"><span>调试器与被调试程序</span>
+  <a href="#%e8%b0%83%e8%af%95%e5%99%a8%e4%b8%8e%e8%a2%ab%e8%b0%83%e8%af%95%e7%a8%8b%e5%ba%8f" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>示例图如下：</p>
 <p><img loading="lazy" src="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230308214733381.png" alt="image-20230308214733381" srcset="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230308214733381.png?size=small, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230308214733381.png?size=medium 1.5x, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230308214733381.png?size=large 2x" data-title="image-20230308214733381" style="--width: 574px;--aspect-ratio: 574 / 415;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p><strong>调试器与被调试对象建立联系的方式</strong>：</p>
 <ol>
@@ -192,8 +197,11 @@
 <li><strong>DebugActiveProcess（附加进程）</strong></li>
 </ol>
 <p>这里主要是附加进程的方式。</p>
-<h3 id="debugactiveprocess" class="heading-element">
-  <a href="#debugactiveprocess" class="heading-mark"></a>DebugActiveProcess</h3><p>调试器进程执行流程：</p>
+<h3 id="debugactiveprocess" class="heading-element"><span>DebugActiveProcess</span>
+  <a href="#debugactiveprocess" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>调试器进程执行流程：</p>
 <ol>
 <li>
 <p>kernel32!DebugActiveProcess()</p>
@@ -230,7 +238,7 @@
 </li>
 </ol>
 <p>大致流程：</p>
-<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kernel32</span><span class="o">!</span><span class="nl">DebugActiveProcess</span><span class="p">:</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kernel32</span><span class="o">!</span><span class="nl">DebugActiveProcess</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">	<span class="mf">1.</span><span class="err">创建调试对象：</span><span class="n">ntdll</span><span class="o">!</span><span class="nf">DbgUiConnectToDbg</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl">        <span class="mf">1.</span><span class="n">ntdll</span><span class="o">!</span><span class="nf">ZwCreateDebugObject</span><span class="p">()</span><span class="err">，放到</span><span class="n">TEB</span><span class="o">+</span><span class="n">F24的位置</span>
 </span></span><span class="line"><span class="cl">    <span class="mf">2.</span><span class="err">获取被调试进程的句柄</span>
@@ -239,8 +247,11 @@
 </span></span><span class="line"><span class="cl">        	<span class="mf">1.</span><span class="err">获取被调试进程的</span><span class="n">EPROCESS结构体</span>
 </span></span><span class="line"><span class="cl">        	<span class="mf">2.</span><span class="err">获取调试对象的结构体，放到</span><span class="n">Process</span><span class="err">（变量复用</span>
 </span></span><span class="line"><span class="cl">        	<span class="mf">3.</span><span class="err">调用</span><span class="n">nt</span><span class="o">!</span><span class="n">DbgkpSetProcessDebugObject将调试与被调试进程连接起来</span>
-</span></span><span class="line"><span class="cl">        		<span class="mf">1.</span><span class="err">将被调试进程的</span><span class="n">DebugPort传入Debug_Object</span></span></span></code></pre></div><h4 id="kernel32debugactiveprocess" class="heading-element">
-  <a href="#kernel32debugactiveprocess" class="heading-mark"></a>kernel32!DebugActiveProcess</h4><div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B0FB</span> <span class="c1">; BOOL __stdcall DebugActiveProcess(DWORD dwProcessId)
+</span></span><span class="line"><span class="cl">        		<span class="mf">1.</span><span class="err">将被调试进程的</span><span class="n">DebugPort传入Debug_Object</span></span></span></code></pre></div><h4 id="kernel32debugactiveprocess" class="heading-element"><span>kernel32!DebugActiveProcess</span>
+  <a href="#kernel32debugactiveprocess" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B0FB</span> <span class="c1">; BOOL __stdcall DebugActiveProcess(DWORD dwProcessId)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B0FB</span>                 <span class="no">public</span> <span class="no">_DebugActiveProcess@4</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B0FB</span> <span class="no">_DebugActiveProcess@4</span> <span class="no">proc</span> <span class="no">near</span>         <span class="c1">; DATA XREF: .text:off_7C802654↑o
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B0FB</span>
@@ -256,7 +267,7 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B10A</span>                 <span class="no">call</span>    <span class="no">_BaseSetLastNTError@4</span>  
 </span></span><span class="line"><span class="cl"><span class="no">.text</span><span class="p">:</span><span class="mi">7</span><span class="no">C85B10F</span>                 <span class="no">xor</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">eax</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B111</span>                 <span class="no">jmp</span>     <span class="no">short</span> <span class="no">loc_7C85B145</span></span></span></code></pre></div><p>跟入<code>ntdll!DbgUiConnectToDbg</code></p>
-<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C96FEF1</span>                 <span class="no">public</span> <span class="no">_DbgUiConnectToDbg@0</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C96FEF1</span>                 <span class="no">public</span> <span class="no">_DbgUiConnectToDbg@0</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C96FEF1</span> <span class="no">_DbgUiConnectToDbg@0</span> <span class="no">proc</span> <span class="no">near</span>          <span class="c1">; DATA XREF: .text:off_7C923428↑o
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C96FEF1</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C96FEF1</span> <span class="no">var_18</span>          <span class="err">=</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="p">-</span><span class="mi">18</span><span class="no">h</span>
@@ -291,7 +302,7 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C96FF3B</span>                 <span class="no">mov</span>     <span class="no">ecx</span><span class="p">,</span> <span class="no">eax</span></span></span></code></pre></div><p><code>ZwCreateDebugObject</code> 第一个参数是OUT类型返回一个句柄，返回到EAX了，这时EAX的位置是<code>TEB+0xF24</code>的位置。</p>
 <p><strong>CreateDebugObject</strong>的目的是创建一个<strong>DebugObject</strong>对象，并存放在TEB(0xF24)。</p>
 <p>之后继续是<code>kernel32!DebugActiveProcess</code>的<code>loc_7C85B113</code>：</p>
-<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B113</span> <span class="no">loc_7C85B113</span><span class="p">:</span>                           <span class="c1">; CODE XREF: DebugActiveProcess(x)+C↑j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B113</span> <span class="no">loc_7C85B113</span><span class="p">:</span>                           <span class="c1">; CODE XREF: DebugActiveProcess(x)+C↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B113</span>                 <span class="no">push</span>    <span class="no">esi</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B114</span>                 <span class="no">push</span>    <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">dwProcessId</span><span class="p">]</span> <span class="c1">; ProcessHandle
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B117</span>                 <span class="no">call</span>    <span class="no">_ProcessIdToHandle@4</span> <span class="c1">; 2.根据进程ID获取被调试进程的句柄
@@ -301,7 +312,7 @@
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B122</span>                 <span class="no">push</span>    <span class="no">edi</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B123</span>                 <span class="no">push</span>    <span class="no">esi</span>             <span class="c1">; 3.被调试郡城的句柄
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C85B124</span>                 <span class="no">call</span>    <span class="no">_DbgUiDebugActiveProcess@4</span> <span class="err">;</span> <span class="err">跟入</span></span></span></code></pre></div><p><code>ntdll!DbgUiDebugActiveProcess</code></p>
-<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C970082</span> <span class="no">_DbgUiDebugActiveProcess@4</span> <span class="no">proc</span> <span class="no">near</span>    <span class="c1">; DATA XREF: .text:off_7C923428↑o
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C970082</span> <span class="no">_DbgUiDebugActiveProcess@4</span> <span class="no">proc</span> <span class="no">near</span>    <span class="c1">; DATA XREF: .text:off_7C923428↑o
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C970082</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C970082</span> <span class="no">Handle</span>          <span class="err">=</span> <span class="no">dword</span> <span class="no">ptr</span>  <span class="mi">8</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C970082</span>
@@ -313,14 +324,14 @@
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C97008E</span>                 <span class="no">push</span>    <span class="no">dword</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">eax</span><span class="err">+</span><span class="mi">0</span><span class="no">F24h</span><span class="p">]</span> <span class="c1">; 调试器线程：TEB+F24，挑食对象(_DEBGU_OBJECT)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C970094</span>                 <span class="no">push</span>    <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">Handle</span><span class="p">]</span>    <span class="c1">; 被调试进程的句柄
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C970097</span>                 <span class="no">call</span>    <span class="no">_NtDebugActiveProcess@8</span> <span class="err">;</span> <span class="err">跟入</span></span></span></code></pre></div><p>这里开始进入0环</p>
-<div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92D1D0</span> <span class="no">_NtDebugActiveProcess@8</span> <span class="no">proc</span> <span class="no">near</span>       <span class="c1">; CODE XREF: DbgUiDebugActiveProcess(x)+15↓p
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92D1D0</span> <span class="no">_NtDebugActiveProcess@8</span> <span class="no">proc</span> <span class="no">near</span>       <span class="c1">; CODE XREF: DbgUiDebugActiveProcess(x)+15↓p
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92D1D0</span>                                         <span class="c1">; DATA XREF: .text:off_7C923428↑o
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92D1D0</span>                 <span class="no">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="mi">39</span><span class="no">h</span> <span class="c1">; &#39;9&#39;  ; NtDebugActiveProcess
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92D1D5</span>                 <span class="no">mov</span>     <span class="no">edx</span><span class="p">,</span> <span class="mi">7</span><span class="no">FFE0300h</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92D1DA</span>                 <span class="no">call</span>    <span class="no">dword</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">edx</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92D1DC</span>                 <span class="no">retn</span>    <span class="mi">8</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92D1DC</span> <span class="no">_NtDebugActiveProcess@8</span> <span class="no">endp</span></span></span></code></pre></div><p><strong>NtDebugActiveProcess</strong>的实现位于<strong>nt!NtDebugActiveProcess</strong></p>
-<div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C431</span> <span class="c1">; NTSTATUS __stdcall NtDebugActiveProcess(HANDLE Process, HANDLE DebugObject)
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C431</span> <span class="c1">; NTSTATUS __stdcall NtDebugActiveProcess(HANDLE Process, HANDLE DebugObject)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C431</span> <span class="no">_NtDebugActiveProcess@8</span> <span class="no">proc</span> <span class="no">near</span>       <span class="c1">; DATA XREF: .text:0040D904↑o
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C431</span>
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C431</span> <span class="no">AccessMode</span>      <span class="err">=</span> <span class="no">byte</span> <span class="no">ptr</span> <span class="p">-</span><span class="mi">4</span>
@@ -385,7 +396,7 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C4CF</span>                 <span class="no">mov</span>     <span class="no">ebx</span><span class="p">,</span> <span class="no">eax</span>
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C4D1</span>                 <span class="no">call</span>    <span class="err">@</span><span class="no">ExReleaseRundownProtection@4</span> <span class="c1">; 是否为对象锁
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C4D6</span>                 <span class="no">jmp</span>     <span class="no">short</span> <span class="no">loc_58C4DD</span></span></span></code></pre></div><p>跟入<code>_DbgkpSetProcessDebugObject</code>：</p>
-<div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C234</span> <span class="no">loc_58C234</span><span class="p">:</span>                             <span class="c1">; CODE XREF: DbgkpSetProcessDebugObject(x,x,x,x)+34↑j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C234</span> <span class="no">loc_58C234</span><span class="p">:</span>                             <span class="c1">; CODE XREF: DbgkpSetProcessDebugObject(x,x,x,x)+34↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C234</span>                 <span class="no">cmp</span>     <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">arg_8</span><span class="p">],</span> <span class="no">ebx</span>
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C237</span>                 <span class="no">mov</span>     <span class="no">edi</span><span class="p">,</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">arg_0</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C23A</span>                 <span class="no">mov</span>     <span class="no">esi</span><span class="p">,</span> <span class="no">ds</span><span class="p">:</span><span class="no">__imp_@ExAcquireFastMutex@4</span> <span class="c1">; ExAcquireFastMutex(x)
@@ -401,14 +412,17 @@
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C25C</span>                 <span class="no">mov</span>     <span class="no">ecx</span><span class="p">,</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">Object</span><span class="p">]</span> <span class="c1">; Object
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C25F</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">edi</span><span class="err">+</span><span class="no">_EPROCESS.DebugPort</span><span class="p">],</span> <span class="no">eax</span> <span class="c1">; 将调试进程的句柄放到被调试进程的EPROCESS的DebugPort
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C265</span>                 <span class="no">call</span>    <span class="err">@</span><span class="no">ObfReferenceObject@4</span> <span class="err">;</span> <span class="no">ObfReferenceObject</span><span class="p">(</span><span class="no">x</span><span class="p">)</span></span></span></code></pre></div><p><img loading="lazy" src="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230309191507860.png" alt="image-20230309191507860" srcset="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230309191507860.png?size=small, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230309191507860.png?size=medium 1.5x, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230309191507860.png?size=large 2x" data-title="image-20230309191507860" style="--width: 795px;--aspect-ratio: 795 / 439;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="02调试事件的采集" class="heading-element">
-  <a href="#02%e8%b0%83%e8%af%95%e4%ba%8b%e4%bb%b6%e7%9a%84%e9%87%87%e9%9b%86" class="heading-mark"></a>02.调试事件的采集</h2><ol>
+<h2 id="02调试事件的采集" class="heading-element"><span>02.调试事件的采集</span>
+  <a href="#02%e8%b0%83%e8%af%95%e4%ba%8b%e4%bb%b6%e7%9a%84%e9%87%87%e9%9b%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><ol>
 <li>调试器与被调试进程通过<strong>DEBUG_OBJECT</strong>结构体建立联系。</li>
 <li><code>DEBUG_OBJECT</code>中有一个链表成员，用于记录所有<strong>调试事件</strong>。</li>
 <li>当被调试进程产生调试事件时，调试器从链表中取出调试事件进行处理。</li>
 </ol>
 <p>结构体：</p>
-<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_DEBUG_OBJECT</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_DEBUG_OBJECT</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">KEVENT</span> <span class="n">EventsPresent</span><span class="p">;</span><span class="c1">//+00用于指示有调试事件发生
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">FAST_MUTEX</span> <span class="n">Mutex</span><span class="p">;</span><span class="c1">//+10用于同步互斥体
@@ -434,8 +448,11 @@
 <p>调试事件是有种类的，被调试进程只有调试事件才会被写入EventList的节点中，那些打印了某某字符，申请一块内存是不会记录的。</p>
 </li>
 </ol>
-<h3 id="调试事件的种类" class="heading-element">
-  <a href="#%e8%b0%83%e8%af%95%e4%ba%8b%e4%bb%b6%e7%9a%84%e7%a7%8d%e7%b1%bb" class="heading-mark"></a>调试事件的种类</h3><div class="highlight" id="id-10"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">enum</span> <span class="n">_DBGKM_APINUMBER</span>
+<h3 id="调试事件的种类" class="heading-element"><span>调试事件的种类</span>
+  <a href="#%e8%b0%83%e8%af%95%e4%ba%8b%e4%bb%b6%e7%9a%84%e7%a7%8d%e7%b1%bb" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">enum</span> <span class="n">_DBGKM_APINUMBER</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl"><span class="n">DbgkmExceptionApi</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="c1">// 异常
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">DbgkmCreateThreadApi</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="c1">// 创建线程
@@ -446,8 +463,11 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">DbgkmUnloadDllApi</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="c1">// 卸载DLL
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">DbgkmErrorReportApi</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="c1">//内部错误（已经不用了）
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">DbgkmMaxApiNumber</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="c1">// 这组常量的最大值
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="n">DBGKM_APINUMBER</span><span class="p">;</span></span></span></code></pre></div><h3 id="调试事件采集函数" class="heading-element">
-  <a href="#%e8%b0%83%e8%af%95%e4%ba%8b%e4%bb%b6%e9%87%87%e9%9b%86%e5%87%bd%e6%95%b0" class="heading-mark"></a>调试事件采集函数</h3><p>触发异常等时，用来生成调试事件。</p>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="n">DBGKM_APINUMBER</span><span class="p">;</span></span></span></code></pre></div><h3 id="调试事件采集函数" class="heading-element"><span>调试事件采集函数</span>
+  <a href="#%e8%b0%83%e8%af%95%e4%ba%8b%e4%bb%b6%e9%87%87%e9%9b%86%e5%87%bd%e6%95%b0" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>触发异常等时，用来生成调试事件。</p>
 <p>&lt;1&gt; 创建进程、线程必经之路:
 <code>PspUserThreadStartup</code>
 <code>DbgkCreateThread</code>
@@ -469,9 +489,12 @@
 <code>DbgkForwardException</code>
 <code>DbgkpSendApiMessage(x, x)</code></p>
 <p>上述的所有第二个以Dbgk开头的都是调试事件的采集函数。</p>
-<h4 id="pspuserthreadstartup" class="heading-element">
-  <a href="#pspuserthreadstartup" class="heading-mark"></a>PspUserThreadStartup</h4><p>创建线程，事件采集必须要知道这些事件，如果不知道就生成不了调试事件，系统已经在你的创建线程必经之路上加了一个调用，只要你创建线程就会被收集到事件。</p>
-<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">ADF4B</span> <span class="no">loc_4ADF4B</span><span class="p">:</span>                             <span class="c1">; CODE XREF: PspUserThreadStartup(x,x)+44↑j
+<h4 id="pspuserthreadstartup" class="heading-element"><span>PspUserThreadStartup</span>
+  <a href="#pspuserthreadstartup" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>创建线程，事件采集必须要知道这些事件，如果不知道就生成不了调试事件，系统已经在你的创建线程必经之路上加了一个调用，只要你创建线程就会被收集到事件。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">ADF4B</span> <span class="no">loc_4ADF4B</span><span class="p">:</span>                             <span class="c1">; CODE XREF: PspUserThreadStartup(x,x)+44↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">ADF4B</span>                 <span class="no">xor</span>     <span class="no">cl</span><span class="p">,</span> <span class="no">cl</span>          <span class="c1">; NewIrql
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">ADF4D</span>                 <span class="no">call</span>    <span class="no">ds</span><span class="p">:</span><span class="no">__imp_@KfLowerIrql@4</span> <span class="c1">; KfLowerIrql(x)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">ADF53</span>                 <span class="no">test</span>    <span class="no">byte</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="mi">248</span><span class="no">h</span><span class="p">],</span> <span class="mi">6</span>
@@ -481,8 +504,11 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">ADF5F</span>                                         <span class="c1">; 是：生成调试事件，编号为2(创建进程)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">ADF5F</span>                                         <span class="c1">; 否：生成调试事件，编号为1(创建线程)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">ADF64</span></span></span></code></pre></div><p>如果你是这个进程中的第一条线程（main线程），它会生成一个调试事件类型是 DbgkmCreateProcessApi = 2 // 创建进程 ，如果它发现你不是这个进程的第一个线程它也会生成一个调试事件类型是 DbgkmCreateThreadApi = 1 // 创建线程 。</p>
-<h4 id="pspexitthread" class="heading-element">
-  <a href="#pspexitthread" class="heading-mark"></a>PspExitThread</h4><div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0049</span><span class="nf">E9A6</span> <span class="no">loc_49E9A6</span><span class="p">:</span>                             <span class="c1">; CODE XREF: PspExitThread(x)+1A8A9↓j
+<h4 id="pspexitthread" class="heading-element"><span>PspExitThread</span>
+  <a href="#pspexitthread" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0049</span><span class="nf">E9A6</span> <span class="no">loc_49E9A6</span><span class="p">:</span>                             <span class="c1">; CODE XREF: PspExitThread(x)+1A8A9↓j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0049</span><span class="nf">E9A6</span>                 <span class="no">cmp</span>     <span class="p">[</span><span class="no">edi</span><span class="err">+</span><span class="no">_EPROCESS.DebugPort</span><span class="p">],</span> <span class="mi">0</span> <span class="c1">; 判断DebugPort是否为0，
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0049</span><span class="nf">E9A6</span>                                         <span class="c1">; 为0，表示未处于调试状态，不产生调试信息
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0049</span><span class="nf">E9AD</span>                 <span class="no">jnz</span>     <span class="no">loc_52E3D6</span>      <span class="c1">; 不为0，跳转PAGE:0052E3D6 loc_52E3D6:                             ; CODE XREF: PspExitThread(x)+EF↑j
@@ -552,7 +578,7 @@
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C969</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">var_74</span><span class="p">],</span> <span class="mi">8</span>
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C970</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">var_60</span><span class="p">],</span> <span class="mi">4</span>
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C977</span>                 <span class="no">call</span>    <span class="no">_DbgkpSendApiMessage@8</span> <span class="err">;</span> <span class="err">负责将调试信息挂入链表</span></span></span></code></pre></div><p>继续跟<code>_DbgkpSendApiMessage</code>：</p>
-<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C6FA</span> <span class="no">loc_58C6FA</span><span class="p">:</span>                             <span class="c1">; CODE XREF: DbgkpSendApiMessage(x,x)+C↑j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C6FA</span> <span class="no">loc_58C6FA</span><span class="p">:</span>                             <span class="c1">; CODE XREF: DbgkpSendApiMessage(x,x)+C↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C6FA</span>                 <span class="no">mov</span>     <span class="no">edx</span><span class="p">,</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">arg_0</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C6FD</span>                 <span class="no">mov</span>     <span class="no">dword</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">edx</span><span class="err">+</span><span class="mi">1</span><span class="no">Ch</span><span class="p">],</span> <span class="mi">103</span><span class="no">h</span>
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C704</span>                 <span class="no">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">large</span> <span class="no">fs</span><span class="p">:</span><span class="mi">124</span><span class="no">h</span>
@@ -602,21 +628,30 @@
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B57A</span>                 <span class="no">push</span>    <span class="no">edi</span>             <span class="c1">; Wait
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B57B</span>                 <span class="no">push</span>    <span class="no">edi</span>             <span class="c1">; Increment
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B57C</span>                 <span class="no">push</span>    <span class="no">edx</span>             <span class="c1">; Event
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B57D</span>                 <span class="no">call</span>    <span class="no">_KeSetEvent@12</span>  <span class="err">;</span> <span class="no">KeSetEvent</span><span class="p">(</span><span class="no">x</span><span class="p">,</span><span class="no">x</span><span class="p">,</span><span class="no">x</span><span class="p">)</span></span></span></code></pre></div><h3 id="总结" class="heading-element">
-  <a href="#%e6%80%bb%e7%bb%93" class="heading-mark"></a>总结</h3><ol>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B57D</span>                 <span class="no">call</span>    <span class="no">_KeSetEvent@12</span>  <span class="err">;</span> <span class="no">KeSetEvent</span><span class="p">(</span><span class="no">x</span><span class="p">,</span><span class="no">x</span><span class="p">,</span><span class="no">x</span><span class="p">)</span></span></span></code></pre></div><h3 id="总结" class="heading-element"><span>总结</span>
+  <a href="#%e6%80%bb%e7%bb%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>调试事件有多种，真正需要关注的只有<strong>7种</strong>。</li>
 <li>Windows通过在被调试进程的<strong>必经之路</strong>上调用调试事件采集函数，向<strong>DEBUG_PORT</strong>中挂入调试事件。</li>
 <li>不同事件的必经之路所使用的调试事件采集函数不同，但最终都通过<strong>DbgkSendApiMessage</strong>向链表中写入调试事件信息。</li>
 </ol>
-<h2 id="03调试事件的处理" class="heading-element">
-  <a href="#03%e8%b0%83%e8%af%95%e4%ba%8b%e4%bb%b6%e7%9a%84%e5%a4%84%e7%90%86" class="heading-mark"></a>03.调试事件的处理</h2><p>调试器调试目标进程的步骤：</p>
+<h2 id="03调试事件的处理" class="heading-element"><span>03.调试事件的处理</span>
+  <a href="#03%e8%b0%83%e8%af%95%e4%ba%8b%e4%bb%b6%e7%9a%84%e5%a4%84%e7%90%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>调试器调试目标进程的步骤：</p>
 <ol>
 <li>关联(创建进程/附加进程)</li>
 <li>调试循环</li>
 </ol>
-<h3 id="简易调试器" class="heading-element">
-  <a href="#%e7%ae%80%e6%98%93%e8%b0%83%e8%af%95%e5%99%a8" class="heading-mark"></a>简易调试器</h3><p>示例：</p>
-<div class="highlight" id="id-14"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
+<h3 id="简易调试器" class="heading-element"><span>简易调试器</span>
+  <a href="#%e7%ae%80%e6%98%93%e8%b0%83%e8%af%95%e5%99%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##define DEBUGGEE &#34;C:\\NOTEPAD.EXE&#34;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
@@ -707,13 +742,16 @@
 </li>
 </ol>
 </blockquote>
-<h3 id="异常来源" class="heading-element">
-  <a href="#%e5%bc%82%e5%b8%b8%e6%9d%a5%e6%ba%90" class="heading-mark"></a>异常来源</h3><p>首先改为系统断点：</p>
+<h3 id="异常来源" class="heading-element"><span>异常来源</span>
+  <a href="#%e5%bc%82%e5%b8%b8%e6%9d%a5%e6%ba%90" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>首先改为系统断点：</p>
 <p><img loading="lazy" src="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230310163025978.png" alt="image-20230310163025978" srcset="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230310163025978.png?size=small, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230310163025978.png?size=medium 1.5x, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230310163025978.png?size=large 2x" data-title="image-20230310163025978" style="--width: 467px;--aspect-ratio: 467 / 348;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>随便导入个：</p>
 <p><img loading="lazy" src="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230310163210216.png" alt="image-20230310163210216" srcset="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230310163210216.png?size=small, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230310163210216.png?size=medium 1.5x, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230310163210216.png?size=large 2x" data-title="image-20230310163210216" style="--width: 1273px;--aspect-ratio: 1273 / 468;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>可以看到有个int 3，断在了<code>ntdll.DbgBreakPoint</code>函数。</p>
-<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92120E</span>                 <span class="no">public</span> <span class="no">_DbgBreakPoint@0</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92120E</span>                 <span class="no">public</span> <span class="no">_DbgBreakPoint@0</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92120E</span> <span class="no">_DbgBreakPoint@0</span> <span class="no">proc</span> <span class="no">near</span>              <span class="c1">; CODE XREF: LdrpRunInitializeRoutines(x):loc_7C95A534↓p
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92120E</span>                                         <span class="c1">; LdrpInitializeProcess(x,x,x,x,x):loc_7C95E60D↓p ...
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92120E</span>                 <span class="no">int</span>     <span class="mi">3</span>               <span class="c1">; Trap to Debugger
@@ -721,7 +759,7 @@
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92120F</span> <span class="no">_DbgBreakPoint@0</span> <span class="no">endp</span></span></span></code></pre></div><p>看一下交叉引用：</p>
 <p><img loading="lazy" src="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230310163423081.png" alt="image-20230310163423081" srcset="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230310163423081.png?size=small, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230310163423081.png?size=medium 1.5x, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230310163423081.png?size=large 2x" data-title="image-20230310163423081" style="--width: 1019px;--aspect-ratio: 1019 / 639;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>这个就是进程初始化过程的相关函数</p>
-<div class="highlight" id="id-16"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C95E60D</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C95E60D</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C95E60D</span> <span class="no">loc_7C95E60D</span><span class="p">:</span>                           <span class="c1">; CODE XREF: LdrpInitializeProcess(x,x,x,x,x)-4BB↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C95E60D</span>                 <span class="no">call</span>    <span class="no">_DbgBreakPoint@0</span> <span class="c1">; DbgBreakPoint()
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C95E612</span>                 <span class="no">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">ebx</span><span class="err">+</span><span class="mi">68</span><span class="no">h</span><span class="p">]</span>
@@ -729,12 +767,15 @@
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C95E617</span>                 <span class="no">and</span>     <span class="no">al</span><span class="p">,</span> <span class="mi">1</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C95E619</span>                 <span class="no">mov</span>     <span class="no">_ShowSnaps</span><span class="p">,</span> <span class="no">al</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C95E61E</span>                 <span class="no">jmp</span>     <span class="no">loc_7C9410BC</span></span></span></code></pre></div><p>往上跟：</p>
-<div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C9410B2</span> <span class="no">loc_7C9410B2</span><span class="p">:</span>                           <span class="c1">; CODE XREF: LdrpInitializeProcess(x,x,x,x,x)+BCC↓j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C9410B2</span> <span class="no">loc_7C9410B2</span><span class="p">:</span>                           <span class="c1">; CODE XREF: LdrpInitializeProcess(x,x,x,x,x)+BCC↓j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C9410B2</span>                 <span class="no">cmp</span>     <span class="p">[</span><span class="no">ebx</span><span class="err">+</span><span class="no">PEB.BeingDebugged</span><span class="p">],</span> <span class="mi">0</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C9410B6</span>                 <span class="no">jnz</span>     <span class="no">loc_7C95E60D</span></span></span></code></pre></div><p>如果被用户模式调试器附加了就会call DbgBreakPoint() ，如果没有调试器附加就不会调用这个int 3</p>
-<h3 id="简易调试器附加" class="heading-element">
-  <a href="#%e7%ae%80%e6%98%93%e8%b0%83%e8%af%95%e5%99%a8%e9%99%84%e5%8a%a0" class="heading-mark"></a>简易调试器：附加</h3><p>示例：</p>
-<div class="highlight" id="id-18"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &#34;stdafx.h&#34;
+<h3 id="简易调试器附加" class="heading-element"><span>简易调试器：附加</span>
+  <a href="#%e7%ae%80%e6%98%93%e8%b0%83%e8%af%95%e5%99%a8%e9%99%84%e5%8a%a0" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &#34;stdafx.h&#34;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;tlhelp32.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##define DEBUGGEE &#34;驱动管理.exe&#34;
@@ -834,11 +875,11 @@
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>会得到与进程创建相同的信息，这些消息是<code>杜撰的调试信息</code>，就是<strong>ntoskrnl!NtDebugActiveProcess</strong></p>
-<div class="highlight" id="id-19"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C4B6</span>                 <span class="no">push</span>    <span class="no">eax</span>             <span class="c1">; int
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C4B6</span>                 <span class="no">push</span>    <span class="no">eax</span>             <span class="c1">; int
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C4B7</span>                 <span class="no">push</span>    <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">Process</span><span class="p">]</span>   <span class="c1">; FastMutex
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C4BA</span>                 <span class="no">push</span>    <span class="no">esi</span>             <span class="c1">; PROCESS
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">C4BB</span>                 <span class="no">call</span>    <span class="no">_DbgkpPostFakeProcessCreateMessages@12</span> <span class="err">;</span> <span class="err">发送一个假的进程创建消息</span></span></span></code></pre></div><p>跟进去看一下</p>
-<div class="highlight" id="id-20"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B9C0</span> <span class="no">_DbgkpPostFakeProcessCreateMessages@12</span> <span class="no">proc</span> <span class="no">near</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B9C0</span> <span class="no">_DbgkpPostFakeProcessCreateMessages@12</span> <span class="no">proc</span> <span class="no">near</span>
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B9C0</span>                                         <span class="c1">; CODE XREF: NtDebugActiveProcess(x,x)+8A↓p
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B9C0</span>
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B9C0</span> <span class="no">ApcState</span>        <span class="err">=</span> <span class="no">_KAPC_STATE</span> <span class="no">ptr</span> <span class="p">-</span><span class="mi">20</span><span class="no">h</span>
@@ -873,22 +914,31 @@
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B9F2</span>                 <span class="no">push</span>    <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">FastMutex</span><span class="p">]</span> <span class="c1">; FastMutex
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B9F5</span>                 <span class="no">push</span>    <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">var_8</span><span class="p">]</span>     <span class="c1">; PVOID
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B9F8</span>                 <span class="no">push</span>    <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">PROCESS</span><span class="p">]</span>   <span class="c1">; Object
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B9FB</span>                 <span class="no">call</span>    <span class="no">_DbgkpPostFakeModuleMessages@12</span> <span class="err">;</span> <span class="err">发送虚假模块消息</span></span></span></code></pre></div><h3 id="总结-1" class="heading-element">
-  <a href="#%e6%80%bb%e7%bb%93-1" class="heading-mark"></a>总结</h3><ol>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">0058</span><span class="nf">B9FB</span>                 <span class="no">call</span>    <span class="no">_DbgkpPostFakeModuleMessages@12</span> <span class="err">;</span> <span class="err">发送虚假模块消息</span></span></span></code></pre></div><h3 id="总结-1" class="heading-element"><span>总结</span>
+  <a href="#%e6%80%bb%e7%bb%93-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>调试器在创建进程时，除了能得到进程创建、创建线程、模块加载等调试事件之外，还会收到一个异常事件。</li>
 <li>异常来源于调试器创建进程时触发的<strong>系统断点</strong>，目的是给调试器一个中断的机会。</li>
 <li>调试器在<strong>附加进程</strong>时，能够得到一份模拟的进程创建时产生的相关调试事件信息</li>
 <li>这些虚假的调试事件信息<strong>可靠性较低</strong>，程序在执行过程中可能已经处理过部分信息。</li>
 </ol>
-<h2 id="04异常处理流程" class="heading-element">
-  <a href="#04%e5%bc%82%e5%b8%b8%e5%a4%84%e7%90%86%e6%b5%81%e7%a8%8b" class="heading-mark"></a>04.异常处理流程</h2><blockquote>
+<h2 id="04异常处理流程" class="heading-element"><span>04.异常处理流程</span>
+  <a href="#04%e5%bc%82%e5%b8%b8%e5%a4%84%e7%90%86%e6%b5%81%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><blockquote>
 <p>在调试过程中，不论是软件断点、硬件断点还是INT 3断点，都是通过异常来实现的。</p>
 </blockquote>
 <p>异常处理流程图：</p>
 <p><img loading="lazy" src="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311110109036.png" alt="image-20230311110109036" srcset="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311110109036.png?size=small, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311110109036.png?size=medium 1.5x, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311110109036.png?size=large 2x" data-title="image-20230311110109036" style="--width: 590px;--aspect-ratio: 590 / 649;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="调试器与异常关系" class="heading-element">
-  <a href="#%e8%b0%83%e8%af%95%e5%99%a8%e4%b8%8e%e5%bc%82%e5%b8%b8%e5%85%b3%e7%b3%bb" class="heading-mark"></a>调试器与异常关系</h3><p>示例程序：</p>
-<div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+<h3 id="调试器与异常关系" class="heading-element"><span>调试器与异常关系</span>
+  <a href="#%e8%b0%83%e8%af%95%e5%99%a8%e4%b8%8e%e5%bc%82%e5%b8%b8%e5%85%b3%e7%b3%bb" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>示例程序：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>  
 </span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span> <span class="p">()</span>
@@ -915,9 +965,12 @@
 <p>修改ebp-20的值为1：</p>
 <p>可以看到：</p>
 <p><img loading="lazy" src="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311111147695.png" alt="image-20230311111147695" srcset="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311111147695.png?size=small, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311111147695.png?size=medium 1.5x, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311111147695.png?size=large 2x" data-title="image-20230311111147695" style="--width: 410px;--aspect-ratio: 410 / 161;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="未处理异常" class="heading-element">
-  <a href="#%e6%9c%aa%e5%a4%84%e7%90%86%e5%bc%82%e5%b8%b8" class="heading-mark"></a>未处理异常</h3><p>最后一道防线：</p>
-<div class="highlight" id="id-22"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__try</span>
+<h3 id="未处理异常" class="heading-element"><span>未处理异常</span>
+  <a href="#%e6%9c%aa%e5%a4%84%e7%90%86%e5%bc%82%e5%b8%b8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>最后一道防线：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__try</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">	
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
@@ -936,9 +989,12 @@
 </ol>
 </li>
 </ol>
-<h4 id="理解unhandledexceptionfilter执行流程" class="heading-element">
-  <a href="#%e7%90%86%e8%a7%a3unhandledexceptionfilter%e6%89%a7%e8%a1%8c%e6%b5%81%e7%a8%8b" class="heading-mark"></a>理解UnhandledExceptionFilter执行流程</h4><p>示例代码：</p>
-<div class="highlight" id="id-23"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+<h4 id="理解unhandledexceptionfilter执行流程" class="heading-element"><span>理解UnhandledExceptionFilter执行流程</span>
+  <a href="#%e7%90%86%e8%a7%a3unhandledexceptionfilter%e6%89%a7%e8%a1%8c%e6%b5%81%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>示例代码：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>  
 </span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span> <span class="p">()</span>
@@ -965,9 +1021,12 @@
 <li>由于当前程序并未使用<code>SetUnhandledExceptionFilter</code>注册处理函数，因此会让用户选择是否启动调试器。</li>
 </ol>
 <p>通过<code>UnhandledExceptionFilter</code>的这个性质，可以借此实现反调试。</p>
-<h4 id="unhandledexceptionfilter反调试" class="heading-element">
-  <a href="#unhandledexceptionfilter%e5%8f%8d%e8%b0%83%e8%af%95" class="heading-mark"></a>UnhandledExceptionFilter反调试</h4><p>示例：</p>
-<div class="highlight" id="id-24"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+<h4 id="unhandledexceptionfilter反调试" class="heading-element"><span>UnhandledExceptionFilter反调试</span>
+  <a href="#unhandledexceptionfilter%e5%8f%8d%e8%b0%83%e8%af%95" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="n">DWORD</span> <span class="n">g_Test</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
@@ -1003,36 +1062,54 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>调试的时候会停住：<img loading="lazy" src="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311111947844.png" alt="image-20230311111947844" srcset="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311111947844.png?size=small, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311111947844.png?size=medium 1.5x, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311111947844.png?size=large 2x" data-title="image-20230311111947844" style="--width: 682px;--aspect-ratio: 682 / 346;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>正常双击可以运行：</p>
 <p><img loading="lazy" src="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311112041778.png" alt="image-20230311112041778" srcset="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311112041778.png?size=small, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311112041778.png?size=medium 1.5x, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311112041778.png?size=large 2x" data-title="image-20230311112041778" style="--width: 457px;--aspect-ratio: 457 / 153;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="05软件断点" class="heading-element">
-  <a href="#05%e8%bd%af%e4%bb%b6%e6%96%ad%e7%82%b9" class="heading-mark"></a>05.软件断点</h2><p>触发异常的方式：</p>
+<h2 id="05软件断点" class="heading-element"><span>05.软件断点</span>
+  <a href="#05%e8%bd%af%e4%bb%b6%e6%96%ad%e7%82%b9" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>触发异常的方式：</p>
 <ol>
 <li>软件断点</li>
 <li>硬件断点</li>
 <li>内存断点</li>
 </ol>
-<h3 id="软件断点" class="heading-element">
-  <a href="#%e8%bd%af%e4%bb%b6%e6%96%ad%e7%82%b9" class="heading-mark"></a>软件断点</h3><p>可以看到本质是将当前代码位置的字节码改为<code>0xCC</code>，即<code>INT3</code>：</p>
+<h3 id="软件断点" class="heading-element"><span>软件断点</span>
+  <a href="#%e8%bd%af%e4%bb%b6%e6%96%ad%e7%82%b9" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>可以看到本质是将当前代码位置的字节码改为<code>0xCC</code>，即<code>INT3</code>：</p>
 <p><img loading="lazy" src="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311121728853.png" alt="image-20230311121728853" srcset="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311121728853.png?size=small, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311121728853.png?size=medium 1.5x, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311121728853.png?size=large 2x" data-title="image-20230311121728853" style="--width: 1164px;--aspect-ratio: 1164 / 574;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="软件断点执行流程" class="heading-element">
-  <a href="#%e8%bd%af%e4%bb%b6%e6%96%ad%e7%82%b9%e6%89%a7%e8%a1%8c%e6%b5%81%e7%a8%8b" class="heading-mark"></a>软件断点执行流程</h3><h4 id="被调试进程" class="heading-element">
-  <a href="#%e8%a2%ab%e8%b0%83%e8%af%95%e8%bf%9b%e7%a8%8b" class="heading-mark"></a>被调试进程</h4><ol>
+<h3 id="软件断点执行流程" class="heading-element"><span>软件断点执行流程</span>
+  <a href="#%e8%bd%af%e4%bb%b6%e6%96%ad%e7%82%b9%e6%89%a7%e8%a1%8c%e6%b5%81%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="被调试进程" class="heading-element"><span>被调试进程</span>
+  <a href="#%e8%a2%ab%e8%b0%83%e8%af%95%e8%bf%9b%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><ol>
 <li>CPU检测到<code>INT 3</code>指令</li>
 <li>查IDT表找到对应的中断处理函数</li>
 <li><code>CommonDispatchException</code></li>
 <li><code>KiDispatchException</code></li>
 <li><code>DbgkForwardException</code>收集并发送调试事件(第一个参数：消息类型，第二个参数：是否挂起其他进程)</li>
 </ol>
-<h4 id="调试器进程" class="heading-element">
-  <a href="#%e8%b0%83%e8%af%95%e5%99%a8%e8%bf%9b%e7%a8%8b" class="heading-mark"></a>调试器进程</h4><ol>
+<h4 id="调试器进程" class="heading-element"><span>调试器进程</span>
+  <a href="#%e8%b0%83%e8%af%95%e5%99%a8%e8%bf%9b%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><ol>
 <li>循环判断</li>
 <li>取出调试事件</li>
 <li>列出信息：寄存器、内存</li>
 <li>用户处理</li>
 </ol>
-<h4 id="流程" class="heading-element">
-  <a href="#%e6%b5%81%e7%a8%8b" class="heading-mark"></a>流程</h4><p>alt+t搜<code>_IDT</code>，找到三号断点</p>
+<h4 id="流程" class="heading-element"><span>流程</span>
+  <a href="#%e6%b5%81%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>alt+t搜<code>_IDT</code>，找到三号断点</p>
 <p>最终都会到<code>CommonDispatchException</code>：</p>
-<div class="highlight" id="id-25"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00407</span><span class="nf">B47</span> <span class="no">loc_407B47</span><span class="p">:</span>                             <span class="c1">; CODE XREF: _KiTrap03+88↑j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00407</span><span class="nf">B47</span> <span class="no">loc_407B47</span><span class="p">:</span>                             <span class="c1">; CODE XREF: _KiTrap03+88↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00407</span><span class="nf">B47</span>                                         <span class="c1">; _KiTrap03+CF↓j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00407</span><span class="nf">B47</span>                 <span class="no">mov</span>     <span class="no">esi</span><span class="p">,</span> <span class="no">ecx</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00407</span><span class="nf">B49</span>                 <span class="no">mov</span>     <span class="no">edi</span><span class="p">,</span> <span class="no">edx</span>
@@ -1042,7 +1119,7 @@
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00407</span><span class="nf">B51</span>                 <span class="no">mov</span>     <span class="no">ecx</span><span class="p">,</span> <span class="mi">3</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00407</span><span class="nf">B56</span>                 <span class="no">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="mi">80000003</span><span class="no">h</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00407</span><span class="nf">B5B</span>                 <span class="no">call</span>    <span class="no">CommonDispatchException</span></span></span></code></pre></div><p><code>CommonDispatchException</code>会调异常分发函数<code>_KiDispatchException</code>：</p>
-<div class="highlight" id="id-26"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004073</span><span class="nf">F8</span> <span class="no">loc_4073F8</span><span class="p">:</span>                             <span class="c1">; CODE XREF: CommonDispatchException+39↑j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004073</span><span class="nf">F8</span> <span class="no">loc_4073F8</span><span class="p">:</span>                             <span class="c1">; CODE XREF: CommonDispatchException+39↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004073</span><span class="nf">F8</span>                 <span class="no">and</span>     <span class="no">eax</span><span class="p">,</span> <span class="mi">1</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004073</span><span class="nf">FB</span>                 <span class="no">push</span>    <span class="mi">1</span>               <span class="c1">; char
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004073</span><span class="nf">FD</span>                 <span class="no">push</span>    <span class="no">eax</span>             <span class="c1">; int
@@ -1052,15 +1129,18 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00407402</span>                 <span class="nf">call</span>    <span class="no">_KiDispatchException@20</span> <span class="c1">; KiDispatchException(x,x,x,x,x)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00407407</span>                 <span class="nf">mov</span>     <span class="no">esp</span><span class="p">,</span> <span class="no">ebp</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00407409</span>                 <span class="nf">jmp</span>     <span class="no">Kei386EoiHelper@0</span> <span class="err">;</span> <span class="no">Kei386EoiHelper</span><span class="p">()</span></span></span></code></pre></div><p><code>KiDispatchException</code>最后会通过<code>_DbgkForwardException</code>发送调试事件：</p>
-<div class="highlight" id="id-27"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0044</span><span class="nf">B196</span> <span class="no">loc_44B196</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KiDispatchException(x,x,x,x,x)+1C5AD↑j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0044</span><span class="nf">B196</span> <span class="no">loc_44B196</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KiDispatchException(x,x,x,x,x)+1C5AD↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0044</span><span class="nf">B196</span>                 <span class="no">push</span>    <span class="mi">1</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0044</span><span class="nf">B198</span>                 <span class="no">push</span>    <span class="mi">1</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0044</span><span class="nf">B19A</span>                 <span class="no">push</span>    <span class="no">esi</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0044</span><span class="nf">B19B</span>                 <span class="no">call</span>    <span class="no">_DbgkForwardException@12</span> <span class="c1">; 发送调试事件
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0044</span><span class="nf">B1A0</span>                 <span class="no">test</span>    <span class="no">al</span><span class="p">,</span> <span class="no">al</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0044</span><span class="nf">B1A2</span>                 <span class="no">jnz</span>     <span class="no">loc_424AE4</span></span></span></code></pre></div><h4 id="处理软件断点" class="heading-element">
-  <a href="#%e5%a4%84%e7%90%86%e8%bd%af%e4%bb%b6%e6%96%ad%e7%82%b9" class="heading-mark"></a>处理软件断点</h4><p>示例代码：</p>
-<div class="highlight" id="id-28"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0044</span><span class="nf">B1A2</span>                 <span class="no">jnz</span>     <span class="no">loc_424AE4</span></span></span></code></pre></div><h4 id="处理软件断点" class="heading-element"><span>处理软件断点</span>
+  <a href="#%e5%a4%84%e7%90%86%e8%bd%af%e4%bb%b6%e6%96%ad%e7%82%b9" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>示例代码：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;tlhelp32.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
@@ -1303,15 +1383,18 @@
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><img loading="lazy" src="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311230028195.png" alt="image-20230311230028195" srcset="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311230028195.png?size=small, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311230028195.png?size=medium 1.5x, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230311230028195.png?size=large 2x" data-title="image-20230311230028195" style="--width: 661px;--aspect-ratio: 661 / 427;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="06内存断点" class="heading-element">
-  <a href="#06%e5%86%85%e5%ad%98%e6%96%ad%e7%82%b9" class="heading-mark"></a>06.内存断点</h2><p>当需要在某块内存被访问时产生中断，可以使用内存断点。</p>
+<h2 id="06内存断点" class="heading-element"><span>06.内存断点</span>
+  <a href="#06%e5%86%85%e5%ad%98%e6%96%ad%e7%82%b9" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>当需要在某块内存被访问时产生中断，可以使用内存断点。</p>
 <p><strong>内存断点能够分为两种类型：</strong></p>
 <ol>
 <li><strong>内存访问</strong>：内存被读写时产生中断。</li>
 <li><strong>内存写入</strong>：内存被写入时产生中断。</li>
 </ol>
 <p><code>VirtualProtecteEx</code>原型：</p>
-<div class="highlight" id="id-29"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">VirtualProtectEx</span><span class="p">(</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="nf">VirtualProtectEx</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">	<span class="n">HANDLE</span> <span class="n">hProcess</span><span class="p">,</span>        <span class="c1">// handle to process
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">LPVOID</span> <span class="n">lpAddress</span><span class="p">,</span>       <span class="c1">// region of committed pages
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">SIZE_T</span> <span class="n">dwSize</span><span class="p">,</span>          <span class="c1">// size of region
@@ -1319,25 +1402,37 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">PDWORD</span> <span class="n">lpflOldProtect</span>   <span class="c1">// old protection
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span></span></span></code></pre></div><p><strong>内存访问</strong>：将指定内存的属性修改为<strong>PAGE_NOACCESS</strong>（修改后，PTE的P位等于0）
 <strong>内存写入</strong>：将指定内存的属性修改为<strong>PAGE_EXECUTE_READ</strong>（修改后，PTE的P位等于1，R/W位等于0）</p>
-<h3 id="内存断点执行流程" class="heading-element">
-  <a href="#%e5%86%85%e5%ad%98%e6%96%ad%e7%82%b9%e6%89%a7%e8%a1%8c%e6%b5%81%e7%a8%8b" class="heading-mark"></a>内存断点执行流程</h3><h4 id="被调试进程-1" class="heading-element">
-  <a href="#%e8%a2%ab%e8%b0%83%e8%af%95%e8%bf%9b%e7%a8%8b-1" class="heading-mark"></a>被调试进程</h4><ol>
+<h3 id="内存断点执行流程" class="heading-element"><span>内存断点执行流程</span>
+  <a href="#%e5%86%85%e5%ad%98%e6%96%ad%e7%82%b9%e6%89%a7%e8%a1%8c%e6%b5%81%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="被调试进程-1" class="heading-element"><span>被调试进程</span>
+  <a href="#%e8%a2%ab%e8%b0%83%e8%af%95%e8%bf%9b%e7%a8%8b-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><ol>
 <li>CPU访问错误的内存地址，触发页异常</li>
 <li>查IDT表找到对应的中断处理函数（<code>nt!_KiTrap0E</code>）</li>
 <li><code>CommonDispatchException</code></li>
 <li><code>KiDispatchException</code></li>
 <li><code>DbgkForwardException</code>收集并发送调试事件</li>
 </ol>
-<h4 id="调试器进程-1" class="heading-element">
-  <a href="#%e8%b0%83%e8%af%95%e5%99%a8%e8%bf%9b%e7%a8%8b-1" class="heading-mark"></a>调试器进程</h4><ol>
+<h4 id="调试器进程-1" class="heading-element"><span>调试器进程</span>
+  <a href="#%e8%b0%83%e8%af%95%e5%99%a8%e8%bf%9b%e7%a8%8b-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><ol>
 <li>循环判断</li>
 <li>取出调试事件</li>
 <li>列出消息（寄存器/内存）</li>
 <li>用户处理</li>
 </ol>
-<h4 id="处理内存断点" class="heading-element">
-  <a href="#%e5%a4%84%e7%90%86%e5%86%85%e5%ad%98%e6%96%ad%e7%82%b9" class="heading-mark"></a>处理内存断点</h4><p>示例：</p>
-<div class="highlight" id="id-30"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+<h4 id="处理内存断点" class="heading-element"><span>处理内存断点</span>
+  <a href="#%e5%a4%84%e7%90%86%e5%86%85%e5%ad%98%e6%96%ad%e7%82%b9" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;tlhelp32.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
@@ -1617,9 +1712,15 @@
 </span></span><span class="line"><span class="cl">	<span class="p">}</span>
 </span></span><span class="line"><span class="cl">	
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h2 id="07硬件断点" class="heading-element">
-  <a href="#07%e7%a1%ac%e4%bb%b6%e6%96%ad%e7%82%b9" class="heading-mark"></a>07.硬件断点</h2><h3 id="硬件断点" class="heading-element">
-  <a href="#%e7%a1%ac%e4%bb%b6%e6%96%ad%e7%82%b9" class="heading-mark"></a>硬件断点</h3><ol>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h2 id="07硬件断点" class="heading-element"><span>07.硬件断点</span>
+  <a href="#07%e7%a1%ac%e4%bb%b6%e6%96%ad%e7%82%b9" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="硬件断点" class="heading-element"><span>硬件断点</span>
+  <a href="#%e7%a1%ac%e4%bb%b6%e6%96%ad%e7%82%b9" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>与软件断点与内存断点不同，<strong>硬件断点</strong>不依赖被调试程序，而是依赖于CPU中的<strong>调试寄存器</strong>。</li>
 <li>调试寄存器有<strong>8个</strong>，分别为<strong>Dr0~Dr7</strong>。</li>
 <li>用户最多能够设置4个硬件断点，这是由于只有Dr0~Dr3用于存储线性地址。</li>
@@ -1640,7 +1741,7 @@
 </ol>
 <p>硬件断点触发后走的中断处理函数是：<code>nt!_KiTrap01</code></p>
 <p>示例代码：</p>
-<div class="highlight" id="id-31"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;tlhelp32.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
@@ -1930,14 +2031,20 @@
 </span></span><span class="line"><span class="cl">	<span class="p">}</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h2 id="08单步异常" class="heading-element">
-  <a href="#08%e5%8d%95%e6%ad%a5%e5%bc%82%e5%b8%b8" class="heading-mark"></a>08.单步异常</h2><p>不单只有硬件断点能触发单步异常，EFLAGS寄存器也可以</p>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h2 id="08单步异常" class="heading-element"><span>08.单步异常</span>
+  <a href="#08%e5%8d%95%e6%ad%a5%e5%bc%82%e5%b8%b8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>不单只有硬件断点能触发单步异常，EFLAGS寄存器也可以</p>
 <p>设置单步运行：TF位置1</p>
 <p>处理单步异常：<code>STATUS_SINGLE_STEP</code></p>
 <p><img loading="lazy" src="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230312120730668.png" alt="image-20230312120730668" srcset="/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230312120730668.png?size=small, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230312120730668.png?size=medium 1.5x, /posts/2023-3-winkernel%E8%B0%83%E8%AF%95/image-20230312120730668.png?size=large 2x" data-title="image-20230312120730668" style="--width: 791px;--aspect-ratio: 791 / 263;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>代码和上面一样</p>
-<h2 id="09单步步过" class="heading-element">
-  <a href="#09%e5%8d%95%e6%ad%a5%e6%ad%a5%e8%bf%87" class="heading-mark"></a>09.单步步过</h2><ol>
+<h2 id="09单步步过" class="heading-element"><span>09.单步步过</span>
+  <a href="#09%e5%8d%95%e6%ad%a5%e6%ad%a5%e8%bf%87" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><ol>
 <li>当遇到CALL指令时，若无需进入函数内部进行调试，可以使用<strong>单步步过</strong>。</li>
 <li>与单步步入不同的是，<strong>单步步过</strong>的实现依赖于<strong>软件断点</strong>或<strong>硬件断点</strong>。</li>
 </ol>
@@ -1950,7 +2057,7 @@
 <li>若OPCODE是<strong>FF15</strong>，在<strong>当前地址之后的第6个字节</strong>设置<strong>软件断点</strong>（FF15指令占6个字节）</li>
 </ol>
 <p>示例：</p>
-<div class="highlight" id="id-32"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;tlhelp32.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
@@ -2282,9 +2389,9 @@
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/" data-title="Windows内核(十一)——软件调试" data-hashtags="Win32"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/" data-title="Windows内核(十一)——软件调试"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/" data-title="Windows内核(十一)——软件调试" data-hashtags="Win32"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/2023-3-winkernel%E8%B0%83%E8%AF%95/" data-title="Windows内核(十一)——软件调试"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -2303,14 +2410,14 @@
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

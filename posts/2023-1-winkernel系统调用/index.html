@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>Windows内核(三)——系统调用 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>Windows内核(三)——系统调用 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(三)——系统调用">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2023-01-16T00:00:00+00:00" />
+<meta name="description" content="[toc] 本文是windows内核系列的第三部分，本来应该是放到第二部分后面的，但是第二部分会用到这部分的相关内容 ，就先放第三部分了。 001.API函数的调用过程(3环部分) 主要是存放在 C:\WINDOWS\system32 下面所有的dll 几个重要的DLL Kernel32.dll:最" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(三)——系统调用">
+<meta itemprop="description" content="[toc] 本文是windows内核系列的第三部分，本来应该是放到第二部分后面的，但是第二部分会用到这部分的相关内容 ，就先放第三部分了。 001.API函数的调用过程(3环部分) 主要是存放在 C:\WINDOWS\system32 下面所有的dll 几个重要的DLL Kernel32.dll:最"><meta itemprop="datePublished" content="2023-01-16T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2023-01-16T00:00:00+00:00" />
-<meta itemprop="wordCount" content="6444">
+<meta itemprop="wordCount" content="6464">
 <meta itemprop="keywords" content="Win32," /><meta property="og:title" content="Windows内核(三)——系统调用" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[toc] 本文是windows内核系列的第三部分，本来应该是放到第二部分后面的，但是第二部分会用到这部分的相关内容 ，就先放第三部分了。 001.API函数的调用过程(3环部分) 主要是存放在 C:\WINDOWS\system32 下面所有的dll 几个重要的DLL Kernel32.dll:最" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2023-01-16T00:00:00+00:00" />
 <meta property="article:modified_time" content="2023-01-16T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Windows内核(三)——系统调用"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[toc] 本文是windows内核系列的第三部分，本来应该是放到第二部分后面的，但是第二部分会用到这部分的相关内容 ，就先放第三部分了。 001.API函数的调用过程(3环部分) 主要是存放在 C:\WINDOWS\system32 下面所有的dll 几个重要的DLL Kernel32.dll:最"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" /><link rel="prev" href="http://localhost:1313/posts/dir815/" /><link rel="next" href="http://localhost:1313/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" /><link rel="prev" href="http://ghostasky.github.io/posts/dir815/" /><link rel="next" href="http://ghostasky.github.io/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8\/"
-    },"genre": "posts","keywords": "Win32","wordcount":  6444 ,
-    "url": "http:\/\/localhost:1313\/posts\/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8\/","datePublished": "2023-01-16T00:00:00+00:00","dateModified": "2023-01-16T00:00:00+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8\/"
+    },"genre": "posts","keywords": "Win32","wordcount":  6464 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8\/","datePublished": "2023-01-16T00:00:00+00:00","dateModified": "2023-01-16T00:00:00+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>Windows内核(三)——系统调用</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-01-16 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-01-16">2023-01-16</time></span>&nbsp;<span title="6444 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 6500 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 13 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-01-16 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-01-16">2023-01-16</time></span>&nbsp;<span title="6464 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 6500 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 13 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -160,8 +159,11 @@
 </nav></div>
       </div><div class="content" id="content"><p>[toc]</p>
 <p>本文是windows内核系列的第三部分，本来应该是放到第二部分后面的，但是第二部分会用到这部分的相关内容 ，就先放第三部分了。</p>
-<h2 id="001api函数的调用过程3环部分" class="heading-element">
-  <a href="#001api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b3%e7%8e%af%e9%83%a8%e5%88%86" class="heading-mark"></a>001.API函数的调用过程(3环部分)</h2><p>主要是存放在 C:\WINDOWS\system32 下面所有的dll</p>
+<h2 id="001api函数的调用过程3环部分" class="heading-element"><span>001.API函数的调用过程(3环部分)</span>
+  <a href="#001api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b3%e7%8e%af%e9%83%a8%e5%88%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>主要是存放在 C:\WINDOWS\system32 下面所有的dll</p>
 <p>几个重要的DLL</p>
 <ul>
 <li>Kernel32.dll:最核心的功能模块，比如管理内存、进程和线程相关的函数等.</li>
@@ -179,12 +181,18 @@
 <p>kernel32.dll(ReadProcessMemory) =&gt;</p>
 <p>ntdll.dll(NtReadVirtualMemory)</p>
 </blockquote>
-<h2 id="002api函数的调用过程3环进0环-上" class="heading-element">
-  <a href="#002api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b3%e7%8e%af%e8%bf%9b0%e7%8e%af-%e4%b8%8a" class="heading-mark"></a>002.API函数的调用过程(3环进0环 上)</h2><p>下面说下这部分：</p>
+<h2 id="002api函数的调用过程3环进0环-上" class="heading-element"><span>002.API函数的调用过程(3环进0环 上)</span>
+  <a href="#002api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b3%e7%8e%af%e8%bf%9b0%e7%8e%af-%e4%b8%8a" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>下面说下这部分：</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134533807.png" alt="image-20230106134533807" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134533807.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134533807.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106134533807.png?size=large 2x" data-title="image-20230106134533807" style="--width: 822px;--aspect-ratio: 822 / 167;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>首先是<code>7FFE0300</code>这个地址</p>
-<h3 id="_kuser_shared_data" class="heading-element">
-  <a href="#_kuser_shared_data" class="heading-mark"></a>_KUSER_SHARED_DATA</h3><ol>
+<h3 id="_kuser_shared_data" class="heading-element"><span>_KUSER_SHARED_DATA</span>
+  <a href="#_kuser_shared_data" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>在 User 层和 Kernel 层分别定义了一个 <code>_KUSER_SHARED_DATA</code> 结构区域，用于 User 层和 Kernel 层共享某些数据</li>
 <li>它们使用固定的地址值映射，<code>_KUSER_SHARED_DATA</code> 结构区域在 User 和 Kernel 层地址分别为：
 <ul>
@@ -199,8 +207,11 @@
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140227852.png" alt="image-20230106140227852" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140227852.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140227852.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140227852.png?size=large 2x" data-title="image-20230106140227852" style="--width: 515px;--aspect-ratio: 515 / 385;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>可以看到300的位置是系统调用：</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140509018.png" alt="image-20230106140509018" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140509018.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140509018.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106140509018.png?size=large 2x" data-title="image-20230106140509018" style="--width: 769px;--aspect-ratio: 769 / 817;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="cpu是否支持快速调用" class="heading-element">
-  <a href="#cpu%e6%98%af%e5%90%a6%e6%94%af%e6%8c%81%e5%bf%ab%e9%80%9f%e8%b0%83%e7%94%a8" class="heading-mark"></a>CPU是否支持快速调用</h3><p>实验：是否支持快速调用</p>
+<h3 id="cpu是否支持快速调用" class="heading-element"><span>CPU是否支持快速调用</span>
+  <a href="#cpu%e6%98%af%e5%90%a6%e6%94%af%e6%8c%81%e5%bf%ab%e9%80%9f%e8%b0%83%e7%94%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>实验：是否支持快速调用</p>
 <p>当通过<code>eax=1</code>来执行<code>cpuid</code>指令时，处理器的特征信息被放在<code>ecx</code>和<code>edx</code>寄存器中，其中<code>edx</code>包含了一个<code>SEP</code>位（11位），该位指明了当前处理器知否支持<code>sysenter/sysexit</code>指令</p>
 <ul>
 <li>支持：ntdll.dll!KiFastSystemCall()</li>
@@ -209,8 +220,11 @@
 <p>eax置1后执行，发现是0xBFF，第11位是1，表示支持</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106141108580.png" alt="image-20230106141108580" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106141108580.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106141108580.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106141108580.png?size=large 2x" data-title="image-20230106141108580" style="--width: 854px;--aspect-ratio: 854 / 125;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>当系统启动的时候，上述执行，之后将相应的函数放到偏移0x300的位置。</p>
-<h3 id="进r0需要更改哪些寄存器" class="heading-element">
-  <a href="#%e8%bf%9br0%e9%9c%80%e8%a6%81%e6%9b%b4%e6%94%b9%e5%93%aa%e4%ba%9b%e5%af%84%e5%ad%98%e5%99%a8" class="heading-mark"></a>进R0需要更改哪些寄存器</h3><ol>
+<h3 id="进r0需要更改哪些寄存器" class="heading-element"><span>进R0需要更改哪些寄存器</span>
+  <a href="#%e8%bf%9br0%e9%9c%80%e8%a6%81%e6%9b%b4%e6%94%b9%e5%93%aa%e4%ba%9b%e5%af%84%e5%ad%98%e5%99%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>
 <p>CS的权限由3变为0，意味着需要新的CS</p>
 </li>
@@ -228,7 +242,7 @@
 <p>不支持的时候使用的是<code>ntdll.dll!KiIntSystemCall()</code></p>
 <p>将eax中的编号和edx(参数指针)，之后中断<code>0x2E</code>进入内核</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106142000444.png" alt="image-20230106142000444" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106142000444.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106142000444.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106142000444.png?size=large 2x" data-title="image-20230106142000444" style="--width: 835px;--aspect-ratio: 835 / 184;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt;  dq 8003f400+170
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt;  dq 8003f400+170
 </span></span><span class="line"><span class="cl">ReadVirtual: 8003f570 not properly sign extended
 </span></span><span class="line"><span class="cl">8003f570  8054ee00<span class="sb">`</span><span class="m">00082611</span> 80548e00<span class="sb">`</span>0008590c
 </span></span><span class="line"><span class="cl">8003f580  80548e00<span class="sb">`</span>00081cd0 80548e00<span class="sb">`</span>00081cda
@@ -251,8 +265,11 @@
 <p>也就2行代码：</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106143004394.png" alt="image-20230106143004394" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106143004394.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106143004394.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230106143004394.png?size=large 2x" data-title="image-20230106143004394" style="--width: 722px;--aspect-ratio: 722 / 117;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>中断门进0环，需要的CS、EIP在IDT表中，需要查内存(SS与ESP由TSS提供)而CPU如果支持sysenter指令时，操作系统会提前将CS/SS/ESP/EIP的值存储在MSR寄存器中，sysenter指令执行时，CPU会将MSR寄存器中的值直接写入相关寄存器，没有读内存的过程，所以叫快速调用，本质是一样的！</p>
-<h2 id="003api函数的调用过程3环进0环-下" class="heading-element">
-  <a href="#003api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b3%e7%8e%af%e8%bf%9b0%e7%8e%af-%e4%b8%8b" class="heading-mark"></a>003.API函数的调用过程(3环进0环 下)</h2><p>不支持快速调用的话就中断进0环，支持的话就sysenter，需要的寄存器信息(CS，SS,ESP,EIP)在<code>MSR</code>寄存器中可以找到：(ss在cs+8的位置)</p>
+<h2 id="003api函数的调用过程3环进0环-下" class="heading-element"><span>003.API函数的调用过程(3环进0环 下)</span>
+  <a href="#003api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b3%e7%8e%af%e8%bf%9b0%e7%8e%af-%e4%b8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>不支持快速调用的话就中断进0环，支持的话就sysenter，需要的寄存器信息(CS，SS,ESP,EIP)在<code>MSR</code>寄存器中可以找到：(ss在cs+8的位置)</p>
 <table>
 <thead>
 <tr>
@@ -276,7 +293,7 @@
 </tbody>
 </table>
 <p>可以通过RDMSR/WRMST来进行读写（操作系统使用WRMST写该寄存器）:</p>
-<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; rdmsr <span class="m">174</span>   //查看CS
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; rdmsr <span class="m">174</span>   //查看CS
 </span></span><span class="line"><span class="cl">kd&gt; rdmsr <span class="m">175</span>   //查看ESP
 </span></span><span class="line"><span class="cl">kd&gt; rdmsr <span class="m">176</span>   //查看EIP
 </span></span><span class="line"><span class="cl">&gt; 参考：Intel白皮书第二卷<span class="o">(</span>搜索sysenter<span class="o">)</span></span></span></code></pre></div><pre tabindex="0"><code>kd&gt; rdmsr 174
@@ -294,8 +311,11 @@ ReadVirtual: 805426e0 not properly sign extended
 805426eb 8ec1            mov     es,cx
 805426ed 648b0d40000000  mov     ecx,dword ptr fs:[40h]
 805426f4 8b6104          mov     esp,dword ptr [ecx+4]
-805426f7 6a23            push    23h</code></pre><h3 id="总结" class="heading-element">
-  <a href="#%e6%80%bb%e7%bb%93" class="heading-mark"></a>总结</h3><p>API通过中断门进0环：</p>
+805426f7 6a23            push    23h</code></pre><h3 id="总结" class="heading-element"><span>总结</span>
+  <a href="#%e6%80%bb%e7%bb%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>API通过中断门进0环：</p>
 <pre><code>1)  固定中断号为0x2E
 2)  CS/EIP由门描述符提供   ESP/SS由TSS提供
 3)  进入0环后执行的内核函数：NT!KiSystemService
@@ -305,16 +325,25 @@ ReadVirtual: 805426e0 not properly sign extended
 2)  进入0环后执行的内核函数：NT!KiFastCallEntry
 </code></pre>
 <p>内核模块：<code>ntoskrnl.exe/ntkrnlpa.exe</code></p>
-<h2 id="004api函数的调用过程保存现场" class="heading-element">
-  <a href="#004api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b%e4%bf%9d%e5%ad%98%e7%8e%b0%e5%9c%ba" class="heading-mark"></a>004.API函数的调用过程(保存现场)</h2><p>这里使用<code>KiSystemService</code>举例。</p>
+<h2 id="004api函数的调用过程保存现场" class="heading-element"><span>004.API函数的调用过程(保存现场)</span>
+  <a href="#004api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b%e4%bf%9d%e5%ad%98%e7%8e%b0%e5%9c%ba" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>这里使用<code>KiSystemService</code>举例。</p>
 <p>首先接收三个结构体：</p>
-<h3 id="_trap_frame结构体" class="heading-element">
-  <a href="#_trap_frame%e7%bb%93%e6%9e%84%e4%bd%93" class="heading-mark"></a>_Trap_Frame结构体</h3><p>这个结构体在0环，由操作系统进行维护</p>
+<h3 id="_trap_frame结构体" class="heading-element"><span>_Trap_Frame结构体</span>
+  <a href="#_trap_frame%e7%bb%93%e6%9e%84%e4%bd%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>这个结构体在0环，由操作系统进行维护</p>
 <p><strong>无论是快速调用还是中断进0环都会将寄存器写到这个结构体里</strong></p>
-<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _ktrap_Frame</span></span></code></pre></div><p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png" alt="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png?size=large 2x" data-title="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png" style="--width: 700px;--aspect-ratio: 700 / 1105;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _ktrap_Frame</span></span></code></pre></div><p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png" alt="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png?size=large 2x" data-title="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107134858939.png" style="--width: 700px;--aspect-ratio: 700 / 1105;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>在中断进入0环的时候，会压入<code>0x068~0x078</code>的5个值，快速调用的 时候，这5个值是没有的。</p>
-<h3 id="_ethread线程相关的结构体" class="heading-element">
-  <a href="#_ethread%e7%ba%bf%e7%a8%8b%e7%9b%b8%e5%85%b3%e7%9a%84%e7%bb%93%e6%9e%84%e4%bd%93" class="heading-mark"></a>_ETHREAD线程相关的结构体</h3><pre tabindex="0"><code>kd&gt; dt _ETHREAD
+<h3 id="_ethread线程相关的结构体" class="heading-element"><span>_ETHREAD线程相关的结构体</span>
+  <a href="#_ethread%e7%ba%bf%e7%a8%8b%e7%9b%b8%e5%85%b3%e7%9a%84%e7%bb%93%e6%9e%84%e4%bd%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><pre tabindex="0"><code>kd&gt; dt _ETHREAD
 ntdll!_ETHREAD
    +0x000 Tcb              : _KTHREAD
    +0x1c0 CreateTime       : _LARGE_INTEGER
@@ -444,8 +473,11 @@ ntdll!_KTHREAD
    +0x1b8 FreezeCount      : Char
    +0x1b9 SuspendCount     : Char
    +0x1ba IdealProcessor   : UChar
-   +0x1bb DisableBoost     : UChar</code></pre><h3 id="_kpcr" class="heading-element">
-  <a href="#_kpcr" class="heading-mark"></a>_KPCR</h3><p>KPCR  叫CPU控制区（Processor Control Region）</p>
+   +0x1bb DisableBoost     : UChar</code></pre><h3 id="_kpcr" class="heading-element"><span>_KPCR</span>
+  <a href="#_kpcr" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>KPCR  叫CPU控制区（Processor Control Region）</p>
 <p>CPU也有自己的控制块，每一个CPU有一个，叫KPCR</p>
 <pre tabindex="0"><code>kd&gt; dt _KPCR
 nt!_KPCR
@@ -486,7 +518,7 @@ ntdll!_NT_TIB
    +0x010 Version          : Uint4B
    +0x014 ArbitraryUserPointer : Ptr32 Void
    +0x018 Self             : Ptr32 _NT_TIB//结构体指针 指向自己</code></pre><p><code>_KPRC</code>的最后一个也是一个结构体<code>_KPRCB</code>：</p>
-<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _KPRCB
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _KPRCB
 </span></span><span class="line"><span class="cl">ntdll!_KPRCB
 </span></span><span class="line"><span class="cl">   +0x000 MinorVersion     : Uint2B
 </span></span><span class="line"><span class="cl">   +0x002 MajorVersion     : Uint2B
@@ -578,8 +610,11 @@ ntdll!_NT_TIB
 </span></span><span class="line"><span class="cl">   +0x914 FeatureBits      : Uint4B
 </span></span><span class="line"><span class="cl">   +0x918 UpdateSignature  : _LARGE_INTEGER
 </span></span><span class="line"><span class="cl">   +0x920 NpxSaveArea      : _FX_SAVE_AREA
-</span></span><span class="line"><span class="cl">   +0xb30 PowerState       : _PROCESSOR_POWER_STATE</span></span></code></pre></div><h3 id="逆向分析-kisystemservice" class="heading-element">
-  <a href="#%e9%80%86%e5%90%91%e5%88%86%e6%9e%90-kisystemservice" class="heading-mark"></a>逆向分析 KiSystemService</h3><p><code>KiSystemService</code>这个函数也就是中断的时候，<code>0x2E</code>的内容</p>
+</span></span><span class="line"><span class="cl">   +0xb30 PowerState       : _PROCESSOR_POWER_STATE</span></span></code></pre></div><h3 id="逆向分析-kisystemservice" class="heading-element"><span>逆向分析 KiSystemService</span>
+  <a href="#%e9%80%86%e5%90%91%e5%88%86%e6%9e%90-kisystemservice" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p><code>KiSystemService</code>这个函数也就是中断的时候，<code>0x2E</code>的内容</p>
 <pre tabindex="0"><code class="language-assembly" data-lang="assembly">.text:004067D1 _KiSystemService proc near              ; CODE XREF: ZwAcceptConnectPort(x,x,x,x,x,x)+C↓p
 .text:004067D1                                         ; ZwAccessCheck(x,x,x,x,x,x,x,x)+C↓p ...
 .text:004067D1
@@ -630,8 +665,11 @@ ntdll!_NT_TIB
 .text:00406841                                         ; Dr_kss_a+7C↑j
 .text:00406841                 sti                     ; 允许中断
 .text:00406842                 jmp     loc_406932
-.text:00406842 _KiSystemService endp</code></pre><h2 id="005api函数的调用过程系统服务表" class="heading-element">
-  <a href="#005api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b%e7%b3%bb%e7%bb%9f%e6%9c%8d%e5%8a%a1%e8%a1%a8" class="heading-mark"></a>005.API函数的调用过程(系统服务表)</h2><p>上节内容：进0环后，3环的各种寄存器都会保留到_Trap_Frame结构体中</p>
+.text:00406842 _KiSystemService endp</code></pre><h2 id="005api函数的调用过程系统服务表" class="heading-element"><span>005.API函数的调用过程(系统服务表)</span>
+  <a href="#005api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8b%e7%b3%bb%e7%bb%9f%e6%9c%8d%e5%8a%a1%e8%a1%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>上节内容：进0环后，3环的各种寄存器都会保留到_Trap_Frame结构体中</p>
 <p>本节内容：</p>
 <ul>
 <li>如何根据系统服务号(eax中存储)找到要执行的内核函数？</li>
@@ -643,7 +681,7 @@ ntdll!_NT_TIB
 <p>如何判断是上面还是下面那张表：</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107230710291.png" alt="image-20230107230710291" srcset="/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107230710291.png?size=small, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107230710291.png?size=medium 1.5x, /posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20230107230710291.png?size=large 2x" data-title="image-20230107230710291" style="--width: 919px;--aspect-ratio: 919 / 613;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>这个是<code>_KiFastCallEntry</code>，KiSystemService的最后直接到了<code>0x00406932</code>的位置</p>
-<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span> <span class="no">_KiFastCallEntry</span> <span class="no">proc</span> <span class="no">near</span>              <span class="c1">; DATA XREF: _KiTrap01+71↓o
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span> <span class="no">_KiFastCallEntry</span> <span class="no">proc</span> <span class="no">near</span>              <span class="c1">; DATA XREF: _KiTrap01+71↓o
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span>                                         <span class="c1">; KiLoadFastSyscallMachineSpecificRegisters(x)+24↓o
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span> <span class="no">var_B</span>           <span class="err">=</span> <span class="no">byte</span> <span class="no">ptr</span> <span class="p">-</span><span class="mi">0</span><span class="no">Bh</span>
@@ -784,8 +822,11 @@ ntdll!_NT_TIB
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A9</span>                 <span class="no">call</span>    <span class="no">ebx</span>             <span class="c1">; 复制参数：复制 esi 到 edi，每次复制4字节，次数由 ecx 决定
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A9</span> <span class="no">_KiSystemServiceCopyArguments@0</span> <span class="no">endp</span>    <span class="c1">; 方向由DF决定，DF=0，故每次复制后，edi 和 esi 都加4
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">A9</span>                                         <span class="c1">; 调用内核函数
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">AB</span></span></span></code></pre></div><h2 id="006api函数的调用过程ssdt" class="heading-element">
-  <a href="#006api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8bssdt" class="heading-mark"></a>006.API函数的调用过程(SSDT)</h2><p>本节通过其他方式来访问系统服务表.</p>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">AB</span></span></span></code></pre></div><h2 id="006api函数的调用过程ssdt" class="heading-element"><span>006.API函数的调用过程(SSDT)</span>
+  <a href="#006api%e5%87%bd%e6%95%b0%e7%9a%84%e8%b0%83%e7%94%a8%e8%bf%87%e7%a8%8bssdt" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>本节通过其他方式来访问系统服务表.</p>
 <p>SSDT  的全称是 System Services Descriptor Table，系统服务描述符表</p>
 <pre tabindex="0"><code>kd&gt; dd  KeServiceDescriptorTable(SSDT)
 导出的 声明一下就可以使用了
@@ -807,9 +848,9 @@ kd&gt; dd  KeServiceDescriptorTableShadow(SSDT Shadow)
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" data-title="Windows内核(三)——系统调用" data-hashtags="Win32"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" data-title="Windows内核(三)——系统调用"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" data-title="Windows内核(三)——系统调用" data-hashtags="Win32"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" data-title="Windows内核(三)——系统调用"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -828,14 +869,14 @@ kd&gt; dd  KeServiceDescriptorTableShadow(SSDT Shadow)
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

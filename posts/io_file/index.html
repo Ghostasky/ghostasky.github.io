@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>IO_FILE调试&#43;详解 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>IO_FILE调试&#43;详解 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="IO_FILE调试&#43;详解">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2021-09-24T23:09:51+00:00" />
+<meta name="description" content="[TOC] 开始干__IO_FILE。会依次调fopen,fwrite,fread之类的IO函数的源码。 IO_FILE之fopen详解 demo程序 ##include&lt;stdio.h&gt; int main() { FILE*fp=fopen(&#34;test&#34;,&#34;wb&#34;); char *ptr=malloc(0x20); return 0; }源码分析 跟进去之后可以看到fopen实际是_IO_new_fopen函数。它调用的是" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="IO_FILE调试&#43;详解">
+<meta itemprop="description" content="[TOC] 开始干__IO_FILE。会依次调fopen,fwrite,fread之类的IO函数的源码。 IO_FILE之fopen详解 demo程序 ##include&lt;stdio.h&gt; int main() { FILE*fp=fopen(&#34;test&#34;,&#34;wb&#34;); char *ptr=malloc(0x20); return 0; }源码分析 跟进去之后可以看到fopen实际是_IO_new_fopen函数。它调用的是"><meta itemprop="datePublished" content="2021-09-24T23:09:51+00:00" />
 <meta itemprop="dateModified" content="2021-09-24T23:09:51+00:00" />
-<meta itemprop="wordCount" content="7290">
+<meta itemprop="wordCount" content="7266">
 <meta itemprop="keywords" content="PWN," /><meta property="og:title" content="IO_FILE调试&#43;详解" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[TOC] 开始干__IO_FILE。会依次调fopen,fwrite,fread之类的IO函数的源码。 IO_FILE之fopen详解 demo程序 ##include&lt;stdio.h&gt; int main() { FILE*fp=fopen(&#34;test&#34;,&#34;wb&#34;); char *ptr=malloc(0x20); return 0; }源码分析 跟进去之后可以看到fopen实际是_IO_new_fopen函数。它调用的是" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/io_file/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/io_file/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-09-24T23:09:51+00:00" />
 <meta property="article:modified_time" content="2021-09-24T23:09:51+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="IO_FILE调试&#43;详解"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[TOC] 开始干__IO_FILE。会依次调fopen,fwrite,fread之类的IO函数的源码。 IO_FILE之fopen详解 demo程序 ##include&lt;stdio.h&gt; int main() { FILE*fp=fopen(&#34;test&#34;,&#34;wb&#34;); char *ptr=malloc(0x20); return 0; }源码分析 跟进去之后可以看到fopen实际是_IO_new_fopen函数。它调用的是"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/io_file/" /><link rel="prev" href="http://localhost:1313/posts/buu-web-0x30-0x3f/" /><link rel="next" href="http://localhost:1313/posts/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%95%B4%E7%90%86/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/io_file/" /><link rel="prev" href="http://ghostasky.github.io/posts/buu-web-0x30-0x3f/" /><link rel="next" href="http://ghostasky.github.io/posts/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%95%B4%E7%90%86/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/io_file\/"
-    },"genre": "posts","keywords": "PWN","wordcount":  7290 ,
-    "url": "http:\/\/localhost:1313\/posts\/io_file\/","datePublished": "2021-09-24T23:09:51+00:00","dateModified": "2021-09-24T23:09:51+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/io_file\/"
+    },"genre": "posts","keywords": "PWN","wordcount":  7266 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/io_file\/","datePublished": "2021-09-24T23:09:51+00:00","dateModified": "2021-09-24T23:09:51+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>IO_FILE调试&#43;详解</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-09-24 23:09:51"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-09-24">2021-09-24</time></span>&nbsp;<span title="7290 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 7300 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 15 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-09-24 23:09:51"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-09-24">2021-09-24</time></span>&nbsp;<span title="7266 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 7300 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 15 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -151,17 +150,26 @@
 </nav></div>
       </div><div class="content" id="content"><p>[TOC]</p>
 <p>开始干__IO_FILE。会依次调fopen,fwrite,fread之类的IO函数的源码。</p>
-<h2 id="io_file之fopen详解" class="heading-element">
-  <a href="#io_file%e4%b9%8bfopen%e8%af%a6%e8%a7%a3" class="heading-mark"></a>IO_FILE之fopen详解</h2><h3 id="demo程序" class="heading-element">
-  <a href="#demo%e7%a8%8b%e5%ba%8f" class="heading-mark"></a>demo程序</h3><div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
+<h2 id="io_file之fopen详解" class="heading-element"><span>IO_FILE之fopen详解</span>
+  <a href="#io_file%e4%b9%8bfopen%e8%af%a6%e8%a7%a3" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="demo程序" class="heading-element"><span>demo程序</span>
+  <a href="#demo%e7%a8%8b%e5%ba%8f" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">FILE</span><span class="o">*</span><span class="n">fp</span><span class="o">=</span><span class="nf">fopen</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">,</span><span class="s">&#34;wb&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="o">*</span><span class="n">ptr</span><span class="o">=</span><span class="nf">malloc</span><span class="p">(</span><span class="mh">0x20</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="源码分析" class="heading-element">
-  <a href="#%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90" class="heading-mark"></a>源码分析</h3><p>跟进去之后可以看到fopen实际是<code>_IO_new_fopen</code>函数。它调用的是<code>__fopen_internal</code></p>
-<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">─────────────────────────────────────────────────────────────────────────────────────────────<span class="o">[</span> SOURCE <span class="o">(</span>CODE<span class="o">)</span> <span class="o">]</span>──────────────────────────────────────────────────────────────────────────────────────────────
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="源码分析" class="heading-element"><span>源码分析</span>
+  <a href="#%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>跟进去之后可以看到fopen实际是<code>_IO_new_fopen</code>函数。它调用的是<code>__fopen_internal</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">─────────────────────────────────────────────────────────────────────────────────────────────<span class="o">[</span> SOURCE <span class="o">(</span>CODE<span class="o">)</span> <span class="o">]</span>──────────────────────────────────────────────────────────────────────────────────────────────
 </span></span><span class="line"><span class="cl">In file: /usr/src/glibc/glibc-2.23/libio/iofopen.c
 </span></span><span class="line"><span class="cl">    <span class="m">91</span>   <span class="k">return</span> NULL<span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="m">92</span> <span class="o">}</span>
@@ -174,7 +182,7 @@
 </span></span><span class="line"><span class="cl">    <span class="m">99</span> 
 </span></span><span class="line"><span class="cl">   <span class="m">100</span> <span class="c1">#ifdef _LIBC</span>
 </span></span><span class="line"><span class="cl">   <span class="m">101</span> strong_alias <span class="o">(</span>_IO_new_fopen, __new_fopen<span class="o">)</span></span></span></code></pre></div><p>跟进<code>__fopen_internal</code>看下</p>
-<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_FILE</span> <span class="o">*</span><span class="nf">__fopen_internal</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">filename</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">mode</span><span class="p">,</span> <span class="kt">int</span> <span class="n">is32</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_FILE</span> <span class="o">*</span><span class="nf">__fopen_internal</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">filename</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">mode</span><span class="p">,</span> <span class="kt">int</span> <span class="n">is32</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="k">struct</span> <span class="n">locked_FILE</span>
 </span></span><span class="line"><span class="cl">  <span class="p">{</span>
@@ -220,9 +228,12 @@
 <li><code>_IO_file_fopen</code>执行系统调用打开文件。</li>
 </ol>
 </blockquote>
-<h4 id="step1malloc分配内存空间" class="heading-element">
-  <a href="#step1malloc%e5%88%86%e9%85%8d%e5%86%85%e5%ad%98%e7%a9%ba%e9%97%b4" class="heading-mark"></a>step1:malloc分配内存空间</h4><p>可以看到先malloc了 <code>sizeof (struct locked_FILE)</code>大小的结构体，x64中为0x230，包含了三个结构体：<code>_IO_FILE_plus</code>，<code>_IO_lock_t</code>，<code>_IO_wide_data</code>。分别为fp，lock，wd。</p>
-<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print new_f
+<h4 id="step1malloc分配内存空间" class="heading-element"><span>step1:malloc分配内存空间</span>
+  <a href="#step1malloc%e5%88%86%e9%85%8d%e5%86%85%e5%ad%98%e7%a9%ba%e9%97%b4" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>可以看到先malloc了 <code>sizeof (struct locked_FILE)</code>大小的结构体，x64中为0x230，包含了三个结构体：<code>_IO_FILE_plus</code>，<code>_IO_lock_t</code>，<code>_IO_wide_data</code>。分别为fp，lock，wd。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print new_f
 </span></span><span class="line"><span class="cl"><span class="nv">$3</span> <span class="o">=</span> <span class="o">(</span>struct locked_FILE *<span class="o">)</span> 0x602010
 </span></span><span class="line"><span class="cl">pwndbg&gt; x/10gx 0x602010-0x10
 </span></span><span class="line"><span class="cl">0x602000:	0x0000000000000000	0x0000000000000231
@@ -368,10 +379,13 @@
 </span></span><span class="line"><span class="cl">    <span class="nv">_shortbuf</span> <span class="o">=</span> L<span class="s2">&#34;&#34;</span>, 
 </span></span><span class="line"><span class="cl">    <span class="nv">_wide_vtable</span> <span class="o">=</span> 0x0
 </span></span><span class="line"><span class="cl">  <span class="o">}</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span></span></span></code></pre></div><h4 id="step2_io_no_init-对file结构体进行null初始化" class="heading-element">
-  <a href="#step2_io_no_init-%e5%af%b9file%e7%bb%93%e6%9e%84%e4%bd%93%e8%bf%9b%e8%a1%8cnull%e5%88%9d%e5%a7%8b%e5%8c%96" class="heading-mark"></a>step2:_IO_no_init 对file结构体进行null初始化</h4><p>分配完后，调用了<code>_IO_no_init</code>初始化改结构体</p>
+</span></span><span class="line"><span class="cl"><span class="o">}</span></span></span></code></pre></div><h4 id="step2_io_no_init-对file结构体进行null初始化" class="heading-element"><span>step2:_IO_no_init 对file结构体进行null初始化</span>
+  <a href="#step2_io_no_init-%e5%af%b9file%e7%bb%93%e6%9e%84%e4%bd%93%e8%bf%9b%e8%a1%8cnull%e5%88%9d%e5%a7%8b%e5%8c%96" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>分配完后，调用了<code>_IO_no_init</code>初始化改结构体</p>
 <p>跟进去，在<code>/libio/genops.c</code>中</p>
-<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">_IO_old_init</span> <span class="p">(</span><span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">_IO_old_init</span> <span class="p">(</span><span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">fp</span><span class="o">-&gt;</span><span class="n">_flags</span> <span class="o">=</span> <span class="n">_IO_MAGIC</span><span class="o">|</span><span class="n">flags</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">fp</span><span class="o">-&gt;</span><span class="n">_flags2</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
@@ -430,7 +444,7 @@
 </span></span><span class="line"><span class="cl"><span class="cp">##endif
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>  <span class="n">fp</span><span class="o">-&gt;</span><span class="n">_freeres_list</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>初始化了<code>locked_FILE</code>结构体中的<code>_IO_FILE_plus</code>结构体，以及其中的<code>_wide_data</code>字段，执行完<code>IO_no_init</code>后：</p>
-<div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print new_f-&gt;fp
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print new_f-&gt;fp
 </span></span><span class="line"><span class="cl"><span class="nv">$4</span> <span class="o">=</span> <span class="o">{</span>
 </span></span><span class="line"><span class="cl">  <span class="nv">file</span> <span class="o">=</span> <span class="o">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nv">_flags</span> <span class="o">=</span> -72548352, 
@@ -464,9 +478,12 @@
 </span></span><span class="line"><span class="cl">    <span class="nv">_unused2</span> <span class="o">=</span> <span class="s1">&#39;\000&#39;</span> &lt;repeats <span class="m">19</span> times&gt;
 </span></span><span class="line"><span class="cl">  <span class="o">}</span>, 
 </span></span><span class="line"><span class="cl">  <span class="nv">vtable</span> <span class="o">=</span> 0x0
-</span></span><span class="line"><span class="cl"><span class="o">}</span></span></span></code></pre></div><h4 id="step3-_io_file_init将结构体链接进_io_list_all" class="heading-element">
-  <a href="#step3-_io_file_init%e5%b0%86%e7%bb%93%e6%9e%84%e4%bd%93%e9%93%be%e6%8e%a5%e8%bf%9b_io_list_all" class="heading-mark"></a>step3: _IO_file_init将结构体链接进_IO_list_all</h4><p>回到<code>__fopen_internal</code>后，函数将<code>_IO_FILE_plus</code>结构体的vtable设置成了<code>_IO_file_jumps</code>，然后调用<code>_IO_file_init</code>将<code>_IO_FILE_plus</code>结构体链接进入<code>_IO_list_all</code>链表，跟进去后：</p>
-<div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">_IO_new_file_init</span> <span class="p">(</span><span class="k">struct</span> <span class="n">_IO_FILE_plus</span> <span class="o">*</span><span class="n">fp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span></span></span></code></pre></div><h4 id="step3-_io_file_init将结构体链接进_io_list_all" class="heading-element"><span>step3: _IO_file_init将结构体链接进_IO_list_all</span>
+  <a href="#step3-_io_file_init%e5%b0%86%e7%bb%93%e6%9e%84%e4%bd%93%e9%93%be%e6%8e%a5%e8%bf%9b_io_list_all" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>回到<code>__fopen_internal</code>后，函数将<code>_IO_FILE_plus</code>结构体的vtable设置成了<code>_IO_file_jumps</code>，然后调用<code>_IO_file_init</code>将<code>_IO_FILE_plus</code>结构体链接进入<code>_IO_list_all</code>链表，跟进去后：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">_IO_new_file_init</span> <span class="p">(</span><span class="k">struct</span> <span class="n">_IO_FILE_plus</span> <span class="o">*</span><span class="n">fp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">fp</span><span class="o">-&gt;</span><span class="n">file</span><span class="p">.</span><span class="n">_offset</span> <span class="o">=</span> <span class="n">_IO_pos_BAD</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">fp</span><span class="o">-&gt;</span><span class="n">file</span><span class="p">.</span><span class="n">_IO_file_flags</span> <span class="o">|=</span> <span class="n">CLOSED_FILEBUF_FLAGS</span><span class="p">;</span>
@@ -474,7 +491,7 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nf">_IO_link_in</span> <span class="p">(</span><span class="n">fp</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">  <span class="n">fp</span><span class="o">-&gt;</span><span class="n">file</span><span class="p">.</span><span class="n">_fileno</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="nf">libc_hidden_ver</span> <span class="p">(</span><span class="n">_IO_new_file_init</span><span class="p">,</span> <span class="n">_IO_file_init</span><span class="p">)</span></span></span></code></pre></div><div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print *fp
+</span></span><span class="line"><span class="cl"><span class="nf">libc_hidden_ver</span> <span class="p">(</span><span class="n">_IO_new_file_init</span><span class="p">,</span> <span class="n">_IO_file_init</span><span class="p">)</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print *fp
 </span></span><span class="line"><span class="cl"><span class="nv">$9</span> <span class="o">=</span> <span class="o">{</span>
 </span></span><span class="line"><span class="cl">  <span class="nv">file</span> <span class="o">=</span> <span class="o">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nv">_flags</span> <span class="o">=</span> -72548352, 
@@ -509,7 +526,7 @@
 </span></span><span class="line"><span class="cl">  <span class="o">}</span>, 
 </span></span><span class="line"><span class="cl">  <span class="nv">vtable</span> <span class="o">=</span> 0x7ffff7dd06e0 &lt;_IO_file_jumps&gt;
 </span></span><span class="line"><span class="cl"><span class="o">}</span></span></span></code></pre></div><p>继续跟<code>_IO_link_in</code>：</p>
-<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span>
 </span></span><span class="line"><span class="cl"><span class="nf">_IO_link_in</span> <span class="p">(</span><span class="k">struct</span> <span class="n">_IO_FILE_plus</span> <span class="o">*</span><span class="n">fp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="c1">//检查_flags标志位是否是_IO_LINKED
@@ -575,9 +592,12 @@ $12 = {
   vtable = 0x7ffff7dd06e0 &lt;_IO_file_jumps&gt;
 }</code></pre><p>可以看到没有执行<code>_IO_file_init</code>的时候指向<code>stderr</code>结构体，执行后指向申请出来的结构体。</p>
 <p>并且<code>_chain</code>指向<code>stderr</code>结构体。</p>
-<h4 id="step4_io_file_fopen打开文件句柄" class="heading-element">
-  <a href="#step4_io_file_fopen%e6%89%93%e5%bc%80%e6%96%87%e4%bb%b6%e5%8f%a5%e6%9f%84" class="heading-mark"></a>step4:_IO_file_fopen打开文件句柄</h4><p>之后回到，继续跟进</p>
-<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_FILE</span> <span class="o">*</span> <span class="nf">_IO_new_file_fopen</span> <span class="p">(</span><span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">filename</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">mode</span><span class="p">,</span> <span class="kt">int</span> <span class="n">is32not64</span><span class="p">)</span>
+<h4 id="step4_io_file_fopen打开文件句柄" class="heading-element"><span>step4:_IO_file_fopen打开文件句柄</span>
+  <a href="#step4_io_file_fopen%e6%89%93%e5%bc%80%e6%96%87%e4%bb%b6%e5%8f%a5%e6%9f%84" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>之后回到，继续跟进</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_FILE</span> <span class="o">*</span> <span class="nf">_IO_new_file_fopen</span> <span class="p">(</span><span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">filename</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">mode</span><span class="p">,</span> <span class="kt">int</span> <span class="n">is32not64</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">oflags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">omode</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">read_write</span><span class="p">;</span>
@@ -606,7 +626,7 @@ $12 = {
 </span></span><span class="line"><span class="cl">  <span class="p">...</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="nf">libc_hidden_ver</span> <span class="p">(</span><span class="n">_IO_new_file_fopen</span><span class="p">,</span> <span class="n">_IO_file_fopen</span><span class="p">)</span></span></span></code></pre></div><p>检查是否打开，之后设置打开模式，然后调用<code>_IO_file_open</code>继续跟进：</p>
-<div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_FILE</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_FILE</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="nf">_IO_file_open</span> <span class="p">(</span><span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">filename</span><span class="p">,</span> <span class="kt">int</span> <span class="n">posix_mode</span><span class="p">,</span> <span class="kt">int</span> <span class="n">prot</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">	       <span class="kt">int</span> <span class="n">read_write</span><span class="p">,</span> <span class="kt">int</span> <span class="n">is32not64</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
@@ -643,7 +663,7 @@ $12 = {
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">fp</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="nf">libc_hidden_def</span> <span class="p">(</span><span class="n">_IO_file_open</span><span class="p">)</span></span></span></code></pre></div><p>执行完后可以看到<code>_fileno</code>已经被设置：</p>
-<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print new_f-&gt;fp
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print new_f-&gt;fp
 </span></span><span class="line"><span class="cl"><span class="nv">$17</span> <span class="o">=</span> <span class="o">{</span>
 </span></span><span class="line"><span class="cl">  <span class="nv">file</span> <span class="o">=</span> <span class="o">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nv">_flags</span> <span class="o">=</span> -72539004, 
@@ -677,8 +697,11 @@ $12 = {
 </span></span><span class="line"><span class="cl">    <span class="nv">_unused2</span> <span class="o">=</span> <span class="s1">&#39;\000&#39;</span> &lt;repeats <span class="m">19</span> times&gt;
 </span></span><span class="line"><span class="cl">  <span class="o">}</span>, 
 </span></span><span class="line"><span class="cl">  <span class="nv">vtable</span> <span class="o">=</span> 0x7ffff7dd06e0 &lt;_IO_file_jumps&gt;
-</span></span><span class="line"><span class="cl"><span class="o">}</span></span></span></code></pre></div><h3 id="小结" class="heading-element">
-  <a href="#%e5%b0%8f%e7%bb%93" class="heading-mark"></a>小结</h3><p>fopen的流程：</p>
+</span></span><span class="line"><span class="cl"><span class="o">}</span></span></span></code></pre></div><h3 id="小结" class="heading-element"><span>小结</span>
+  <a href="#%e5%b0%8f%e7%bb%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>fopen的流程：</p>
 <blockquote>
 <ol>
 <li>malloc</li>
@@ -688,8 +711,11 @@ $12 = {
 </ol>
 </blockquote>
 <p>整个流程还是比较简单的，fopen返回之后<code>_IO_list_all</code>链表指向返回的FILE结构体，且FILE结构体的_chain字段指向之前的结构体（没有其他额外打开文件的话，将是指向<code>stderr</code>），同时其他的字段大多都是默认的null值，<code>vtable</code>存储的是<code>__GI__IO_file_jumps</code>函数表，</p>
-<h2 id="io_file之fread详解" class="heading-element">
-  <a href="#io_file%e4%b9%8bfread%e8%af%a6%e8%a7%a3" class="heading-mark"></a>IO_FILE之fread详解</h2><p>上面写了fopen的分析，讲了系统是如何为FILE结构体分配内存并将其链接进<code>_IO_list_all</code>中的。</p>
+<h2 id="io_file之fread详解" class="heading-element"><span>IO_FILE之fread详解</span>
+  <a href="#io_file%e4%b9%8bfread%e8%af%a6%e8%a7%a3" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>上面写了fopen的分析，讲了系统是如何为FILE结构体分配内存并将其链接进<code>_IO_list_all</code>中的。</p>
 <p>本次来讲fread，实现从文件读数据。下面是本次fread的流程图：</p>
 <p><img loading="lazy" src="/posts/io_file/image-20210925232855099.png" alt="image-20210925232855099" srcset="/posts/io_file/image-20210925232855099.png?size=small, /posts/io_file/image-20210925232855099.png?size=medium 1.5x, /posts/io_file/image-20210925232855099.png?size=large 2x" data-title="image-20210925232855099" style="--width: 624px;--aspect-ratio: 624 / 713;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>fread的大致流程：</p>
@@ -700,17 +726,23 @@ $12 = {
 <li>分配完输入缓冲区或者输入缓冲区不为空的情况下，判断输入缓冲区中是否有数据</li>
 <li>如果有数据，直接拷贝到用户缓冲区，如果没有或不够则调用<code>__underflow</code>执行系统调用读取数据到输入缓冲区，再拷贝到用户缓冲区</li>
 </ol>
-<h3 id="demo" class="heading-element">
-  <a href="#demo" class="heading-mark"></a>demo</h3><div class="highlight" id="id-14"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
+<h3 id="demo" class="heading-element"><span>demo</span>
+  <a href="#demo" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include&lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
 </span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">data</span><span class="p">[</span><span class="mi">20</span><span class="p">];</span>
 </span></span><span class="line"><span class="cl">    <span class="n">FILE</span><span class="o">*</span><span class="n">fp</span><span class="o">=</span><span class="nf">fopen</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">,</span><span class="s">&#34;rb&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="nf">fread</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="n">fp</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="源码分析-1" class="heading-element">
-  <a href="#%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90-1" class="heading-mark"></a>源码分析</h3><p>进到fread，看到调用了<code>_IO_fread</code></p>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="源码分析-1" class="heading-element"><span>源码分析</span>
+  <a href="#%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>进到fread，看到调用了<code>_IO_fread</code></p>
 <p>先看下FILE结构体的fp内容，可以看到<code>_IO_read_ptr</code>、<code>_IO_buf_base</code>等还是空的，后面的分析的重要的步骤也是看这些指针如何被赋值以及发挥作用的。</p>
-<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print *_IO_list_all
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print *_IO_list_all
 </span></span><span class="line"><span class="cl"><span class="nv">$2</span> <span class="o">=</span> <span class="o">{</span>
 </span></span><span class="line"><span class="cl">  <span class="nv">file</span> <span class="o">=</span> <span class="o">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nv">_flags</span> <span class="o">=</span> -72539000, 
@@ -769,7 +801,7 @@ $12 = {
 </span></span><span class="line"><span class="cl">  <span class="nv">__showmanyc</span> <span class="o">=</span> 0x7ffff7a89b00 &lt;_IO_default_showmanyc&gt;, 
 </span></span><span class="line"><span class="cl">  <span class="nv">__imbue</span> <span class="o">=</span> 0x7ffff7a89b10 &lt;_IO_default_imbue&gt;
 </span></span><span class="line"><span class="cl"><span class="o">}</span></span></span></code></pre></div><p>fread的调用：</p>
-<div class="highlight" id="id-16"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_size_t</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_size_t</span>
 </span></span><span class="line"><span class="cl"><span class="nf">_IO_fread</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="n">_IO_size_t</span> <span class="n">size</span><span class="p">,</span> <span class="n">_IO_size_t</span> <span class="n">count</span><span class="p">,</span> <span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">_IO_size_t</span> <span class="n">bytes_requested</span> <span class="o">=</span> <span class="n">size</span> <span class="o">*</span> <span class="n">count</span><span class="p">;</span>
@@ -785,15 +817,15 @@ $12 = {
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">bytes_requested</span> <span class="o">==</span> <span class="n">bytes_read</span> <span class="o">?</span> <span class="nl">count</span> <span class="p">:</span> <span class="n">bytes_read</span> <span class="o">/</span> <span class="n">size</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="nf">libc_hidden_def</span> <span class="p">(</span><span class="n">_IO_fread</span><span class="p">)</span></span></span></code></pre></div><p>继续跟进<code>_IO_sgetn</code>函数：</p>
-<div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_size_t</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_size_t</span>
 </span></span><span class="line"><span class="cl"><span class="nf">_IO_sgetn</span> <span class="p">(</span><span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">data</span><span class="p">,</span> <span class="n">_IO_size_t</span> <span class="n">n</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="cm">/* FIXME handle putback buffer here! */</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nf">_IO_XSGETN</span> <span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="nf">libc_hidden_def</span> <span class="p">(</span><span class="n">_IO_sgetn</span><span class="p">)</span></span></span></code></pre></div><p>可以看到他的调用是<code>_IO_XSGETN</code>函数，它的定义：</p>
-<div class="highlight" id="id-18"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##define _IO_XSGETN(FP, DATA, N) JUMP2 (__xsgetn, FP, DATA, N)</span></span></span></code></pre></div><p>实际就是调用了vtable中的<code>__xsgetn</code>函数，继续跟：</p>
-<div class="highlight" id="id-19"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_size_t</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##define _IO_XSGETN(FP, DATA, N) JUMP2 (__xsgetn, FP, DATA, N)</span></span></span></code></pre></div><p>实际就是调用了vtable中的<code>__xsgetn</code>函数，继续跟：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_size_t</span>
 </span></span><span class="line"><span class="cl"><span class="nf">_IO_file_xsgetn</span> <span class="p">(</span><span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">data</span><span class="p">,</span> <span class="n">_IO_size_t</span> <span class="n">n</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">_IO_size_t</span> <span class="n">want</span><span class="p">,</span> <span class="n">have</span><span class="p">;</span>
@@ -863,9 +895,12 @@ $12 = {
 <li>输入缓冲区为空或者不能满足全部的需求，调用<code>__underflow</code>调用系统调用读入数据</li>
 </ol>
 <p>接下来就是具体介绍这几个部分。</p>
-<h4 id="step1初始化输入缓冲区" class="heading-element">
-  <a href="#step1%e5%88%9d%e5%a7%8b%e5%8c%96%e8%be%93%e5%85%a5%e7%bc%93%e5%86%b2%e5%8c%ba" class="heading-mark"></a>step1：初始化输入缓冲区</h4><p>如果<code>fp-&gt;_IO_buf_base == NULL</code>则调用<code>_IO_doallocbuf</code>：</p>
-<div class="highlight" id="id-20"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span>
+<h4 id="step1初始化输入缓冲区" class="heading-element"><span>step1：初始化输入缓冲区</span>
+  <a href="#step1%e5%88%9d%e5%a7%8b%e5%8c%96%e8%be%93%e5%85%a5%e7%bc%93%e5%86%b2%e5%8c%ba" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>如果<code>fp-&gt;_IO_buf_base == NULL</code>则调用<code>_IO_doallocbuf</code>：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span>
 </span></span><span class="line"><span class="cl"><span class="nf">_IO_doallocbuf</span> <span class="p">(</span><span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">_IO_buf_base</span><span class="p">)</span>
@@ -877,7 +912,7 @@ $12 = {
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="nf">libc_hidden_def</span> <span class="p">(</span><span class="n">_IO_doallocbuf</span><span class="p">)</span></span></span></code></pre></div><p>先检查<code>fp-&gt;_IO_buf_base</code>是否为空，不为空代表缓冲区已被初始化，直接返回，然后检查<code>fp-&gt;_flags</code>是不是<code>_IO_UNBUFFERED</code>或者<code>fp-&gt;_mode</code>大于0。</p>
 <p>如果满足则执行<code>_IO_DOALLOCATE</code>，及调用vtable中的<code>_IO_file_doallocate</code>，跟进去看看：</p>
-<div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span>
 </span></span><span class="line"><span class="cl"><span class="nf">_IO_file_doallocate</span> <span class="p">(</span><span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">_IO_size_t</span> <span class="n">size</span><span class="p">;</span>
@@ -920,7 +955,7 @@ $12 = {
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="nf">libc_hidden_def</span> <span class="p">(</span><span class="n">_IO_file_doallocate</span><span class="p">)</span></span></span></code></pre></div><p>可以看到<code>_IO_file_doallocate</code>先调用<code>_IO_SYSSTAT</code>获取文件信息（<code>_IO_SYSSTAT</code>是vtable中的<code>_start</code>函数，获取文件信息，修改相应需要申请的size）：</p>
-<div class="highlight" id="id-22"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print st
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print st
 </span></span><span class="line"><span class="cl"><span class="nv">$7</span> <span class="o">=</span> <span class="o">{</span>
 </span></span><span class="line"><span class="cl">  <span class="nv">st_dev</span> <span class="o">=</span> 2049, 
 </span></span><span class="line"><span class="cl">  <span class="nv">st_ino</span> <span class="o">=</span> 545917, 
@@ -947,7 +982,7 @@ $12 = {
 </span></span><span class="line"><span class="cl">  <span class="o">}</span>, 
 </span></span><span class="line"><span class="cl">  <span class="nv">__glibc_reserved</span> <span class="o">=</span> <span class="o">{</span>0, 0, 0<span class="o">}</span>
 </span></span><span class="line"><span class="cl"><span class="o">}</span></span></span></code></pre></div><p>可以看到<code>st_blksize</code>为0x1000，malloc之后调用了<code>_IO_setb</code>：</p>
-<div class="highlight" id="id-23"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span>
 </span></span><span class="line"><span class="cl"><span class="nf">_IO_setb</span> <span class="p">(</span><span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">f</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">eb</span><span class="p">,</span> <span class="kt">int</span> <span class="n">a</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">_IO_buf_base</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">f</span><span class="o">-&gt;</span><span class="n">_flags</span> <span class="o">&amp;</span> <span class="n">_IO_USER_BUF</span><span class="p">))</span>
@@ -960,7 +995,7 @@ $12 = {
 </span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">-&gt;</span><span class="n">_flags</span> <span class="o">|=</span> <span class="n">_IO_USER_BUF</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="nf">libc_hidden_def</span> <span class="p">(</span><span class="n">_IO_setb</span><span class="p">)</span></span></span></code></pre></div><p>设置了<code>_IO_buf_base</code>和<code>_IO_buf_end</code>，<code>_IO_setb</code>执行完后<code>_IO_buf_base</code>和<code>_IO_buf_end</code>已被赋值：</p>
-<div class="highlight" id="id-24"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">pwndbg</span><span class="o">&gt;</span> <span class="n">print</span> <span class="o">*</span><span class="n">_IO_list_all</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">pwndbg</span><span class="o">&gt;</span> <span class="n">print</span> <span class="o">*</span><span class="n">_IO_list_all</span>
 </span></span><span class="line"><span class="cl"><span class="err">$</span><span class="mi">2</span> <span class="o">=</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">file</span> <span class="o">=</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">_flags</span> <span class="o">=</span> <span class="o">-</span><span class="mi">72539000</span><span class="p">,</span> 
@@ -995,11 +1030,17 @@ $12 = {
 </span></span><span class="line"><span class="cl">  <span class="p">},</span> 
 </span></span><span class="line"><span class="cl">  <span class="n">vtable</span> <span class="o">=</span> <span class="mh">0x7ffff7dd06e0</span> <span class="o">&lt;</span><span class="n">_IO_file_jumps</span><span class="o">&gt;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>初始化之后返回到<code>_IO_file_doallocate</code>，然后<code>_IO_file_doallocate</code>也执行完成 ，返回到<code>_IO_file_xsgetn</code>中。</p>
-<h4 id="step2拷贝输入缓冲区数据" class="heading-element">
-  <a href="#step2%e6%8b%b7%e8%b4%9d%e8%be%93%e5%85%a5%e7%bc%93%e5%86%b2%e5%8c%ba%e6%95%b0%e6%8d%ae" class="heading-mark"></a>step2：拷贝输入缓冲区数据</h4><p>初始化完成后就到了第二步，拷贝输入缓冲区数据。如果输入缓冲区中已有足够的字符，直接将缓冲区中的字符给目标buf。<code>fp-&gt;_IO_read_ptr</code>指向的是输入缓冲区的其实地址，<code>fp-&gt;_IO_read_end</code>指向输入缓冲区的结束。</p>
-<h4 id="step3执行系统调用读取数据" class="heading-element">
-  <a href="#step3%e6%89%a7%e8%a1%8c%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e8%af%bb%e5%8f%96%e6%95%b0%e6%8d%ae" class="heading-mark"></a>step3：执行系统调用读取数据</h4><p>当输入缓冲区为0或者不能满足需求的时候会执行<code>__underflow</code>调用系统调用read读取数据并放到输入缓冲区中：</p>
-<div class="highlight" id="id-25"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span>
+<h4 id="step2拷贝输入缓冲区数据" class="heading-element"><span>step2：拷贝输入缓冲区数据</span>
+  <a href="#step2%e6%8b%b7%e8%b4%9d%e8%be%93%e5%85%a5%e7%bc%93%e5%86%b2%e5%8c%ba%e6%95%b0%e6%8d%ae" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>初始化完成后就到了第二步，拷贝输入缓冲区数据。如果输入缓冲区中已有足够的字符，直接将缓冲区中的字符给目标buf。<code>fp-&gt;_IO_read_ptr</code>指向的是输入缓冲区的其实地址，<code>fp-&gt;_IO_read_end</code>指向输入缓冲区的结束。</p>
+<h4 id="step3执行系统调用读取数据" class="heading-element"><span>step3：执行系统调用读取数据</span>
+  <a href="#step3%e6%89%a7%e8%a1%8c%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e8%af%bb%e5%8f%96%e6%95%b0%e6%8d%ae" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>当输入缓冲区为0或者不能满足需求的时候会执行<code>__underflow</code>调用系统调用read读取数据并放到输入缓冲区中：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span>
 </span></span><span class="line"><span class="cl"><span class="nf">__underflow</span> <span class="p">(</span><span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="c1">//一些检查
@@ -1031,7 +1072,7 @@ $12 = {
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nf">_IO_UNDERFLOW</span> <span class="p">(</span><span class="n">fp</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="nf">libc_hidden_def</span> <span class="p">(</span><span class="n">__underflow</span><span class="p">)</span></span></span></code></pre></div><p>其中一个检查是如果<code>fp-&gt;_IO_read_ptr</code>小于<code>fp-&gt;_IO_read_end</code>则表明输入缓冲区里存在数据，可直接返回，否则则表示需要继续读入数据。都通过的话会执行<code>_IO_UNDERFLOW</code>，它是vtable中的<code>_IO_new_file_underflow</code>：</p>
-<div class="highlight" id="id-26"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span>
 </span></span><span class="line"><span class="cl"><span class="nf">_IO_new_file_underflow</span> <span class="p">(</span><span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">_IO_ssize_t</span> <span class="n">count</span><span class="p">;</span>
@@ -1077,14 +1118,14 @@ $12 = {
 <li>设置输入缓冲区已有数据的size，即设置<code>fp-&gt;_IO_read_end</code>为<code>fp-&gt;_IO_read_end += count</code>。</li>
 </ol>
 <p>其中第四步的<code>_IO_SYSREAD</code>（vtable中的<code>_IO_file_read</code>函数）：</p>
-<div class="highlight" id="id-27"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_ssize_t</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_IO_ssize_t</span>
 </span></span><span class="line"><span class="cl"><span class="nf">_IO_file_read</span> <span class="p">(</span><span class="n">_IO_FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="n">_IO_ssize_t</span> <span class="n">size</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">   <span class="k">return</span> <span class="p">(</span><span class="nf">__builtin_expect</span> <span class="p">(</span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">_flags2</span> <span class="o">&amp;</span> <span class="n">_IO_FLAGS2_NOTCANCEL</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">           <span class="o">?</span> <span class="nf">read_not_cancel</span> <span class="p">(</span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">_fileno</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">           <span class="o">:</span> <span class="nf">read</span> <span class="p">(</span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">_fileno</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">size</span><span class="p">));</span>
 </span></span><span class="line"><span class="cl"> <span class="p">}</span></span></span></code></pre></div><p>执行完后，FILE结构体的各个指针已被赋值，</p>
-<div class="highlight" id="id-28"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print *_IO_list_all
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; print *_IO_list_all
 </span></span><span class="line"><span class="cl"><span class="nv">$6</span> <span class="o">=</span> <span class="o">{</span>
 </span></span><span class="line"><span class="cl">  <span class="nv">file</span> <span class="o">=</span> <span class="o">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nv">_flags</span> <span class="o">=</span> -72539000, 
@@ -1118,8 +1159,11 @@ $12 = {
 </span></span><span class="line"><span class="cl">    <span class="nv">_unused2</span> <span class="o">=</span> <span class="s1">&#39;\000&#39;</span> &lt;repeats <span class="m">19</span> times&gt;
 </span></span><span class="line"><span class="cl">  <span class="o">}</span>, 
 </span></span><span class="line"><span class="cl">  <span class="nv">vtable</span> <span class="o">=</span> 0x7ffff7dd06e0 &lt;_IO_file_jumps&gt;
-</span></span><span class="line"><span class="cl"><span class="o">}</span></span></span></code></pre></div><h3 id="小结-1" class="heading-element">
-  <a href="#%e5%b0%8f%e7%bb%93-1" class="heading-mark"></a>小结</h3><ol>
+</span></span><span class="line"><span class="cl"><span class="o">}</span></span></span></code></pre></div><h3 id="小结-1" class="heading-element"><span>小结</span>
+  <a href="#%e5%b0%8f%e7%bb%93-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li><code>_IO_sgetn</code>函数调用了vtable的<code>_IO_file_xsgetn</code>。</li>
 <li><code>_IO_doallocbuf</code>函数调用了vtable的<code>_IO_file_doallocate</code>以初始化输入缓冲区。</li>
 <li>vtable中的<code>_IO_file_doallocate</code>调用了vtable中的<code>__GI__IO_file_stat</code>以获取文件信息。</li>
@@ -1136,9 +1180,9 @@ $12 = {
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/io_file/" data-title="IO_FILE调试&#43;详解" data-hashtags="PWN"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/io_file/" data-hashtag="PWN"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/io_file/" data-title="IO_FILE调试&#43;详解"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/io_file/" data-title="IO_FILE调试&#43;详解" data-hashtags="PWN"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/io_file/" data-hashtag="PWN"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/io_file/" data-title="IO_FILE调试&#43;详解"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -1157,14 +1201,14 @@ $12 = {
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

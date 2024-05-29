@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>【译】AFL白皮书 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>【译】AFL白皮书 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='RE' /><meta itemprop="name" content="【译】AFL白皮书">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2023-05-16T00:00:00+00:00" />
+<meta name="description" content="[toc] AFL 翻译 afl-fuzz 技术 白皮书 本文档快速概述了American Fuzzy Lop的核心内容。 请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅historical_notes.txt。 historical_notes: 这篇文档主要谈论了AFL（American Fuzzy L" /><meta name="keywords" content='RE' /><meta itemprop="name" content="【译】AFL白皮书">
+<meta itemprop="description" content="[toc] AFL 翻译 afl-fuzz 技术 白皮书 本文档快速概述了American Fuzzy Lop的核心内容。 请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅historical_notes.txt。 historical_notes: 这篇文档主要谈论了AFL（American Fuzzy L"><meta itemprop="datePublished" content="2023-05-16T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2023-05-16T00:00:00+00:00" />
-<meta itemprop="wordCount" content="15479">
+<meta itemprop="wordCount" content="15404">
 <meta itemprop="keywords" content="RE," /><meta property="og:title" content="【译】AFL白皮书" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[toc] AFL 翻译 afl-fuzz 技术 白皮书 本文档快速概述了American Fuzzy Lop的核心内容。 请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅historical_notes.txt。 historical_notes: 这篇文档主要谈论了AFL（American Fuzzy L" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/2023-5aflwritepaper/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/2023-5aflwritepaper/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2023-05-16T00:00:00+00:00" />
 <meta property="article:modified_time" content="2023-05-16T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="【译】AFL白皮书"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[toc] AFL 翻译 afl-fuzz 技术 白皮书 本文档快速概述了American Fuzzy Lop的核心内容。 请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅historical_notes.txt。 historical_notes: 这篇文档主要谈论了AFL（American Fuzzy L"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/2023-5aflwritepaper/" /><link rel="prev" href="http://localhost:1313/posts/2023-5antidebug/" /><link rel="next" href="http://localhost:1313/posts/2023-7-win-syscalljourney/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/2023-5aflwritepaper/" /><link rel="prev" href="http://ghostasky.github.io/posts/2023-5antidebug/" /><link rel="next" href="http://ghostasky.github.io/posts/2023-7-win-syscalljourney/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/2023-5aflwritepaper\/"
-    },"genre": "posts","keywords": "RE","wordcount":  15479 ,
-    "url": "http:\/\/localhost:1313\/posts\/2023-5aflwritepaper\/","datePublished": "2023-05-16T00:00:00+00:00","dateModified": "2023-05-16T00:00:00+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/2023-5aflwritepaper\/"
+    },"genre": "posts","keywords": "RE","wordcount":  15404 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/2023-5aflwritepaper\/","datePublished": "2023-05-16T00:00:00+00:00","dateModified": "2023-05-16T00:00:00+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>【译】AFL白皮书</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-05-16 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-05-16">2023-05-16</time></span>&nbsp;<span title="15479 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 15500 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 31 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-05-16 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-05-16">2023-05-16</time></span>&nbsp;<span title="15404 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 15500 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 31 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -154,19 +153,28 @@
 </nav></div>
       </div><div class="content" id="content"><p>[toc]</p>
 <p>AFL 翻译</p>
-<h2 id="afl-fuzz-技术-白皮书" class="heading-element">
-  <a href="#afl-fuzz-%e6%8a%80%e6%9c%af-%e7%99%bd%e7%9a%ae%e4%b9%a6" class="heading-mark"></a>afl-fuzz 技术 白皮书</h2><p>本文档快速概述了American Fuzzy Lop的核心内容。</p>
+<h2 id="afl-fuzz-技术-白皮书" class="heading-element"><span>afl-fuzz 技术 白皮书</span>
+  <a href="#afl-fuzz-%e6%8a%80%e6%9c%af-%e7%99%bd%e7%9a%ae%e4%b9%a6" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>本文档快速概述了American Fuzzy Lop的核心内容。</p>
 <p>请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅<a href="https://lcamtuf.coredump.cx/afl/historical_notes.txt"target="_blank" rel="external nofollow noopener noreferrer">historical_notes.txt</a>。</p>
 <blockquote>
 <p>historical_notes:
 这篇文档主要谈论了AFL（American Fuzzy Lop）的设计理念和灵感来源，以及与其他fuzzing工具的比较。作者认为，AFL的设计目标是解决其他工具无法解决的问题，包括速度、可靠性、简单性和可链接性。他们采用了一些小而相互补充的方法来实现这些目标，其中包括使用gcov块覆盖率选择最佳测试用例，使用进化算法进行fuzz，通过精心修剪语料库或跳过不可修剪但非功能性的输入文件区域等。此外，AFL还可以处理资源密集型或交互式工具，使用户能够使用更轻量级的目标创建有趣的测试用例。总之，AFL旨在发现有趣的漏洞，并且在这方面表现出色。</p>
 </blockquote>
-<h2 id="0-设计说明design-statement" class="heading-element">
-  <a href="#0-%e8%ae%be%e8%ae%a1%e8%af%b4%e6%98%8edesign-statement" class="heading-mark"></a>0. 设计说明(Design statement)</h2><p>American Fuzzy Lop（AFL）致力于不局限于任何单一的操作原则(singular principle of operation)，也不仅仅是为了证明某个特定理论。这款工具更像是一套在实际操作中经过测试、效果出乎意料的优秀技巧的组合，而且这些技巧是我当时能想到的最简单、最可靠的实现方式。</p>
+<h2 id="0-设计说明design-statement" class="heading-element"><span>0. 设计说明(Design statement)</span>
+  <a href="#0-%e8%ae%be%e8%ae%a1%e8%af%b4%e6%98%8edesign-statement" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>American Fuzzy Lop（AFL）致力于不局限于任何单一的操作原则(singular principle of operation)，也不仅仅是为了证明某个特定理论。这款工具更像是一套在实际操作中经过测试、效果出乎意料的优秀技巧的组合，而且这些技巧是我当时能想到的最简单、最可靠的实现方式。</p>
 <p>这些特性的诞生很大程度上得益于轻量级的插桩技术instrumentation 支持，这为AFL的发展提供了坚实的基础。但我们应该把这些技术看作是达到目的的手段，而非终极目标。AFL真正遵循的核心原则是速度、可靠性和易用性(ease(缓解) of use)。</p>
-<h2 id="1-覆盖率检测coverage-measurements" class="heading-element">
-  <a href="#1-%e8%a6%86%e7%9b%96%e7%8e%87%e6%a3%80%e6%b5%8bcoverage-measurements" class="heading-mark"></a>1. 覆盖率检测(Coverage measurements)</h2><p>注入到编译后程序中的插桩技术可以捕捉<strong>分支</strong>（即代码执行的不同路径）的覆盖情况，并粗略统计每个分支的执行次数。这种技术在分支点注入的代码本质上相当于以下内容：</p>
-<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">  <span class="n">cur_location</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">COMPILE_TIME_RANDOM</span><span class="o">&gt;</span><span class="p">;</span>
+<h2 id="1-覆盖率检测coverage-measurements" class="heading-element"><span>1. 覆盖率检测(Coverage measurements)</span>
+  <a href="#1-%e8%a6%86%e7%9b%96%e7%8e%87%e6%a3%80%e6%b5%8bcoverage-measurements" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>注入到编译后程序中的插桩技术可以捕捉<strong>分支</strong>（即代码执行的不同路径）的覆盖情况，并粗略统计每个分支的执行次数。这种技术在分支点注入的代码本质上相当于以下内容：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">  <span class="n">cur_location</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">COMPILE_TIME_RANDOM</span><span class="o">&gt;</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">shared_mem</span><span class="p">[</span><span class="n">cur_location</span> <span class="o">^</span> <span class="n">prev_location</span><span class="p">]</span><span class="o">++</span><span class="p">;</span> 
 </span></span><span class="line"><span class="cl">  <span class="n">prev_location</span> <span class="o">=</span> <span class="n">cur_location</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">;</span></span></span></code></pre></div><p>这里的 <code>cur_location</code> 值是在编译时随机生成的，目的是简化复杂项目链接过程，并确保 XOR（异或）操作的输出能均匀分布。</p>
 <p><code>shared_mem[]</code> 数组是一个 64 KB 的共享内存（SHM）区域，由调用程序传递给被插桩的二进制文件。输出映射中的每一个字节都可以被看作是被插桩代码中特定的<code>[branch_src, branch_dst]</code>元组的一个命中(hit)。</p>
@@ -234,20 +242,26 @@
 <p>通俗来讲，<a href="https://en.wikipedia.org/wiki/Saturation_arithmetic"target="_blank" rel="external nofollow noopener noreferrer">饱和运算</a>就是具有上下界的算数指令，比如一个规定算数范围为-100~100的饱和算数指令中，(40+80)-(50+60)=100-100=0（而不是10）</p>
 <p>Intel 没有使用饱和算数指令，而使用<a href="https://en.wikipedia.org/wiki/Modular_arithmetic"target="_blank" rel="external nofollow noopener noreferrer">modular arithmetic</a>. 导致最大值的溢出会向最小值保留，比如最常见的正溢出与负溢出</p>
 </blockquote>
-<h2 id="2-新路径检测detecting-new-behaviors" class="heading-element">
-  <a href="#2-%e6%96%b0%e8%b7%af%e5%be%84%e6%a3%80%e6%b5%8bdetecting-new-behaviors" class="heading-mark"></a>2. 新路径检测(Detecting new behaviors)</h2><p>Fuzzer 全程维护这个全局的元组map <code>shared_mem[]</code>；这些数据能在各自的路径中被快速对比，并仅需几个<code>dword</code>或<code>qword</code>宽度的指令和一个简单的循环即可更新。</p>
+<h2 id="2-新路径检测detecting-new-behaviors" class="heading-element"><span>2. 新路径检测(Detecting new behaviors)</span>
+  <a href="#2-%e6%96%b0%e8%b7%af%e5%be%84%e6%a3%80%e6%b5%8bdetecting-new-behaviors" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>Fuzzer 全程维护这个全局的元组map <code>shared_mem[]</code>；这些数据能在各自的路径中被快速对比，并仅需几个<code>dword</code>或<code>qword</code>宽度的指令和一个简单的循环即可更新。</p>
 <p>当变异(mutated)的输入产生包含新元组的执行路径时，相应的输入文件将被保留并路由以供稍后进行额外处理（第三部分介绍）。 在执行路径中不触发新的局部状态转换的输入（即不产生新的元组）将被丢弃，即使它们产生了新的全局控制流。</p>
 <p>这种方法允许对程序状态进行非常细粒度(fine-grained)和长期的探索，同时不必对复杂的执行路径执行任何复杂计算和不可靠的的全局比较，同时也能防止搜寻过程中的路径爆炸(path explosion)。</p>
 <p>为了展示这种算法的特点，我们可以考虑以下情况：第二个执行轨迹因为包含了新的元组（CA, AE）而被认为是一个显著的新路径：</p>
-<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##1: A -&gt; B -&gt; C -&gt; D -&gt; E
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##1: A -&gt; B -&gt; C -&gt; D -&gt; E
 </span></span></span><span class="line"><span class="cl"><span class="cp">##2: A -&gt; B -&gt; C -&gt; A -&gt; E</span></span></span></code></pre></div><p>同时 #2 产生后，#3 就不再认为是有意义的了，尽管以下模式的全局路径截然不同，它还是不会被视为独特的：</p>
-<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##3: A -&gt; B -&gt; C -&gt; A -&gt; B -&gt; C -&gt; A -&gt; B -&gt; C -&gt; D -&gt; E</span></span></span></code></pre></div><p>除了检测新元组外，Fuzzer 还粗略考虑元组命中数。 被分为以下几个桶(buckets)：</p>
-<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="o">-</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">-</span><span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="o">-</span><span class="mi">31</span><span class="p">,</span> <span class="mi">32</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span> <span class="mi">128</span><span class="o">+</span></span></span></code></pre></div><p>在某种程度上，桶 buckets 的数量是是实现过程中的一个特点，它允许把插桩技术生成的 8-bit计数器直接映射到模糊测试器执行文件所依赖的一个8-position位置的位图上。这个位图用于跟踪每个元组已经出现的执行次数。前者由插桩产生，后者由 AFL 运行时路径已出现的元组数来计数。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##3: A -&gt; B -&gt; C -&gt; A -&gt; B -&gt; C -&gt; A -&gt; B -&gt; C -&gt; D -&gt; E</span></span></span></code></pre></div><p>除了检测新元组外，Fuzzer 还粗略考虑元组命中数。 被分为以下几个桶(buckets)：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="o">-</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="o">-</span><span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="o">-</span><span class="mi">31</span><span class="p">,</span> <span class="mi">32</span><span class="o">-</span><span class="mi">127</span><span class="p">,</span> <span class="mi">128</span><span class="o">+</span></span></span></code></pre></div><p>在某种程度上，桶 buckets 的数量是是实现过程中的一个特点，它允许把插桩技术生成的 8-bit计数器直接映射到模糊测试器执行文件所依赖的一个8-position位置的位图上。这个位图用于跟踪每个元组已经出现的执行次数。前者由插桩产生，后者由 AFL 运行时路径已出现的元组数来计数。</p>
 <p>在如果变化仅发生在单个桶的范围内，则会被忽略；但如果从一个桶到另一个桶，则这种转变会被标记为程序控制流中的一个有趣的变化。也会指导下一阶段的进化过程 evolutionary process .(见下一章)</p>
 <p>命中计数行为提供了一种区分潜在有趣的控制流变化的方法，比如一个通常只执行一次的代码块突然执行了两次。同时，它对经验上不太显著的变化（例如循环从47个周期变成48个周期）相当不敏感。计数器还在某种程度上“意外地”防止了在密集的执行路径中元组碰撞的发生。</p>
 <p>执行过程受到<strong>内存</strong>和<strong>执行时间</strong>限制的限制；默认情况下，超时时间设置为初始化标准执行速度对应时间的5倍，大概 20 ms。这些激进的超时时间旨在防止模糊测试器陷入陷阱中而导致性能严重下降，例如，为了提高 1% 的覆盖率却导致速度慢了 100 倍；我们从实用角度出发，拒绝这种情况，并希望 fuzzer 可以找到一个更轻松的方式来遍历相同数量的代码。经验测试，更宽松的时间限制不值得。</p>
-<h2 id="3-输入队列变异evolving-the-input-queue" class="heading-element">
-  <a href="#3-%e8%be%93%e5%85%a5%e9%98%9f%e5%88%97%e5%8f%98%e5%bc%82evolving-the-input-queue" class="heading-mark"></a>3. 输入队列变异(Evolving the input queue)</h2><p>产生了新的程序状态转换的变异测试用例会被添加到输入队列中，并用作新一轮次 fuzzing 的起点。这些用例是已有测试用例的补充，但并不替换掉已有测试用例。</p>
+<h2 id="3-输入队列变异evolving-the-input-queue" class="heading-element"><span>3. 输入队列变异(Evolving the input queue)</span>
+  <a href="#3-%e8%be%93%e5%85%a5%e9%98%9f%e5%88%97%e5%8f%98%e5%bc%82evolving-the-input-queue" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>产生了新的程序状态转换的变异测试用例会被添加到输入队列中，并用作新一轮次 fuzzing 的起点。这些用例是已有测试用例的补充，但并不替换掉已有测试用例。</p>
 <p>与更贪心的遗传算法相比，这种方法允许AFL逐步探索底层数据格式的各种不相交且可能相互不兼容的特征，如下图所示：</p>
 <p><img loading="lazy" src="/posts/2023-5aflwritepaper/afl_gzip.png" alt="img" srcset="/posts/2023-5aflwritepaper/afl_gzip.png?size=small, /posts/2023-5aflwritepaper/afl_gzip.png?size=medium 1.5x, /posts/2023-5aflwritepaper/afl_gzip.png?size=large 2x" data-title="img" style="--width: 2600px;--aspect-ratio: 2600 / 2150;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>还有一些对于此算法实践的结果讨论：</p>
@@ -392,8 +406,11 @@ instrumented runs 可以翻译成插桩运行，也可以认为是有指导、�
 </tbody>
 </table>
 <p>正如之前提到的，一些关于遗传算法fuzzing的早期工作依赖于维护单一测试用例并不断变异它以最大化覆盖率。至少在上述测试中，这种“贪婪”的方法似乎并没有比盲fuzzing策略带来供显著的优势。换句话说，这段文字表明在进行fuzzing测试时，使用单个测试用例并不一定比使用其他策略更有效。</p>
-<h2 id="4-精简语料库culling-the-corpus" class="heading-element">
-  <a href="#4-%e7%b2%be%e7%ae%80%e8%af%ad%e6%96%99%e5%ba%93culling-the-corpus" class="heading-mark"></a>4. 精简语料库(Culling the corpus)</h2><p>上述列出的渐进式状态探索方法意味着，在进行fuzzing测试时，后期生成的一些测试用例的<strong>边覆盖</strong>可能会比它们的“祖先”用例提供的覆盖更加全面。</p>
+<h2 id="4-精简语料库culling-the-corpus" class="heading-element"><span>4. 精简语料库(Culling the corpus)</span>
+  <a href="#4-%e7%b2%be%e7%ae%80%e8%af%ad%e6%96%99%e5%ba%93culling-the-corpus" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>上述列出的渐进式状态探索方法意味着，在进行fuzzing测试时，后期生成的一些测试用例的<strong>边覆盖</strong>可能会比它们的“祖先”用例提供的覆盖更加全面。</p>
 <p>为了优化fuzzing结果，AFL会定期使用一种快速算法重新评估队列：选择一个更小的测试用例子集，这些用例仍然覆盖到目前为止见到的每个元组，并且它们的特征使它们对工具特别有利。</p>
 <p>这个算法通过为队列中的每个条目分配一个分数来工作，这个分数与其执行延迟和文件大小成正比；然后选择每个元组得分最低的候选用例。</p>
 <blockquote>
@@ -427,8 +444,11 @@ instrumented runs 可以翻译成插桩运行，也可以认为是有指导、�
 <p>通过这种方式，会更频繁地处理“受青睐”的文件，而不是浪费时间处理那些已经被处理过的或者不太可能产生漏洞的文件。</p>
 <p>根据实证测试结果，这种方法在队列循环速度(queue cycling speed)和测试用例多样性(test case diversity)之间实现了合理的平衡。</p>
 <p>可以使用 afl-cmin 对输入或输出的测试集进行更精细但速度较慢的筛选。这个工具会永久性地去除多余的条目，并生成一个更小的语料库，适用于 afl-fuzz 或其他外部工具。</p>
-<h2 id="5-修剪输入文件trimming-input-files" class="heading-element">
-  <a href="#5-%e4%bf%ae%e5%89%aa%e8%be%93%e5%85%a5%e6%96%87%e4%bb%b6trimming-input-files" class="heading-mark"></a>5. 修剪输入文件(Trimming input files)</h2><p>文件大小对fuzzing的性能有重大影响，原因有两个，一是大文件使目标二进制文件运行变慢，二是它们降低了变异触及关键的格式控制结构而非冗余数据块的概率，从而降低测试的效率。这在<code>perf_tips.txt</code>中有更详细的讨论。</p>
+<h2 id="5-修剪输入文件trimming-input-files" class="heading-element"><span>5. 修剪输入文件(Trimming input files)</span>
+  <a href="#5-%e4%bf%ae%e5%89%aa%e8%be%93%e5%85%a5%e6%96%87%e4%bb%b6trimming-input-files" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>文件大小对fuzzing的性能有重大影响，原因有两个，一是大文件使目标二进制文件运行变慢，二是它们降低了变异触及关键的格式控制结构而非冗余数据块的概率，从而降低测试的效率。这在<code>perf_tips.txt</code>中有更详细的讨论。</p>
 <p>抛开用户可能提供低质量起始语料库的可能性不谈，某些类型的变异可能逐渐增加生成文件的大小，因此阻止这种趋势很重要。</p>
 <p>幸运的是，插桩技术提供了一种简单的方法，可以自动裁剪输入文件，同时确保这些更改不会影响执行路径。</p>
 <p>“instrumentation feedback”技术可以帮助AFL自动修剪输入文件，以提高fuzzing测试的效率和质量。AFL在执行fuzzing测试时，通过对程序进行插桩（instrumentation）来获取有关程序执行路径的反馈信息。利用这些反馈信息，AFL可以自动识别输入文件中不必要的部分，并将其删除，从而减小文件大小。同时，由于这些更改不会影响程序的执行路径，因此可以确保测试用例的质量不会受到影响。</p>
@@ -452,8 +472,11 @@ instrumented runs 可以翻译成插桩运行，也可以认为是有指导、�
 </ol>
 <p>afl-tmin 使用 ASCII 数字 &lsquo;0&rsquo; 替换零值，而不是使用 0x00 字节。这么做的原因是这种修改对文本解析的干扰较小，因此更有可能成功地最小化文本文件。</p>
 <p>这里使用的算法虽然不如学术研究中提出的一些其他测试用例最小化方法那样复杂，但它需要的执行次数更少，在大多数实际应用中能产生与其相媲美的结果。</p>
-<h2 id="6-模糊测试策略fuzzing-strategies" class="heading-element">
-  <a href="#6-%e6%a8%a1%e7%b3%8a%e6%b5%8b%e8%af%95%e7%ad%96%e7%95%a5fuzzing-strategies" class="heading-mark"></a>6. 模糊测试策略(Fuzzing strategies)</h2><p>插桩技术提供的反馈让我们能更容易理解各种fuzzing策略的价值，并优化它们的参数，以确保这些策略在各种不同的文件类型上都能同样有效。afl-fuzz 使用的策略通常是格式无关的(format-agnostic)，在以下链接中有更详细的讨论：</p>
+<h2 id="6-模糊测试策略fuzzing-strategies" class="heading-element"><span>6. 模糊测试策略(Fuzzing strategies)</span>
+  <a href="#6-%e6%a8%a1%e7%b3%8a%e6%b5%8b%e8%af%95%e7%ad%96%e7%95%a5fuzzing-strategies" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>插桩技术提供的反馈让我们能更容易理解各种fuzzing策略的价值，并优化它们的参数，以确保这些策略在各种不同的文件类型上都能同样有效。afl-fuzz 使用的策略通常是格式无关的(format-agnostic)，在以下链接中有更详细的讨论：</p>
 <pre><code>http://lcamtuf.blogspot.com/2014/08/binary-fuzzing-strategies-what-works.html
 </code></pre>
 <blockquote>
@@ -474,8 +497,11 @@ instrumented runs 可以翻译成插桩运行，也可以认为是有指导、�
 <p>即便如此，这套规则也有一个（不太重要的）例外：当一个新的队列条目经过初始的确定性fuzzing步骤时，如果观察到对文件中某些区域的调整对执行路径的校验和没有影响，那么它们可以被排除在确定性fuzzing的其余阶段之外，fuzzer可以直接进行随机调整。特别是对于冗长的、可读性高的数据格式，这可以将执行次数降低10-40%，而覆盖率几乎没有下降。在极端情况下，例如通常块对齐的tar档案，收益可能高达90%。</p>
 <p>AFL中的一种优化技巧，即&quot;修剪输入文件和控制文件大小&quot;。
 具体来说，AFL使用一种称为&quot;effector maps&quot;的机制来记录测试过程中每个输入文件的状态和效果，并根据这些信息来决定下一步的操作。这些&quot;effector maps&quot;是本地的，即每个队列条目都有自己的&quot;effector maps&quot;，并且只在不改变底层文件大小或布局的确定性阶段保持有效。通过这种机制，AFL能够高效、可靠地进行fuzzing测试，并且这种机制的实现也相对简单。</p>
-<h2 id="7-字典构建dictionaries" class="heading-element">
-  <a href="#7-%e5%ad%97%e5%85%b8%e6%9e%84%e5%bb%badictionaries" class="heading-mark"></a>7. 字典构建(Dictionaries)</h2><p>AFL使用插桩技术来获取程序执行时的反馈信息，并根据这些信息自动识别输入文件中的语法token。这使得AFL能够检测到预定义或自动检测到的字典的某些组合是否构成了被测试解析器的有效语法。通过这种方式，AFL能够更加智能地生成测试用例，并且能够更好地探索程序状态空间。</p>
+<h2 id="7-字典构建dictionaries" class="heading-element"><span>7. 字典构建(Dictionaries)</span>
+  <a href="#7-%e5%ad%97%e5%85%b8%e6%9e%84%e5%bb%badictionaries" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>AFL使用插桩技术来获取程序执行时的反馈信息，并根据这些信息自动识别输入文件中的语法token。这使得AFL能够检测到预定义或自动检测到的字典的某些组合是否构成了被测试解析器的有效语法。通过这种方式，AFL能够更加智能地生成测试用例，并且能够更好地探索程序状态空间。</p>
 <p>这里讨论了 afl-fuzz 是如何实现语法检测的:</p>
 <p><a href="http://lcamtuf.blogspot.com/2015/01/afl-fuzz-making-up-grammar-with.html"target="_blank" rel="external nofollow noopener noreferrer">http://lcamtuf.blogspot.com/2015/01/afl-fuzz-making-up-grammar-with.html</a></p>
 <blockquote>
@@ -487,16 +513,22 @@ instrumented runs 可以翻译成插桩运行，也可以认为是有指导、�
 </blockquote>
 <p>字典可以帮助fuzzer快速重构高度冗长和复杂的语言的语法，例如JavaScript、SQL或XML。上面提到的博客文章中给出了生成的几个SQL语句的示例。字典是一种用于指导fuzzer生成有效测试数据的技术，它可以包含一些预定义的语法标记或关键词，以帮助fuzzer更好地理解程序语法结构，并生成更有意义的测试数据。在AFL中，字典被用于扩展随机测试数据的范围，以便发现更多的测试路径和漏洞。</p>
 <p>有趣的是，AFL的插桩技术还允许fuzzer自动隔离已经存在于输入文件中的语法token。它在通过在翻转比特时定位对程序执行路径产生一致性改变的位置来实现；这表明代码中内置了与预定义值的原子比较。fuzzer依赖于这个信号来构建紧凑的&quot;自动字典&quot;，然后与其他fuzzing策略一起使用。</p>
-<h2 id="8-崩溃去重de-duping-crashes" class="heading-element">
-  <a href="#8-%e5%b4%a9%e6%ba%83%e5%8e%bb%e9%87%8dde-duping-crashes" class="heading-mark"></a>8. 崩溃去重(De-duping crashes)</h2><p>崩溃去重是一个合格的fuzzing工具中更为重要的问题之一。许多朴素的方法都会遇到问题；特别是，仅查看故障地址可能会导致完全不相关的问题被聚集在一起，如果故障发生在常见的库函数（例如strcmp、strcpy）中，则会出现这种情况；而对调用栈回溯进行校验和可能会导致崩溃计数极度膨胀，如果故障可以通过许多不同的、可能是递归的代码路径到达。</p>
+<h2 id="8-崩溃去重de-duping-crashes" class="heading-element"><span>8. 崩溃去重(De-duping crashes)</span>
+  <a href="#8-%e5%b4%a9%e6%ba%83%e5%8e%bb%e9%87%8dde-duping-crashes" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>崩溃去重是一个合格的fuzzing工具中更为重要的问题之一。许多朴素的方法都会遇到问题；特别是，仅查看故障地址可能会导致完全不相关的问题被聚集在一起，如果故障发生在常见的库函数（例如strcmp、strcpy）中，则会出现这种情况；而对调用栈回溯进行校验和可能会导致崩溃计数极度膨胀，如果故障可以通过许多不同的、可能是递归的代码路径到达。</p>
 <p>afl-fuzz实现的解决方案认为，如果满足以下两个条件之一，崩溃就是唯一的：</p>
 <ul>
 <li>崩溃跟踪包含以前未见过的元组。</li>
 <li>崩溃跟踪缺少先前所有故障中始终存在的元组。</li>
 </ul>
 <p>这种方法在早期可能会存在一些路径数量膨胀的问题，但它展示了非常强的自我限制(self-limiting)效果，类似于afl-这种去重方式与执行路径分析的逻辑一起构成了 afl-fuzz 的基石。</p>
-<h2 id="9-崩溃调查investigating-crashes" class="heading-element">
-  <a href="#9-%e5%b4%a9%e6%ba%83%e8%b0%83%e6%9f%a5investigating-crashes" class="heading-mark"></a>9. 崩溃调查(Investigating crashes)</h2><p>许多类型的崩溃漏洞的可利用性是模糊不清的；afl-fuzz 试图通过提供一个崩溃探索模式(crash exploration mode)来解决这个问题，在这种模式下，一个已知存在漏洞的测试用例会被以与fuzzer正常操作非常相似的方式进行fuzzing，但有一个约束条件，即任何非崩溃的变异都将被丢弃。</p>
+<h2 id="9-崩溃调查investigating-crashes" class="heading-element"><span>9. 崩溃调查(Investigating crashes)</span>
+  <a href="#9-%e5%b4%a9%e6%ba%83%e8%b0%83%e6%9f%a5investigating-crashes" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>许多类型的崩溃漏洞的可利用性是模糊不清的；afl-fuzz 试图通过提供一个崩溃探索模式(crash exploration mode)来解决这个问题，在这种模式下，一个已知存在漏洞的测试用例会被以与fuzzer正常操作非常相似的方式进行fuzzing，但有一个约束条件，即任何非崩溃的变异都将被丢弃。</p>
 <p>很多类型的崩溃的可利用性 exploitability 是难以界定的；afl-fuzz 会尝试使用崩溃调查模式 crash exploration mode 来解决这一问题：规则与正常操作模式类似，但变异过后不崩溃的测试用例会被直接丢弃。</p>
 <p>这种解决方法的价值在这篇文章中详细探讨:</p>
 <p><a href="http://lcamtuf.blogspot.com/2014/11/afl-fuzz-crash-exploration-mode.html"target="_blank" rel="external nofollow noopener noreferrer">http://lcamtuf.blogspot.com/2014/11/afl-fuzz-crash-exploration-mode.html</a></p>
@@ -505,8 +537,11 @@ instrumented runs 可以翻译成插桩运行，也可以认为是有指导、�
 </blockquote>
 <p>该方法使用插桩反馈来探索崩溃程序的状态，以克服模糊的故障条件，然后将新发现的输入隔离出来供人工审查。</p>
 <p>对于崩溃来说，与通常的队列元素相反，将崩溃的输入进行减枝是毫无意义的。它们被发现之后就会原封不动的保存，以便将它们与父（未崩溃）元素进行对比分析。也就是说，是否用 afl-tmin 去剪枝都行</p>
-<h2 id="10-fork服务器the-fork-server" class="heading-element">
-  <a href="#10-fork%e6%9c%8d%e5%8a%a1%e5%99%a8the-fork-server" class="heading-mark"></a>10. fork服务器(The fork server)</h2><p>为了提高性能，afl-fuzz使用了一个&quot;fork server&quot;，其中fuzzing过程中只需经过一次execve()、链接和libc初始化，然后通过利用写时复制(copy-on-write)从停止的进程映像中复制、clone。该实现在这里有更详细的描述：</p>
+<h2 id="10-fork服务器the-fork-server" class="heading-element"><span>10. fork服务器(The fork server)</span>
+  <a href="#10-fork%e6%9c%8d%e5%8a%a1%e5%99%a8the-fork-server" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>为了提高性能，afl-fuzz使用了一个&quot;fork server&quot;，其中fuzzing过程中只需经过一次execve()、链接和libc初始化，然后通过利用写时复制(copy-on-write)从停止的进程映像中复制、clone。该实现在这里有更详细的描述：</p>
 <p><a href="http://lcamtuf.blogspot.com/2014/10/fuzzing-binaries-without-execve.html"target="_blank" rel="external nofollow noopener noreferrer">http://lcamtuf.blogspot.com/2014/10/fuzzing-binaries-without-execve.html</a></p>
 <blockquote>
 <p>该篇文章介绍了在没有execve()的情况下对随机程序进行fuzzing的方法。该方法主要是通过找到一个简单的二进制文件来测试数据解析库的有趣功能，并使用稍微不同的、随机变异的输入在每次运行中执行它。这种方法的优点是可以消除深入文档、理解底层库提供的API并编写自定义代码来测试解析器的需要，同时使模糊测试过程重复和强大。然而，由于特别是对于简单的库，你可能会花费大部分时间等待execve()、链接器和所有库初始化例程完成它们的工作。为了解决这个问题，作者想出了一些方法，例如编写自定义ELF加载器并在使用mprotect()暂时锁定fuzzer本身使用的内存的同时在进程中执行程序，但是这些方法都比较复杂。最终，作者采用了Jann Horn提出的方法，将小型代码注入到被测二进制文件中，以便让execve()发生并在实际程序中提前停止，然后在子进程中使用copy-on-write创建与已加载程序相同的克隆，从而实现了快速、可靠的模糊测试。该方法可以加快许多常见图像库的模糊测试速度。</p>
@@ -524,13 +559,19 @@ instrumented runs 可以翻译成插桩运行，也可以认为是有指导、�
 </ul>
 </li>
 </ul>
-<h2 id="11-并行处理parallelization" class="heading-element">
-  <a href="#11-%e5%b9%b6%e8%a1%8c%e5%a4%84%e7%90%86parallelization" class="heading-mark"></a>11. 并行处理(Parallelization)</h2><p>并行机制依赖于定期检查由独立运行的其他CPU核心或远程机器产生的队列，并有选择地拉取在本地尝试时产生尚未被该fuzzer看到的行为的测试用例。</p>
+<h2 id="11-并行处理parallelization" class="heading-element"><span>11. 并行处理(Parallelization)</span>
+  <a href="#11-%e5%b9%b6%e8%a1%8c%e5%a4%84%e7%90%86parallelization" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>并行机制依赖于定期检查由独立运行的其他CPU核心或远程机器产生的队列，并有选择地拉取在本地尝试时产生尚未被该fuzzer看到的行为的测试用例。</p>
 <p>这种方法极大地提高了fuzzer设置的灵活性，包括对共同数据格式的不同解析器运行同步实例。此外，如果想了解更多关于这种设计的信息，请参阅<code>parallel_fuzzing.txt</code>。</p>
-<h2 id="12-二进制插桩binary-only-instrumentation" class="heading-element">
-  <a href="#12-%e4%ba%8c%e8%bf%9b%e5%88%b6%e6%8f%92%e6%a1%a9binary-only-instrumentation" class="heading-mark"></a>12. 二进制插桩(Binary-only instrumentation)</h2><p>AFL使用一个在“用户”模式下单独构建的QEMU版本来完成。这也允许执行跨架构代码，例如在x86上运行ARM二进制文件。</p>
+<h2 id="12-二进制插桩binary-only-instrumentation" class="heading-element"><span>12. 二进制插桩(Binary-only instrumentation)</span>
+  <a href="#12-%e4%ba%8c%e8%bf%9b%e5%88%b6%e6%8f%92%e6%a1%a9binary-only-instrumentation" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>AFL使用一个在“用户”模式下单独构建的QEMU版本来完成。这也允许执行跨架构代码，例如在x86上运行ARM二进制文件。</p>
 <p>QEMU将基本块作为翻译单元，插桩是在此之上实现的，并使用大致类似于编译时Hook的模型。</p>
-<div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">block_address</span> <span class="o">&gt;</span> <span class="n">elf_text_start</span> <span class="o">&amp;&amp;</span> <span class="n">block_address</span> <span class="o">&lt;</span> <span class="n">elf_text_end</span><span class="p">)</span> 
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">block_address</span> <span class="o">&gt;</span> <span class="n">elf_text_start</span> <span class="o">&amp;&amp;</span> <span class="n">block_address</span> <span class="o">&lt;</span> <span class="n">elf_text_end</span><span class="p">)</span> 
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">cur_location</span> <span class="o">=</span> <span class="p">(</span><span class="n">block_address</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="n">block_address</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">  <span class="n">shared_mem</span><span class="p">[</span><span class="n">cur_location</span> <span class="o">^</span> <span class="n">prev_location</span><span class="p">]</span><span class="o">++</span><span class="p">;</span> 
@@ -542,8 +583,11 @@ instrumented runs 可以翻译成插桩运行，也可以认为是有指导、�
 <p>此外，由于像QEMU、DynamoRIO和PIN等二进制翻译器的启动速度比较慢，为了解决这个问题，QEMU模式利用了类似于编译器插桩代码使用的fork server。它会在一个已经初始化并暂停在 <code>_start</code> 处的进程中生成多个副本，从而加快启动速度。</p>
 <p>首次翻译新的基本块也会产生相当大的延迟。为了解决这个问题，AFL fork server通过在正在运行的模拟器和父进程之间提供一个通道来进行扩展。该通道用于通知父进程有关任何新遇到的块的地址，并将它们添加到翻译缓存中，以便将来的子进程可以使用。</p>
 <p>由于这两个优化，QEMU模式的开销大约是白盒的2-5倍，而PIN的开销超过100倍。</p>
-<h2 id="13-afl分析工具the-afl-analyze-tool" class="heading-element">
-  <a href="#13-afl%e5%88%86%e6%9e%90%e5%b7%a5%e5%85%b7the-afl-analyze-tool" class="heading-mark"></a>13. AFL分析工具(The afl-analyze tool)</h2><p>文件格式分析器 file format analyzer 是前面讨论的最小化算法的简单扩展；该工具不是试图删除无操作块，而是对输入文件执行一系列的字节翻转，后给输入文件执行的各个字节做注解与分类。</p>
+<h2 id="13-afl分析工具the-afl-analyze-tool" class="heading-element"><span>13. AFL分析工具(The afl-analyze tool)</span>
+  <a href="#13-afl%e5%88%86%e6%9e%90%e5%b7%a5%e5%85%b7the-afl-analyze-tool" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>文件格式分析器 file format analyzer 是前面讨论的最小化算法的简单扩展；该工具不是试图删除无操作块，而是对输入文件执行一系列的字节翻转，后给输入文件执行的各个字节做注解与分类。</p>
 <p>它的分类策略如下：</p>
 <p>它使用以下分类方案：</p>
 <ul>
@@ -597,8 +641,11 @@ instrumented runs 可以翻译成插桩运行，也可以认为是有指导、�
 </ul>
 </li>
 </ul>
-<h2 id="todo" class="heading-element">
-  <a href="#todo" class="heading-mark"></a>TODO</h2><ul>
+<h2 id="todo" class="heading-element"><span>TODO</span>
+  <a href="#todo" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><ul>
 <li>link</li>
 <li><a href="https://blog.csdn.net/weixin_42110652/article/details/122093156"target="_blank" rel="external nofollow noopener noreferrer">https://blog.csdn.net/weixin_42110652/article/details/122093156</a></li>
 </ul>
@@ -613,8 +660,11 @@ instrumented runs 可以翻译成插桩运行，也可以认为是有指导、�
 <a href="https://zhuanlan.zhihu.com/p/529960677"target="_blank" rel="external nofollow noopener noreferrer">https://zhuanlan.zhihu.com/p/529960677</a>
 <a href="https://blog.csdn.net/weixin_42110652/article/details/122093156"target="_blank" rel="external nofollow noopener noreferrer">https://blog.csdn.net/weixin_42110652/article/details/122093156</a></p>
 </blockquote>
-<h2 id="附-afl设计目标和动机的讨论historical-notes" class="heading-element">
-  <a href="#%e9%99%84-afl%e8%ae%be%e8%ae%a1%e7%9b%ae%e6%a0%87%e5%92%8c%e5%8a%a8%e6%9c%ba%e7%9a%84%e8%ae%a8%e8%ae%bahistorical-notes" class="heading-mark"></a>附: AFL设计目标和动机的讨论(historical notes)</h2><ol>
+<h2 id="附-afl设计目标和动机的讨论historical-notes" class="heading-element"><span>附: AFL设计目标和动机的讨论(historical notes)</span>
+  <a href="#%e9%99%84-afl%e8%ae%be%e8%ae%a1%e7%9b%ae%e6%a0%87%e5%92%8c%e5%8a%a8%e6%9c%ba%e7%9a%84%e8%ae%a8%e8%ae%bahistorical-notes" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><ol>
 <li>影响</li>
 </ol>
 <p>简而言之，afl-fuzz的灵感主要来自于Tavis Ormandy在2007年所做的工作。Tavis使用gcov块覆盖率从大量数据中选择最佳的测试用例，并将它们作为传统模糊测试工作流的起点，做了一些非常有说服力的实验。</p>
@@ -657,9 +707,9 @@ instrumented runs 可以翻译成插桩运行，也可以认为是有指导、�
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/2023-5aflwritepaper/" data-title="【译】AFL白皮书" data-hashtags="RE"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/2023-5aflwritepaper/" data-hashtag="RE"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/2023-5aflwritepaper/" data-title="【译】AFL白皮书"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/2023-5aflwritepaper/" data-title="【译】AFL白皮书" data-hashtags="RE"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/2023-5aflwritepaper/" data-hashtag="RE"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/2023-5aflwritepaper/" data-title="【译】AFL白皮书"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -678,14 +728,14 @@ instrumented runs 可以翻译成插桩运行，也可以认为是有指导、�
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

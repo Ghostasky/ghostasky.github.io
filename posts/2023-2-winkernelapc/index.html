@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>Windows内核(七)——APC机制 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>Windows内核(七)——APC机制 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(七)——APC机制">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2023-02-26T00:00:00+00:00" />
+<meta name="description" content="[toc] 01.APC的本质 线程是不能被“杀掉”、“挂起”、“恢复”的，线程在执行的时候自己占据着CPU，别人不能控制它 举个极端的例子：如果不调用API，屏蔽中断，并保证代码不出现异常，线程将永久占用CPU 所以说线程如果想“死”，一定是自己执行代码" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(七)——APC机制">
+<meta itemprop="description" content="[toc] 01.APC的本质 线程是不能被“杀掉”、“挂起”、“恢复”的，线程在执行的时候自己占据着CPU，别人不能控制它 举个极端的例子：如果不调用API，屏蔽中断，并保证代码不出现异常，线程将永久占用CPU 所以说线程如果想“死”，一定是自己执行代码"><meta itemprop="datePublished" content="2023-02-26T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2023-02-26T00:00:00+00:00" />
-<meta itemprop="wordCount" content="10002">
+<meta itemprop="wordCount" content="9964">
 <meta itemprop="keywords" content="Win32," /><meta property="og:title" content="Windows内核(七)——APC机制" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[toc] 01.APC的本质 线程是不能被“杀掉”、“挂起”、“恢复”的，线程在执行的时候自己占据着CPU，别人不能控制它 举个极端的例子：如果不调用API，屏蔽中断，并保证代码不出现异常，线程将永久占用CPU 所以说线程如果想“死”，一定是自己执行代码" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/2023-2-winkernelapc/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/2023-2-winkernelapc/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2023-02-26T00:00:00+00:00" />
 <meta property="article:modified_time" content="2023-02-26T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Windows内核(七)——APC机制"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[toc] 01.APC的本质 线程是不能被“杀掉”、“挂起”、“恢复”的，线程在执行的时候自己占据着CPU，别人不能控制它 举个极端的例子：如果不调用API，屏蔽中断，并保证代码不出现异常，线程将永久占用CPU 所以说线程如果想“死”，一定是自己执行代码"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/2023-2-winkernelapc/" /><link rel="prev" href="http://localhost:1313/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/" /><link rel="next" href="http://localhost:1313/posts/2023-3-winkernel%E5%BC%82%E5%B8%B8/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/2023-2-winkernelapc/" /><link rel="prev" href="http://ghostasky.github.io/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/" /><link rel="next" href="http://ghostasky.github.io/posts/2023-3-winkernel%E5%BC%82%E5%B8%B8/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/2023-2-winkernelapc\/"
-    },"genre": "posts","keywords": "Win32","wordcount":  10002 ,
-    "url": "http:\/\/localhost:1313\/posts\/2023-2-winkernelapc\/","datePublished": "2023-02-26T00:00:00+00:00","dateModified": "2023-02-26T00:00:00+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/2023-2-winkernelapc\/"
+    },"genre": "posts","keywords": "Win32","wordcount":  9964 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/2023-2-winkernelapc\/","datePublished": "2023-02-26T00:00:00+00:00","dateModified": "2023-02-26T00:00:00+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>Windows内核(七)——APC机制</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-02-26 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-02-26">2023-02-26</time></span>&nbsp;<span title="10002 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 10100 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 20 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-02-26 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-02-26">2023-02-26</time></span>&nbsp;<span title="9964 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 10000 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 20 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -171,16 +170,22 @@
   </ul>
 </nav></div>
       </div><div class="content" id="content"><p>[toc]</p>
-<h2 id="01apc的本质" class="heading-element">
-  <a href="#01apc%e7%9a%84%e6%9c%ac%e8%b4%a8" class="heading-mark"></a>01.APC的本质</h2><ol>
+<h2 id="01apc的本质" class="heading-element"><span>01.APC的本质</span>
+  <a href="#01apc%e7%9a%84%e6%9c%ac%e8%b4%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><ol>
 <li>线程是不能被“杀掉”、“挂起”、“恢复”的，线程在执行的时候自己占据着CPU，别人不能控制它</li>
 <li>举个极端的例子：如果不调用API，屏蔽中断，并保证代码不出现异常，线程将永久占用CPU</li>
 <li>所以说线程如果想“死”，一定是自己执行代码把自己杀死，不存在“他杀”的情况</li>
 </ol>
 <p><strong>思考</strong>：那如果想改变一个线程的行为该怎么办
 <strong>答案</strong>：可以给他提供一个函数，让它自己去调用：APC（Asyncroneus Procedure Call，异步过程调用）</p>
-<h3 id="apc队列" class="heading-element">
-  <a href="#apc%e9%98%9f%e5%88%97" class="heading-mark"></a>APC队列</h3><ul>
+<h3 id="apc队列" class="heading-element"><span>APC队列</span>
+  <a href="#apc%e9%98%9f%e5%88%97" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ul>
 <li><code>ApcListHead</code>：
 <ol>
 <li>由两个双向链表组成，共占16个字节</li>
@@ -192,7 +197,7 @@
 <li><code>KernelApcPending</code>：是否存在等待状态的<strong>内核APC</strong>，存在则置1</li>
 <li><code>UserApcPending</code>：是否存在等待状态的<strong>用户APC</strong>，存在则置1</li>
 </ul>
-<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KTHREAD</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KTHREAD</span>
 </span></span><span class="line"><span class="cl"><span class="n">ntdll</span><span class="o">!</span><span class="n">_KTHREAD</span>
 </span></span><span class="line"><span class="cl">   <span class="p">...</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x034</span> <span class="nl">ApcState</span>         <span class="p">:</span> <span class="n">_KAPC_STATE</span>
@@ -203,8 +208,11 @@
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x010</span> <span class="nl">Process</span>          <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">_KPROCESS</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x014</span> <span class="nl">KernelApcInProgress</span> <span class="p">:</span> <span class="n">UChar</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x015</span> <span class="nl">KernelApcPending</span> <span class="p">:</span> <span class="n">UChar</span>
-</span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x016</span> <span class="nl">UserApcPending</span>   <span class="p">:</span> <span class="n">UChar</span></span></span></code></pre></div><h3 id="apc结构" class="heading-element">
-  <a href="#apc%e7%bb%93%e6%9e%84" class="heading-mark"></a>APC结构</h3><div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KAPC</span>
+</span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x016</span> <span class="nl">UserApcPending</span>   <span class="p">:</span> <span class="n">UChar</span></span></span></code></pre></div><h3 id="apc结构" class="heading-element"><span>APC结构</span>
+  <a href="#apc%e7%bb%93%e6%9e%84" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KAPC</span>
 </span></span><span class="line"><span class="cl"><span class="n">ntdll</span><span class="o">!</span><span class="n">_KAPC</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x000</span> <span class="nl">Type</span>             <span class="p">:</span> <span class="n">Int2B</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x002</span> <span class="nl">Size</span>             <span class="p">:</span> <span class="n">Int2B</span>
@@ -224,8 +232,11 @@
 <li><code>KiServiceExit</code> 函数（<strong>系统调用</strong>、<strong>异常</strong>或<strong>中断</strong>返回用户控件的必经之路）</li>
 <li><code>KiDeliverApc</code> 函数（负责<strong>执行</strong>APC函数）</li>
 </ol>
-<h3 id="kiserviceexit" class="heading-element">
-  <a href="#kiserviceexit" class="heading-mark"></a>KiServiceExit</h3><div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004069</span><span class="nf">CD</span> <span class="no">loc_4069CD</span><span class="p">:</span>                             <span class="c1">; CODE XREF: _KiServiceExit+8↑j
+<h3 id="kiserviceexit" class="heading-element"><span>KiServiceExit</span>
+  <a href="#kiserviceexit" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004069</span><span class="nf">CD</span> <span class="no">loc_4069CD</span><span class="p">:</span>                             <span class="c1">; CODE XREF: _KiServiceExit+8↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">CD</span>                                         <span class="c1">; _KiServiceExit+64↓j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">CD</span>                 <span class="no">mov</span>     <span class="no">ebx</span><span class="p">,</span> <span class="no">large</span> <span class="no">fs</span><span class="p">:</span><span class="mi">124</span><span class="no">h</span> <span class="c1">; 获取ETHREAD
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">D4</span>                 <span class="no">mov</span>     <span class="no">byte</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">ebx</span><span class="err">+</span><span class="no">_KTHREAD.Alerted</span><span class="p">],</span> <span class="mi">0</span>
@@ -249,9 +260,12 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406</span><span class="nf">A17</span>                 <span class="no">call</span>    <span class="no">ds</span><span class="p">:</span><span class="no">__imp_@KfLowerIrql@4</span> <span class="c1">; 恢复原来的运行级别
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406</span><span class="nf">A1D</span>                 <span class="no">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">ebx</span><span class="err">+</span><span class="mi">44</span><span class="no">h</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406</span><span class="nf">A20</span>                 <span class="no">cli</span>                     <span class="c1">; 开中断
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406</span><span class="nf">A21</span>                 <span class="no">jmp</span>     <span class="no">short</span> <span class="no">loc_4069CD</span> <span class="err">;</span> <span class="err">获取</span><span class="no">ETHREAD</span></span></span></code></pre></div><h2 id="02备用apc队列" class="heading-element">
-  <a href="#02%e5%a4%87%e7%94%a8apc%e9%98%9f%e5%88%97" class="heading-mark"></a>02.备用APC队列</h2><p>还是先看下线程结构体：</p>
-<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_kthread</span>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00406</span><span class="nf">A21</span>                 <span class="no">jmp</span>     <span class="no">short</span> <span class="no">loc_4069CD</span> <span class="err">;</span> <span class="err">获取</span><span class="no">ETHREAD</span></span></span></code></pre></div><h2 id="02备用apc队列" class="heading-element"><span>02.备用APC队列</span>
+  <a href="#02%e5%a4%87%e7%94%a8apc%e9%98%9f%e5%88%97" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>还是先看下线程结构体：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_kthread</span>
 </span></span><span class="line"><span class="cl"><span class="n">nt</span><span class="o">!</span><span class="n">_KTHREAD</span>
 </span></span><span class="line"><span class="cl"><span class="p">...</span>
 </span></span><span class="line"><span class="cl"><span class="o">+</span><span class="mh">0x034</span> <span class="nl">ApcState</span>         <span class="p">:</span> <span class="n">_KAPC_STATE</span><span class="c1">//APC
@@ -262,8 +276,11 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">...</span>
 </span></span><span class="line"><span class="cl"><span class="o">+</span><span class="mh">0x165</span> <span class="nl">ApcStateIndex</span>    <span class="p">:</span> <span class="n">UChar</span><span class="c1">//线程状态
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">+</span><span class="mh">0x166</span> <span class="nl">ApcQueueable</span>     <span class="p">:</span> <span class="n">UChar</span><span class="c1">//当前成员是否允许插入APC
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">...</span></span></span></code></pre></div><h3 id="savedapcstate" class="heading-element">
-  <a href="#savedapcstate" class="heading-mark"></a>SavedApcState</h3><ol>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">...</span></span></span></code></pre></div><h3 id="savedapcstate" class="heading-element"><span>SavedApcState</span>
+  <a href="#savedapcstate" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>在 <code>_KTHREAD+0x14c</code> 位置处，同样也存在一个 <code>_KAPC_STATE</code> 结构体，叫做 <code>SavedApcState</code></li>
 <li><strong>线程APC队列中的APC函数都是与进程相关联的</strong>，具体点说：A进程的T线程中的所有APC函数，要访问的内存地址都是A进程的</li>
 <li>但线程是可以挂靠到其他的进程：比如A进程的线程T，通过修改Cr3(改为B进程的页目录基址)，就可以访问B进程地址空间，即所谓“进程挂靠”</li>
@@ -275,12 +292,18 @@
 	A是T的所属进程  
 	B是T的挂靠进程
 ApcState    	B进程相关的APC函数     
-SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class="heading-element">
-  <a href="#apcstateindex" class="heading-mark"></a>ApcStateIndex</h3><p><strong>ApcStateIndex</strong> 用来标识当前线程处于什么状态，位于 <strong>_KTHREAD+0x165</strong></p>
+SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class="heading-element"><span>ApcStateIndex</span>
+  <a href="#apcstateindex" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p><strong>ApcStateIndex</strong> 用来标识当前线程处于什么状态，位于 <strong>_KTHREAD+0x165</strong></p>
 <p><strong>0</strong>：正常状态
 <strong>1</strong>：挂靠状态</p>
-<h3 id="apcstatepointer" class="heading-element">
-  <a href="#apcstatepointer" class="heading-mark"></a>ApcStatePointer</h3><p>为了操作方便，<strong>_KTHREAD</strong> 结构体中定义了一个指针数组 <strong>ApcStatePointer</strong> ，长度为2，位于 <strong>_KTHREAD+0x138</strong></p>
+<h3 id="apcstatepointer" class="heading-element"><span>ApcStatePointer</span>
+  <a href="#apcstatepointer" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>为了操作方便，<strong>_KTHREAD</strong> 结构体中定义了一个指针数组 <strong>ApcStatePointer</strong> ，长度为2，位于 <strong>_KTHREAD+0x138</strong></p>
 <p>正常情况下：</p>
 <ul>
 <li><code>ApcStatePointer[0]</code> 指向 ApcState</li>
@@ -291,8 +314,11 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 <li><code>ApcStatePointer[0]</code> 指向 SavedApcState</li>
 <li><code>ApcStatePointer[1]</code> 指向 ApcState</li>
 </ul>
-<h4 id="组合寻址" class="heading-element">
-  <a href="#%e7%bb%84%e5%90%88%e5%af%bb%e5%9d%80" class="heading-mark"></a>组合寻址</h4><p>这样和<code>ApcStateIndex</code>就可以组合寻址了：</p>
+<h4 id="组合寻址" class="heading-element"><span>组合寻址</span>
+  <a href="#%e7%bb%84%e5%90%88%e5%af%bb%e5%9d%80" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>这样和<code>ApcStateIndex</code>就可以组合寻址了：</p>
 <p>正常情况下，向<code>ApcState</code>队列中插入APC时：</p>
 <ul>
 <li><code>ApcStatePointer[0]</code> 指向 <code>ApcState</code>，此时 <code>ApcStateIndex</code> 的值为 0</li>
@@ -305,17 +331,23 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </ul>
 <p>总结下来就是，无论什么环境下，<strong>ApcStatePointer[ApcStateIndex]</strong> 指向的都是 <strong>ApcState</strong>
 <strong>ApcState</strong> 总是表示线程当前使用的apc状态</p>
-<h3 id="apcqueueable" class="heading-element">
-  <a href="#apcqueueable" class="heading-mark"></a>ApcQueueable</h3><ol>
+<h3 id="apcqueueable" class="heading-element"><span>ApcQueueable</span>
+  <a href="#apcqueueable" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>位于 <code>_KTHREAD+0x166</code>，表示是否可以向线程的APC队列中插入APC</li>
 <li>当线程正在执行退出的代码时，会将这个值设置为0 ，如果此时执行插入APC的代码（<code>KeInsertQueueApc</code>），在插入函数中会判断这个值的状态，如果为0，则插入失败</li>
 </ol>
-<h2 id="03apc挂入过程" class="heading-element">
-  <a href="#03apc%e6%8c%82%e5%85%a5%e8%bf%87%e7%a8%8b" class="heading-mark"></a>03.APC挂入过程</h2><ol>
+<h2 id="03apc挂入过程" class="heading-element"><span>03.APC挂入过程</span>
+  <a href="#03apc%e6%8c%82%e5%85%a5%e8%bf%87%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><ol>
 <li>无论是正常状态还是挂靠状态，都有两个APC队列，一个<strong>内核队列</strong>，一个<strong>用户队列</strong></li>
 <li>每当要挂入一个APC函数时，不管是内核APC还是用户APC，内核都要准备一个<strong>KAPC</strong>的数据结构，并且将这个KAPC结构挂到相应的APC队列中</li>
 </ol>
-<div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KAPC</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KAPC</span>
 </span></span><span class="line"><span class="cl"><span class="n">ntdll</span><span class="o">!</span><span class="n">_KAPC</span>
 </span></span><span class="line"><span class="cl">	<span class="o">+</span><span class="mh">0x000</span> <span class="nl">Type</span>             <span class="p">:</span> <span class="n">Int2B</span>				<span class="c1">//类型 APC类型为0x12
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="o">+</span><span class="mh">0x002</span> <span class="nl">Size</span>             <span class="p">:</span> <span class="n">Int2B</span>				<span class="c1">//本结构体的大小  0x30
@@ -348,13 +380,19 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </ul>
 </li>
 </ul>
-<h3 id="挂入过程" class="heading-element">
-  <a href="#%e6%8c%82%e5%85%a5%e8%bf%87%e7%a8%8b" class="heading-mark"></a>挂入过程</h3><ul>
+<h3 id="挂入过程" class="heading-element"><span>挂入过程</span>
+  <a href="#%e6%8c%82%e5%85%a5%e8%bf%87%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ul>
 <li><strong>用户层调用</strong>：<code>QueueUserAPC</code>（kernel32.dll）=&gt;<code>NtQueueApcThread</code>（ntosker.exe）=&gt;内核层</li>
 <li><strong>很多内核函数调用</strong>：<code>KeInitializeApc</code>（分配空间，初始化KAPC结构体）=&gt;<code>KeInsertQueueApc</code>=&gt;<code>KiInsertQueueApc</code>（将KAPC插入指定APC队列）</li>
 </ul>
-<h4 id="keinitializeapc" class="heading-element">
-  <a href="#keinitializeapc" class="heading-mark"></a>KeInitializeApc</h4><div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">VOID</span> <span class="nf">KeInitializeApc</span>
+<h4 id="keinitializeapc" class="heading-element"><span>KeInitializeApc</span>
+  <a href="#keinitializeapc" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">VOID</span> <span class="nf">KeInitializeApc</span>
 </span></span><span class="line"><span class="cl"><span class="p">(</span>
 </span></span><span class="line"><span class="cl">	<span class="n">IN</span> <span class="n">PKAPC</span> <span class="n">Apc</span><span class="p">,</span>							<span class="c1">//KAPC指针
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">IN</span> <span class="n">PKTHREAD</span> <span class="n">Thread</span><span class="p">,</span>						<span class="c1">//目标线程
@@ -373,19 +411,25 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 <li><code>Mode</code> 传进来会挂到<code>_KAPC.0x2d ApcMode</code></li>
 <li><code>Context</code> 传进来会挂到<code>_KAPC.0x20 NormalRoutine</code></li>
 </ol>
-<h5 id="apcstateindex-1" class="heading-element">
-  <a href="#apcstateindex-1" class="heading-mark"></a>ApcStateIndex</h5><p>0表示原始环境，1表示挂靠环境，这两个比较好理解，下面说一下2和3：</p>
+<h5 id="apcstateindex-1" class="heading-element"><span>ApcStateIndex</span>
+  <a href="#apcstateindex-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h5><p>0表示原始环境，1表示挂靠环境，这两个比较好理解，下面说一下2和3：</p>
 <p>当值为2的时候，插入的是当前进程的队列。什么是当前队列，是我不管你环境是挂靠还是不挂靠，我就插入当前进程的<code>APC</code>队列里面，以初始化<code>APC</code>的时候为基准。</p>
 <p>当值为3时，插入的是当前进程的<code>APC</code>队列，此时有修复<code>ApcStateIndex</code>的操作，以插入<code>APC</code>的时候为基准。</p>
-<h4 id="keinsertqueueapc" class="heading-element">
-  <a href="#keinsertqueueapc" class="heading-mark"></a>KeInsertQueueApc</h4><ol>
+<h4 id="keinsertqueueapc" class="heading-element"><span>KeInsertQueueApc</span>
+  <a href="#keinsertqueueapc" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><ol>
 <li>根据<code>KAPC</code>结构中的<code>ApcStateIndex</code>找到对应的APC队列</li>
 <li>再根据<code>KAPC</code>结构中的<code>ApcMode</code>确定是用户队列还是内核队列</li>
 <li>将<code>KAPC</code>挂到对应的队列中(挂到<code>KAPC</code>的<code>ApcListEntry</code>处)</li>
 <li>再根据<code>KAPC</code>结构中的<code>Inserted</code>置1，标识当前的KAPC为已插入状态</li>
 <li>修改<code>KAPC_STATE</code>结构中的<code>KernelApcPending</code>/<code>UserApcPending</code></li>
 </ol>
-<div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00402</span><span class="nf">C6A</span> <span class="no">var_4</span>           <span class="err">=</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="p">-</span><span class="mi">4</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00402</span><span class="nf">C6A</span> <span class="no">var_4</span>           <span class="err">=</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="p">-</span><span class="mi">4</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00402</span><span class="nf">C6A</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00402</span><span class="nf">C6A</span> <span class="c1">; FUNCTION CHUNK AT .text:0040EEB3 SIZE 00000031 BYTES
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00402</span><span class="nf">C6A</span> <span class="c1">; FUNCTION CHUNK AT .text:0041049E SIZE 0000002C BYTES
@@ -481,19 +525,22 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">EED7</span>                 <span class="no">push</span>    <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">var_4</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040</span><span class="nf">EEDA</span>                 <span class="no">call</span>    <span class="err">@</span><span class="no">KiUnwaitThread@16</span> <span class="c1">; 将当前线程从等待链表转移到就绪列表
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">EEDA</span>                                         <span class="c1">; 即唤醒线程
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">EEDF</span>                 <span class="no">jmp</span>     <span class="no">loc_402D12</span></span></span></code></pre></div><h4 id="alertable" class="heading-element">
-  <a href="#alertable" class="heading-mark"></a>Alertable</h4><p>该值指示线程是否运行被<code>APC</code>吵醒</p>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">EEDF</span>                 <span class="no">jmp</span>     <span class="no">loc_402D12</span></span></span></code></pre></div><h4 id="alertable" class="heading-element"><span>Alertable</span>
+  <a href="#alertable" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>该值指示线程是否运行被<code>APC</code>吵醒</p>
 <ol>
 <li><code>Alertable=0</code>，<code>UserApcPending = 0</code>：当前插入的APC函数未必有机会执行</li>
 <li><code>Alertable=1</code> ，<code>UserApcPending = 1</code>：将目标线程唤醒(从等待链表中摘出来，并挂到调度链表)</li>
 </ol>
 <p>该属性在KTHREAD中：</p>
-<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KTHREAD</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KTHREAD</span>
 </span></span><span class="line"><span class="cl"><span class="n">ntdll</span><span class="o">!</span><span class="n">_KTHREAD</span>
 </span></span><span class="line"><span class="cl">   <span class="p">...</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x164</span> <span class="nl">Alertable</span>        <span class="p">:</span> <span class="n">UChar</span>
 </span></span><span class="line"><span class="cl">   <span class="p">...</span></span></span></code></pre></div><p>很多与线程相关的结尾带<code>Ex</code>的函数的参数都会有一个<code>bAlertable</code>，举例如下：</p>
-<div class="highlight" id="id-10"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">DWORD</span> <span class="nf">SleepEx</span><span class="p">(</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">DWORD</span> <span class="nf">SleepEx</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">  <span class="n">DWORD</span> <span class="n">dwMilliseconds</span><span class="p">,</span> <span class="c1">// time-out interval
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">BOOL</span> <span class="n">bAlertable</span>        <span class="c1">// early completion option
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span>
@@ -501,17 +548,26 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </span></span><span class="line"><span class="cl">  <span class="n">HANDLE</span> <span class="n">hHandle</span><span class="p">,</span>       <span class="c1">// handle to object
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">DWORD</span> <span class="n">dwMilliseconds</span><span class="p">,</span> <span class="c1">// time-out interval
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">BOOL</span> <span class="n">bAlertable</span>       <span class="c1">// alertable option
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span></span></span></code></pre></div><h2 id="04内核apc执行过程" class="heading-element">
-  <a href="#04%e5%86%85%e6%a0%b8apc%e6%89%a7%e8%a1%8c%e8%bf%87%e7%a8%8b" class="heading-mark"></a>04.内核APC执行过程</h2><h3 id="何时执行apc" class="heading-element">
-  <a href="#%e4%bd%95%e6%97%b6%e6%89%a7%e8%a1%8capc" class="heading-mark"></a>何时执行APC</h3><p><code>APC</code>函数的执行与插入并不是同一个线程，具体点说在A线程中向B线程插入一个<code>APC</code>，插入的动作是在A线程中完成的，但什么时候执行则由B线程决定，所以叫“异步过程调用”</p>
-<h4 id="线程切换" class="heading-element">
-  <a href="#%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2" class="heading-mark"></a>线程切换</h4><ol>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">);</span></span></span></code></pre></div><h2 id="04内核apc执行过程" class="heading-element"><span>04.内核APC执行过程</span>
+  <a href="#04%e5%86%85%e6%a0%b8apc%e6%89%a7%e8%a1%8c%e8%bf%87%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="何时执行apc" class="heading-element"><span>何时执行APC</span>
+  <a href="#%e4%bd%95%e6%97%b6%e6%89%a7%e8%a1%8capc" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p><code>APC</code>函数的执行与插入并不是同一个线程，具体点说在A线程中向B线程插入一个<code>APC</code>，插入的动作是在A线程中完成的，但什么时候执行则由B线程决定，所以叫“异步过程调用”</p>
+<h4 id="线程切换" class="heading-element"><span>线程切换</span>
+  <a href="#%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><ol>
 <li><code>SwapContext</code> 判断是否有内核APC</li>
 <li><code>KiSwapThread</code></li>
 <li><code>KiDeliverApc</code> 执行内核APC函数</li>
 </ol>
 <p>先看下<code>SwapContext</code>的最后部分：</p>
-<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl">                <span class="nf">cmp</span>     <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="no">_KTHREAD.ApcState.KernelApcPending</span><span class="p">],</span> <span class="mi">0</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl">                <span class="nf">cmp</span>     <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="no">_KTHREAD.ApcState.KernelApcPending</span><span class="p">],</span> <span class="mi">0</span>
 </span></span><span class="line"><span class="cl">                <span class="nf">jnz</span>     <span class="no">short</span> <span class="no">loc_46A9BD</span>
 </span></span><span class="line"><span class="cl">                <span class="nf">popf</span>
 </span></span><span class="line"><span class="cl">                <span class="nf">xor</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">eax</span>
@@ -524,7 +580,7 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </span></span><span class="line"><span class="cl">                <span class="nf">mov</span>     <span class="no">al</span><span class="p">,</span> <span class="mi">1</span>
 </span></span><span class="line"><span class="cl">                <span class="nf">retn</span></span></span></code></pre></div><p><code>KernelApcPending</code>是表示有没有内核<code>APC</code>处理的标志，如果是1，也就是有的话，就会使返回值置1；反之置0。</p>
 <p>之后查看上一级函数：</p>
-<div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040581</span><span class="nf">E</span> <span class="c1">; __fastcall KiSwapContext(x)
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040581</span><span class="nf">E</span> <span class="c1">; __fastcall KiSwapContext(x)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040581</span><span class="nf">E</span> <span class="err">@</span><span class="no">KiSwapContext@4</span> <span class="no">proc</span> <span class="no">near</span>              <span class="c1">; CODE XREF: KiSwapThread()+33↓p
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040581</span><span class="nf">E</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040581</span><span class="nf">E</span> <span class="no">var_10</span>          <span class="err">=</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="p">-</span><span class="mi">10</span><span class="no">h</span>
@@ -558,7 +614,7 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040585</span><span class="nf">C</span>                 <span class="no">add</span>     <span class="no">esp</span><span class="p">,</span> <span class="mi">10</span><span class="no">h</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040585</span><span class="nf">F</span>                 <span class="no">retn</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040585</span><span class="nf">F</span> <span class="err">@</span><span class="no">KiSwapContext@4</span> <span class="no">endp</span></span></span></code></pre></div><p>没有用到返回值，继续查看上一级函数：</p>
-<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040</span><span class="nf">AB3B</span> <span class="no">loc_40AB3B</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KiSwapThread()+5E33↓j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040</span><span class="nf">AB3B</span> <span class="no">loc_40AB3B</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KiSwapThread()+5E33↓j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">AB3B</span>                 <span class="no">mov</span>     <span class="no">ecx</span><span class="p">,</span> <span class="no">eax</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040</span><span class="nf">AB3D</span>                 <span class="no">call</span>    <span class="err">@</span><span class="no">KiSwapContext@4</span> <span class="c1">; ebx: _KPCR
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">AB3D</span>                                         <span class="c1">; esi: 新线程 _ETHREAD
@@ -581,10 +637,16 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041</span><span class="nf">BC7F</span>                 <span class="no">call</span>    <span class="no">_KiDeliverApc@12</span> <span class="c1">; KiDeliverApc(x,x,x)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041</span><span class="nf">BC84</span>                 <span class="no">xor</span>     <span class="no">cl</span><span class="p">,</span> <span class="no">cl</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0041</span><span class="nf">BC86</span>                 <span class="no">jmp</span>     <span class="no">loc_40AB56</span></span></span></code></pre></div><p>如果为1的话，也就是有内核<code>APC</code>执行，就会继续往下走，调用<code>KiDeliverApc</code>这个函数，也就是处理<code>APC</code>的函数，传递的三个参数都是0。</p>
-<h4 id="系统调用中断或者异常_kiserviceexit" class="heading-element">
-  <a href="#%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e4%b8%ad%e6%96%ad%e6%88%96%e8%80%85%e5%bc%82%e5%b8%b8_kiserviceexit" class="heading-mark"></a>系统调用、中断或者异常(_KiServiceExit)</h4><h5 id="kiserviceexit-1" class="heading-element">
-  <a href="#kiserviceexit-1" class="heading-mark"></a>KiServiceExit</h5><p>这个函数是系统调用、中断异常必经之处，和APC相关的：</p>
-<div class="highlight" id="id-14"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004069</span><span class="nf">CD</span> <span class="no">loc_4069CD</span><span class="p">:</span>                             <span class="c1">; CODE XREF: _KiServiceExit+8↑j
+<h4 id="系统调用中断或者异常_kiserviceexit" class="heading-element"><span>系统调用、中断或者异常(_KiServiceExit)</span>
+  <a href="#%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e4%b8%ad%e6%96%ad%e6%88%96%e8%80%85%e5%bc%82%e5%b8%b8_kiserviceexit" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><h5 id="kiserviceexit-1" class="heading-element"><span>KiServiceExit</span>
+  <a href="#kiserviceexit-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h5><p>这个函数是系统调用、中断异常必经之处，和APC相关的：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004069</span><span class="nf">CD</span> <span class="no">loc_4069CD</span><span class="p">:</span>                             <span class="c1">; CODE XREF: _KiServiceExit+8↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">CD</span>                                         <span class="c1">; _KiServiceExit+64↓j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">CD</span>                 <span class="no">mov</span>     <span class="no">ebx</span><span class="p">,</span> <span class="no">large</span> <span class="no">fs</span><span class="p">:</span><span class="mi">124</span><span class="no">h</span> <span class="c1">; 获取ETHREAD
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004069</span><span class="nf">D4</span>                 <span class="no">mov</span>     <span class="no">byte</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">ebx</span><span class="err">+</span><span class="no">_KTHREAD.Alerted</span><span class="p">],</span> <span class="mi">0</span>
@@ -604,9 +666,15 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406</span><span class="nf">A0D</span>                 <span class="no">push</span>    <span class="mi">0</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406</span><span class="nf">A0F</span>                 <span class="no">push</span>    <span class="mi">1</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00406</span><span class="nf">A11</span>                 <span class="no">call</span>    <span class="no">_KiDeliverApc@12</span> <span class="err">;</span> <span class="err">执行内核</span><span class="no">APC并为用户空间的APC的执行进行准备</span></span></span></code></pre></div><p>第一个参数是1，第二个参数是0，第三个就是所谓的<code>TrapFrame</code></p>
-<h3 id="内核apc执行流程" class="heading-element">
-  <a href="#%e5%86%85%e6%a0%b8apc%e6%89%a7%e8%a1%8c%e6%b5%81%e7%a8%8b" class="heading-mark"></a>内核APC执行流程</h3><h4 id="kideliverapc" class="heading-element">
-  <a href="#kideliverapc" class="heading-mark"></a>KiDeliverApc</h4><p>执行过程：</p>
+<h3 id="内核apc执行流程" class="heading-element"><span>内核APC执行流程</span>
+  <a href="#%e5%86%85%e6%a0%b8apc%e6%89%a7%e8%a1%8c%e6%b5%81%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="kideliverapc" class="heading-element"><span>KiDeliverApc</span>
+  <a href="#kideliverapc" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>执行过程：</p>
 <ol>
 <li>判断第一个链表是否为空</li>
 <li>判断<code>KTHREAD.ApcState.KernelApcInProgress</code>是否为1</li>
@@ -618,7 +686,7 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 <li>执行完毕 将<code>KernelApcInProgress</code>改为0</li>
 <li>循环</li>
 </ol>
-<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00405</span><span class="nf">E20</span> <span class="no">loc_405E20</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KiDeliverApc(x,x,x)+D↑j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00405</span><span class="nf">E20</span> <span class="no">loc_405E20</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KiDeliverApc(x,x,x)+D↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00405</span><span class="nf">E20</span>                                         <span class="c1">; KiDeliverApc(x,x,x)+B580↓j ...
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00405</span><span class="nf">E20</span>                 <span class="no">push</span>    <span class="no">ebx</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00405</span><span class="nf">E21</span>                 <span class="no">push</span>    <span class="no">esi</span>
@@ -698,14 +766,20 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041</span><span class="nf">ADD4</span>                 <span class="no">call</span>    <span class="no">ds</span><span class="p">:</span><span class="no">__imp_@KeAcquireInStackQueuedSpinLock@8</span> <span class="c1">; KeAcquireInStackQueuedSpinLock(x,x)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041</span><span class="nf">ADDA</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="no">_KTHREAD.ApcState.KernelApcInProgress</span><span class="p">],</span> <span class="mi">0</span> <span class="c1">; 8)执行完毕，将KernelApcInProgress改为0
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041</span><span class="nf">ADDE</span>                 <span class="no">jmp</span>     <span class="no">loc_405E56</span>      <span class="c1">; 9)下一个循环
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041</span><span class="nf">ADDE</span> <span class="err">;</span> <span class="no">END</span> <span class="no">OF</span> <span class="no">FUNCTION</span> <span class="no">CHUNK</span> <span class="no">FOR</span> <span class="no">KiDeliverApc</span><span class="p">(</span><span class="no">x</span><span class="p">,</span><span class="no">x</span><span class="p">,</span><span class="no">x</span><span class="p">)</span></span></span></code></pre></div><h3 id="总结" class="heading-element">
-  <a href="#%e6%80%bb%e7%bb%93" class="heading-mark"></a>总结</h3><ol>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041</span><span class="nf">ADDE</span> <span class="err">;</span> <span class="no">END</span> <span class="no">OF</span> <span class="no">FUNCTION</span> <span class="no">CHUNK</span> <span class="no">FOR</span> <span class="no">KiDeliverApc</span><span class="p">(</span><span class="no">x</span><span class="p">,</span><span class="no">x</span><span class="p">,</span><span class="no">x</span><span class="p">)</span></span></span></code></pre></div><h3 id="总结" class="heading-element"><span>总结</span>
+  <a href="#%e6%80%bb%e7%bb%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>线程切换的时候，这就意味着只要插入内核APC很快就会执行(<code>SwapContext</code>-&gt;<code>KiSwapThread</code>-&gt;<code>KiDeliverApc</code>)</li>
 <li>如果有<strong>用户APC</strong>需要处理时，一定会<strong>先处理内核APC</strong></li>
 <li>内核APC在内核空间执行，不需要换栈，一个循环全部执行完毕</li>
 </ol>
-<h2 id="05用户apc执行过程" class="heading-element">
-  <a href="#05%e7%94%a8%e6%88%b7apc%e6%89%a7%e8%a1%8c%e8%bf%87%e7%a8%8b" class="heading-mark"></a>05.用户APC执行过程</h2><p>当产生系统调用、中断或者异常，线程在返回用户空间前都会调用<code>_KiServiceExit</code>函数，在<code>_KiServiceExit</code>会判断是否有要执行的用户APC，如果有则调用<code>KiDeliverApc</code>函数(第一个参数为1)进行处理。</p>
+<h2 id="05用户apc执行过程" class="heading-element"><span>05.用户APC执行过程</span>
+  <a href="#05%e7%94%a8%e6%88%b7apc%e6%89%a7%e8%a1%8c%e8%bf%87%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>当产生系统调用、中断或者异常，线程在返回用户空间前都会调用<code>_KiServiceExit</code>函数，在<code>_KiServiceExit</code>会判断是否有要执行的用户APC，如果有则调用<code>KiDeliverApc</code>函数(第一个参数为1)进行处理。</p>
 <p>执行用户APC时的堆栈操作：</p>
 <ol>
 <li>当线程从用户层进入内核层时，要保留原来的运行环境，比如各种寄存器，栈的位置等等 (<code>_Trap_Frame</code>)，然后切换成内核的堆栈，如果正常返回，恢复堆栈环境即可。</li>
@@ -713,8 +787,11 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 <code>内核</code>–&gt;<code>用户空间</code>–&gt;<code>再回到内核空间</code></li>
 <li>堆栈的操作比较复杂，如果不了解堆栈的操作细节不可能理解用户APC是如何执行的</li>
 </ol>
-<h3 id="kideliverapc-1" class="heading-element">
-  <a href="#kideliverapc-1" class="heading-mark"></a>KiDeliverApc</h3><p>执行过程：</p>
+<h3 id="kideliverapc-1" class="heading-element"><span>KiDeliverApc</span>
+  <a href="#kideliverapc-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>执行过程：</p>
 <ol>
 <li>判断用户APC链表是否为空</li>
 <li>判断第一个参数是为1</li>
@@ -724,7 +801,7 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 <li>调用函数(<code>KAPC.KernelRoutine</code>)释放KAPC结构体内存空间</li>
 <li>调用<code>KiInitializeUserApc</code>函数</li>
 </ol>
-<div class="highlight" id="id-16"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00405</span><span class="nf">E56</span> <span class="no">loc_405E56</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KiDeliverApc(x,x,x)+14FDD↓j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00405</span><span class="nf">E56</span> <span class="no">loc_405E56</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KiDeliverApc(x,x,x)+14FDD↓j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00405</span><span class="nf">E56</span>                                         <span class="c1">; KiDeliverApc(x,x,x)+15E53↓j ...
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00405</span><span class="nf">E56</span>                 <span class="no">cmp</span>     <span class="p">[</span><span class="no">ebx</span><span class="p">],</span> <span class="no">ebx</span>      <span class="c1">; 判断第一个列表是否为空(内核APC队列)，如果内容与当前地址一样，说明没有空
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00405</span><span class="nf">E58</span>                 <span class="no">jnz</span>     <span class="no">loc_41BBEF</span>      <span class="c1">; 如果为空则跳转
@@ -776,8 +853,11 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00410543</span>                 <span class="nf">push</span>    <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">arg_4</span><span class="p">]</span>     <span class="c1">; ExceptionFrame
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00410546</span>                 <span class="nf">call</span>    <span class="no">_KiInitializeUserApc@24</span> <span class="c1">; 这里并未直接调用处理用户APC的函数
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00410546</span>                                         <span class="c1">; 原因是当前堆栈在0环用户APC需要到3环去执行
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041054</span><span class="nf">B</span>                 <span class="no">jmp</span>     <span class="no">loc_405E74</span></span></span></code></pre></div><h3 id="kiinitializeuserapc" class="heading-element">
-  <a href="#kiinitializeuserapc" class="heading-mark"></a>KiInitializeUserApc</h3><ol>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041054</span><span class="nf">B</span>                 <span class="no">jmp</span>     <span class="no">loc_405E74</span></span></span></code></pre></div><h3 id="kiinitializeuserapc" class="heading-element"><span>KiInitializeUserApc</span>
+  <a href="#kiinitializeuserapc" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>
 <p>线程进0环时，原来的运行环境(寄存器栈顶等)保存到 <code>_Trap_Frame</code> 结构体中，如果要提前返回3环去处理用户APC，就必须要修改 <code>_Trap_Frame</code> 结构体：</p>
 </li>
@@ -789,7 +869,7 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 <p>将原来 <code>_Trap_Frame</code> 的值备份到一个新的结构体中( <code>CONTEXT</code> ),这个功能由其子函数<code>KeContextFromKframes</code>来完成</p>
 </li>
 </ol>
-<div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00410555</span> <span class="nf">_KiInitializeUserApc@24</span> <span class="no">proc</span> <span class="no">near</span>       <span class="c1">; CODE XREF: KiDeliverApc(x,x,x)+A745↑p
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00410555</span> <span class="nf">_KiInitializeUserApc@24</span> <span class="no">proc</span> <span class="no">near</span>       <span class="c1">; CODE XREF: KiDeliverApc(x,x,x)+A745↑p
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00410555</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00410555</span> <span class="nf">ExceptionRecord</span> <span class="err">=</span> <span class="no">_EXCEPTION_RECORD</span> <span class="no">ptr</span> <span class="p">-</span><span class="mi">34</span><span class="no">Ch</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00410555</span> <span class="nf">var_2FC</span>         <span class="err">=</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="p">-</span><span class="mi">2</span><span class="no">FCh</span>
@@ -906,8 +986,11 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0041068</span><span class="nf">E</span>                 <span class="no">retn</span>    <span class="mi">18</span><span class="no">h</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0041068</span><span class="nf">E</span> <span class="c1">; } // starts at 410555
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041068</span><span class="nf">E</span> <span class="no">_KiInitializeUserApc@24</span> <span class="no">endp</span></span></span></code></pre></div><p><img loading="lazy" src="/posts/2023-2-winkernelapc/image-20230224142512175.png" alt="image-20230224142512175" srcset="/posts/2023-2-winkernelapc/image-20230224142512175.png?size=small, /posts/2023-2-winkernelapc/image-20230224142512175.png?size=medium 1.5x, /posts/2023-2-winkernelapc/image-20230224142512175.png?size=large 2x" data-title="image-20230224142512175" style="--width: 736px;--aspect-ratio: 736 / 463;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="kiuserapcdispatcher" class="heading-element">
-  <a href="#kiuserapcdispatcher" class="heading-mark"></a>KiUserApcDispatcher</h3><ol>
+<h3 id="kiuserapcdispatcher" class="heading-element"><span>KiUserApcDispatcher</span>
+  <a href="#kiuserapcdispatcher" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>当用户在3环调用<code>QueueUserAPC</code>函数来插入APC时，不需要提供<code>NormalRoutine</code>，这个参数是在<code>QueueUserAPC</code>内部指定的：<code>Kernel.BaseDispatchAPC</code></li>
 <li><code>ZwContinue</code>函数的意义：
 <ol>
@@ -916,7 +999,7 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </ol>
 </li>
 </ol>
-<div class="highlight" id="id-18"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92E430</span> <span class="no">_KiUserApcDispatcher@20</span> <span class="no">proc</span> <span class="no">near</span>       <span class="c1">; DATA XREF: .text:off_7C923428↑o
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92E430</span> <span class="no">_KiUserApcDispatcher@20</span> <span class="no">proc</span> <span class="no">near</span>       <span class="c1">; DATA XREF: .text:off_7C923428↑o
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92E430</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92E430</span> <span class="no">arg_C</span>           <span class="err">=</span> <span class="no">byte</span> <span class="no">ptr</span>  <span class="mi">10</span><span class="no">h</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92E430</span>
@@ -935,8 +1018,11 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92D04C</span>                 <span class="no">retn</span>    <span class="mi">8</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92D04C</span> <span class="no">_ZwContinue@8</span>   <span class="no">endp</span></span></span></code></pre></div><p>以上可以用一张图表示：</p>
 <p><img loading="lazy" src="/posts/2023-2-winkernelapc/1827556-20191103170141163-71115727.png" alt="img" srcset="/posts/2023-2-winkernelapc/1827556-20191103170141163-71115727.png?size=small, /posts/2023-2-winkernelapc/1827556-20191103170141163-71115727.png?size=medium 1.5x, /posts/2023-2-winkernelapc/1827556-20191103170141163-71115727.png?size=large 2x" data-title="img" style="--width: 1464px;--aspect-ratio: 1464 / 707;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="总结-1" class="heading-element">
-  <a href="#%e6%80%bb%e7%bb%93-1" class="heading-mark"></a>总结</h3><ol>
+<h3 id="总结-1" class="heading-element"><span>总结</span>
+  <a href="#%e6%80%bb%e7%bb%93-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>内核APC在线程切换时执行，不需要换栈，比较简单，一个循环执行完毕</li>
 <li>用户APC在系统调用、中断或异常返回3环前会进行判断，如果有要执行的用户APC，再执行</li>
 <li>用户APC执行前会先执行内核APC</li>
@@ -951,9 +1037,9 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/2023-2-winkernelapc/" data-title="Windows内核(七)——APC机制" data-hashtags="Win32"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/2023-2-winkernelapc/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/2023-2-winkernelapc/" data-title="Windows内核(七)——APC机制"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/2023-2-winkernelapc/" data-title="Windows内核(七)——APC机制" data-hashtags="Win32"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/2023-2-winkernelapc/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/2023-2-winkernelapc/" data-title="Windows内核(七)——APC机制"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -972,14 +1058,14 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

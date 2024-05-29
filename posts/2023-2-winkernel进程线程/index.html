@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>Windows内核(四)——进程线程 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>Windows内核(四)——进程线程 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(四)——进程线程">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2023-02-18T00:00:00+00:00" />
+<meta name="description" content="[toc] 进程&amp;线程 滴水中级上 001.进程结构体 每个windows进程在0环都有一个对应的结构体：EPROCESS ，这个结构体包含了进程所有重要的信息。 EPROCESS kd&gt; dt _EPROCESS ntdll!_EPROCESS &#43;0x000 Pcb : _KPROCESS &#43;0x06c ProcessLock : _EX_PUSH_LOCK &#43;0x070 CreateTime : _LARGE_INTEGER//进程的创建时间 &#43;0x078 ExitTime : _L" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(四)——进程线程">
+<meta itemprop="description" content="[toc] 进程&amp;线程 滴水中级上 001.进程结构体 每个windows进程在0环都有一个对应的结构体：EPROCESS ，这个结构体包含了进程所有重要的信息。 EPROCESS kd&gt; dt _EPROCESS ntdll!_EPROCESS &#43;0x000 Pcb : _KPROCESS &#43;0x06c ProcessLock : _EX_PUSH_LOCK &#43;0x070 CreateTime : _LARGE_INTEGER//进程的创建时间 &#43;0x078 ExitTime : _L"><meta itemprop="datePublished" content="2023-02-18T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2023-02-18T00:00:00+00:00" />
-<meta itemprop="wordCount" content="16102">
+<meta itemprop="wordCount" content="16125">
 <meta itemprop="keywords" content="Win32," /><meta property="og:title" content="Windows内核(四)——进程线程" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[toc] 进程&amp;线程 滴水中级上 001.进程结构体 每个windows进程在0环都有一个对应的结构体：EPROCESS ，这个结构体包含了进程所有重要的信息。 EPROCESS kd&gt; dt _EPROCESS ntdll!_EPROCESS &#43;0x000 Pcb : _KPROCESS &#43;0x06c ProcessLock : _EX_PUSH_LOCK &#43;0x070 CreateTime : _LARGE_INTEGER//进程的创建时间 &#43;0x078 ExitTime : _L" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2023-02-18T00:00:00+00:00" />
 <meta property="article:modified_time" content="2023-02-18T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Windows内核(四)——进程线程"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[toc] 进程&amp;线程 滴水中级上 001.进程结构体 每个windows进程在0环都有一个对应的结构体：EPROCESS ，这个结构体包含了进程所有重要的信息。 EPROCESS kd&gt; dt _EPROCESS ntdll!_EPROCESS &#43;0x000 Pcb : _KPROCESS &#43;0x06c ProcessLock : _EX_PUSH_LOCK &#43;0x070 CreateTime : _LARGE_INTEGER//进程的创建时间 &#43;0x078 ExitTime : _L"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" /><link rel="prev" href="http://localhost:1313/posts/%E5%A4%A7%E5%AD%A6%E4%B9%8B%E8%B7%AF/" /><link rel="next" href="http://localhost:1313/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" /><link rel="prev" href="http://ghostasky.github.io/posts/%E5%A4%A7%E5%AD%A6%E4%B9%8B%E8%B7%AF/" /><link rel="next" href="http://ghostasky.github.io/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B\/"
-    },"genre": "posts","keywords": "Win32","wordcount":  16102 ,
-    "url": "http:\/\/localhost:1313\/posts\/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B\/","datePublished": "2023-02-18T00:00:00+00:00","dateModified": "2023-02-18T00:00:00+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B\/"
+    },"genre": "posts","keywords": "Win32","wordcount":  16125 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B\/","datePublished": "2023-02-18T00:00:00+00:00","dateModified": "2023-02-18T00:00:00+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>Windows内核(四)——进程线程</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-02-18 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-02-18">2023-02-18</time></span>&nbsp;<span title="16102 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 16200 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 33 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-02-18 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-02-18">2023-02-18</time></span>&nbsp;<span title="16125 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 16200 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 33 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -221,10 +220,16 @@
 <p><a href="https://blog.csdn.net/qq_41490873/category_8987386.html"target="_blank" rel="external nofollow noopener noreferrer">进程&amp;线程</a></p>
 <p><a href="https://blog.csdn.net/qq_41490873/category_9930822.html"target="_blank" rel="external nofollow noopener noreferrer">滴水中级上</a></p>
 </blockquote>
-<h2 id="001进程结构体" class="heading-element">
-  <a href="#001%e8%bf%9b%e7%a8%8b%e7%bb%93%e6%9e%84%e4%bd%93" class="heading-mark"></a>001.进程结构体</h2><p>每个windows进程在0环都有一个对应的结构体：<code>EPROCESS</code> ，这个结构体包含了进程所有重要的信息。</p>
-<h3 id="eprocess" class="heading-element">
-  <a href="#eprocess" class="heading-mark"></a>EPROCESS</h3><div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_EPROCESS</span>
+<h2 id="001进程结构体" class="heading-element"><span>001.进程结构体</span>
+  <a href="#001%e8%bf%9b%e7%a8%8b%e7%bb%93%e6%9e%84%e4%bd%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>每个windows进程在0环都有一个对应的结构体：<code>EPROCESS</code> ，这个结构体包含了进程所有重要的信息。</p>
+<h3 id="eprocess" class="heading-element"><span>EPROCESS</span>
+  <a href="#eprocess" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_EPROCESS</span>
 </span></span><span class="line"><span class="cl"><span class="n">ntdll</span><span class="o">!</span><span class="n">_EPROCESS</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x000</span> <span class="nl">Pcb</span>              <span class="p">:</span> <span class="n">_KPROCESS</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x06c</span> <span class="nl">ProcessLock</span>      <span class="p">:</span> <span class="n">_EX_PUSH_LOCK</span>
@@ -333,8 +338,11 @@
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x252</span> <span class="nl">SubSystemVersion</span> <span class="p">:</span> <span class="n">Uint2B</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x254</span> <span class="nl">PriorityClass</span>    <span class="p">:</span> <span class="n">UChar</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x255</span> <span class="nl">WorkingSetAcquiredUnsafe</span> <span class="p">:</span> <span class="n">UChar</span>
-</span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x258</span> <span class="nl">Cookie</span>           <span class="p">:</span> <span class="n">Uint4B</span></span></span></code></pre></div><h3 id="kprocess" class="heading-element">
-  <a href="#kprocess" class="heading-mark"></a>KPROCESS</h3><div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KPROCESS</span>
+</span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x258</span> <span class="nl">Cookie</span>           <span class="p">:</span> <span class="n">Uint4B</span></span></span></code></pre></div><h3 id="kprocess" class="heading-element"><span>KPROCESS</span>
+  <a href="#kprocess" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KPROCESS</span>
 </span></span><span class="line"><span class="cl"><span class="n">ntdll</span><span class="o">!</span><span class="n">_KPROCESS</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x000</span> <span class="nl">Header</span>           <span class="p">:</span> <span class="n">_DISPATCHER_HEADER</span> <span class="c1">//&#34;可等待对象&#34;，有这个成员就可以被WaitForSingleObject等待
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="o">+</span><span class="mh">0x010</span> <span class="nl">ProfileListHead</span>  <span class="p">:</span> <span class="n">_LIST_ENTRY</span> <span class="c1">//性能分析
@@ -370,8 +378,11 @@
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x069</span> <span class="nl">DisableQuantum</span>   <span class="p">:</span> <span class="n">UChar</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x06a</span> <span class="nl">IdealNode</span>        <span class="p">:</span> <span class="n">UChar</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x06b</span> <span class="nl">Flags</span>            <span class="p">:</span> <span class="n">_KEXECUTE_OPTIONS</span>
-</span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x06b</span> <span class="nl">ExecuteOptions</span>   <span class="p">:</span> <span class="n">UChar</span></span></span></code></pre></div><h3 id="通过进程结构体遍历所有的进程" class="heading-element">
-  <a href="#%e9%80%9a%e8%bf%87%e8%bf%9b%e7%a8%8b%e7%bb%93%e6%9e%84%e4%bd%93%e9%81%8d%e5%8e%86%e6%89%80%e6%9c%89%e7%9a%84%e8%bf%9b%e7%a8%8b" class="heading-mark"></a>通过进程结构体遍历所有的进程</h3><div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">	<span class="n">ULONG</span> <span class="n">ProcessListHead</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x06b</span> <span class="nl">ExecuteOptions</span>   <span class="p">:</span> <span class="n">UChar</span></span></span></code></pre></div><h3 id="通过进程结构体遍历所有的进程" class="heading-element"><span>通过进程结构体遍历所有的进程</span>
+  <a href="#%e9%80%9a%e8%bf%87%e8%bf%9b%e7%a8%8b%e7%bb%93%e6%9e%84%e4%bd%93%e9%81%8d%e5%8e%86%e6%89%80%e6%9c%89%e7%9a%84%e8%bf%9b%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">	<span class="n">ULONG</span> <span class="n">ProcessListHead</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="n">PLIST_ENTRY</span> <span class="n">pListHead</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="n">PLIST_ENTRY</span> <span class="n">pListNext</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="kr">__asm</span><span class="p">{</span>
@@ -390,10 +401,16 @@
 </span></span><span class="line"><span class="cl">		<span class="nf">DbgPrint</span><span class="p">(</span><span class="s">&#34;ImageFileName=%s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,(</span><span class="n">PULONG</span><span class="p">)</span><span class="n">pListNext</span><span class="o">-</span><span class="mh">0x88</span><span class="o">/</span><span class="mi">4</span><span class="o">+</span><span class="mh">0x174</span><span class="o">/</span><span class="mi">4</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">		
 </span></span><span class="line"><span class="cl">		<span class="n">pListNext</span><span class="o">=</span><span class="n">pListNext</span><span class="o">-&gt;</span><span class="n">Flink</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span><span class="k">while</span><span class="p">(</span><span class="n">pListHead</span><span class="o">!=</span><span class="n">pListNext</span><span class="p">);</span></span></span></code></pre></div><h2 id="002线程结构体" class="heading-element">
-  <a href="#002%e7%ba%bf%e7%a8%8b%e7%bb%93%e6%9e%84%e4%bd%93" class="heading-mark"></a>002.线程结构体</h2><p>每个windows线程在0环都有一个对应的结构体：ETHREAD  这个结构体包含了线程所有重要的信息。</p>
-<h3 id="kthread" class="heading-element">
-  <a href="#kthread" class="heading-mark"></a>KTHREAD</h3><div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KTHREAD</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span><span class="k">while</span><span class="p">(</span><span class="n">pListHead</span><span class="o">!=</span><span class="n">pListNext</span><span class="p">);</span></span></span></code></pre></div><h2 id="002线程结构体" class="heading-element"><span>002.线程结构体</span>
+  <a href="#002%e7%ba%bf%e7%a8%8b%e7%bb%93%e6%9e%84%e4%bd%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>每个windows线程在0环都有一个对应的结构体：ETHREAD  这个结构体包含了线程所有重要的信息。</p>
+<h3 id="kthread" class="heading-element"><span>KTHREAD</span>
+  <a href="#kthread" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KTHREAD</span>
 </span></span><span class="line"><span class="cl"><span class="n">ntdll</span><span class="o">!</span><span class="n">_KTHREAD</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x000</span> <span class="nl">Header</span>           <span class="p">:</span> <span class="n">_DISPATCHER_HEADER</span><span class="c1">//可等待对象
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="o">+</span><span class="mh">0x010</span> <span class="nl">MutantListHead</span>   <span class="p">:</span> <span class="n">_LIST_ENTRY</span><span class="c1">//互斥体对象链表
@@ -471,8 +488,11 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="o">+</span><span class="mh">0x1b8</span> <span class="nl">FreezeCount</span>      <span class="p">:</span> <span class="n">Char</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x1b9</span> <span class="nl">SuspendCount</span>     <span class="p">:</span> <span class="n">Char</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x1ba</span> <span class="nl">IdealProcessor</span>   <span class="p">:</span> <span class="n">UChar</span>
-</span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x1bb</span> <span class="nl">DisableBoost</span>     <span class="p">:</span> <span class="n">UChar</span></span></span></code></pre></div><h3 id="ethread" class="heading-element">
-  <a href="#ethread" class="heading-mark"></a>ETHREAD</h3><div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_ETHREAD</span>
+</span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x1bb</span> <span class="nl">DisableBoost</span>     <span class="p">:</span> <span class="n">UChar</span></span></span></code></pre></div><h3 id="ethread" class="heading-element"><span>ETHREAD</span>
+  <a href="#ethread" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_ETHREAD</span>
 </span></span><span class="line"><span class="cl"><span class="n">ntdll</span><span class="o">!</span><span class="n">_ETHREAD</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x000</span> <span class="nl">Tcb</span>              <span class="p">:</span> <span class="n">_KTHREAD</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x1c0</span> <span class="nl">CreateTime</span>       <span class="p">:</span> <span class="n">_LARGE_INTEGER</span>
@@ -528,8 +548,11 @@
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x250</span> <span class="nl">AddressSpaceOwner</span> <span class="p">:</span> <span class="n">Pos</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="n">Bit</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x254</span> <span class="nl">ForwardClusterOnly</span> <span class="p">:</span> <span class="n">UChar</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x255</span> <span class="nl">DisablePageFaultClustering</span> <span class="p">:</span> <span class="n">UChar</span></span></span></code></pre></div><p><img loading="lazy" src="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230119203755480.png" alt="image-20230119203755480" srcset="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230119203755480.png?size=small, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230119203755480.png?size=medium 1.5x, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230119203755480.png?size=large 2x" data-title="image-20230119203755480" style="--width: 1090px;--aspect-ratio: 1090 / 613;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="003kpcr" class="heading-element">
-  <a href="#003kpcr" class="heading-mark"></a>003.KPCR</h2><ol>
+<h2 id="003kpcr" class="heading-element"><span>003.KPCR</span>
+  <a href="#003kpcr" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><ol>
 <li>KPCR结构体是CPU临时记录线程信息的一个结构体</li>
 <li>KPCR是CPU快速查找线程信息用的，自己在上面做不了什么事情。</li>
 <li>当线程进入0环时，FS:[0]指向KPCR(3环时FS:[0] -&gt; TEB)</li>
@@ -538,8 +561,11 @@
 <li>FS寄存器在三环时，记录的是TEB结构的地址。
 在0环时，记录的是KPCR的地址。</li>
 </ol>
-<h3 id="kpcr" class="heading-element">
-  <a href="#kpcr" class="heading-mark"></a>KPCR</h3><div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KPCR</span>
+<h3 id="kpcr" class="heading-element"><span>KPCR</span>
+  <a href="#kpcr" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KPCR</span>
 </span></span><span class="line"><span class="cl"><span class="n">nt</span><span class="o">!</span><span class="n">_KPCR</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x000</span> <span class="nl">NtTib</span>            <span class="p">:</span> <span class="n">_NT_TIB</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x01c</span> <span class="nl">SelfPcr</span>          <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">_KPCR</span><span class="c1">//指向自己，方便寻址
@@ -568,8 +594,11 @@
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x0d8</span> <span class="nl">Spare1</span>           <span class="p">:</span> <span class="n">UChar</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x0dc</span> <span class="nl">KernelReserved2</span>  <span class="p">:</span> <span class="p">[</span><span class="mi">17</span><span class="p">]</span> <span class="n">Uint4B</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x120</span> <span class="nl">PrcbData</span>         <span class="p">:</span> <span class="n">_KPRCB</span><span class="c1">//拓展结构体
-</span></span></span></code></pre></div><h3 id="nt_tib" class="heading-element">
-  <a href="#nt_tib" class="heading-mark"></a>NT_TIB</h3><div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_NT_TIB</span>
+</span></span></span></code></pre></div><h3 id="nt_tib" class="heading-element"><span>NT_TIB</span>
+  <a href="#nt_tib" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_NT_TIB</span>
 </span></span><span class="line"><span class="cl"><span class="n">ntdll</span><span class="o">!</span><span class="n">_NT_TIB</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x000</span> <span class="nl">ExceptionList</span>    <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">_EXCEPTION_REGISTRATION_RECORD</span><span class="c1">//当前线程内核异常链表(SEH)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="o">+</span><span class="mh">0x004</span> <span class="nl">StackBase</span>        <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">Void</span><span class="c1">//当前线程内核栈的基址
@@ -579,8 +608,11 @@
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x010</span> <span class="nl">Version</span>          <span class="p">:</span> <span class="n">Uint4B</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x014</span> <span class="nl">ArbitraryUserPointer</span> <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">Void</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x018</span> <span class="nl">Self</span>             <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">_NT_TIB</span><span class="c1">//指向自己(也就是指向KPCR结构) 
-</span></span></span></code></pre></div><h3 id="kprcb" class="heading-element">
-  <a href="#kprcb" class="heading-mark"></a>KPRCB</h3><div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KPRCB</span>
+</span></span></span></code></pre></div><h3 id="kprcb" class="heading-element"><span>KPRCB</span>
+  <a href="#kprcb" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KPRCB</span>
 </span></span><span class="line"><span class="cl"><span class="n">ntdll</span><span class="o">!</span><span class="n">_KPRCB</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x000</span> <span class="nl">MinorVersion</span>     <span class="p">:</span> <span class="n">Uint2B</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x002</span> <span class="nl">MajorVersion</span>     <span class="p">:</span> <span class="n">Uint2B</span>
@@ -680,20 +712,29 @@
 <p>而我们的课程是基于Windows XP SP2/SP3 二进制文件.</p>
 <p>微软并不开源，很多内核成员的作用需要自己去分析.</p>
 </blockquote>
-<h2 id="004等待链表_调度链表" class="heading-element">
-  <a href="#004%e7%ad%89%e5%be%85%e9%93%be%e8%a1%a8_%e8%b0%83%e5%ba%a6%e9%93%be%e8%a1%a8" class="heading-mark"></a>004.等待链表_调度链表</h2><blockquote>
+<h2 id="004等待链表_调度链表" class="heading-element"><span>004.等待链表_调度链表</span>
+  <a href="#004%e7%ad%89%e5%be%85%e9%93%be%e8%a1%a8_%e8%b0%83%e5%ba%a6%e9%93%be%e8%a1%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><blockquote>
 <p>回顾：</p>
 <p>EPROCESS结构体有两个链表：0x50，0x190，里面圈着当前进程的所有线程。</p>
 </blockquote>
 <p><strong>对进程断链，程序可以正常运行，原因是CPU执行与调度是基于线程的，进程断链只是影响一些遍历系统进程的API，并不会影响程序执行。</strong></p>
 <p><strong>对线程断链也是一样的，断链后在Windbg或者OD中无法看到被断掉的线程，但并不影响其执行(仍然再跑)。</strong></p>
-<h3 id="线程的三种状态等待运行就绪" class="heading-element">
-  <a href="#%e7%ba%bf%e7%a8%8b%e7%9a%84%e4%b8%89%e7%a7%8d%e7%8a%b6%e6%80%81%e7%ad%89%e5%be%85%e8%bf%90%e8%a1%8c%e5%b0%b1%e7%bb%aa" class="heading-mark"></a>线程的三种状态：等待，运行，就绪</h3><p>正在运行中的线程存储在KPCR中，就绪和等待的线程全在另外的33个链表中。一个等待链表，32个就绪链表：</p>
+<h3 id="线程的三种状态等待运行就绪" class="heading-element"><span>线程的三种状态：等待，运行，就绪</span>
+  <a href="#%e7%ba%bf%e7%a8%8b%e7%9a%84%e4%b8%89%e7%a7%8d%e7%8a%b6%e6%80%81%e7%ad%89%e5%be%85%e8%bf%90%e8%a1%8c%e5%b0%b1%e7%bb%aa" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>正在运行中的线程存储在KPCR中，就绪和等待的线程全在另外的33个链表中。一个等待链表，32个就绪链表：</p>
 <p>这些链表都使用了_KTHREAD(0x060)这个位置，也就是说，线程在某一时刻，只能属于其中一个圈。</p>
-<h4 id="等待链表" class="heading-element">
-  <a href="#%e7%ad%89%e5%be%85%e9%93%be%e8%a1%a8" class="heading-mark"></a>等待链表</h4><p>导致线程等待的原因有多种，例如调用了Sleep, WaitForSingleObject 等函数，或者在创建时和运行时让线程挂起的API，例如 SuspendThread 函数。</p>
+<h4 id="等待链表" class="heading-element"><span>等待链表</span>
+  <a href="#%e7%ad%89%e5%be%85%e9%93%be%e8%a1%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>导致线程等待的原因有多种，例如调用了Sleep, WaitForSingleObject 等函数，或者在创建时和运行时让线程挂起的API，例如 SuspendThread 函数。</p>
 <p>等待线程存储在等待链表头 KiWaitListHead 中， KiWaitListHead 是一个全局变量，可以 dd 查看。</p>
-<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dd KiWaitListHead
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dd KiWaitListHead
 </span></span><span class="line"><span class="cl">8055d4a8  863ee840 86407a30 <span class="m">00000011</span> <span class="m">00000000</span>
 </span></span><span class="line"><span class="cl">8055d4b8  e57a42bd d6bf94d5 <span class="m">01000013</span> ffdff980
 </span></span><span class="line"><span class="cl">8055d4c8  ffdff980 805032c6 <span class="m">00000000</span> 0000493c
@@ -818,10 +859,16 @@ nt_exe!_EPROCESS
    +0x000 Pcb              : _KPROCESS
   .....
    +0x174 ImageFileName    : [16]  &#34;lsass.exe&#34;//可以看到是这个进程的</code></pre><p><code>_KTHREAD + 0x60</code> 是一个共用体 union ，线程处于等待或者调度状态就会存到这个位置的链表里，如果是等待状态，这个地方就是等待链表；如果是调度状态，这里就是调度链表。</p>
-<h4 id="运行链表" class="heading-element">
-  <a href="#%e8%bf%90%e8%a1%8c%e9%93%be%e8%a1%a8" class="heading-mark"></a>运行链表</h4><p>一个核只有一个运行中的线程，运行中的线程存储在 KPCR 中。</p>
-<h4 id="调度链表" class="heading-element">
-  <a href="#%e8%b0%83%e5%ba%a6%e9%93%be%e8%a1%a8" class="heading-mark"></a>调度链表</h4><p>调度链表有32个圈，就是优先级:0 - 31  0最低  31最高</p>
+<h4 id="运行链表" class="heading-element"><span>运行链表</span>
+  <a href="#%e8%bf%90%e8%a1%8c%e9%93%be%e8%a1%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>一个核只有一个运行中的线程，运行中的线程存储在 KPCR 中。</p>
+<h4 id="调度链表" class="heading-element"><span>调度链表</span>
+  <a href="#%e8%b0%83%e5%ba%a6%e9%93%be%e8%a1%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>调度链表有32个圈，就是优先级:0 - 31  0最低  31最高</p>
 <p>默认优先级一般是8</p>
 <p>改变优先级就是从一个圈里面卸下来挂到另外一个圈上</p>
 <p>这32个圈是正在调度中的线程：包括正在运行的和准备运行的</p>
@@ -838,17 +885,23 @@ kd&gt; dd KiDispatcherReadyListHead L70
 8055dff0  8055dff0 8055dff0 8055dff8 8055dff8
 ...</code></pre><p>每两个4字节就构成了一个 LIST_ENTRY，我们发现这里32个链表都是空的，原因是现在windbg把系统挂起了，所有线程都处于等待状态，不能被调度了。</p>
 <p>32个链表对应32个优先级 0-31，默认优先级是8，优先级越高越优先。</p>
-<h5 id="版本差异" class="heading-element">
-  <a href="#%e7%89%88%e6%9c%ac%e5%b7%ae%e5%bc%82" class="heading-mark"></a>版本差异</h5><p>XP只有一个33个圈，也就是说上面这个数组只有一个，多核也只有一个.</p>
+<h5 id="版本差异" class="heading-element"><span>版本差异</span>
+  <a href="#%e7%89%88%e6%9c%ac%e5%b7%ae%e5%bc%82" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h5><p>XP只有一个33个圈，也就是说上面这个数组只有一个，多核也只有一个.</p>
 <p>Win7也是一样的只有一个圈，如果是64位的，那就有64个圈.</p>
 <p>服务器版本：</p>
 <p><code>KiWaitListHead</code>整个系统只有一个，但<code>KiDispatcherReadyListHead</code>这个数组有几个CPU就有几组</p>
-<h2 id="005模拟线程切换" class="heading-element">
-  <a href="#005%e6%a8%a1%e6%8b%9f%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2" class="heading-mark"></a>005.模拟线程切换</h2><blockquote>
+<h2 id="005模拟线程切换" class="heading-element"><span>005.模拟线程切换</span>
+  <a href="#005%e6%a8%a1%e6%8b%9f%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><blockquote>
 <p><a href="https://blog.csdn.net/Kwansy/article/details/109554283"target="_blank" rel="external nofollow noopener noreferrer">模拟线程切换</a></p>
 </blockquote>
 <p>3环模拟线程切换的代码：</p>
-<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;tchar.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;string.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;Windows.h&gt;
@@ -1157,32 +1210,56 @@ kd&gt; dd KiDispatcherReadyListHead L70
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="p">}</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="k">return</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="registergmthread" class="heading-element">
-  <a href="#registergmthread" class="heading-mark"></a>RegisterGMThread</h3><p>RegisterGMThread 函数负责创建线程，它遍历线程调度队列，找到一个空位作为新线程结构体，然后调用 InitGMThread 初始化。</p>
-<h3 id="initgmthread" class="heading-element">
-  <a href="#initgmthread" class="heading-mark"></a>InitGMThread</h3><p>InitGMThread 函数负责初始化线程结构体；为线程申请堆栈内存；向堆栈压入必要的初始数据，包括线程结构体指针</p>
-<h3 id="gmthreadstartup" class="heading-element">
-  <a href="#gmthreadstartup" class="heading-mark"></a>GMThreadStartup</h3><p>GMThreadStartup 函数指针，以及一堆寄存器的初始值，最后设置线程状态为“就绪”。</p>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="registergmthread" class="heading-element"><span>RegisterGMThread</span>
+  <a href="#registergmthread" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>RegisterGMThread 函数负责创建线程，它遍历线程调度队列，找到一个空位作为新线程结构体，然后调用 InitGMThread 初始化。</p>
+<h3 id="initgmthread" class="heading-element"><span>InitGMThread</span>
+  <a href="#initgmthread" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>InitGMThread 函数负责初始化线程结构体；为线程申请堆栈内存；向堆栈压入必要的初始数据，包括线程结构体指针</p>
+<h3 id="gmthreadstartup" class="heading-element"><span>GMThreadStartup</span>
+  <a href="#gmthreadstartup" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>GMThreadStartup 函数指针，以及一堆寄存器的初始值，最后设置线程状态为“就绪”。</p>
 <p><strong>这里所做的所有压栈操作，没有一个是多余的。</strong></p>
 <p>所有线程都要通过 <code>GMThreadStartup</code> 函数调用自己的线程入口函数，而调用 <code>GMThreadStartup</code> 函数的地方以及传参的过程设计非常巧妙，这一步发生在 <code>SwitchContext</code> 函数中，恢复线程后，pop了7个寄存器，esp就指向了 <code>GMThreadStartup</code>，此时 <code>SwitchContext</code> 调用 ret (ret相当于pop eip)指令，就跳转到 <code>GMThreadStartup</code> 函数，完全模拟了 call 调用的堆栈，那个看起来没用的堆栈平衡值其实模拟的是 call 时压入堆栈的返回地址，而 GMThreadp 模拟的是 call 之前push的参数。进入 <code>GMThreadStartup</code> 后，函数从 ebp + 8 处取得参数1 GMThreadp 。</p>
-<h3 id="scheduling-线程调度函数" class="heading-element">
-  <a href="#scheduling-%e7%ba%bf%e7%a8%8b%e8%b0%83%e5%ba%a6%e5%87%bd%e6%95%b0" class="heading-mark"></a>Scheduling 线程调度函数</h3><p>Scheduling负责遍历线程调度队列，如果遍历到“等待”状态的线程，判断它是否已经完成了“等待”，如果是，那么修改其状态为就绪。通过遍历，找出第一个“就绪”线程，如果遍历完都没有发现新的就绪线程，那么就认为主函数是“就绪”线程。</p>
+<h3 id="scheduling-线程调度函数" class="heading-element"><span>Scheduling 线程调度函数</span>
+  <a href="#scheduling-%e7%ba%bf%e7%a8%8b%e8%b0%83%e5%ba%a6%e5%87%bd%e6%95%b0" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>Scheduling负责遍历线程调度队列，如果遍历到“等待”状态的线程，判断它是否已经完成了“等待”，如果是，那么修改其状态为就绪。通过遍历，找出第一个“就绪”线程，如果遍历完都没有发现新的就绪线程，那么就认为主函数是“就绪”线程。</p>
 <p>最后，调用 SwitchContext 函数“切换”到刚才找到的“就绪”线程。</p>
-<h3 id="switchcontext-切换线程函数" class="heading-element">
-  <a href="#switchcontext-%e5%88%87%e6%8d%a2%e7%ba%bf%e7%a8%8b%e5%87%bd%e6%95%b0" class="heading-mark"></a>SwitchContext 切换线程函数</h3><p>旧线程调用 SwitchContext 时，首先把7个寄存器压到自己的栈顶，然后保存当前栈顶 esp 到 KernelStack，然后从新线程的线程结构体里取出 KernelStack 填到 esp，就完成了线程切换。</p>
+<h3 id="switchcontext-切换线程函数" class="heading-element"><span>SwitchContext 切换线程函数</span>
+  <a href="#switchcontext-%e5%88%87%e6%8d%a2%e7%ba%bf%e7%a8%8b%e5%87%bd%e6%95%b0" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>旧线程调用 SwitchContext 时，首先把7个寄存器压到自己的栈顶，然后保存当前栈顶 esp 到 KernelStack，然后从新线程的线程结构体里取出 KernelStack 填到 esp，就完成了线程切换。</p>
 <p>接下来就是从新线程的栈顶 pop 还原7个寄存器。pop 了那7个寄存器后，esp 一定是指向下一条指令的地址的，如果新线程尚未被调度过，那么栈顶一定是 GMThreadStartup；如果新线程曾被调度过，那么栈顶一定是新线程上一次调用 SwitchContext 的返回地址，即 Scheduling 函数的末尾。</p>
 <p><img loading="lazy" src="watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0t3YW5zeQ==,size_16,color_FFFFFF,t_70#pic_center.png" alt="watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0t3YW5zeQ==,size_16,color_FFFFFF,t_70#pic_center.png" srcset="watermark%2ctype_ZmFuZ3poZW5naGVpdGk%2cshadow_10%2ctext_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0t3YW5zeQ==%2csize_16%2ccolor_FFFFFF%2ct_70#pic_center.png?size=small, watermark%2ctype_ZmFuZ3poZW5naGVpdGk%2cshadow_10%2ctext_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0t3YW5zeQ==%2csize_16%2ccolor_FFFFFF%2ct_70#pic_center.png?size=medium 1.5x, watermark%2ctype_ZmFuZ3poZW5naGVpdGk%2cshadow_10%2ctext_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0t3YW5zeQ==%2csize_16%2ccolor_FFFFFF%2ct_70#pic_center.png?size=large 2x" data-title="watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0t3YW5zeQ==,size_16,color_FFFFFF,t_70#pic_center.png" class="suffix-invalid suffix-invalid__small suffix-invalid__large" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="总结" class="heading-element">
-  <a href="#%e6%80%bb%e7%bb%93" class="heading-mark"></a>总结</h3><p>模拟线程切换总结：</p>
+<h3 id="总结" class="heading-element"><span>总结</span>
+  <a href="#%e6%80%bb%e7%bb%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>模拟线程切换总结：</p>
 <ol>
 <li>线程不是被动切换的，而是<strong>主动</strong>让出CPU.</li>
 <li><strong>线程切换</strong>并<strong>没有使用TSS</strong>来保存寄存器，而是使用堆栈.</li>
 <li>线程切换的过程就是堆栈切换的过程.</li>
 </ol>
-<h2 id="006windows线程切换_主动切换" class="heading-element">
-  <a href="#006windows%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2_%e4%b8%bb%e5%8a%a8%e5%88%87%e6%8d%a2" class="heading-mark"></a>006.Windows线程切换_主动切换</h2><p>线程切换是操作系统的核心内容，几乎所有的内核API都会调用切换线程的函数。接下来逆向 <code>KiSwapContext</code> 和 <code>SwapContext</code> 这两个函数，看看Windows是怎么切换线程的。</p>
-<h3 id="分析-kiswapcontext" class="heading-element">
-  <a href="#%e5%88%86%e6%9e%90-kiswapcontext" class="heading-mark"></a>分析 KiSwapContext</h3><div class="highlight" id="id-14"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040581</span><span class="nf">E</span> <span class="c1">; __fastcall KiSwapContext(x)
+<h2 id="006windows线程切换_主动切换" class="heading-element"><span>006.Windows线程切换_主动切换</span>
+  <a href="#006windows%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2_%e4%b8%bb%e5%8a%a8%e5%88%87%e6%8d%a2" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>线程切换是操作系统的核心内容，几乎所有的内核API都会调用切换线程的函数。接下来逆向 <code>KiSwapContext</code> 和 <code>SwapContext</code> 这两个函数，看看Windows是怎么切换线程的。</p>
+<h3 id="分析-kiswapcontext" class="heading-element"><span>分析 KiSwapContext</span>
+  <a href="#%e5%88%86%e6%9e%90-kiswapcontext" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040581</span><span class="nf">E</span> <span class="c1">; __fastcall KiSwapContext(x)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040581</span><span class="nf">E</span> <span class="err">@</span><span class="no">KiSwapContext@4</span> <span class="no">proc</span> <span class="no">near</span>              <span class="c1">; CODE XREF: KiSwapThread()+33↓p
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040581</span><span class="nf">E</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040581</span><span class="nf">E</span> <span class="no">var_10</span>          <span class="err">=</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="p">-</span><span class="mi">10</span><span class="no">h</span>
@@ -1215,13 +1292,22 @@ kd&gt; dd KiDispatcherReadyListHead L70
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00405858</span>                 <span class="nf">mov</span>     <span class="no">ebx</span><span class="p">,</span> <span class="p">[</span><span class="no">esp</span><span class="err">+</span><span class="mi">10</span><span class="no">h</span><span class="err">+</span><span class="no">var_4</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040585</span><span class="nf">C</span>                 <span class="no">add</span>     <span class="no">esp</span><span class="p">,</span> <span class="mi">10</span><span class="no">h</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040585</span><span class="nf">F</span>                 <span class="no">retn</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040585</span><span class="nf">F</span> <span class="err">@</span><span class="no">KiSwapContext@4</span> <span class="no">endp</span></span></span></code></pre></div><h3 id="分析-swapcontext" class="heading-element">
-  <a href="#%e5%88%86%e6%9e%90-swapcontext" class="heading-mark"></a>分析 SwapContext</h3><p><code>SwapContext</code>是线程切换最终发生的地方。</p>
-<h4 id="线程切换汇编语句" class="heading-element">
-  <a href="#%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2%e6%b1%87%e7%bc%96%e8%af%ad%e5%8f%a5" class="heading-mark"></a>线程切换汇编语句</h4><div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="no">esp</span><span class="p">,</span> <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="no">_ETHREAD.Tcb.KernelStack</span><span class="p">]</span> <span class="err">;</span> <span class="err">此处是切换线程，切换线程本质是切换堆栈</span></span></span></code></pre></div><h4 id="线程切换是否会切换cr3" class="heading-element">
-  <a href="#%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2%e6%98%af%e5%90%a6%e4%bc%9a%e5%88%87%e6%8d%a2cr3" class="heading-mark"></a>线程切换是否会切换CR3</h4><p>如果新旧线程属于同一个进程，就不换 cr3,；否则就要换。</p>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040585</span><span class="nf">F</span> <span class="err">@</span><span class="no">KiSwapContext@4</span> <span class="no">endp</span></span></span></code></pre></div><h3 id="分析-swapcontext" class="heading-element"><span>分析 SwapContext</span>
+  <a href="#%e5%88%86%e6%9e%90-swapcontext" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p><code>SwapContext</code>是线程切换最终发生的地方。</p>
+<h4 id="线程切换汇编语句" class="heading-element"><span>线程切换汇编语句</span>
+  <a href="#%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2%e6%b1%87%e7%bc%96%e8%af%ad%e5%8f%a5" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="no">esp</span><span class="p">,</span> <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="no">_ETHREAD.Tcb.KernelStack</span><span class="p">]</span> <span class="err">;</span> <span class="err">此处是切换线程，切换线程本质是切换堆栈</span></span></span></code></pre></div><h4 id="线程切换是否会切换cr3" class="heading-element"><span>线程切换是否会切换CR3</span>
+  <a href="#%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2%e6%98%af%e5%90%a6%e4%bc%9a%e5%88%87%e6%8d%a2cr3" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>如果新旧线程属于同一个进程，就不换 cr3,；否则就要换。</p>
 <p>判断是否属于同一进程的代码：</p>
-<div class="highlight" id="id-16"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">edi</span><span class="err">+</span><span class="no">_ETHREAD.Tcb.ApcState.Process</span><span class="p">]</span> <span class="c1">;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">edi</span><span class="err">+</span><span class="no">_ETHREAD.Tcb.ApcState.Process</span><span class="p">]</span> <span class="c1">;
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>                        <span class="c1">; 通常情况下，ApcState.Process 和 _ETHREAD.ThreadsProcess 是同一个
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>                        <span class="c1">; 但是当A进程调用API访问B进程的内存时，ApcState.Process 存的就是B进程
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">cmp</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="no">_ETHREAD.Tcb.ApcState.Process</span><span class="p">]</span>
@@ -1229,7 +1315,7 @@ kd&gt; dd KiDispatcherReadyListHead L70
 </span></span><span class="line"><span class="cl"><span class="nf">jz</span>      <span class="no">short</span> <span class="no">loc_46A994</span> <span class="c1">; 如果是同一个进程内的线程切换，就跳转
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>                        <span class="c1">;
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>                        <span class="err">;</span> <span class="err">如果不是同一个进程的，那么就要做额外的工作，主要就是切换</span><span class="nf">CR3</span></span></span></code></pre></div><p>切换 cr3 的代码：</p>
-<div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">loc_46A975:</span>             <span class="c1">; 修改 LDT 寄存器
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">loc_46A975:</span>             <span class="c1">; 修改 LDT 寄存器
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">lldt</span>    <span class="no">ax</span>
 </span></span><span class="line"><span class="cl"><span class="nf">xor</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">eax</span>
 </span></span><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="no">gs</span><span class="p">,</span> <span class="no">eax</span>         <span class="c1">; gs 寄存器清零
@@ -1241,8 +1327,11 @@ kd&gt; dd KiDispatcherReadyListHead L70
 </span></span><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">TSS.CR3</span><span class="p">],</span> <span class="no">eax</span>
 </span></span><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="no">cr3</span><span class="p">,</span> <span class="no">eax</span>        <span class="c1">; 关键步骤：切换 cr3
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span>     <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">TSS.IOMap</span><span class="p">],</span> <span class="no">cx</span>
-</span></span><span class="line"><span class="cl"><span class="nf">jmp</span>     <span class="no">short</span> <span class="no">loc_46A994</span></span></span></code></pre></div><h4 id="swapcontext全部分析" class="heading-element">
-  <a href="#swapcontext%e5%85%a8%e9%83%a8%e5%88%86%e6%9e%90" class="heading-mark"></a>SwapContext全部分析</h4><div class="highlight" id="id-18"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A8E0</span> <span class="c1">; 参数有4个，均通过寄存器保存
+</span></span><span class="line"><span class="cl"><span class="nf">jmp</span>     <span class="no">short</span> <span class="no">loc_46A994</span></span></span></code></pre></div><h4 id="swapcontext全部分析" class="heading-element"><span>SwapContext全部分析</span>
+  <a href="#swapcontext%e5%85%a8%e9%83%a8%e5%88%86%e6%9e%90" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A8E0</span> <span class="c1">; 参数有4个，均通过寄存器保存
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A8E0</span> <span class="c1">; ebx: _KPCR
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A8E0</span> <span class="c1">; esi: 新线程 _ETHREAD
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A8E0</span> <span class="c1">; edi: 旧线程 _ETHREAD
@@ -1365,8 +1454,11 @@ kd&gt; dd KiDispatcherReadyListHead L70
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A9B7</span>                 <span class="no">jnz</span>     <span class="no">short</span> <span class="no">loc_46A9BD</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A9B9</span>                 <span class="no">popf</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A9BA</span>                 <span class="no">xor</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">eax</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A9BC</span>                 <span class="no">retn</span></span></span></code></pre></div><h2 id="007windows线程切换_时钟中断切换" class="heading-element">
-  <a href="#007windows%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2_%e6%97%b6%e9%92%9f%e4%b8%ad%e6%96%ad%e5%88%87%e6%8d%a2" class="heading-mark"></a>007.Windows线程切换_时钟中断切换</h2><p>如何中断一个正在执行的程序?</p>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A9BC</span>                 <span class="no">retn</span></span></span></code></pre></div><h2 id="007windows线程切换_时钟中断切换" class="heading-element"><span>007.Windows线程切换_时钟中断切换</span>
+  <a href="#007windows%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2_%e6%97%b6%e9%92%9f%e4%b8%ad%e6%96%ad%e5%88%87%e6%8d%a2" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>如何中断一个正在执行的程序?</p>
 <ol>
 <li>异常：比如缺页，或者INT N指令</li>
 <li>中断：比如时钟中断</li>
@@ -1383,44 +1475,65 @@ kd&gt; dd KiDispatcherReadyListHead L70
 <li><code>KiDispatchInterrupt</code>：<code>KiDispatchInterrupt</code>会根据当前线程剩余时间片和备用线程的情况来决定下一步的调用</li>
 <li><code>SwapContext</code></li>
 </ol>
-<h3 id="总结-1" class="heading-element">
-  <a href="#%e6%80%bb%e7%bb%93-1" class="heading-mark"></a>总结</h3><p>线程切换的几种情况：</p>
+<h3 id="总结-1" class="heading-element"><span>总结</span>
+  <a href="#%e6%80%bb%e7%bb%93-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>线程切换的几种情况：</p>
 <ol>
 <li>主动调用API函数</li>
 <li>时钟中断</li>
 <li>异常处理</li>
 </ol>
-<h2 id="008windows线程切换_时间片管理" class="heading-element">
-  <a href="#008windows%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2_%e6%97%b6%e9%97%b4%e7%89%87%e7%ae%a1%e7%90%86" class="heading-mark"></a>008.Windows线程切换_时间片管理</h2><p>时钟中断不一定会切换线程。</p>
+<h2 id="008windows线程切换_时间片管理" class="heading-element"><span>008.Windows线程切换_时间片管理</span>
+  <a href="#008windows%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2_%e6%97%b6%e9%97%b4%e7%89%87%e7%ae%a1%e7%90%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>时钟中断不一定会切换线程。</p>
 <p>时钟中断时，两种情况会导致线程切换：</p>
 <p>1、当前的线程CPU时间片到期</p>
 <p>2、有备用线程(<code>KPCR.PrcbData.NextThread</code>)</p>
-<h3 id="cpu时间片" class="heading-element">
-  <a href="#cpu%e6%97%b6%e9%97%b4%e7%89%87" class="heading-mark"></a>CPU时间片</h3><ol>
+<h3 id="cpu时间片" class="heading-element"><span>CPU时间片</span>
+  <a href="#cpu%e6%97%b6%e9%97%b4%e7%89%87" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>当一个新的线程开始执行时，初始化程序会在<code>_KTHREAD.Quantum</code>赋初始值，该值的大小由<code>_KPROCESS.ThreadQuantum</code>决定(观察<code>ThreadQuantum</code>大小，默认是6)</li>
 <li>每次时钟中断会调用<code>KeUpdateRunTime</code>函数，该函数每次将当前线程<code>Quantum</code>减少3个单位，如果减到0，则将<code>KPCR.PrcbData.QuantumEnd</code>的值设置为非0。</li>
 <li><code>KiDispatchInterrupt</code>判断时间片到期：调用<code>KiQuantumEnd</code>(重新设置时间片、找到要运行的线程)</li>
 </ol>
-<h4 id="keupdateruntime" class="heading-element">
-  <a href="#keupdateruntime" class="heading-mark"></a>KeUpdateRunTime</h4><p>每次时钟中断会调用<code>KeUpdateRunTime</code>函数，该函数每次将当前线程<code>Quantum</code>减少3个单位，如果减到0，则将<code>KPCR.PrcbData.QuantumEnd</code>的值设置为非0。</p>
-<div class="highlight" id="id-19"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A1B8</span>                 <span class="no">sub</span>     <span class="p">[</span><span class="no">ebx</span><span class="err">+</span><span class="no">_KTHREAD.Quantum</span><span class="p">],</span> <span class="mi">3</span> <span class="c1">; 时间片 -3
+<h4 id="keupdateruntime" class="heading-element"><span>KeUpdateRunTime</span>
+  <a href="#keupdateruntime" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>每次时钟中断会调用<code>KeUpdateRunTime</code>函数，该函数每次将当前线程<code>Quantum</code>减少3个单位，如果减到0，则将<code>KPCR.PrcbData.QuantumEnd</code>的值设置为非0。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A1B8</span>                 <span class="no">sub</span>     <span class="p">[</span><span class="no">ebx</span><span class="err">+</span><span class="no">_KTHREAD.Quantum</span><span class="p">],</span> <span class="mi">3</span> <span class="c1">; 时间片 -3
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A1BC</span>                 <span class="no">jg</span>      <span class="no">short</span> <span class="no">loc_46A1D7</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A1BE</span>                 <span class="no">cmp</span>     <span class="no">ebx</span><span class="p">,</span> <span class="p">[</span><span class="no">eax</span><span class="err">+</span><span class="no">_KPCR.PrcbData.IdleThread</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A1C4</span>                 <span class="no">jz</span>      <span class="no">short</span> <span class="no">loc_46A1D7</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A1C6</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">eax</span><span class="err">+</span><span class="no">_KPCR.PrcbData.QuantumEnd</span><span class="p">],</span> <span class="no">esp</span></span></span></code></pre></div><p>一个线程初始状态有6个时间片，每次中断会把当前线程时间片减3，这意味着一个线程要经过两次时钟中断时间片才会用完。</p>
-<h4 id="kidispatchinterrupt" class="heading-element">
-  <a href="#kidispatchinterrupt" class="heading-mark"></a>KiDispatchInterrupt</h4><p><code>KiDispatchInterrupt</code> 函数会判断当前线程时间片，如果 <code>QuantumEnd</code> 是非0，表明时间片用完，然后就会调用 <code>KiQuantumEnd</code> 函数重新设置时间片，然后执行线程切换；如果时间片没用完，但是存在备用线程 <code>NextThread</code>，那么也会发生切换：</p>
+<h4 id="kidispatchinterrupt" class="heading-element"><span>KiDispatchInterrupt</span>
+  <a href="#kidispatchinterrupt" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p><code>KiDispatchInterrupt</code> 函数会判断当前线程时间片，如果 <code>QuantumEnd</code> 是非0，表明时间片用完，然后就会调用 <code>KiQuantumEnd</code> 函数重新设置时间片，然后执行线程切换；如果时间片没用完，但是存在备用线程 <code>NextThread</code>，那么也会发生切换：</p>
 <p><img loading="lazy" src="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218163344642.png" alt="image-20230218163344642" srcset="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218163344642.png?size=small, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218163344642.png?size=medium 1.5x, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218163344642.png?size=large 2x" data-title="image-20230218163344642" style="--width: 955px;--aspect-ratio: 955 / 675;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h4 id="kiquantumend" class="heading-element">
-  <a href="#kiquantumend" class="heading-mark"></a>KiQuantumEnd</h4><p><code>KiQuantumEnd</code> 函数主要工作就是重新设置时间片：</p>
-<div class="highlight" id="id-20"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="no">al</span><span class="p">,</span> <span class="p">[</span><span class="no">eax</span><span class="err">+</span><span class="no">_EPROCESS.Pcb.ThreadQuantum</span><span class="p">]</span>
+<h4 id="kiquantumend" class="heading-element"><span>KiQuantumEnd</span>
+  <a href="#kiquantumend" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p><code>KiQuantumEnd</code> 函数主要工作就是重新设置时间片：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="no">al</span><span class="p">,</span> <span class="p">[</span><span class="no">eax</span><span class="err">+</span><span class="no">_EPROCESS.Pcb.ThreadQuantum</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="no">_ETHREAD.Tcb.Quantum</span><span class="p">],</span> <span class="no">al</span> <span class="err">;</span> <span class="err">重新设置一下当前线程的时间片</span></span></span></code></pre></div><p>之后调用 <code>KiFindReadyThread</code> 找新的就绪线程作为函数返回值：</p>
-<div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">movzx</span>   <span class="no">ecx</span><span class="p">,</span> <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="no">_ETHREAD.Tcb.NextProcessor</span><span class="p">]</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">movzx</span>   <span class="no">ecx</span><span class="p">,</span> <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="no">_ETHREAD.Tcb.NextProcessor</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nf">call</span>    <span class="err">@</span><span class="no">KiFindReadyThread@8</span> <span class="c1">; KiFindReadyThread(x,x)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">cmp</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">ebx</span>
-</span></span><span class="line"><span class="cl"><span class="nf">jz</span>      <span class="no">short</span> <span class="no">loc_428C4B</span></span></span></code></pre></div><h4 id="kireadythread" class="heading-element">
-  <a href="#kireadythread" class="heading-mark"></a>KiReadyThread</h4><p>作用是把旧线程 ETHREAD（ecx 传参）添加到就绪链表里，关键代码如下:</p>
-<div class="highlight" id="id-22"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00429</span><span class="nf">A40</span> <span class="no">loc_429A40</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KiReadyThread(x)+5E↑j
+</span></span><span class="line"><span class="cl"><span class="nf">jz</span>      <span class="no">short</span> <span class="no">loc_428C4B</span></span></span></code></pre></div><h4 id="kireadythread" class="heading-element"><span>KiReadyThread</span>
+  <a href="#kireadythread" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>作用是把旧线程 ETHREAD（ecx 传参）添加到就绪链表里，关键代码如下:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00429</span><span class="nf">A40</span> <span class="no">loc_429A40</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KiReadyThread(x)+5E↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00429</span><span class="nf">A40</span>                                         <span class="c1">; KiReadyThread(x)+12A↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00429</span><span class="nf">A40</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">eax</span><span class="err">+</span><span class="no">_ETHREAD.Tcb.State</span><span class="p">],</span> <span class="mi">1</span> <span class="c1">; 就绪状态
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00429</span><span class="nf">A44</span>                 <span class="no">add</span>     <span class="no">eax</span><span class="p">,</span> <span class="mi">60</span><span class="no">h</span>        <span class="c1">; ETHREAD + 0x60 是一个链表, WaitListEntry / SwapListEntry
@@ -1432,16 +1545,22 @@ kd&gt; dd KiDispatcherReadyListHead L70
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00429</span><span class="nf">A56</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">eax</span><span class="err">+</span><span class="mi">4</span><span class="p">],</span> <span class="no">edx</span>    <span class="c1">; ETHREAD.WaitListEntry.BLink 指向链表头
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00429</span><span class="nf">A59</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="mi">4</span><span class="p">],</span> <span class="no">eax</span>    <span class="c1">; 下一个线程.BLink 指向 ETHREAD.WaitListEntry
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00429</span><span class="nf">A5C</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">edx</span><span class="p">],</span> <span class="no">eax</span>      <span class="c1">; 链表头.FLink = ETHREAD.WaitListEntry
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00429</span><span class="nf">A5E</span>                 <span class="no">jmp</span>     <span class="no">short</span> <span class="no">loc_429A6D</span></span></span></code></pre></div><h3 id="总结-2" class="heading-element">
-  <a href="#%e6%80%bb%e7%bb%93-2" class="heading-mark"></a>总结</h3><p>线程切换的三种情况：</p>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00429</span><span class="nf">A5E</span>                 <span class="no">jmp</span>     <span class="no">short</span> <span class="no">loc_429A6D</span></span></span></code></pre></div><h3 id="总结-2" class="heading-element"><span>总结</span>
+  <a href="#%e6%80%bb%e7%bb%93-2" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>线程切换的三种情况：</p>
 <p>(1)、当前线程主动调用API：</p>
 <p>API函数 -&gt; <code>KiSwapThread</code> -&gt; <code>KiSwapContext</code> -&gt; <strong><code>SwapContext</code></strong></p>
 <p>(2)、当前线程时间片到期：</p>
 <p><code>KiDispatchInterrupt</code> -&gt; <code>KiQuantumEnd</code> -&gt; <strong><code>SwapContext</code></strong></p>
 <p>(3)、有备用线程(<code>KPCR.PrcbData.NextThread</code>)</p>
 <p><code>KiDispatchInterrupt</code> -&gt; <strong><code>SwapContext</code></strong></p>
-<h2 id="009windows线程切换_tss" class="heading-element">
-  <a href="#009windows%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2_tss" class="heading-mark"></a>009.Windows线程切换_TSS</h2><p>内核堆栈：</p>
+<h2 id="009windows线程切换_tss" class="heading-element"><span>009.Windows线程切换_TSS</span>
+  <a href="#009windows%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2_tss" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>内核堆栈：</p>
 <p><img loading="lazy" src="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218165731076.png" alt="image-20230218165731076" srcset="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218165731076.png?size=small, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218165731076.png?size=medium 1.5x, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218165731076.png?size=large 2x" data-title="image-20230218165731076" style="--width: 419px;--aspect-ratio: 419 / 279;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>内核堆栈结构：</p>
 <p>(栈底开始往上0x210个字节存储浮点寄存器的值，以上都是<code>TrapFrame</code>结构（在api3环进0环已经讲过了，<code>系统调用</code>那一节）。)</p>
@@ -1450,7 +1569,7 @@ kd&gt; dd KiDispatcherReadyListHead L70
 <p>普通调用：通过<code>TSS.ESP0</code>得到0环堆栈</p>
 <p>快速调用：从MSR得到一个临时0环栈，代码执行后仍然通过<code>TSS.esp0</code>得到当前线程0环堆栈。</p>
 <p><code>KiFastCallEntry</code>：</p>
-<div class="highlight" id="id-23"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span>                 <span class="no">mov</span>     <span class="no">ecx</span><span class="p">,</span> <span class="mi">23</span><span class="no">h</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040689</span><span class="nf">F</span>                 <span class="no">mov</span>     <span class="no">ecx</span><span class="p">,</span> <span class="mi">23</span><span class="no">h</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">A4</span>                 <span class="no">push</span>    <span class="mi">30</span><span class="no">h</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">A6</span>                 <span class="no">pop</span>     <span class="no">fs</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">A8</span>                 <span class="no">mov</span>     <span class="no">ds</span><span class="p">,</span> <span class="no">ecx</span>
@@ -1459,11 +1578,14 @@ kd&gt; dd KiDispatcherReadyListHead L70
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004068</span><span class="nf">B3</span>                 <span class="no">mov</span>     <span class="no">esp</span><span class="p">,</span> <span class="p">[</span><span class="no">ecx</span><span class="err">+</span><span class="mi">4</span><span class="p">]</span>    <span class="c1">; tss.esp0
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004068</span><span class="nf">B6</span>                 <span class="no">push</span>    <span class="mi">23</span><span class="no">h</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">B8</span>                 <span class="no">push</span>    <span class="no">edx</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">B9</span>                 <span class="no">pushf</span></span></span></code></pre></div><h3 id="tss" class="heading-element">
-  <a href="#tss" class="heading-mark"></a>TSS</h3><p>Intel设计TSS的目的是为了任务切换(线程切换)，但Windows与Linux并没有使用。而是采用堆栈来保存线程的各种寄存器。</p>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004068</span><span class="nf">B9</span>                 <span class="no">pushf</span></span></span></code></pre></div><h3 id="tss" class="heading-element"><span>TSS</span>
+  <a href="#tss" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>Intel设计TSS的目的是为了任务切换(线程切换)，但Windows与Linux并没有使用。而是采用堆栈来保存线程的各种寄存器。</p>
 <p>一个CPU只有一个TSS，但是线程很多，如何用一个TSS来保存所有线程的ESP0呢?</p>
 <p>swapContext部分代码：</p>
-<div class="highlight" id="id-24"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="no">_ETHREAD.Tcb.InitialStack</span><span class="p">]</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="no">_ETHREAD.Tcb.InitialStack</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nf">sub</span>     <span class="no">eax</span><span class="p">,</span> <span class="mi">210</span><span class="no">h</span>       <span class="c1">; 线程堆栈的前 0x210 字节是浮点寄存器
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>                        <span class="c1">; 此时 eax 指向 _KTRAP_FRAME.V86Gs
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">sub</span>     <span class="no">eax</span><span class="p">,</span> <span class="mi">10</span><span class="no">h</span><span class="c1">;虚拟8086模式下使用 TrapFrame结构
@@ -1502,12 +1624,15 @@ kd&gt; dd KiDispatcherReadyListHead L70
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A985</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">TSS.CR3</span><span class="p">],</span> <span class="no">eax</span><span class="c1">;将当前TSS中的CR3修改为目标进程的CR3
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A988</span>                 <span class="no">mov</span>     <span class="no">cr3</span><span class="p">,</span> <span class="no">eax</span>        <span class="c1">; 关键步骤：切换 cr3
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A98B</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">TSS.IOMap</span><span class="p">],</span> <span class="no">cx</span><span class="c1">;存储IO权限位图到TSS 当前线程的IO权限位图 Windows2000以后不用了
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A98F</span>                 <span class="no">jmp</span>     <span class="no">short</span> <span class="no">loc_46A994</span></span></span></code></pre></div><h2 id="010windows线程切换_fs" class="heading-element">
-  <a href="#010windows%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2_fs" class="heading-mark"></a>010.Windows线程切换_FS</h2><p><code>FS:[0]</code>寄存器在3环时指向TEB，进入0环后<code>FS:[0]</code>指向KPCR</p>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A98F</span>                 <span class="no">jmp</span>     <span class="no">short</span> <span class="no">loc_46A994</span></span></span></code></pre></div><h2 id="010windows线程切换_fs" class="heading-element"><span>010.Windows线程切换_FS</span>
+  <a href="#010windows%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2_fs" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p><code>FS:[0]</code>寄存器在3环时指向TEB，进入0环后<code>FS:[0]</code>指向KPCR</p>
 <p>系统中同时存在很多个线程，这就意味着<code>FS:[0]</code>在3环时指向的TEB要有多个(每个线程一份)。</p>
 <p><strong>思考</strong>：在实际的使用中我们发现，当我们在3环查看不同线程的FS寄存器时，FS的段选择子都是相同的，那么<strong>如何实现通过一个FS寄存器指向多个TEB</strong>？(线程切换的时候把基址给改了)</p>
 <p>还是<code>SwapContext</code>的部分代码：</p>
-<div class="highlight" id="id-25"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A994</span> <span class="no">loc_46A994</span><span class="p">:</span>                             <span class="c1">; CODE XREF: SwapContext+86↑j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A994</span> <span class="no">loc_46A994</span><span class="p">:</span>                             <span class="c1">; CODE XREF: SwapContext+86↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A994</span>                                         <span class="c1">; SwapContext+AF↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A994</span>                 <span class="no">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">ebx</span><span class="err">+</span><span class="no">_KPCR.NtTib.Self</span><span class="p">]</span> <span class="c1">;
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A994</span>                                         <span class="c1">; 此时 eax 指向了 TEB
@@ -1529,10 +1654,16 @@ kd&gt; dd KiDispatcherReadyListHead L70
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A9B7</span>                 <span class="no">jnz</span>     <span class="no">short</span> <span class="no">loc_46A9BD</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A9B9</span>                 <span class="no">popf</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A9BA</span>                 <span class="no">xor</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">eax</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A9BC</span>                 <span class="no">retn</span></span></span></code></pre></div><h4 id="段描述符结构" class="heading-element">
-  <a href="#%e6%ae%b5%e6%8f%8f%e8%bf%b0%e7%ac%a6%e7%bb%93%e6%9e%84" class="heading-mark"></a>段描述符结构</h4><p><img loading="lazy" src="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218174027106.png" alt="image-20230218174027106" srcset="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218174027106.png?size=small, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218174027106.png?size=medium 1.5x, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218174027106.png?size=large 2x" data-title="image-20230218174027106" style="--width: 1028px;--aspect-ratio: 1028 / 537;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="011windows线程切换_线程优先级" class="heading-element">
-  <a href="#011windows%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2_%e7%ba%bf%e7%a8%8b%e4%bc%98%e5%85%88%e7%ba%a7" class="heading-mark"></a>011.Windows线程切换_线程优先级</h2><p>回顾：</p>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0046</span><span class="nf">A9BC</span>                 <span class="no">retn</span></span></span></code></pre></div><h4 id="段描述符结构" class="heading-element"><span>段描述符结构</span>
+  <a href="#%e6%ae%b5%e6%8f%8f%e8%bf%b0%e7%ac%a6%e7%bb%93%e6%9e%84" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p><img loading="lazy" src="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218174027106.png" alt="image-20230218174027106" srcset="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218174027106.png?size=small, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218174027106.png?size=medium 1.5x, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218174027106.png?size=large 2x" data-title="image-20230218174027106" style="--width: 1028px;--aspect-ratio: 1028 / 537;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<h2 id="011windows线程切换_线程优先级" class="heading-element"><span>011.Windows线程切换_线程优先级</span>
+  <a href="#011windows%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2_%e7%ba%bf%e7%a8%8b%e4%bc%98%e5%85%88%e7%ba%a7" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>回顾：</p>
 <p>三种情况会导致线程切换：</p>
 <ol>
 <li>
@@ -1549,14 +1680,17 @@ kd&gt; dd KiDispatcherReadyListHead L70
 </li>
 </ol>
 <p><strong>思考</strong>：在<strong>KiSwapThread与KiQuantumEnd</strong>函数中都是通过<strong>KiFindReadyThread</strong>来找下一个要切换的线程，<strong>KiFindReadyThread</strong>是根据什么条件来选择下一个要执行的线程呢?</p>
-<h3 id="调度链表-1" class="heading-element">
-  <a href="#%e8%b0%83%e5%ba%a6%e9%93%be%e8%a1%a8-1" class="heading-mark"></a>调度链表</h3><p><strong>描述</strong>：</p>
+<h3 id="调度链表-1" class="heading-element"><span>调度链表</span>
+  <a href="#%e8%b0%83%e5%ba%a6%e9%93%be%e8%a1%a8-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p><strong>描述</strong>：</p>
 <ol>
 <li>在<strong>Windows 32位</strong>操作系统中，共有<strong>32</strong>个双向链表（调度链表）</li>
 <li>在<strong>Windows 64位</strong>操作系统中，共有<strong>64</strong>个双向链表（调度链表）</li>
 <li>线程在调度链表的中下标表示<strong>线程优先级</strong>（0~31/64）</li>
 </ol>
-<div class="highlight" id="id-26"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dd KiDispatcherReadyListHead L70
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dd KiDispatcherReadyListHead L70
 </span></span><span class="line"><span class="cl">8055df80  8055df80 8055df80 8055df88 8055df88
 </span></span><span class="line"><span class="cl">8055df90  8055df90 8055df90 8055df98 8055df98
 </span></span><span class="line"><span class="cl">8055dfa0  8055dfa0 8055dfa0 8055dfa8 8055dfa8
@@ -1599,26 +1733,44 @@ kd&gt; dd KiDispatcherReadyListHead L70
    +0x008 NextThread       : Ptr32 _KTHREAD		//就绪线程
    +0x00c IdleThread       : Ptr32 _KTHREAD		//空闲线程</code></pre></li>
 </ol>
-<h3 id="kiswapthread" class="heading-element">
-  <a href="#kiswapthread" class="heading-mark"></a>KiSwapThread</h3><p><img loading="lazy" src="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218205639146.png" alt="image-20230218205639146" srcset="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218205639146.png?size=small, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218205639146.png?size=medium 1.5x, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218205639146.png?size=large 2x" data-title="image-20230218205639146" style="--width: 694px;--aspect-ratio: 694 / 590;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h4 id="总结-3" class="heading-element">
-  <a href="#%e6%80%bb%e7%bb%93-3" class="heading-mark"></a>总结</h4><ol>
+<h3 id="kiswapthread" class="heading-element"><span>KiSwapThread</span>
+  <a href="#kiswapthread" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p><img loading="lazy" src="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218205639146.png" alt="image-20230218205639146" srcset="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218205639146.png?size=small, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218205639146.png?size=medium 1.5x, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230218205639146.png?size=large 2x" data-title="image-20230218205639146" style="--width: 694px;--aspect-ratio: 694 / 590;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<h4 id="总结-3" class="heading-element"><span>总结</span>
+  <a href="#%e6%80%bb%e7%bb%93-3" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><ol>
 <li>调度链表的下标即线程优先级</li>
 <li>CPU通过遍历调度链表判断是否存在需要调度的线程</li>
 <li>若不存在需要调度的线程，则会执行空闲线程（<strong>_KPRCB.IdleThread</strong>）</li>
 </ol>
-<h2 id="012进程挂靠" class="heading-element">
-  <a href="#012%e8%bf%9b%e7%a8%8b%e6%8c%82%e9%9d%a0" class="heading-mark"></a>012.进程挂靠</h2><h3 id="进程线程关系" class="heading-element">
-  <a href="#%e8%bf%9b%e7%a8%8b%e7%ba%bf%e7%a8%8b%e5%85%b3%e7%b3%bb" class="heading-mark"></a>进程线程关系</h3><p>进程为线程提供资源，也就是提供Cr3的值，Cr3中存储的是页目录表基址，Cr3确定了，线程能访问的内存也就确定了。</p>
-<h4 id="代码分析" class="heading-element">
-  <a href="#%e4%bb%a3%e7%a0%81%e5%88%86%e6%9e%90" class="heading-mark"></a>代码分析</h4><p>来看这样一行代码：</p>
-<div class="highlight" id="id-28"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span><span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span></span></span></code></pre></div><p>CPU如何解析0x12345678这个地址呢？</p>
+<h2 id="012进程挂靠" class="heading-element"><span>012.进程挂靠</span>
+  <a href="#012%e8%bf%9b%e7%a8%8b%e6%8c%82%e9%9d%a0" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="进程线程关系" class="heading-element"><span>进程线程关系</span>
+  <a href="#%e8%bf%9b%e7%a8%8b%e7%ba%bf%e7%a8%8b%e5%85%b3%e7%b3%bb" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>进程为线程提供资源，也就是提供Cr3的值，Cr3中存储的是页目录表基址，Cr3确定了，线程能访问的内存也就确定了。</p>
+<h4 id="代码分析" class="heading-element"><span>代码分析</span>
+  <a href="#%e4%bb%a3%e7%a0%81%e5%88%86%e6%9e%90" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>来看这样一行代码：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span><span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span></span></span></code></pre></div><p>CPU如何解析0x12345678这个地址呢？</p>
 <ol>
 <li>CPU解析线性地址时，需要通过**页目录表（PDT）**来找到对应的物理页，页目录表基址存在Cr3寄存器中</li>
 <li>当前的Cr3的值来源于当前的进程(<strong>_KPROCESS.DirectoryTableBase(+0x018)</strong>)</li>
 </ol>
-<h4 id="线程找进程" class="heading-element">
-  <a href="#%e7%ba%bf%e7%a8%8b%e6%89%be%e8%bf%9b%e7%a8%8b" class="heading-mark"></a>线程找进程</h4><p>线程找进程有两种情况：</p>
+<h4 id="线程找进程" class="heading-element"><span>线程找进程</span>
+  <a href="#%e7%ba%bf%e7%a8%8b%e6%89%be%e8%bf%9b%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>线程找进程有两种情况：</p>
 <ol>
 <li><strong>KHTREAD.ApcState.Process</strong>(+0x44)：<strong>资源提供者</strong>（养父母），为这个线程提供资源（也就提供Cr3）</li>
 <li><strong>ETHREAD.ThreadProcess</strong>(+0x220)：<strong>线程创建者</strong>（亲生父母）</li>
@@ -1628,14 +1780,17 @@ kd&gt; dd KiDispatcherReadyListHead L70
 <p><img loading="lazy" src="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230219125142968.png" alt="image-20230219125142968" srcset="/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230219125142968.png?size=small, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230219125142968.png?size=medium 1.5x, /posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/image-20230219125142968.png?size=large 2x" data-title="image-20230219125142968" style="--width: 440px;--aspect-ratio: 440 / 228;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>有了上述概念后，我们知道了，正常情况下，Cr3的值是由养父母提供的，但是Cr3的值也可以改成和当前线程毫不相干的其它进程的<code>DirectoryTableBase</code>。</p>
 <p>观察下面的代码：</p>
-<div class="highlight" id="id-29"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span> <span class="no">cr3</span><span class="p">,</span><span class="no">A.DirectoryTableBase</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span> <span class="no">cr3</span><span class="p">,</span><span class="no">A.DirectoryTableBase</span>
 </span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span><span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span>		<span class="c1">//A进程的0x12345678内存
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="no">cr3</span><span class="p">,</span><span class="no">B.DirectoryTableBase</span>
 </span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span><span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span>		<span class="c1">//B进程的0x12345678内存
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="no">cr3</span><span class="p">,</span><span class="no">C.DirectoryTableBase</span>
 </span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span><span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span>		<span class="err">//</span><span class="no">C进程的0x12345678内存</span></span></span></code></pre></div><p>有了进程挂靠，就意味着可以读取其它进程的内存。</p>
-<h3 id="分析ntreadvirtualmemory" class="heading-element">
-  <a href="#%e5%88%86%e6%9e%90ntreadvirtualmemory" class="heading-mark"></a>分析NtReadVirtualMemory</h3><p><code>ReadProcessMemory</code>这个三环API是可以读取其它进程的内存的，该函数在0环的实现是<code>NtReadVirtualMemory</code></p>
+<h3 id="分析ntreadvirtualmemory" class="heading-element"><span>分析NtReadVirtualMemory</span>
+  <a href="#%e5%88%86%e6%9e%90ntreadvirtualmemory" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p><code>ReadProcessMemory</code>这个三环API是可以读取其它进程的内存的，该函数在0环的实现是<code>NtReadVirtualMemory</code></p>
 <p><code>NtReadVirtualMemory</code>：读取某一个进程的内存</p>
 <pre tabindex="0"><code>NtReadVirtualMemory =&gt;
 
@@ -1646,7 +1801,7 @@ KiAttachProcess =&gt;
 修改Cr3 </code></pre><p>可不可以只修改Cr3而不修改养父母？不可以，如果不修改养父母的值,一旦产生线程切换，就会变成自己读自己！</p>
 <p>如果我们自己来写这个代码，在切换Cr3后关闭中断，并且不调用会导致线程切换的API,就可以不用修改养父母的值。</p>
 <p><code>NtReadVirtualMemory</code>比较复杂，挑重点说：</p>
-<div class="highlight" id="id-31"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">B05BE</span>                 <span class="no">push</span>    <span class="no">eax</span>             <span class="c1">; int
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">B05BE</span>                 <span class="no">push</span>    <span class="no">eax</span>             <span class="c1">; int
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">B05BF</span>                 <span class="no">push</span>    <span class="no">dword</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">AccessMode</span><span class="p">]</span> <span class="c1">; AccessMode
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">B05C2</span>                 <span class="no">push</span>    <span class="no">esi</span>             <span class="c1">; Length
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">B05C3</span>                 <span class="no">push</span>    <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">Buffer</span><span class="p">]</span>    <span class="c1">; 要存储的位置
@@ -1657,7 +1812,7 @@ KiAttachProcess =&gt;
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">B05D4</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">var_1C</span><span class="p">],</span> <span class="no">eax</span>
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">B05D7</span>                 <span class="no">mov</span>     <span class="no">ecx</span><span class="p">,</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">Object</span><span class="p">]</span> <span class="c1">; Object
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">B05DA</span>                 <span class="no">call</span>    <span class="err">@</span><span class="no">ObfDereferenceObject@4</span> <span class="err">;</span> <span class="no">ObfDereferenceObject</span><span class="p">(</span><span class="no">x</span><span class="p">)</span></span></span></code></pre></div><p><code>MmCopyVirtualMemory</code>：</p>
-<div class="highlight" id="id-32"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB0F5</span> <span class="no">loc_4AB0F5</span><span class="p">:</span>                             <span class="c1">; CODE XREF: MmCopyVirtualMemory(x,x,x,x,x,x,x)+7B771↓j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB0F5</span> <span class="no">loc_4AB0F5</span><span class="p">:</span>                             <span class="c1">; CODE XREF: MmCopyVirtualMemory(x,x,x,x,x,x,x)+7B771↓j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB0F5</span>                 <span class="no">push</span>    <span class="no">edi</span>             <span class="c1">; int
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB0F6</span>                 <span class="no">push</span>    <span class="no">dword</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">AccessMode</span><span class="p">]</span> <span class="c1">; char
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB0F9</span>                 <span class="no">push</span>    <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">Length</span><span class="p">]</span>    <span class="c1">; Length
@@ -1667,20 +1822,20 @@ KiAttachProcess =&gt;
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB105</span>                 <span class="no">push</span>    <span class="no">ebx</span>             <span class="c1">; PRKPROCESS
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB106</span>                 <span class="no">call</span>    <span class="no">_MiDoPoolCopy@28</span> <span class="c1">; 真正的COPY函数
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB10B</span>                 <span class="no">mov</span>     <span class="no">esi</span><span class="p">,</span> <span class="no">eax</span></span></span></code></pre></div><p><code>MiDoPoolCopy</code>：</p>
-<div class="highlight" id="id-33"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB7B9</span> <span class="no">loc_4AB7B9</span><span class="p">:</span>                             <span class="c1">; CODE XREF: MiDoPoolCopy(x,x,x,x,x,x,x)+7B0C9↓j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB7B9</span> <span class="no">loc_4AB7B9</span><span class="p">:</span>                             <span class="c1">; CODE XREF: MiDoPoolCopy(x,x,x,x,x,x,x)+7B0C9↓j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB7B9</span>                 <span class="no">lea</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">ApcState</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB7BC</span>                 <span class="no">push</span>    <span class="no">eax</span>             <span class="c1">; _KAPC_STATE
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB7BD</span>                 <span class="no">push</span>    <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">arg_0</span><span class="p">]</span>     <span class="c1">; _KPROCESS
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB7C0</span>                 <span class="no">call</span>    <span class="no">_KeStackAttachProcess@8</span> <span class="c1">; 进程挂靠
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">PAGE:</span><span class="err">004</span><span class="nf">AB7C5</span>                 <span class="no">xor</span>     <span class="no">esi</span><span class="p">,</span> <span class="no">esi</span></span></span></code></pre></div><p><code>KeStackAttachProcess</code>：</p>
-<div class="highlight" id="id-34"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0041</span><span class="nf">AB80</span>                 <span class="no">push</span>    <span class="no">eax</span>             <span class="c1">; _KTHREAD -&gt; SavedApcState
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0041</span><span class="nf">AB80</span>                 <span class="no">push</span>    <span class="no">eax</span>             <span class="c1">; _KTHREAD -&gt; SavedApcState
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041</span><span class="nf">AB81</span>                 <span class="no">push</span>    <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">PROCESS</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0041</span><span class="nf">AB84</span>                 <span class="no">push</span>    <span class="no">edi</span>             <span class="c1">; 要读取进程的_KPROCESS
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041</span><span class="nf">AB85</span>                 <span class="no">push</span>    <span class="no">esi</span>             <span class="c1">; 当前进程的_KTHREAD
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041</span><span class="nf">AB86</span>                 <span class="no">call</span>    <span class="no">_KiAttachProcess@16</span> <span class="err">;</span> <span class="no">KiAttachProcess</span><span class="p">(</span><span class="no">x</span><span class="p">,</span><span class="no">x</span><span class="p">,</span><span class="no">x</span><span class="p">,</span><span class="no">x</span><span class="p">)</span></span></span></code></pre></div><p><code>KiAttachProcess</code>：真正的挂靠函数</p>
 <p>1）修改<strong>养父母</strong>，即<code>KTHREAD.ApcState.Process</code>的值，修改为将要访问的进程的<strong>进程结构体</strong></p>
 <p>2）调用进程切换函数<code>KiSwapProcess</code>（<strong>本质是切换Cr3</strong>）</p>
-<div class="highlight" id="id-35"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="na">...</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="na">...</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0041</span><span class="nf">A2A2</span>                 <span class="no">cmp</span>     <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">arg_C</span><span class="p">],</span> <span class="no">eax</span> 
 </span></span><span class="line"><span class="cl"><span class="no">.text</span><span class="p">:</span><span class="mi">0041</span><span class="no">A2A5</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="mi">44</span><span class="no">h</span><span class="p">],</span> <span class="no">edi</span> <span class="c1">; 修改养父母(KHTREAD.ApcState.Process)的值
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041</span><span class="nf">A2A8</span>                 <span class="no">mov</span>     <span class="no">byte</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">esi</span><span class="err">+</span><span class="mi">48</span><span class="no">h</span><span class="p">],</span> <span class="mi">0</span>
@@ -1706,7 +1861,7 @@ KiAttachProcess =&gt;
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041</span><span class="nf">A2E7</span>                 <span class="no">call</span>    <span class="no">_KiSwapProcess@8</span> <span class="c1">; 进程切换(即切换CR3)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="na">...</span></span></span></code></pre></div><p><code>KiSwapProcess</code>：</p>
 <p>先从外部参数，获取到了将要访问的进程的Cr3，然后分别<strong>修改TSS.Cr3和KPROCESS+0x18（DirectoryTableBase）处的值</strong>，然后便完成了进程切换。可以发现，进程切换，实际上就是切换了Cr3</p>
-<div class="highlight" id="id-36"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00405</span><span class="nf">BA4</span> <span class="no">loc_405BA4</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KiSwapProcess(x,x)+2D↑j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00405</span><span class="nf">BA4</span> <span class="no">loc_405BA4</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KiSwapProcess(x,x)+2D↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00405</span><span class="nf">BA4</span>                 <span class="no">lldt</span>    <span class="no">ax</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00405</span><span class="nf">BA7</span>                 <span class="no">mov</span>     <span class="no">ecx</span><span class="p">,</span> <span class="no">large</span> <span class="no">fs</span><span class="p">:</span><span class="mi">20</span><span class="no">h</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00405</span><span class="nf">BAE</span>                 <span class="no">lea</span>     <span class="no">ecx</span><span class="p">,</span> <span class="p">[</span><span class="no">ecx</span><span class="err">+</span><span class="mi">420</span><span class="no">h</span><span class="p">]</span>
@@ -1720,34 +1875,49 @@ KiAttachProcess =&gt;
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00405</span><span class="nf">BCE</span>                 <span class="no">mov</span>     <span class="no">cr3</span><span class="p">,</span> <span class="no">eax</span>        <span class="c1">; 修改CR3
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00405</span><span class="nf">BD1</span>                 <span class="no">mov</span>     <span class="no">ax</span><span class="p">,</span> <span class="p">[</span><span class="no">edx</span><span class="err">+</span><span class="mi">30</span><span class="no">h</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00405</span><span class="nf">BD5</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">ecx</span><span class="err">+</span><span class="mi">66</span><span class="no">h</span><span class="p">],</span> <span class="no">ax</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00405</span><span class="nf">BD9</span>                 <span class="no">retn</span>    <span class="mi">8</span></span></span></code></pre></div><h4 id="ntreadvirtualmemory总结" class="heading-element">
-  <a href="#ntreadvirtualmemory%e6%80%bb%e7%bb%93" class="heading-mark"></a>NtReadVirtualMemory总结</h4><p><code>NtReadVirtualMemory</code>主要做了两件事：</p>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00405</span><span class="nf">BD9</span>                 <span class="no">retn</span>    <span class="mi">8</span></span></span></code></pre></div><h4 id="ntreadvirtualmemory总结" class="heading-element"><span>NtReadVirtualMemory总结</span>
+  <a href="#ntreadvirtualmemory%e6%80%bb%e7%bb%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p><code>NtReadVirtualMemory</code>主要做了两件事：</p>
 <ul>
 <li><strong>修改线程养父母</strong></li>
 <li><strong>修改进程Cr3</strong></li>
 </ul>
 <p><strong>思考</strong>：可不可以只修改Cr3而不修改养父母？
 <strong>答案</strong>：不可以，假设刚刚修改完Cr3，还没读取内存时，发生了线程切换，当再次切换回来时，会根据养父母的值为Cr3赋值，Cr3又变回了原来的值，此时将变成自己读自己。如果我们自己来写这个代码，在切换Cr3后关闭中断，并且不调用会导致线程切换的API,就可以不用修改养父母的值</p>
-<h3 id="进程挂靠总结" class="heading-element">
-  <a href="#%e8%bf%9b%e7%a8%8b%e6%8c%82%e9%9d%a0%e6%80%bb%e7%bb%93" class="heading-mark"></a>进程挂靠总结</h3><ol>
+<h3 id="进程挂靠总结" class="heading-element"><span>进程挂靠总结</span>
+  <a href="#%e8%bf%9b%e7%a8%8b%e6%8c%82%e9%9d%a0%e6%80%bb%e7%bb%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>正常情况下，当前线程使用的Cr3是由其所属进程提供的（<code>_ETHREAD.Tcb.ApcState.Process</code>），正是因为如此，A进程中的线程只能访问A的内存</li>
 <li>如果要让A进程中的线程能够访问B进程的内存，就必须要修改Cr3的值为B进程的页目录表基址(B.DirectoryTableBase)，这就是所谓的“进程挂靠”</li>
 </ol>
-<h2 id="013跨进程读写内存" class="heading-element">
-  <a href="#013%e8%b7%a8%e8%bf%9b%e7%a8%8b%e8%af%bb%e5%86%99%e5%86%85%e5%ad%98" class="heading-mark"></a>013.跨进程读写内存</h2><p>如果如下操作的话，读取的内容还是放到了B进程的空间</p>
-<div class="highlight" id="id-37"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span> <span class="no">cr3</span><span class="p">,</span><span class="no">B.DirectoryTableBase</span>		<span class="c1">//切换Cr3的值为B进程
+<h2 id="013跨进程读写内存" class="heading-element"><span>013.跨进程读写内存</span>
+  <a href="#013%e8%b7%a8%e8%bf%9b%e7%a8%8b%e8%af%bb%e5%86%99%e5%86%85%e5%ad%98" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>如果如下操作的话，读取的内容还是放到了B进程的空间</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span> <span class="no">cr3</span><span class="p">,</span><span class="no">B.DirectoryTableBase</span>		<span class="c1">//切换Cr3的值为B进程
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span><span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span>		<span class="c1">//将进程B 0x12345678的值存的eax中
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x00401234</span><span class="p">],</span><span class="no">eax</span>		<span class="c1">//将数据存储到0x00401234中
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="no">cr3</span><span class="p">,</span><span class="no">A.DirectoryTableBase</span>		<span class="err">//切换回</span><span class="no">Cr3的值</span>	 </span></span></code></pre></div><h3 id="ntreadvirtualmemory跨进程读" class="heading-element">
-  <a href="#ntreadvirtualmemory%e8%b7%a8%e8%bf%9b%e7%a8%8b%e8%af%bb" class="heading-mark"></a>NtReadVirtualMemory跨进程读</h3><p>执行流程：</p>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="no">cr3</span><span class="p">,</span><span class="no">A.DirectoryTableBase</span>		<span class="err">//切换回</span><span class="no">Cr3的值</span>	 </span></span></code></pre></div><h3 id="ntreadvirtualmemory跨进程读" class="heading-element"><span>NtReadVirtualMemory跨进程读</span>
+  <a href="#ntreadvirtualmemory%e8%b7%a8%e8%bf%9b%e7%a8%8b%e8%af%bb" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>执行流程：</p>
 <ol>
 <li>将<strong>当前线程</strong>的Cr3切换至<strong>目标进程</strong>的Cr3</li>
 <li>将要读的数据复制到<strong>高2G</strong>（暂存区）</li>
 <li>将<strong>当前线程</strong>的Cr3切换至<strong>原本进程</strong>的Cr3</li>
 <li>将要读的数据从<strong>高2G</strong>复制到<strong>目标位置</strong></li>
 </ol>
-<h3 id="ntwritevirtualmemory跨进程写" class="heading-element">
-  <a href="#ntwritevirtualmemory%e8%b7%a8%e8%bf%9b%e7%a8%8b%e5%86%99" class="heading-mark"></a>NtWriteVirtualMemory跨进程写</h3><ol>
+<h3 id="ntwritevirtualmemory跨进程写" class="heading-element"><span>NtWriteVirtualMemory跨进程写</span>
+  <a href="#ntwritevirtualmemory%e8%b7%a8%e8%bf%9b%e7%a8%8b%e5%86%99" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>将当前线程的数据复制到<strong>高2G</strong>（暂存区）</li>
 <li>将<strong>当前线程</strong>的Cr3切换至<strong>目标进程</strong>的Cr3</li>
 <li>将要写入的数据从<strong>高2G</strong>复制到<strong>目标位置</strong></li>
@@ -1763,9 +1933,9 @@ KiAttachProcess =&gt;
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" data-title="Windows内核(四)——进程线程" data-hashtags="Win32"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" data-title="Windows内核(四)——进程线程"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" data-title="Windows内核(四)——进程线程" data-hashtags="Win32"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/2023-2-winkernel%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B/" data-title="Windows内核(四)——进程线程"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -1784,14 +1954,14 @@ KiAttachProcess =&gt;
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

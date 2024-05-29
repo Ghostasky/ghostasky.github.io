@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>Java-类加载器 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>Java-类加载器 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='Java' /><meta itemprop="name" content="Java-类加载器">
-<meta itemprop="description" content="">
+<meta name="description" content="[toc] 前言&#43;流程 java语言依赖JVM，运行的时候，需要先编译成class文件，之后java类初始化的时候会调用java.lang.ClassLoader加载类字节码，ClassLoader会调用JVM的native方法来定义一个java.la" /><meta name="keywords" content='Java' /><meta itemprop="name" content="Java-类加载器">
+<meta itemprop="description" content="[toc] 前言&#43;流程 java语言依赖JVM，运行的时候，需要先编译成class文件，之后java类初始化的时候会调用java.lang.ClassLoader加载类字节码，ClassLoader会调用JVM的native方法来定义一个java.la">
 
-<meta itemprop="wordCount" content="3886">
+<meta itemprop="wordCount" content="3818">
 <meta itemprop="keywords" content="Java," /><meta property="og:title" content="Java-类加载器" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[toc] 前言&#43;流程 java语言依赖JVM，运行的时候，需要先编译成class文件，之后java类初始化的时候会调用java.lang.ClassLoader加载类字节码，ClassLoader会调用JVM的native方法来定义一个java.la" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" /><meta property="article:section" content="posts" />
 
 
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Java-类加载器"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[toc] 前言&#43;流程 java语言依赖JVM，运行的时候，需要先编译成class文件，之后java类初始化的时候会调用java.lang.ClassLoader加载类字节码，ClassLoader会调用JVM的native方法来定义一个java.la"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" /><link rel="prev" href="http://localhost:1313/posts/%E5%9F%9F%E5%A7%94%E6%B4%BE/" /><link rel="next" href="http://localhost:1313/posts/2023-2-http%E5%A4%B4/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" /><link rel="prev" href="http://ghostasky.github.io/posts/%E5%9F%9F%E5%A7%94%E6%B4%BE/" /><link rel="next" href="http://ghostasky.github.io/posts/2023-2-http%E5%A4%B4/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8\/"
-    },"genre": "posts","keywords": "Java","wordcount":  3886 ,
-    "url": "http:\/\/localhost:1313\/posts\/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8\/","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8\/"
+    },"genre": "posts","keywords": "Java","wordcount":  3818 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8\/","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>Java-类加载器</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 0001-01-01 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="0001-01-01">0001-01-01</time></span>&nbsp;<span title="3886 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 3900 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 8 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 0001-01-01 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="0001-01-01">0001-01-01</time></span>&nbsp;<span title="3818 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 3900 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 8 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -157,13 +156,16 @@
   </ul>
 </nav></div>
       </div><div class="content" id="content"><p>[toc]</p>
-<h2 id="前言流程" class="heading-element">
-  <a href="#%e5%89%8d%e8%a8%80%e6%b5%81%e7%a8%8b" class="heading-mark"></a>前言+流程</h2><p>java语言依赖JVM，运行的时候，需要先编译成class文件，之后java类初始化的时候会调用<code>java.lang.ClassLoader</code>加载类字节码，ClassLoader会调用JVM的native方法来定义一个<code>java.lang.Class</code>实例。</p>
+<h2 id="前言流程" class="heading-element"><span>前言+流程</span>
+  <a href="#%e5%89%8d%e8%a8%80%e6%b5%81%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>java语言依赖JVM，运行的时候，需要先编译成class文件，之后java类初始化的时候会调用<code>java.lang.ClassLoader</code>加载类字节码，ClassLoader会调用JVM的native方法来定义一个<code>java.lang.Class</code>实例。</p>
 <p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/JvmSpec7.png" alt="JVM" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/JvmSpec7.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/JvmSpec7.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/JvmSpec7.png?size=large 2x" data-title="JVM" style="--width: 1152px;--aspect-ratio: 1152 / 698;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>类文件编译流程：</p>
 <p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/20210108150835-53436af4-5180-1.png" alt="img" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/20210108150835-53436af4-5180-1.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/20210108150835-53436af4-5180-1.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/20210108150835-53436af4-5180-1.png?size=large 2x" data-title="img" style="--width: 1551px;--aspect-ratio: 1551 / 1312;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>示例：</p>
-<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nn">com.yutao.day1</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nn">com.yutao.day1</span><span class="p">;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">ClassLoaderLearn</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -173,8 +175,11 @@
 <p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161921106.png" alt="image-20220421161921106" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161921106.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161921106.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161921106.png?size=large 2x" data-title="image-20220421161921106" style="--width: 1093px;--aspect-ratio: 1093 / 571;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>JVM在执行<code>ClassLoaderLearn</code>之前会先解析class的二进制内容，JVM执行的其实就是如上<code>javap</code>命令生成的字节码。</p>
 <p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161945724.png" alt="image-20220421161945724" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161945724.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161945724.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421161945724.png?size=large 2x" data-title="image-20220421161945724" style="--width: 1059px;--aspect-ratio: 1059 / 766;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="双亲委派模型" class="heading-element">
-  <a href="#%e5%8f%8c%e4%ba%b2%e5%a7%94%e6%b4%be%e6%a8%a1%e5%9e%8b" class="heading-mark"></a>双亲委派模型</h2><blockquote>
+<h2 id="双亲委派模型" class="heading-element"><span>双亲委派模型</span>
+  <a href="#%e5%8f%8c%e4%ba%b2%e5%a7%94%e6%b4%be%e6%a8%a1%e5%9e%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><blockquote>
 <p>类加载阶段分为加载、连接、初始化三个阶段，而加载阶段需要通过类的全限定名来获取定义了此类的二进制字节流。<strong>Java特意把这一步抽出来用类加载器来实现</strong>。把这一步骤抽离出来使得应用程序可以按需自定义类加载器。并且得益于类加载器，OSGI、热部署等领域才得以在JAVA中得到应用。</p>
 <p>在Java中<strong>任意一个类都是由这个类本身和加载这个类的类加载器来确定这个类在JVM中的唯一性</strong>。也就是你用你A类加载器加载的<code>com.aa.ClassA</code>和你A类加载器加载的<code>com.aa.ClassA</code>它们是不同的，也就是用<code>instanceof</code>这种对比都是不同的。所以即使都来自于同一个class文件但是由不同类加载器加载的那就是两个独立的类。</p>
 </blockquote>
@@ -186,11 +191,17 @@
 <li>能够实现有些类避免重复加载使用，直接先给父加载器加载，不用子加载器再次重复加载。</li>
 <li>保证java核心库的类型安全。比如网络上传输了一个java.lang.Object类，通过双亲模式传递到启动类当中，然后发现其Object类早已被加载过，所以就不会加载这个网络传输过来的java.lang.Object类，保证我们的java核心API库不被篡改，出现类似用户自定义java.lang.Object类的情况。</li>
 </ul>
-<h2 id="类加载器" class="heading-element">
-  <a href="#%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8" class="heading-mark"></a>类加载器</h2><p>类加载器大致分为两种，一种是JVM自带的类加载器，分别为<strong>引导类加载器</strong>、<strong>扩展类加载器</strong>和<strong>APP类加载器/系统类加载器</strong>。另外一种就是用户<strong>自定义的类加载器</strong>，可以通过继承java.lang.ClassLoader类的方式实现自己的类加载器。</p>
+<h2 id="类加载器" class="heading-element"><span>类加载器</span>
+  <a href="#%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>类加载器大致分为两种，一种是JVM自带的类加载器，分别为<strong>引导类加载器</strong>、<strong>扩展类加载器</strong>和<strong>APP类加载器/系统类加载器</strong>。另外一种就是用户<strong>自定义的类加载器</strong>，可以通过继承java.lang.ClassLoader类的方式实现自己的类加载器。</p>
 <p>所有java类必须经过jvm加载后才能运行，<code>ClassLoader</code>主要作用就是java类文件的加载，在JVM类加载器中最顶层的是<code>Bootstrap ClassLoader（引导类加载器）</code>、<code>Extension ClassLoader（扩展类加载器）</code>、<code>App ClassLoader（系统类加载器）</code>。<code>AppClassLoader</code>是默认的类加载器，如果类加载时我们不指定类加载器的情况下，默认会使用<code>AppClassLoader</code>加载类，<code>ClassLoader.getSystemClassLoader()</code>返回的系统类加载器也是<code>AppClassLoader</code>。</p>
-<h3 id="引导类加载器" class="heading-element">
-  <a href="#%e5%bc%95%e5%af%bc%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8" class="heading-mark"></a>引导类加载器</h3><blockquote>
+<h3 id="引导类加载器" class="heading-element"><span>引导类加载器</span>
+  <a href="#%e5%bc%95%e5%af%bc%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><blockquote>
 <p>引导类加载器(BootstrapClassLoader)，底层原生代码是C++语言编写，属于jvm一部分，不继承java.lang.ClassLoader类，也没有父加载器，主要负责加载核心java库(即JVM本身)，存储在/jre/lib/rt.jar目录当中。(同时处于安全考虑，BootstrapClassLoader只加载包名为java、javax、sun等开头的类)。</p>
 </blockquote>
 <p>rt.jar里的类都是由<code>BootstrapClassLoader</code>来加载：</p>
@@ -198,29 +209,41 @@
 <p><code>BootstrapClassLoader</code>无父加载器 ：</p>
 <p>object类是所有子类的父类，这里使用object：</p>
 <p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421165519027.png" alt="image-20220421165519027" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421165519027.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421165519027.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421165519027.png?size=large 2x" data-title="image-20220421165519027" style="--width: 776px;--aspect-ratio: 776 / 502;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="扩展类加载器" class="heading-element">
-  <a href="#%e6%89%a9%e5%b1%95%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8" class="heading-mark"></a>扩展类加载器</h3><blockquote>
+<h3 id="扩展类加载器" class="heading-element"><span>扩展类加载器</span>
+  <a href="#%e6%89%a9%e5%b1%95%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><blockquote>
 <p>扩展类加载器(ExtensionsClassLoader)，由sun.misc.Launcher$ExtClassLoader类实现，用来在/jre/lib/ext或者java.ext.dirs中指明的目录加载java的扩展库。Java虚拟机会提供一个扩展库目录，此加载器在目录里面查找并加载java类。</p>
 </blockquote>
 <p>这里的jar包都由扩展类加载器进行加载：</p>
 <p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421170413392.png" alt="image-20220421170413392" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421170413392.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421170413392.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421170413392.png?size=large 2x" data-title="image-20220421170413392" style="--width: 662px;--aspect-ratio: 662 / 464;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>比如选择dnsns.jar：</p>
 <p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171127650.png" alt="image-20220421171127650" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171127650.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171127650.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171127650.png?size=large 2x" data-title="image-20220421171127650" style="--width: 1366px;--aspect-ratio: 1366 / 616;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="app类加载器系统类加载器" class="heading-element">
-  <a href="#app%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8%e7%b3%bb%e7%bb%9f%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8" class="heading-mark"></a>APP类加载器/系统类加载器</h3><blockquote>
+<h3 id="app类加载器系统类加载器" class="heading-element"><span>APP类加载器/系统类加载器</span>
+  <a href="#app%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8%e7%b3%bb%e7%bb%9f%e7%b1%bb%e5%8a%a0%e8%bd%bd%e5%99%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><blockquote>
 <p>App类加载器/系统类加载器（AppClassLoader），由sun.misc.Launcher$AppClassLoader实现，一般通过通过(java.class.path或者Classpath环境变量)来加载Java类，也就是我们常说的classpath路径。通常我们是使用这个加载类来加载Java应用类，可以使用ClassLoader.getSystemClassLoader()来获取它</p>
 </blockquote>
 <p><img loading="lazy" src="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171428090.png" alt="image-20220421171428090" srcset="/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171428090.png?size=small, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171428090.png?size=medium 1.5x, /posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/image-20220421171428090.png?size=large 2x" data-title="image-20220421171428090" style="--width: 1291px;--aspect-ratio: 1291 / 636;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="java类动态加载方式" class="heading-element">
-  <a href="#java%e7%b1%bb%e5%8a%a8%e6%80%81%e5%8a%a0%e8%bd%bd%e6%96%b9%e5%bc%8f" class="heading-mark"></a>Java类动态加载方式</h2><p>java类加载分为显式和隐式</p>
+<h2 id="java类动态加载方式" class="heading-element"><span>Java类动态加载方式</span>
+  <a href="#java%e7%b1%bb%e5%8a%a8%e6%80%81%e5%8a%a0%e8%bd%bd%e6%96%b9%e5%bc%8f" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>java类加载分为显式和隐式</p>
 <p>显式：通过java反射或者ClassLoader来动态加载一个类</p>
 <p>隐式：<code>类名.方法名()</code>或者new 示例，</p>
-<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 反射加载</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 反射加载</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">Class</span><span class="p">.</span><span class="na">forName</span><span class="p">(</span><span class="s">&#34;com.xxx.xx.xx..x.x.x.xx&#34;</span><span class="p">);</span><span class="c1">//默认会初始化被加载类的静态属性和方法</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// ClassLoader加载</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">this</span><span class="p">.</span><span class="na">getClass</span><span class="p">().</span><span class="na">getClassLoader</span><span class="p">().</span><span class="na">loadClass</span><span class="p">(</span><span class="s">&#34;com.xxx.xx.xx..x.x.x.xx&#34;</span><span class="p">);</span><span class="o">//</span><span class="n">默认不会初始化</span></span></span></code></pre></div><h2 id="classloader类核心方法" class="heading-element">
-  <a href="#classloader%e7%b1%bb%e6%a0%b8%e5%bf%83%e6%96%b9%e6%b3%95" class="heading-mark"></a>ClassLoader类核心方法</h2><p>除了<code>BootstrapClassLoader</code>，其他类加载器都继承<code>ClassLoader</code>，下面是核心方法：</p>
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">this</span><span class="p">.</span><span class="na">getClass</span><span class="p">().</span><span class="na">getClassLoader</span><span class="p">().</span><span class="na">loadClass</span><span class="p">(</span><span class="s">&#34;com.xxx.xx.xx..x.x.x.xx&#34;</span><span class="p">);</span><span class="o">//</span><span class="n">默认不会初始化</span></span></span></code></pre></div><h2 id="classloader类核心方法" class="heading-element"><span>ClassLoader类核心方法</span>
+  <a href="#classloader%e7%b1%bb%e6%a0%b8%e5%bf%83%e6%96%b9%e6%b3%95" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>除了<code>BootstrapClassLoader</code>，其他类加载器都继承<code>ClassLoader</code>，下面是核心方法：</p>
 <p><code>ClassLoader</code>类有如下核心方法：</p>
 <ol>
 <li><code>loadClass</code>（加载指定的Java类）</li>
@@ -229,8 +252,11 @@
 <li><code>defineClass</code>（定义一个Java类,将字节码解析成虚拟机识别的Class对象）</li>
 <li><code>resolveClass</code>（链接指定的Java类）</li>
 </ol>
-<h3 id="loadclass" class="heading-element">
-  <a href="#loadclass" class="heading-mark"></a>loadClass</h3><p>加载指定的java类:</p>
+<h3 id="loadclass" class="heading-element"><span>loadClass</span>
+  <a href="#loadclass" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>加载指定的java类:</p>
 <p>loadClass:</p>
 <ol>
 <li>首先使用<code>getClassLoadingLock()</code>检查这个类是否被加载过。</li>
@@ -240,7 +266,7 @@
 <li>如果当前<code>ClassLoader</code>没有重写<code>findClass</code>方法，返回异常</li>
 <li>&hellip;&hellip;..</li>
 </ol>
-<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">protected</span><span class="w"> </span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">loadClass</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">Boolean</span><span class="w"> </span><span class="n">resolve</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">ClassNotFoundException</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">protected</span><span class="w"> </span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">loadClass</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">Boolean</span><span class="w"> </span><span class="n">resolve</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">ClassNotFoundException</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">synchronized</span><span class="w"> </span><span class="p">(</span><span class="n">getClassLoadingLock</span><span class="p">(</span><span class="n">name</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="c1">// First, check if the class has already been loaded</span><span class="w">
@@ -274,9 +300,12 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="p">}</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">c</span><span class="p">;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div><h3 id="findclass" class="heading-element">
-  <a href="#findclass" class="heading-mark"></a>findClass</h3><p>查找指定的Java类</p>
-<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span></span></span></code></pre></div><h3 id="findclass" class="heading-element"><span>findClass</span>
+  <a href="#findclass" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>查找指定的Java类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
 </span></span></span><span class="line"><span class="cl"><span class="cm">     * Finds the class with the specified &lt;a href=&#34;#name&#34;&gt;binary name&lt;/a&gt;.
 </span></span></span><span class="line"><span class="cl"><span class="cm">     * This method should be overridden by class loader implementations that
 </span></span></span><span class="line"><span class="cl"><span class="cm">     * follow the delegation model for loading classes, and will be invoked by
@@ -296,9 +325,12 @@
 </span></span></span><span class="line"><span class="cl"><span class="cm">     */</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">protected</span><span class="w"> </span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">findClass</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">ClassNotFoundException</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ClassNotFoundException</span><span class="p">(</span><span class="n">name</span><span class="p">);</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span></span></span></code></pre></div><h3 id="findloadedclass" class="heading-element">
-  <a href="#findloadedclass" class="heading-mark"></a>findLoadedClass</h3><p>查找JVM已经加载过的类</p>
-<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span></span></span></code></pre></div><h3 id="findloadedclass" class="heading-element"><span>findLoadedClass</span>
+  <a href="#findloadedclass" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>查找JVM已经加载过的类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
 </span></span></span><span class="line"><span class="cl"><span class="cm">     * Returns the class with the given &lt;a href=&#34;#name&#34;&gt;binary name&lt;/a&gt; if this
 </span></span></span><span class="line"><span class="cl"><span class="cm">     * loader has been recorded by the Java virtual machine as an initiating
 </span></span></span><span class="line"><span class="cl"><span class="cm">     * loader of a class with that &lt;a href=&#34;#name&#34;&gt;binary name&lt;/a&gt;.  Otherwise
@@ -316,9 +348,12 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">checkName</span><span class="p">(</span><span class="n">name</span><span class="p">))</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">findLoadedClass0</span><span class="p">(</span><span class="n">name</span><span class="p">);</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span></span></span></code></pre></div><h3 id="defineclass" class="heading-element">
-  <a href="#defineclass" class="heading-mark"></a>defineClass</h3><p>定义一个Java类，将字节码解析成虚拟机识别的Class对象。往往和findClass()方法配合使用</p>
-<div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span></span></span></code></pre></div><h3 id="defineclass" class="heading-element"><span>defineClass</span>
+  <a href="#defineclass" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>定义一个Java类，将字节码解析成虚拟机识别的Class对象。往往和findClass()方法配合使用</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
 </span></span></span><span class="line"><span class="cl"><span class="cm">     * Converts an array of bytes into an instance of class &lt;tt&gt;Class&lt;/tt&gt;.
 </span></span></span><span class="line"><span class="cl"><span class="cm">     * Before the &lt;tt&gt;Class&lt;/tt&gt; can be used it must be resolved.  This method
 </span></span></span><span class="line"><span class="cl"><span class="cm">     * is deprecated in favor of the version that takes a &lt;a
@@ -364,9 +399,12 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">throws</span><span class="w"> </span><span class="n">ClassFormatError</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">defineClass</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">off</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">);</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span></span></span></code></pre></div><h3 id="resolveclass" class="heading-element">
-  <a href="#resolveclass" class="heading-mark"></a>resolveClass</h3><p>链接指定java类</p>
-<div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span></span></span></code></pre></div><h3 id="resolveclass" class="heading-element"><span>resolveClass</span>
+  <a href="#resolveclass" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>链接指定java类</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
 </span></span></span><span class="line"><span class="cl"><span class="cm">     * Links the specified class.  This (misleadingly named) method may be
 </span></span></span><span class="line"><span class="cl"><span class="cm">     * used by a class loader to link a class.  If the class &lt;tt&gt;c&lt;/tt&gt; has
 </span></span></span><span class="line"><span class="cl"><span class="cm">     * already been linked, then this method simply returns. Otherwise, the
@@ -383,8 +421,11 @@
 </span></span></span><span class="line"><span class="cl"><span class="cm">     */</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">protected</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">resolveClass</span><span class="p">(</span><span class="n">Class</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">resolveClass0</span><span class="p">(</span><span class="n">c</span><span class="p">);</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span></span></span></code></pre></div><h2 id="用户自定义classloader" class="heading-element">
-  <a href="#%e7%94%a8%e6%88%b7%e8%87%aa%e5%ae%9a%e4%b9%89classloader" class="heading-mark"></a>用户自定义ClassLoader</h2><p>实际使用中，不仅仅希望使用classpath中的类或者jar包，还可能希望使用本地磁盘或者网上的，这时候就用到了自定义类加载的方式。</p>
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span></span></span></code></pre></div><h2 id="用户自定义classloader" class="heading-element"><span>用户自定义ClassLoader</span>
+  <a href="#%e7%94%a8%e6%88%b7%e8%87%aa%e5%ae%9a%e4%b9%89classloader" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>实际使用中，不仅仅希望使用classpath中的类或者jar包，还可能希望使用本地磁盘或者网上的，这时候就用到了自定义类加载的方式。</p>
 <p>上面的loadclass中，调用的是findClass(String)方法，所以加载自定义类的话重写的是findClass而不是loadClass</p>
 <p>步骤：</p>
 <ol>
@@ -392,11 +433,14 @@
 <li>重写findClass()</li>
 <li>在findClass中调用defineClass方法</li>
 </ol>
-<h2 id="urlclassloader" class="heading-element">
-  <a href="#urlclassloader" class="heading-mark"></a>URLClassLoader</h2><p>继承自ClassLoader，可以加载本地磁盘和网络中的jar包类文件。</p>
+<h2 id="urlclassloader" class="heading-element"><span>URLClassLoader</span>
+  <a href="#urlclassloader" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>继承自ClassLoader，可以加载本地磁盘和网络中的jar包类文件。</p>
 <p>本地class文件调用：</p>
 <p>先写个java，内容是弹计算器，和sout</p>
-<div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nn">com.yutao.day1</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nn">com.yutao.day1</span><span class="p">;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">execcalc</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">execcalc</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -408,7 +452,7 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">//</span><span class="n">E</span><span class="p">:</span><span class="err">\</span><span class="n">github</span><span class="err">\</span><span class="n">JavaSecLearn</span><span class="err">\</span><span class="n">Code</span><span class="err">\</span><span class="n">JavaSecLearn</span><span class="err">\</span><span class="n">src</span><span class="err">\</span><span class="n">com</span><span class="err">\</span><span class="n">yutao</span><span class="err">\</span><span class="n">day1</span></span></span></code></pre></div><div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nn">com.yutao.day1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">//</span><span class="n">E</span><span class="p">:</span><span class="err">\</span><span class="n">github</span><span class="err">\</span><span class="n">JavaSecLearn</span><span class="err">\</span><span class="n">Code</span><span class="err">\</span><span class="n">JavaSecLearn</span><span class="err">\</span><span class="n">src</span><span class="err">\</span><span class="n">com</span><span class="err">\</span><span class="n">yutao</span><span class="err">\</span><span class="n">day1</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nn">com.yutao.day1</span><span class="p">;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">java.io.File</span><span class="p">;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">java.net.MalformedURLException</span><span class="p">;</span><span class="w">
@@ -437,9 +481,9 @@
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" data-title="Java-类加载器" data-hashtags="Java"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" data-hashtag="Java"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" data-title="Java-类加载器"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" data-title="Java-类加载器" data-hashtags="Java"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" data-hashtag="Java"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/java-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/" data-title="Java-类加载器"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -451,21 +495,21 @@
     </section>
   </div>
 
-  <div class="post-nav"><a href="/posts/%E5%9F%9F%E5%A7%94%E6%B4%BE/" class="post-nav-item" rel="prev" title="kerberos认证&amp;PAC"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>kerberos认证&amp;PAC</a>
+  <div class="post-nav"><a href="/posts/%E5%9F%9F%E5%A7%94%E6%B4%BE/" class="post-nav-item" rel="prev" title="Kerberos认证&amp;PAC"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>Kerberos认证&amp;PAC</a>
       <a href="/posts/2023-2-http%E5%A4%B4/" class="post-nav-item" rel="next" title="HTTP头各字段详解">HTTP头各字段详解<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
 </div>
 </article>
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

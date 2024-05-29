@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>Windows内核(二)——驱动 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>Windows内核(二)——驱动 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(二)——驱动">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2023-01-18T00:00:00+00:00" />
+<meta name="description" content="[toc] 001.驱动开发环境配置 vs2010:https://learn.microsoft.com/zh-cn/visualstudio/releasenotes/vs2010-sp1-vs wdk7600:https://www.microsoft.com/en-us/download/details.aspx?id=11800 添加项目属性表： &lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt; &lt;Project ToolsVersion=&#34;4.0&#34; xmlns=&#34;http://schemas.microsoft.com/developer/msbuild/2003&#34;&gt; &lt;ImportGroup Label=&#34;PropertySheets&#34; /&gt; &lt;PropertyGroup Label=&#34;UserMacros&#34; /&gt; &lt;PropertyGroup&gt; &lt;ExecutablePath&gt;D:\WinDDK\7600.16385.1\bin\x86;$(ExecutablePath)&lt;/ExecutablePath&gt; &lt;/PropertyGroup&gt; &lt;PropertyGroup&gt; &lt;IncludePath&gt;D:\WinDDK\7600.16385.1\inc\api;D:\WinDDK\7600.16385.1\inc\ddk;D:\WinDDK\7600.16385.1\inc\crt;$(IncludePath)&lt;/IncludePath&gt; &lt;/PropertyGroup&gt; &lt;PropertyGroup&gt; &lt;LibraryPath&gt;D:\WinDDK\7600.16385.1\lib\wxp\i386;$(LibraryPath)&lt;/LibraryPath&gt; &lt;TargetExt&gt;.sys&lt;/TargetExt&gt; &lt;LinkIncremental&gt;false&lt;/LinkIncremental&gt; &lt;GenerateManifest&gt;false&lt;/GenerateManifest&gt; &lt;/PropertyGroup&gt; &lt;ItemDefinitionGroup&gt; &lt;ClCompile&gt; &lt;PreprocessorDefinitions&gt;_X86_;DBG&lt;/PreprocessorDefinitions&gt; &lt;CallingConvention&gt;StdCall&lt;/CallingConvention&gt; &lt;ExceptionHandling&gt;false&lt;/ExceptionHandling&gt; &lt;BasicRuntimeChecks&gt;Default&lt;/BasicRuntimeChecks&gt; &lt;BufferSecurityCheck&gt;false&lt;/BufferSecurityCheck&gt; &lt;CompileAs&gt;Default&lt;/CompileAs&gt; &lt;DebugInformationFormat&gt;ProgramDatabase&lt;/DebugInformationFormat&gt; &lt;AssemblerOutput&gt;All&lt;/AssemblerOutput&gt; &lt;/ClCompile&gt; &lt;Link&gt; &lt;AdditionalDependencies&gt;ntoskrnl.lib;wdm.lib;wdmsec.lib;wmilib.lib;ndis.lib;Hal.lib;MSVCRT.LIB;LIBCMT.LIB;%(AdditionalDependencies)&lt;/AdditionalDependencies&gt; &lt;/Link&gt; &lt;Link&gt; &lt;IgnoreAllDefaultLibraries&gt;true&lt;/IgnoreAllDefaultLibraries&gt; &lt;EnableUAC&gt;false&lt;/EnableUAC&gt; &lt;SubSystem&gt;Native&lt;/SubSystem&gt; &lt;EntryPointSymbol&gt;DriverEntry&lt;/EntryPointSymbol&gt; &lt;BaseAddress&gt;0x10000&lt;/BaseAddress&gt; &lt;RandomizedBaseAddress&gt; &lt;/RandomizedBaseAddress&gt; &lt;DataExecutionPrevention&gt; &lt;/DataExecutionPrevention&gt; &lt;GenerateDebugInformation&gt;true&lt;/GenerateDebugInformation&gt; &lt;Driver&gt;Driver&lt;/Driver&gt; &lt;/Link&gt; &lt;/ItemDefinitionGroup&gt; &lt;ItemGroup /&gt; &lt;/Project&gt;002.第一个驱动程序 驱动开发流程： 代码 =&gt; 生成sys文" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(二)——驱动">
+<meta itemprop="description" content="[toc] 001.驱动开发环境配置 vs2010:https://learn.microsoft.com/zh-cn/visualstudio/releasenotes/vs2010-sp1-vs wdk7600:https://www.microsoft.com/en-us/download/details.aspx?id=11800 添加项目属性表： &lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt; &lt;Project ToolsVersion=&#34;4.0&#34; xmlns=&#34;http://schemas.microsoft.com/developer/msbuild/2003&#34;&gt; &lt;ImportGroup Label=&#34;PropertySheets&#34; /&gt; &lt;PropertyGroup Label=&#34;UserMacros&#34; /&gt; &lt;PropertyGroup&gt; &lt;ExecutablePath&gt;D:\WinDDK\7600.16385.1\bin\x86;$(ExecutablePath)&lt;/ExecutablePath&gt; &lt;/PropertyGroup&gt; &lt;PropertyGroup&gt; &lt;IncludePath&gt;D:\WinDDK\7600.16385.1\inc\api;D:\WinDDK\7600.16385.1\inc\ddk;D:\WinDDK\7600.16385.1\inc\crt;$(IncludePath)&lt;/IncludePath&gt; &lt;/PropertyGroup&gt; &lt;PropertyGroup&gt; &lt;LibraryPath&gt;D:\WinDDK\7600.16385.1\lib\wxp\i386;$(LibraryPath)&lt;/LibraryPath&gt; &lt;TargetExt&gt;.sys&lt;/TargetExt&gt; &lt;LinkIncremental&gt;false&lt;/LinkIncremental&gt; &lt;GenerateManifest&gt;false&lt;/GenerateManifest&gt; &lt;/PropertyGroup&gt; &lt;ItemDefinitionGroup&gt; &lt;ClCompile&gt; &lt;PreprocessorDefinitions&gt;_X86_;DBG&lt;/PreprocessorDefinitions&gt; &lt;CallingConvention&gt;StdCall&lt;/CallingConvention&gt; &lt;ExceptionHandling&gt;false&lt;/ExceptionHandling&gt; &lt;BasicRuntimeChecks&gt;Default&lt;/BasicRuntimeChecks&gt; &lt;BufferSecurityCheck&gt;false&lt;/BufferSecurityCheck&gt; &lt;CompileAs&gt;Default&lt;/CompileAs&gt; &lt;DebugInformationFormat&gt;ProgramDatabase&lt;/DebugInformationFormat&gt; &lt;AssemblerOutput&gt;All&lt;/AssemblerOutput&gt; &lt;/ClCompile&gt; &lt;Link&gt; &lt;AdditionalDependencies&gt;ntoskrnl.lib;wdm.lib;wdmsec.lib;wmilib.lib;ndis.lib;Hal.lib;MSVCRT.LIB;LIBCMT.LIB;%(AdditionalDependencies)&lt;/AdditionalDependencies&gt; &lt;/Link&gt; &lt;Link&gt; &lt;IgnoreAllDefaultLibraries&gt;true&lt;/IgnoreAllDefaultLibraries&gt; &lt;EnableUAC&gt;false&lt;/EnableUAC&gt; &lt;SubSystem&gt;Native&lt;/SubSystem&gt; &lt;EntryPointSymbol&gt;DriverEntry&lt;/EntryPointSymbol&gt; &lt;BaseAddress&gt;0x10000&lt;/BaseAddress&gt; &lt;RandomizedBaseAddress&gt; &lt;/RandomizedBaseAddress&gt; &lt;DataExecutionPrevention&gt; &lt;/DataExecutionPrevention&gt; &lt;GenerateDebugInformation&gt;true&lt;/GenerateDebugInformation&gt; &lt;Driver&gt;Driver&lt;/Driver&gt; &lt;/Link&gt; &lt;/ItemDefinitionGroup&gt; &lt;ItemGroup /&gt; &lt;/Project&gt;002.第一个驱动程序 驱动开发流程： 代码 =&gt; 生成sys文"><meta itemprop="datePublished" content="2023-01-18T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2023-01-18T00:00:00+00:00" />
-<meta itemprop="wordCount" content="9495">
+<meta itemprop="wordCount" content="9387">
 <meta itemprop="keywords" content="Win32," /><meta property="og:title" content="Windows内核(二)——驱动" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[toc] 001.驱动开发环境配置 vs2010:https://learn.microsoft.com/zh-cn/visualstudio/releasenotes/vs2010-sp1-vs wdk7600:https://www.microsoft.com/en-us/download/details.aspx?id=11800 添加项目属性表： &lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt; &lt;Project ToolsVersion=&#34;4.0&#34; xmlns=&#34;http://schemas.microsoft.com/developer/msbuild/2003&#34;&gt; &lt;ImportGroup Label=&#34;PropertySheets&#34; /&gt; &lt;PropertyGroup Label=&#34;UserMacros&#34; /&gt; &lt;PropertyGroup&gt; &lt;ExecutablePath&gt;D:\WinDDK\7600.16385.1\bin\x86;$(ExecutablePath)&lt;/ExecutablePath&gt; &lt;/PropertyGroup&gt; &lt;PropertyGroup&gt; &lt;IncludePath&gt;D:\WinDDK\7600.16385.1\inc\api;D:\WinDDK\7600.16385.1\inc\ddk;D:\WinDDK\7600.16385.1\inc\crt;$(IncludePath)&lt;/IncludePath&gt; &lt;/PropertyGroup&gt; &lt;PropertyGroup&gt; &lt;LibraryPath&gt;D:\WinDDK\7600.16385.1\lib\wxp\i386;$(LibraryPath)&lt;/LibraryPath&gt; &lt;TargetExt&gt;.sys&lt;/TargetExt&gt; &lt;LinkIncremental&gt;false&lt;/LinkIncremental&gt; &lt;GenerateManifest&gt;false&lt;/GenerateManifest&gt; &lt;/PropertyGroup&gt; &lt;ItemDefinitionGroup&gt; &lt;ClCompile&gt; &lt;PreprocessorDefinitions&gt;_X86_;DBG&lt;/PreprocessorDefinitions&gt; &lt;CallingConvention&gt;StdCall&lt;/CallingConvention&gt; &lt;ExceptionHandling&gt;false&lt;/ExceptionHandling&gt; &lt;BasicRuntimeChecks&gt;Default&lt;/BasicRuntimeChecks&gt; &lt;BufferSecurityCheck&gt;false&lt;/BufferSecurityCheck&gt; &lt;CompileAs&gt;Default&lt;/CompileAs&gt; &lt;DebugInformationFormat&gt;ProgramDatabase&lt;/DebugInformationFormat&gt; &lt;AssemblerOutput&gt;All&lt;/AssemblerOutput&gt; &lt;/ClCompile&gt; &lt;Link&gt; &lt;AdditionalDependencies&gt;ntoskrnl.lib;wdm.lib;wdmsec.lib;wmilib.lib;ndis.lib;Hal.lib;MSVCRT.LIB;LIBCMT.LIB;%(AdditionalDependencies)&lt;/AdditionalDependencies&gt; &lt;/Link&gt; &lt;Link&gt; &lt;IgnoreAllDefaultLibraries&gt;true&lt;/IgnoreAllDefaultLibraries&gt; &lt;EnableUAC&gt;false&lt;/EnableUAC&gt; &lt;SubSystem&gt;Native&lt;/SubSystem&gt; &lt;EntryPointSymbol&gt;DriverEntry&lt;/EntryPointSymbol&gt; &lt;BaseAddress&gt;0x10000&lt;/BaseAddress&gt; &lt;RandomizedBaseAddress&gt; &lt;/RandomizedBaseAddress&gt; &lt;DataExecutionPrevention&gt; &lt;/DataExecutionPrevention&gt; &lt;GenerateDebugInformation&gt;true&lt;/GenerateDebugInformation&gt; &lt;Driver&gt;Driver&lt;/Driver&gt; &lt;/Link&gt; &lt;/ItemDefinitionGroup&gt; &lt;ItemGroup /&gt; &lt;/Project&gt;002.第一个驱动程序 驱动开发流程： 代码 =&gt; 生成sys文" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2023-01-18T00:00:00+00:00" />
 <meta property="article:modified_time" content="2023-01-18T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Windows内核(二)——驱动"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[toc] 001.驱动开发环境配置 vs2010:https://learn.microsoft.com/zh-cn/visualstudio/releasenotes/vs2010-sp1-vs wdk7600:https://www.microsoft.com/en-us/download/details.aspx?id=11800 添加项目属性表： &lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt; &lt;Project ToolsVersion=&#34;4.0&#34; xmlns=&#34;http://schemas.microsoft.com/developer/msbuild/2003&#34;&gt; &lt;ImportGroup Label=&#34;PropertySheets&#34; /&gt; &lt;PropertyGroup Label=&#34;UserMacros&#34; /&gt; &lt;PropertyGroup&gt; &lt;ExecutablePath&gt;D:\WinDDK\7600.16385.1\bin\x86;$(ExecutablePath)&lt;/ExecutablePath&gt; &lt;/PropertyGroup&gt; &lt;PropertyGroup&gt; &lt;IncludePath&gt;D:\WinDDK\7600.16385.1\inc\api;D:\WinDDK\7600.16385.1\inc\ddk;D:\WinDDK\7600.16385.1\inc\crt;$(IncludePath)&lt;/IncludePath&gt; &lt;/PropertyGroup&gt; &lt;PropertyGroup&gt; &lt;LibraryPath&gt;D:\WinDDK\7600.16385.1\lib\wxp\i386;$(LibraryPath)&lt;/LibraryPath&gt; &lt;TargetExt&gt;.sys&lt;/TargetExt&gt; &lt;LinkIncremental&gt;false&lt;/LinkIncremental&gt; &lt;GenerateManifest&gt;false&lt;/GenerateManifest&gt; &lt;/PropertyGroup&gt; &lt;ItemDefinitionGroup&gt; &lt;ClCompile&gt; &lt;PreprocessorDefinitions&gt;_X86_;DBG&lt;/PreprocessorDefinitions&gt; &lt;CallingConvention&gt;StdCall&lt;/CallingConvention&gt; &lt;ExceptionHandling&gt;false&lt;/ExceptionHandling&gt; &lt;BasicRuntimeChecks&gt;Default&lt;/BasicRuntimeChecks&gt; &lt;BufferSecurityCheck&gt;false&lt;/BufferSecurityCheck&gt; &lt;CompileAs&gt;Default&lt;/CompileAs&gt; &lt;DebugInformationFormat&gt;ProgramDatabase&lt;/DebugInformationFormat&gt; &lt;AssemblerOutput&gt;All&lt;/AssemblerOutput&gt; &lt;/ClCompile&gt; &lt;Link&gt; &lt;AdditionalDependencies&gt;ntoskrnl.lib;wdm.lib;wdmsec.lib;wmilib.lib;ndis.lib;Hal.lib;MSVCRT.LIB;LIBCMT.LIB;%(AdditionalDependencies)&lt;/AdditionalDependencies&gt; &lt;/Link&gt; &lt;Link&gt; &lt;IgnoreAllDefaultLibraries&gt;true&lt;/IgnoreAllDefaultLibraries&gt; &lt;EnableUAC&gt;false&lt;/EnableUAC&gt; &lt;SubSystem&gt;Native&lt;/SubSystem&gt; &lt;EntryPointSymbol&gt;DriverEntry&lt;/EntryPointSymbol&gt; &lt;BaseAddress&gt;0x10000&lt;/BaseAddress&gt; &lt;RandomizedBaseAddress&gt; &lt;/RandomizedBaseAddress&gt; &lt;DataExecutionPrevention&gt; &lt;/DataExecutionPrevention&gt; &lt;GenerateDebugInformation&gt;true&lt;/GenerateDebugInformation&gt; &lt;Driver&gt;Driver&lt;/Driver&gt; &lt;/Link&gt; &lt;/ItemDefinitionGroup&gt; &lt;ItemGroup /&gt; &lt;/Project&gt;002.第一个驱动程序 驱动开发流程： 代码 =&gt; 生成sys文"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" /><link rel="prev" href="http://localhost:1313/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" /><link rel="next" href="http://localhost:1313/posts/2022%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" /><link rel="prev" href="http://ghostasky.github.io/posts/2023-1-winkernel%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" /><link rel="next" href="http://ghostasky.github.io/posts/2022%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/2023-1-winkernel%E9%A9%B1%E5%8A%A8\/"
-    },"genre": "posts","keywords": "Win32","wordcount":  9495 ,
-    "url": "http:\/\/localhost:1313\/posts\/2023-1-winkernel%E9%A9%B1%E5%8A%A8\/","datePublished": "2023-01-18T00:00:00+00:00","dateModified": "2023-01-18T00:00:00+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/2023-1-winkernel%E9%A9%B1%E5%8A%A8\/"
+    },"genre": "posts","keywords": "Win32","wordcount":  9387 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/2023-1-winkernel%E9%A9%B1%E5%8A%A8\/","datePublished": "2023-01-18T00:00:00+00:00","dateModified": "2023-01-18T00:00:00+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>Windows内核(二)——驱动</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-01-18 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-01-18">2023-01-18</time></span>&nbsp;<span title="9495 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 9500 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 19 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-01-18 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-01-18">2023-01-18</time></span>&nbsp;<span title="9387 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 9400 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 19 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -189,14 +188,17 @@
   </ul>
 </nav></div>
       </div><div class="content" id="content"><p>[toc]</p>
-<h2 id="001驱动开发环境配置" class="heading-element">
-  <a href="#001%e9%a9%b1%e5%8a%a8%e5%bc%80%e5%8f%91%e7%8e%af%e5%a2%83%e9%85%8d%e7%bd%ae" class="heading-mark"></a>001.驱动开发环境配置</h2><p>vs2010:https://learn.microsoft.com/zh-cn/visualstudio/releasenotes/vs2010-sp1-vs</p>
+<h2 id="001驱动开发环境配置" class="heading-element"><span>001.驱动开发环境配置</span>
+  <a href="#001%e9%a9%b1%e5%8a%a8%e5%bc%80%e5%8f%91%e7%8e%af%e5%a2%83%e9%85%8d%e7%bd%ae" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>vs2010:https://learn.microsoft.com/zh-cn/visualstudio/releasenotes/vs2010-sp1-vs</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20221213184310074.png" alt="image-20221213184310074" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20221213184310074.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20221213184310074.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20221213184310074.png?size=large 2x" data-title="image-20221213184310074" style="--width: 1387px;--aspect-ratio: 1387 / 620;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>wdk7600:https://www.microsoft.com/en-us/download/details.aspx?id=11800</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20221213184334246.png" alt="image-20221213184334246" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20221213184334246.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20221213184334246.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20221213184334246.png?size=large 2x" data-title="image-20221213184334246" style="--width: 1174px;--aspect-ratio: 1174 / 481;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>添加项目属性表：</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230104160816744.png" alt="image-20230104160816744" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230104160816744.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230104160816744.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230104160816744.png?size=large 2x" data-title="image-20230104160816744" style="--width: 456px;--aspect-ratio: 456 / 295;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="cp">&lt;?xml version=&#34;1.0&#34; encoding=&#34;utf-8&#34;?&gt;</span>
 </span></span><span class="line"><span class="cl"><span class="nt">&lt;Project</span> <span class="na">ToolsVersion=</span><span class="s">&#34;4.0&#34;</span> <span class="na">xmlns=</span><span class="s">&#34;http://schemas.microsoft.com/developer/msbuild/2003&#34;</span><span class="nt">&gt;</span>
 </span></span><span class="line"><span class="cl">  <span class="nt">&lt;ImportGroup</span> <span class="na">Label=</span><span class="s">&#34;PropertySheets&#34;</span> <span class="nt">/&gt;</span>
 </span></span><span class="line"><span class="cl">  <span class="nt">&lt;PropertyGroup</span> <span class="na">Label=</span><span class="s">&#34;UserMacros&#34;</span> <span class="nt">/&gt;</span>
@@ -241,12 +243,15 @@
 </span></span><span class="line"><span class="cl">    <span class="nt">&lt;/Link&gt;</span>
 </span></span><span class="line"><span class="cl">  <span class="nt">&lt;/ItemDefinitionGroup&gt;</span>
 </span></span><span class="line"><span class="cl">  <span class="nt">&lt;ItemGroup</span> <span class="nt">/&gt;</span>
-</span></span><span class="line"><span class="cl"><span class="nt">&lt;/Project&gt;</span></span></span></code></pre></div><h2 id="002第一个驱动程序" class="heading-element">
-  <a href="#002%e7%ac%ac%e4%b8%80%e4%b8%aa%e9%a9%b1%e5%8a%a8%e7%a8%8b%e5%ba%8f" class="heading-mark"></a>002.第一个驱动程序</h2><p>驱动开发流程：</p>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;/Project&gt;</span></span></span></code></pre></div><h2 id="002第一个驱动程序" class="heading-element"><span>002.第一个驱动程序</span>
+  <a href="#002%e7%ac%ac%e4%b8%80%e4%b8%aa%e9%a9%b1%e5%8a%a8%e7%a8%8b%e5%ba%8f" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>驱动开发流程：</p>
 <blockquote>
 <p>代码 =&gt; 生成sys文件 =&gt; 部署 =&gt; 启动 =&gt; 停止 =&gt; 卸载</p>
 </blockquote>
-<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;ntddk.h&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;ntddk.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="c1">//卸载函数
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">VOID</span> <span class="nf">DriverUnload</span><span class="p">(</span><span class="n">PDRIVER_OBJECT</span> <span class="n">driver</span><span class="p">)</span>
@@ -265,8 +270,11 @@
 <p>之后在虚拟机里还需要两个软件：DebugView和KmdManager</p>
 <p>DebugView在使用的时候要选择监视核心</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230104204933253.png" alt="image-20230104204933253" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230104204933253.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230104204933253.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230104204933253.png?size=large 2x" data-title="image-20230104204933253" style="--width: 858px;--aspect-ratio: 858 / 262;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="003如何调试驱动程序" class="heading-element">
-  <a href="#003%e5%a6%82%e4%bd%95%e8%b0%83%e8%af%95%e9%a9%b1%e5%8a%a8%e7%a8%8b%e5%ba%8f" class="heading-mark"></a>003.如何调试驱动程序</h2><p>PDB文件：</p>
+<h2 id="003如何调试驱动程序" class="heading-element"><span>003.如何调试驱动程序</span>
+  <a href="#003%e5%a6%82%e4%bd%95%e8%b0%83%e8%af%95%e9%a9%b1%e5%8a%a8%e7%a8%8b%e5%ba%8f" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>PDB文件：</p>
 <blockquote>
 <p>PDB文件是编译驱动的同时生成的调试信息文件，它可以帮助我们像调试应用程序一样调试驱动程序。其实之前我们已经使用过PDB，我们配置双机调试环境时，在物理机上安装了符号文件，并在windbg中导入过。</p>
 <p>有了PDB，我们就可以知道当前汇编语句属于哪个函数，程序定义的结构体等关键信息，说一句题外话，软件发布的时候，切记不要把PDB也发布出去，因为这会给别人破解你的软件提供巨大便利。</p>
@@ -275,7 +283,7 @@
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105122422110.png" alt="image-20230105122422110" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105122422110.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105122422110.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105122422110.png?size=large 2x" data-title="image-20230105122422110" style="--width: 1410px;--aspect-ratio: 1410 / 895;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>之后在windbg的symbols里面加上：<code>E:\DriverLearn\_01HelloDriver\Driver</code></p>
 <p>下断点的时候在代码里加上：</p>
-<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl">	<span class="nf">__asm</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl">	<span class="nf">__asm</span>
 </span></span><span class="line"><span class="cl">	<span class="err">{</span>
 </span></span><span class="line"><span class="cl">		<span class="nf">int</span> <span class="mi">3</span>
 </span></span><span class="line"><span class="cl">			<span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span><span class="no">eax</span>
@@ -283,10 +291,16 @@
 </span></span><span class="line"><span class="cl">			<span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span><span class="no">eax</span>
 </span></span><span class="line"><span class="cl">	<span class="err">}</span></span></span></code></pre></div><p>这个就是最终界面了：</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105123953034.png" alt="image-20230105123953034" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105123953034.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105123953034.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105123953034.png?size=large 2x" data-title="image-20230105123953034" style="--width: 1445px;--aspect-ratio: 1445 / 800;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="004内核编程基础" class="heading-element">
-  <a href="#004%e5%86%85%e6%a0%b8%e7%bc%96%e7%a8%8b%e5%9f%ba%e7%a1%80" class="heading-mark"></a>004.内核编程基础</h2><p>微软提供的内核专用API在<code>ntddk.h</code>这个头文件中</p>
-<h3 id="未文档化函数与未导出函数" class="heading-element">
-  <a href="#%e6%9c%aa%e6%96%87%e6%a1%a3%e5%8c%96%e5%87%bd%e6%95%b0%e4%b8%8e%e6%9c%aa%e5%af%bc%e5%87%ba%e5%87%bd%e6%95%b0" class="heading-mark"></a>未文档化函数与未导出函数</h3><p>未文档化函数与未导出函数：</p>
+<h2 id="004内核编程基础" class="heading-element"><span>004.内核编程基础</span>
+  <a href="#004%e5%86%85%e6%a0%b8%e7%bc%96%e7%a8%8b%e5%9f%ba%e7%a1%80" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>微软提供的内核专用API在<code>ntddk.h</code>这个头文件中</p>
+<h3 id="未文档化函数与未导出函数" class="heading-element"><span>未文档化函数与未导出函数</span>
+  <a href="#%e6%9c%aa%e6%96%87%e6%a1%a3%e5%8c%96%e5%87%bd%e6%95%b0%e4%b8%8e%e6%9c%aa%e5%af%bc%e5%87%ba%e5%87%bd%e6%95%b0" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>未文档化函数与未导出函数：</p>
 <ul>
 <li>未文档化就是WDK文档里搜不到，但是在导出表里的函数，要使用这种函数可以使用GetProcAddress函数获取函数地址；</li>
 <li>未导出函数就是不在导出表的函数，可以通过特征码搜索或者解析内核PDB的方式找到函数地址，通过函数指针调用。</li>
@@ -296,8 +310,11 @@
 <li>特征码搜索</li>
 <li>解析内核PDB文件</li>
 </ol>
-<h3 id="数据类型" class="heading-element">
-  <a href="#%e6%95%b0%e6%8d%ae%e7%b1%bb%e5%9e%8b" class="heading-mark"></a>数据类型</h3><p>在ntdef.h中定义，习惯使用WDK自己的类型：</p>
+<h3 id="数据类型" class="heading-element"><span>数据类型</span>
+  <a href="#%e6%95%b0%e6%8d%ae%e7%b1%bb%e5%9e%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>在ntdef.h中定义，习惯使用WDK自己的类型：</p>
 <table>
 <thead>
 <tr>
@@ -354,14 +371,20 @@
 </tr>
 </tbody>
 </table>
-<h3 id="返回值" class="heading-element">
-  <a href="#%e8%bf%94%e5%9b%9e%e5%80%bc" class="heading-mark"></a>返回值</h3><p>大部分内核函数返回值都是NTSTATUS类型，其实就是定义的：</p>
-<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">STATUS_SUCCESS</span>				<span class="mh">0x00000000</span>	<span class="err">成功</span>		
+<h3 id="返回值" class="heading-element"><span>返回值</span>
+  <a href="#%e8%bf%94%e5%9b%9e%e5%80%bc" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>大部分内核函数返回值都是NTSTATUS类型，其实就是定义的：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">STATUS_SUCCESS</span>				<span class="mh">0x00000000</span>	<span class="err">成功</span>		
 </span></span><span class="line"><span class="cl"><span class="n">STATUS_INVALID_PARAMETER</span>	<span class="mh">0xC000000D</span>	<span class="err">参数无效</span>	
 </span></span><span class="line"><span class="cl"><span class="n">STATUS_BUFFER_OVERFLOW</span>		<span class="mh">0x80000005</span>	<span class="err">缓冲区长度不够</span></span></span></code></pre></div><p>在ntstatus.h文件中定义</p>
-<h3 id="异常处理" class="heading-element">
-  <a href="#%e5%bc%82%e5%b8%b8%e5%a4%84%e7%90%86" class="heading-mark"></a>异常处理</h3><p>Windows提供了结构化异常处理机制，一般的编译器都是支持的，如下：</p>
-<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__try</span><span class="p">{</span>
+<h3 id="异常处理" class="heading-element"><span>异常处理</span>
+  <a href="#%e5%bc%82%e5%b8%b8%e5%a4%84%e7%90%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>Windows提供了结构化异常处理机制，一般的编译器都是支持的，如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kr">__try</span><span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="c1">//可能出错的代码
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="kr">__except</span><span class="p">(</span><span class="n">filter_value</span><span class="p">)</span> <span class="p">{</span>
@@ -372,8 +395,11 @@
 <li>EXCEPTION_CONTINUE_SEARCH(0)，不处理异常，由上一层调用函数处理</li>
 <li>EXCEPTION_CONTINUE_EXECUTION(-1)，回去继续执行错误处的代码</li>
 </ul>
-<h3 id="常用的内核内存函数" class="heading-element">
-  <a href="#%e5%b8%b8%e7%94%a8%e7%9a%84%e5%86%85%e6%a0%b8%e5%86%85%e5%ad%98%e5%87%bd%e6%95%b0" class="heading-mark"></a>常用的内核内存函数</h3><table>
+<h3 id="常用的内核内存函数" class="heading-element"><span>常用的内核内存函数</span>
+  <a href="#%e5%b8%b8%e7%94%a8%e7%9a%84%e5%86%85%e6%a0%b8%e5%86%85%e5%ad%98%e5%87%bd%e6%95%b0" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><table>
 <thead>
 <tr>
 <th>C语言</th>
@@ -399,16 +425,19 @@
 </tr>
 </tbody>
 </table>
-<h3 id="内核字符串及常用字符串函数" class="heading-element">
-  <a href="#%e5%86%85%e6%a0%b8%e5%ad%97%e7%ac%a6%e4%b8%b2%e5%8f%8a%e5%b8%b8%e7%94%a8%e5%ad%97%e7%ac%a6%e4%b8%b2%e5%87%bd%e6%95%b0" class="heading-mark"></a>内核字符串及常用字符串函数</h3><p>为了提高安全性，内核中的字符串不再是字符串首地址指针作为开始，0作为结尾，而是采用了以下两个结构体：</p>
+<h3 id="内核字符串及常用字符串函数" class="heading-element"><span>内核字符串及常用字符串函数</span>
+  <a href="#%e5%86%85%e6%a0%b8%e5%ad%97%e7%ac%a6%e4%b8%b2%e5%8f%8a%e5%b8%b8%e7%94%a8%e5%ad%97%e7%ac%a6%e4%b8%b2%e5%87%bd%e6%95%b0" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>为了提高安全性，内核中的字符串不再是字符串首地址指针作为开始，0作为结尾，而是采用了以下两个结构体：</p>
 <p><strong>ANSI_STRING字符串：</strong></p>
-<div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_STRING</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_STRING</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">USHORT</span> <span class="n">Length</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="n">USHORT</span> <span class="n">MaximumLength</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="n">PCHAR</span> <span class="n">Buffer</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span><span class="n">STRING</span><span class="p">;</span></span></span></code></pre></div><p><strong>UNICODE_STRING字符串：</strong></p>
-<div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_UNICODE_STRING</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_UNICODE_STRING</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">USHORT</span> <span class="n">Length</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="n">USHORT</span> <span class="n">MaxmumLength</span><span class="p">;</span>
@@ -445,14 +474,17 @@
 </tr>
 </tbody>
 </table>
-<h2 id="005内核空间与内核模块" class="heading-element">
-  <a href="#005%e5%86%85%e6%a0%b8%e7%a9%ba%e9%97%b4%e4%b8%8e%e5%86%85%e6%a0%b8%e6%a8%a1%e5%9d%97" class="heading-mark"></a>005.内核空间与内核模块</h2><pre tabindex="0"><code>!process 0 0 #查看所有程序
+<h2 id="005内核空间与内核模块" class="heading-element"><span>005.内核空间与内核模块</span>
+  <a href="#005%e5%86%85%e6%a0%b8%e7%a9%ba%e9%97%b4%e4%b8%8e%e5%86%85%e6%a0%b8%e6%a8%a1%e5%9d%97" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><pre tabindex="0"><code>!process 0 0 #查看所有程序
 .process [dirbase]
 dd 线性地址
 dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p>查看DRIVER_OBJECT结构体：</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105133925444.png" alt="image-20230105133925444" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105133925444.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105133925444.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105133925444.png?size=large 2x" data-title="image-20230105133925444" style="--width: 652px;--aspect-ratio: 652 / 343;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>写份代码：</p>
-<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">//入口函数
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">//入口函数
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">NTSTATUS</span> <span class="nf">DriverEntry</span><span class="p">(</span><span class="n">PDRIVER_OBJECT</span> <span class="n">driver</span><span class="p">,</span><span class="n">PUNICODE_STRING</span> <span class="n">RegistryPath</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="nf">DbgPrint</span><span class="p">(</span><span class="s">&#34;PDRIVER_OBJECT: %p %wZ</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span><span class="n">driver</span><span class="p">,</span><span class="n">RegistryPath</span><span class="p">);</span>
@@ -466,14 +498,20 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105135002493.png" alt="image-20230105135002493" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105135002493.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105135002493.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105135002493.png?size=large 2x" data-title="image-20230105135002493" style="--width: 1278px;--aspect-ratio: 1278 / 400;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>可以一直往下查：</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105135139857.png" alt="image-20230105135139857" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105135139857.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105135139857.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105135139857.png?size=large 2x" data-title="image-20230105135139857" style="--width: 879px;--aspect-ratio: 879 / 406;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="006r0与r3通信常规方式" class="heading-element">
-  <a href="#006r0%e4%b8%8er3%e9%80%9a%e4%bf%a1%e5%b8%b8%e8%a7%84%e6%96%b9%e5%bc%8f" class="heading-mark"></a>006.r0与r3通信(常规方式)</h2><p>常规方式也就是正常驱动开发的人是如何做的。</p>
+<h2 id="006r0与r3通信常规方式" class="heading-element"><span>006.r0与r3通信(常规方式)</span>
+  <a href="#006r0%e4%b8%8er3%e9%80%9a%e4%bf%a1%e5%b8%b8%e8%a7%84%e6%96%b9%e5%bc%8f" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>常规方式也就是正常驱动开发的人是如何做的。</p>
 <p>3环窗口程序中的MSG结构体和窗口对象，与0环的设备对象和IRP结构体的关系有点像；在窗口程序中，能够接收消息的只能是窗口对象。在内核中，能够接收IRP消息的只能是设备对象。</p>
 <p>驱动程序原本的目的是用来控制硬件，但我们也可以用驱动做一些安全相关的事情，因为驱动运行在0环。为了控制驱动运行，我们需要在3环向驱动发数据，所以我们需要有一种方法来建立0环到3环的通信。本文介绍常规方式，也就是创建设备对象的方式。</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105141141521.png" alt="image-20230105141141521" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105141141521.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105141141521.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105141141521.png?size=large 2x" data-title="image-20230105141141521" style="--width: 710px;--aspect-ratio: 710 / 312;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105143451165.png" alt="image-20230105143451165" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105143451165.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105143451165.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105143451165.png?size=large 2x" data-title="image-20230105143451165" style="--width: 968px;--aspect-ratio: 968 / 382;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="数据交互的方式" class="heading-element">
-  <a href="#%e6%95%b0%e6%8d%ae%e4%ba%a4%e4%ba%92%e7%9a%84%e6%96%b9%e5%bc%8f" class="heading-mark"></a>数据交互的方式</h3><p>主要有两种方式，数据量小，一般用拷贝缓冲区的方式(DO_BUFFERED_IO)；数据量大，一般用直接方式读写(DO_DIRECT_IO)。</p>
+<h3 id="数据交互的方式" class="heading-element"><span>数据交互的方式</span>
+  <a href="#%e6%95%b0%e6%8d%ae%e4%ba%a4%e4%ba%92%e7%9a%84%e6%96%b9%e5%bc%8f" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>主要有两种方式，数据量小，一般用拷贝缓冲区的方式(DO_BUFFERED_IO)；数据量大，一般用直接方式读写(DO_DIRECT_IO)。</p>
 <ul>
 <li>
 <p>缓冲区方式读写(DO_BUFFERED_IO) ：操作系统将应用程序提供缓冲区的数据复制到内核模式下的地址中。</p>
@@ -483,8 +521,11 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </li>
 </ul>
 <p>推荐使用以上两种，当然还有其他的。</p>
-<h3 id="device与" class="heading-element">
-  <a href="#device%e4%b8%8e" class="heading-mark"></a>&ldquo;\\Device\\&ldquo;与“\\??\\”</h3><p>注意设备名和符号链接名：</p>
+<h3 id="device与" class="heading-element"><span>&ldquo;\\Device\\&ldquo;与“\\??\\”</span>
+  <a href="#device%e4%b8%8e" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>注意设备名和符号链接名：</p>
 <ul>
 <li>
 <p>设备名：r0使用，开头是&rdquo;\\Device\\&rdquo;</p>
@@ -497,8 +538,11 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </ul>
 </li>
 </ul>
-<h3 id="派遣函数格式" class="heading-element">
-  <a href="#%e6%b4%be%e9%81%a3%e5%87%bd%e6%95%b0%e6%a0%bc%e5%bc%8f" class="heading-mark"></a>派遣函数格式</h3><div class="highlight" id="id-10"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">NTSTATUS</span> <span class="nf">functionName</span><span class="p">(</span><span class="n">PDEVICE_OBJECT</span> <span class="n">pDeviceObject</span><span class="p">,</span> <span class="n">PIRP</span> <span class="n">pIrp</span><span class="p">)</span>
+<h3 id="派遣函数格式" class="heading-element"><span>派遣函数格式</span>
+  <a href="#%e6%b4%be%e9%81%a3%e5%87%bd%e6%95%b0%e6%a0%bc%e5%bc%8f" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">NTSTATUS</span> <span class="nf">functionName</span><span class="p">(</span><span class="n">PDEVICE_OBJECT</span> <span class="n">pDeviceObject</span><span class="p">,</span> <span class="n">PIRP</span> <span class="n">pIrp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="c1">//业务代码区
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>
@@ -507,16 +551,22 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">pIrp</span><span class="o">-&gt;</span><span class="n">IoStatus</span><span class="p">.</span><span class="n">Information</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>            <span class="c1">//返回给3环多少数据，没有填0
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nf">IoCompleteRequest</span><span class="p">(</span><span class="n">pIrp</span><span class="p">,</span> <span class="n">IO_NO_INCREMENT</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">STATUS_SUCCESS</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="0环与3环通信实验" class="heading-element">
-  <a href="#0%e7%8e%af%e4%b8%8e3%e7%8e%af%e9%80%9a%e4%bf%a1%e5%ae%9e%e9%aa%8c" class="heading-mark"></a>0环与3环通信实验</h3><p>步骤：</p>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="0环与3环通信实验" class="heading-element"><span>0环与3环通信实验</span>
+  <a href="#0%e7%8e%af%e4%b8%8e3%e7%8e%af%e9%80%9a%e4%bf%a1%e5%ae%9e%e9%aa%8c" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>步骤：</p>
 <p>R0：</p>
 <ul>
 <li>创建设备：<code>IoCreateDevice</code></li>
 <li>设置交互数据的方式</li>
 <li>创建符号链接：<code>IoCreateSymbolicLink</code></li>
 <li>
-<h2 id="设置派遣函数majorfunctionirp_mj_device_control指win32api调用deviceiocontrol时会执行" class="heading-element">
-  <a href="#%e8%ae%be%e7%bd%ae%e6%b4%be%e9%81%a3%e5%87%bd%e6%95%b0majorfunctionirp_mj_device_control%e6%8c%87win32api%e8%b0%83%e7%94%a8deviceiocontrol%e6%97%b6%e4%bc%9a%e6%89%a7%e8%a1%8c" class="heading-mark"></a>设置派遣函数：<code>MajorFunction</code>，<code>IRP_MJ_DEVICE_CONTROL</code>指win32api调用<code>DeviceIoControl</code>时会执行。</h2></li>
+<h2 id="设置派遣函数majorfunctionirp_mj_device_control指win32api调用deviceiocontrol时会执行" class="heading-element"><span>设置派遣函数：<code>MajorFunction</code>，<code>IRP_MJ_DEVICE_CONTROL</code>指win32api调用<code>DeviceIoControl</code>时会执行。</span>
+  <a href="#%e8%ae%be%e7%bd%ae%e6%b4%be%e9%81%a3%e5%87%bd%e6%95%b0majorfunctionirp_mj_device_control%e6%8c%87win32api%e8%b0%83%e7%94%a8deviceiocontrol%e6%97%b6%e4%bc%9a%e6%89%a7%e8%a1%8c" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2></li>
 <li>派遣函数中：
 <ul>
 <li>获取IRP数据：<code>IoGetCurrentIrpStackLocation</code></li>
@@ -532,8 +582,11 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 <li>获取设备句柄：<code>CreateFileW</code></li>
 <li>使用<code>DeviceIoControl</code>通信</li>
 </ul>
-<h3 id="代码" class="heading-element">
-  <a href="#%e4%bb%a3%e7%a0%81" class="heading-mark"></a>代码</h3><div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;ntddk.h&gt;
+<h3 id="代码" class="heading-element"><span>代码</span>
+  <a href="#%e4%bb%a3%e7%a0%81" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;ntddk.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="c1">// 设备名，0环用
@@ -676,7 +729,7 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </span></span><span class="line"><span class="cl">	<span class="nf">IoCompleteRequest</span><span class="p">(</span><span class="n">pIrp</span><span class="p">,</span> <span class="n">IO_NO_INCREMENT</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">STATUS_SUCCESS</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>应用程序代码：</p>
-<div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;Windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;winioctl.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##define SYMBOLICLINK_NAME L&#34;\\\\.\\HbgDevLnk&#34;
@@ -711,8 +764,11 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>可以看到r0和r3成功建立通信：</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105213719638.png" alt="image-20230105213719638" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105213719638.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105213719638.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230105213719638.png?size=large 2x" data-title="image-20230105213719638" style="--width: 872px;--aspect-ratio: 872 / 138;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="007sstd-hook" class="heading-element">
-  <a href="#007sstd-hook" class="heading-mark"></a>007.SSTD Hook</h2><p>SSDT 的全称是 System Services Descriptor Table，系统服务描述符表。这个表就是一个把 Ring3 的 Win32 API 和 Ring0 的内核 API 联系起来。</p>
+<h2 id="007sstd-hook" class="heading-element"><span>007.SSTD Hook</span>
+  <a href="#007sstd-hook" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>SSDT 的全称是 System Services Descriptor Table，系统服务描述符表。这个表就是一个把 Ring3 的 Win32 API 和 Ring0 的内核 API 联系起来。</p>
 <p>前者有 ntoskrnl.exe 导出,后者由 Win32k.sys 导出。</p>
 <hr>
 <p>SSDT  的全称是 System Services Descriptor Table，系统服务描述符表</p>
@@ -725,7 +781,7 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </blockquote>
 <p>未导出 需要用其他的方式来查找</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230107230553238.png" alt="image-20230107230553238" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230107230553238.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230107230553238.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230107230553238.png?size=large 2x" data-title="image-20230107230553238" style="--width: 955px;--aspect-ratio: 955 / 570;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// 系统服务表
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// 系统服务表
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_KSYSTEM_SERVICE_TABLE</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="n">PULONG</span> <span class="n">ServiceTableBase</span><span class="p">;</span>			<span class="c1">// 函数地址表
@@ -746,9 +802,12 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </span></span><span class="line"><span class="cl"><span class="c1">// 内核导出的全局变量
 </span></span></span><span class="line"><span class="cl"><span class="c1">// 导出由ntoskrnl所导出的SSDT
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">extern</span> <span class="n">PKSERVICE_TABLE_DESCRIPTOR</span> <span class="n">KeServiceDescriptorTable</span><span class="p">;</span> 
-</span></span></code></pre></div><h3 id="得到函数表的地址" class="heading-element">
-  <a href="#%e5%be%97%e5%88%b0%e5%87%bd%e6%95%b0%e8%a1%a8%e7%9a%84%e5%9c%b0%e5%9d%80" class="heading-mark"></a>得到函数表的地址</h3><p>代码：</p>
-<div class="highlight" id="id-14"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;ntddk.h&gt;
+</span></span></code></pre></div><h3 id="得到函数表的地址" class="heading-element"><span>得到函数表的地址</span>
+  <a href="#%e5%be%97%e5%88%b0%e5%87%bd%e6%95%b0%e8%a1%a8%e7%9a%84%e5%9c%b0%e5%9d%80" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>代码：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;ntddk.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;ntstatus.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="c1">// 系统服务表
@@ -792,14 +851,17 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117144628641.png" alt="image-20230117144628641" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117144628641.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117144628641.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117144628641.png?size=large 2x" data-title="image-20230117144628641" style="--width: 773px;--aspect-ratio: 773 / 285;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>可以看到是没问题的：</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117144735160.png" alt="image-20230117144735160" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117144735160.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117144735160.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117144735160.png?size=large 2x" data-title="image-20230117144735160" style="--width: 603px;--aspect-ratio: 603 / 218;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="ssdt-hook" class="heading-element">
-  <a href="#ssdt-hook" class="heading-mark"></a>SSDT Hook</h3><p>其实就是再写一份函数代替上面的函数表里的函数</p>
+<h3 id="ssdt-hook" class="heading-element"><span>SSDT Hook</span>
+  <a href="#ssdt-hook" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>其实就是再写一份函数代替上面的函数表里的函数</p>
 <p>这里使用修改<code>NtOpenProcess</code>这个函数。</p>
 <p>跟IDA可以知道是<code>0x7A</code>的位置，so：</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117145313399.png" alt="image-20230117145313399" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117145313399.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117145313399.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117145313399.png?size=large 2x" data-title="image-20230117145313399" style="--width: 1033px;--aspect-ratio: 1033 / 646;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>在改之前还需要改一下页的属性：</p>
 <p>SSDT所在的物理页是只读的，如果要修改，先要修改页属性为可写，可以直接通过页表基址修改：</p>
-<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">if</span><span class="p">(</span><span class="n">RCR4</span> <span class="o">&amp;</span> <span class="mh">0x00000020</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">if</span><span class="p">(</span><span class="n">RCR4</span> <span class="o">&amp;</span> <span class="mh">0x00000020</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span><span class="c1">//说明是2-9-9-12分页
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">KdPrint</span><span class="p">((</span><span class="s">&#34;2-9-9-12分页 %p</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span><span class="n">RCR4</span><span class="p">));</span>
 </span></span><span class="line"><span class="cl">	<span class="nf">KdPrint</span><span class="p">((</span><span class="s">&#34;PTE1 %p</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span><span class="o">*</span><span class="p">(</span><span class="n">DWORD</span><span class="o">*</span><span class="p">)(</span><span class="mh">0xC0000000</span> <span class="o">+</span> <span class="p">((</span><span class="n">HookFunAddr</span> <span class="o">&gt;&gt;</span> <span class="mi">9</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x007FFFF8</span><span class="p">))));</span>
@@ -814,7 +876,7 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </span></span><span class="line"><span class="cl">	<span class="nf">KdPrint</span><span class="p">((</span><span class="s">&#34;PTE2 %p</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span><span class="o">*</span><span class="p">(</span><span class="n">DWORD</span><span class="o">*</span><span class="p">)(</span><span class="mh">0xC0000000</span> <span class="o">+</span> <span class="p">((</span><span class="n">HookFunAddr</span> <span class="o">&gt;&gt;</span> <span class="mi">10</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x003FFFFC</span><span class="p">))));</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>还有一种方法，就是修改CR0寄存器，CR0寄存器的第16位叫做保护属性位，控制着页的读或写属性。</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117145749081.png" alt="image-20230117145749081" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117145749081.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117145749081.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117145749081.png?size=large 2x" data-title="image-20230117145749081" style="--width: 788px;--aspect-ratio: 788 / 113;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<div class="highlight" id="id-16"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">VOID</span> <span class="nf">PageProtectOn</span><span class="p">()</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">VOID</span> <span class="nf">PageProtectOn</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="kr">__asm</span><span class="p">{</span>
 </span></span><span class="line"><span class="cl">			<span class="n">mov</span>  <span class="n">eax</span><span class="p">,</span><span class="n">cr0</span>
@@ -833,9 +895,12 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </span></span><span class="line"><span class="cl">			<span class="n">mov</span>  <span class="n">cr0</span><span class="p">,</span><span class="n">eax</span>
 </span></span><span class="line"><span class="cl">	<span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>这里要注意无论是通过页改的还是通过寄存器改的最后都要改回来。</p>
-<h3 id="代码-1" class="heading-element">
-  <a href="#%e4%bb%a3%e7%a0%81-1" class="heading-mark"></a>代码</h3><p>就是简单将<code>OpenProcess</code>的参数打印出来。</p>
-<div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;ntddk.h&gt;
+<h3 id="代码-1" class="heading-element"><span>代码</span>
+  <a href="#%e4%bb%a3%e7%a0%81-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>就是简单将<code>OpenProcess</code>的参数打印出来。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;ntddk.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;ntstatus.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="cm">/************************************************************************/</span>
@@ -955,8 +1020,11 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117151105934.png" alt="image-20230117151105934" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117151105934.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117151105934.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117151105934.png?size=large 2x" data-title="image-20230117151105934" style="--width: 859px;--aspect-ratio: 859 / 288;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117151029551.png" alt="image-20230117151029551" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117151029551.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117151029551.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117151029551.png?size=large 2x" data-title="image-20230117151029551" style="--width: 887px;--aspect-ratio: 887 / 563;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>可以看到还是很容易被发现的。</p>
-<h2 id="008inline-hook" class="heading-element">
-  <a href="#008inline-hook" class="heading-mark"></a>008.Inline Hook</h2><blockquote>
+<h2 id="008inline-hook" class="heading-element"><span>008.Inline Hook</span>
+  <a href="#008inline-hook" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><blockquote>
 <p><a href="https://cataloc.gitee.io/blog/2020/04/20/Inline-Hook-SSDT/"target="_blank" rel="external nofollow noopener noreferrer">https://cataloc.gitee.io/blog/2020/04/20/Inline-Hook-SSDT/</a></p>
 <p><a href="https://www.cnblogs.com/luoyesiqiu/p/12306336.html"target="_blank" rel="external nofollow noopener noreferrer">https://www.cnblogs.com/luoyesiqiu/p/12306336.html</a></p>
 <p><a href="https://blog.csdn.net/qq_41988448/article/details/103557383"target="_blank" rel="external nofollow noopener noreferrer">https://blog.csdn.net/qq_41988448/article/details/103557383</a></p>
@@ -979,11 +1047,14 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117201023604.png" alt="image-20230117201023604" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117201023604.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117201023604.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117201023604.png?size=large 2x" data-title="image-20230117201023604" style="--width: 946px;--aspect-ratio: 946 / 376;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>脱钩：</p>
 <p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117235457065.png" alt="image-20230117235457065" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117235457065.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117235457065.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117235457065.png?size=large 2x" data-title="image-20230117235457065" style="--width: 637px;--aspect-ratio: 637 / 313;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="实验13环inline-hook" class="heading-element">
-  <a href="#%e5%ae%9e%e9%aa%8c13%e7%8e%afinline-hook" class="heading-mark"></a>实验1：3环Inline Hook</h3><div class="highlight" id="id-18"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">_declspec</span><span class="p">(</span><span class="kr">naked</span><span class="p">)</span> <span class="kt">void</span> <span class="nf">OnCall</span><span class="p">()</span> <span class="p">{</span>
+<h3 id="实验13环inline-hook" class="heading-element"><span>实验1：3环Inline Hook</span>
+  <a href="#%e5%ae%9e%e9%aa%8c13%e7%8e%afinline-hook" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">_declspec</span><span class="p">(</span><span class="kr">naked</span><span class="p">)</span> <span class="kt">void</span> <span class="nf">OnCall</span><span class="p">()</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="p">......</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>OnCall函数用<code>_declspec(naked)</code>修饰，被它修饰的函数我们常称它为裸函数，裸函数的特点是在编译生成的时候不会产生过多用于平衡堆栈的指令，这意味着在裸函数中我们要编写<strong>内联汇编</strong>控制堆栈平衡。</p>
-<div class="highlight" id="id-19"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="n">BYTE</span> <span class="o">*</span><span class="n">ProcAddr</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>    <span class="c1">// 原函数地址
@@ -1106,9 +1177,12 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117235309994.png" alt="image-20230117235309994" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117235309994.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117235309994.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117235309994.png?size=large 2x" data-title="image-20230117235309994" style="--width: 660px;--aspect-ratio: 660 / 198;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="实验20环inline-hook" class="heading-element">
-  <a href="#%e5%ae%9e%e9%aa%8c20%e7%8e%afinline-hook" class="heading-mark"></a>实验2：0环Inline Hook</h3><p>这里还是使用<code>OpenProcess</code>举例：</p>
-<div class="highlight" id="id-20"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;ntddk.h&gt;
+<h3 id="实验20环inline-hook" class="heading-element"><span>实验2：0环Inline Hook</span>
+  <a href="#%e5%ae%9e%e9%aa%8c20%e7%8e%afinline-hook" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>这里还是使用<code>OpenProcess</code>举例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;ntddk.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;ntstatus.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="n">PUCHAR</span> <span class="n">pNtOpenProcess</span><span class="p">;</span>
@@ -1251,25 +1325,31 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">STATUS_SUCCESS</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><img loading="lazy" src="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117235958593.png" alt="image-20230117235958593" srcset="/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117235958593.png?size=small, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117235958593.png?size=medium 1.5x, /posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/image-20230117235958593.png?size=large 2x" data-title="image-20230117235958593" style="--width: 852px;--aspect-ratio: 852 / 281;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="009多核同步之临界区" class="heading-element">
-  <a href="#009%e5%a4%9a%e6%a0%b8%e5%90%8c%e6%ad%a5%e4%b9%8b%e4%b8%b4%e7%95%8c%e5%8c%ba" class="heading-mark"></a>009.多核同步之临界区</h2><p>并发：指多个线程在同时执行</p>
+<h2 id="009多核同步之临界区" class="heading-element"><span>009.多核同步之临界区</span>
+  <a href="#009%e5%a4%9a%e6%a0%b8%e5%90%8c%e6%ad%a5%e4%b9%8b%e4%b8%b4%e7%95%8c%e5%8c%ba" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>并发：指多个线程在同时执行</p>
 <ul>
 <li><code>单核</code>：各个线程分时执行，不是真正意义上的同时</li>
 <li><code>多核</code>：在某一时刻，会同时有多个线程在执行</li>
 </ul>
 <p><strong>同步</strong>：保证在并发执行的环境中各个线程可以有序的执行</p>
-<h3 id="单行指令的同步" class="heading-element">
-  <a href="#%e5%8d%95%e8%a1%8c%e6%8c%87%e4%bb%a4%e7%9a%84%e5%90%8c%e6%ad%a5" class="heading-mark"></a>单行指令的同步</h3><div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">DWORD</span> <span class="n">dwVal</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>	<span class="c1">//全局变量
+<h3 id="单行指令的同步" class="heading-element"><span>单行指令的同步</span>
+  <a href="#%e5%8d%95%e8%a1%8c%e6%8c%87%e4%bb%a4%e7%9a%84%e5%90%8c%e6%ad%a5" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">DWORD</span> <span class="n">dwVal</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>	<span class="c1">//全局变量
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">....</span>
 </span></span><span class="line"><span class="cl"><span class="p">....</span>    
 </span></span><span class="line"><span class="cl"><span class="c1">//某个线程中
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">dwVal</span><span class="o">++</span><span class="p">;</span>		<span class="c1">//这行代码是否安全？
 </span></span></span></code></pre></div><p>实际上是<strong>不安全</strong>的，</p>
-<div class="highlight" id="id-22"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="mi">0x12345678</span><span class="p">]</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="mi">0x12345678</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nf">add</span> <span class="no">eax</span><span class="p">,</span> <span class="mi">1</span>
 </span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="p">[</span><span class="mi">0x12345678</span><span class="p">],</span> <span class="no">eax</span></span></span></code></pre></div><p>程序<strong>在执行dwVal++时</strong>，<strong>需要按</strong>照顺序<strong>执行3条汇编指令</strong>，才能实现这条语句的功能。</p>
 <p>现在我们来考虑一种情况，线程A和线程B均要进行dwVal++这条指令，理想状态下，这两个线程执行完后，该全局变量的值会增加2。但是<strong>如果在线程A执行完第二条指令后</strong>，<strong>发生了线程切换</strong>，情况就会变的不一样了。</p>
-<div class="highlight" id="id-23"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">//线程A
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">//线程A
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="mi">0x12345678</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nf">add</span> <span class="no">eax</span><span class="p">,</span> <span class="mi">1</span>
 </span></span><span class="line"><span class="cl">
@@ -1282,18 +1362,24 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </span></span><span class="line"><span class="cl"><span class="c1">//发生线程切换
 </span></span></span><span class="line"><span class="cl"><span class="c1">//线程A
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="p">[</span><span class="mi">0x12345678</span><span class="p">],</span> <span class="no">eax</span></span></span></code></pre></div><p>那单行指令安全吗？</p>
-<div class="highlight" id="id-24"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">inc</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span>	<span class="err">//一行汇编指令，安全吗?</span></span></span></code></pre></div><p>这条汇编指令仅有一行，看上去不会出现上述的情况。即使线程发生切换了，也不会造成指令的重复执行。的确，在<strong>单核</strong>的情况下，这条指令是<strong>安全</strong>的，但是<strong>多核</strong>的情况下，还是有可能发生，不同线程同时执行这条指令的情况，所以这条指令并<strong>不安全</strong>。那如何才能在多核的情况下，依旧保证线程间的同步呢？那就需要用到下面介绍的这条指令了。</p>
-<h4 id="lock指令" class="heading-element">
-  <a href="#lock%e6%8c%87%e4%bb%a4" class="heading-mark"></a>Lock指令</h4><p>只需要增加一个lock指令，就能让<strong>单条指令</strong>在多核的情况下做到同步，</p>
-<div class="highlight" id="id-25"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="na">lock</span> <span class="nf">inc</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span></span></span></code></pre></div><p><strong>lock指令可以锁定当前指令执行时线程所访问的内存</strong>，上述代码执行时，会对0x12345678地址处的值进行修改，<strong>有了lock指令</strong>的限制，此时<strong>其它线程</strong>是<strong>不能访问或修改0x12345678地址处的值</strong>的，只有在这条指令执行完后，其余线程才可以对此地址的值进行访问或者修改。这样就避免了多核情况下，不同线程同时修改此地址处的值的情况。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">inc</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span>	<span class="err">//一行汇编指令，安全吗?</span></span></span></code></pre></div><p>这条汇编指令仅有一行，看上去不会出现上述的情况。即使线程发生切换了，也不会造成指令的重复执行。的确，在<strong>单核</strong>的情况下，这条指令是<strong>安全</strong>的，但是<strong>多核</strong>的情况下，还是有可能发生，不同线程同时执行这条指令的情况，所以这条指令并<strong>不安全</strong>。那如何才能在多核的情况下，依旧保证线程间的同步呢？那就需要用到下面介绍的这条指令了。</p>
+<h4 id="lock指令" class="heading-element"><span>Lock指令</span>
+  <a href="#lock%e6%8c%87%e4%bb%a4" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>只需要增加一个lock指令，就能让<strong>单条指令</strong>在多核的情况下做到同步，</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="na">lock</span> <span class="nf">inc</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span></span></span></code></pre></div><p><strong>lock指令可以锁定当前指令执行时线程所访问的内存</strong>，上述代码执行时，会对0x12345678地址处的值进行修改，<strong>有了lock指令</strong>的限制，此时<strong>其它线程</strong>是<strong>不能访问或修改0x12345678地址处的值</strong>的，只有在这条指令执行完后，其余线程才可以对此地址的值进行访问或者修改。这样就避免了多核情况下，不同线程同时修改此地址处的值的情况。</p>
 <p>像上面这样通过Lock指令进行限制，从而<strong>不可被中断的操作</strong>叫做<strong>原子操作</strong>。Windows提供了一部分API（主要位于Kernel32.dll和Ntdll.dll）供用户使用从而保证在多核情况下的线程同步：</p>
-<div class="highlight" id="id-26"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">//原子操作相关的API：
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">//原子操作相关的API：
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">InterlockedIncrement</span>			<span class="n">InterlockedExchangeAdd</span>
 </span></span><span class="line"><span class="cl"><span class="n">InterlockedDecrement</span>			<span class="n">InterlockedFlushSList</span>		
 </span></span><span class="line"><span class="cl"><span class="n">InterlockedExchange</span>			<span class="n">InterlockedPopEntrySList</span>
-</span></span><span class="line"><span class="cl"><span class="n">InterlockedCompareExchange</span>		<span class="n">InterlockedPushEntrySList</span></span></span></code></pre></div><h4 id="interlockedincrement" class="heading-element">
-  <a href="#interlockedincrement" class="heading-mark"></a>InterlockedIncrement</h4><p>挑一个来分析，该API在kernel32.dll中</p>
-<div class="highlight" id="id-27"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809806</span> <span class="c1">; LONG __stdcall InterlockedIncrement(volatile LONG *lpAddend)
+</span></span><span class="line"><span class="cl"><span class="n">InterlockedCompareExchange</span>		<span class="n">InterlockedPushEntrySList</span></span></span></code></pre></div><h4 id="interlockedincrement" class="heading-element"><span>InterlockedIncrement</span>
+  <a href="#interlockedincrement" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>挑一个来分析，该API在kernel32.dll中</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809806</span> <span class="c1">; LONG __stdcall InterlockedIncrement(volatile LONG *lpAddend)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809806</span>                 <span class="no">public</span> <span class="no">InterlockedIncrement</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809806</span> <span class="no">InterlockedIncrement</span> <span class="no">proc</span> <span class="no">near</span>          <span class="c1">; CODE XREF: CreatePipe+57↓p
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809806</span>                                         <span class="c1">; sub_7C82CBB2+41↓p ...
@@ -1312,10 +1398,16 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C80980F</span>                                         <span class="c1">; [ecx] += eax;
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809813</span>                 <span class="no">inc</span>     <span class="no">eax</span>             <span class="c1">; eax自增1，此时eax和[ecx]的值相同，eax可以起到返回值的作用（尽管已经完成对[ecx]值的修改）
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809814</span>                 <span class="no">retn</span>    <span class="mi">4</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809814</span> <span class="no">InterlockedIncrement</span> <span class="no">endp</span></span></span></code></pre></div><h3 id="多行指令的同步" class="heading-element">
-  <a href="#%e5%a4%9a%e8%a1%8c%e6%8c%87%e4%bb%a4%e7%9a%84%e5%90%8c%e6%ad%a5" class="heading-mark"></a>多行指令的同步</h3><h4 id="临界区" class="heading-element">
-  <a href="#%e4%b8%b4%e7%95%8c%e5%8c%ba" class="heading-mark"></a>临界区</h4><p>可以设置一个临界区：一次只允许一个线程进入直到离开，从而保证线程的同步（这里的临界区指的是广义的临界区，各个操作系统根据临界区的思想都有各自的实现，后面也会学习到Windows提供的临界区实现）参考如下代码：</p>
-<div class="highlight" id="id-28"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">DWORD</span> <span class="n">dwFlag</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>		<span class="c1">//实现临界区的方式就是加锁
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809814</span> <span class="no">InterlockedIncrement</span> <span class="no">endp</span></span></span></code></pre></div><h3 id="多行指令的同步" class="heading-element"><span>多行指令的同步</span>
+  <a href="#%e5%a4%9a%e8%a1%8c%e6%8c%87%e4%bb%a4%e7%9a%84%e5%90%8c%e6%ad%a5" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="临界区" class="heading-element"><span>临界区</span>
+  <a href="#%e4%b8%b4%e7%95%8c%e5%8c%ba" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>可以设置一个临界区：一次只允许一个线程进入直到离开，从而保证线程的同步（这里的临界区指的是广义的临界区，各个操作系统根据临界区的思想都有各自的实现，后面也会学习到Windows提供的临界区实现）参考如下代码：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">DWORD</span> <span class="n">dwFlag</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>		<span class="c1">//实现临界区的方式就是加锁
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>						<span class="c1">//锁：全局变量  进去加一 出去减一
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span><span class="p">(</span><span class="n">dwFlag</span>  <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>		<span class="c1">//进入临界区	
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span>	
@@ -1326,8 +1418,11 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </span></span><span class="line"><span class="cl">		
 </span></span><span class="line"><span class="cl">	<span class="n">dwFlag</span>   <span class="o">=</span> <span class="mi">0</span>		<span class="c1">//离开临界区
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div><p>仔细观察一遍这个代码，其实是有问题的，考虑一种情况，在进入临界区后，如果dwFlag = 1这条指令还没有执行，此时发生了线程切换，这时，切换后的新线程也可以进入临界区，这样临界区的作用就失效了。</p>
-<h4 id="自己实现临界区" class="heading-element">
-  <a href="#%e8%87%aa%e5%b7%b1%e5%ae%9e%e7%8e%b0%e4%b8%b4%e7%95%8c%e5%8c%ba" class="heading-mark"></a>自己实现临界区</h4><div class="highlight" id="id-29"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">//定义全局变量
+<h4 id="自己实现临界区" class="heading-element"><span>自己实现临界区</span>
+  <a href="#%e8%87%aa%e5%b7%b1%e5%ae%9e%e7%8e%b0%e4%b8%b4%e7%95%8c%e5%8c%ba" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">//定义全局变量
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">Flag</span> <span class="err">=</span> <span class="mi">0</span><span class="c1">;
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>
 </span></span><span class="line"><span class="cl"><span class="c1">//进入临界区
@@ -1347,8 +1442,11 @@ dt _DRIVER_OBJECT #查看DRIVER_OBJECT结构体，注意要加杠</code></pre><p
 </span></span><span class="line"><span class="cl">	
 </span></span><span class="line"><span class="cl"><span class="c1">//离开临界区
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="na">lock</span> <span class="nf">dec</span> <span class="p">[</span><span class="no">Flag</span><span class="p">]</span></span></span></code></pre></div><p>这份伪代码提供了一个新的思路，在进入临界区之前，先判断锁的值，若达到进入临界区的条件，则<strong>先修改锁的值</strong>，<strong>再进入临界区</strong>；<strong>若条件不符合</strong>，则调用sleep()函数，进行<strong>线程等待</strong>。一段时间后，在跳回进入临界区的地方重新判断。在<strong>线程退出临界区</strong>后，<strong>再</strong>通过原子操作<strong>还原锁的值</strong>。</p>
-<h2 id="010多核同步之自旋锁" class="heading-element">
-  <a href="#010%e5%a4%9a%e6%a0%b8%e5%90%8c%e6%ad%a5%e4%b9%8b%e8%87%aa%e6%97%8b%e9%94%81" class="heading-mark"></a>010.多核同步之自旋锁</h2><blockquote>
+<h2 id="010多核同步之自旋锁" class="heading-element"><span>010.多核同步之自旋锁</span>
+  <a href="#010%e5%a4%9a%e6%a0%b8%e5%90%8c%e6%ad%a5%e4%b9%8b%e8%87%aa%e6%97%8b%e9%94%81" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><blockquote>
 <p><a href="https://cataloc.gitee.io/blog/2020/05/09/%E5%A4%9A%E6%A0%B8%E5%90%8C%E6%AD%A5%E4%B9%8B%E8%87%AA%E6%97%8B%E9%94%81/"target="_blank" rel="external nofollow noopener noreferrer">多核同步之自旋锁</a></p>
 <p><a href="https://blog.csdn.net/Kwansy/article/details/109995196"target="_blank" rel="external nofollow noopener noreferrer">自旋锁 ， cmpxchg8b 指令</a></p>
 <p><a href="https://blog.csdn.net/qq_41988448/article/details/103585673"target="_blank" rel="external nofollow noopener noreferrer">多核同步&amp;内核重载</a></p>
@@ -1368,26 +1466,29 @@ ntoskrnl.exe（ntkrnlmp.exe）			10-10-12分页</code></pre><p>Intel的CPU，<st
 <p>临界区就是外面的人过来看一眼发现没位子，就回家睡觉了，睡醒了再回来看看有没有位子，重复这样的步骤；</p>
 <p>自旋锁就是外面人一看没位置，他就在原地打转，一有位子马上就进去了。</p>
 </blockquote>
-<h3 id="keacquirespinlockatdpclevel" class="heading-element">
-  <a href="#keacquirespinlockatdpclevel" class="heading-mark"></a>KeAcquireSpinLockAtDpcLevel</h3><blockquote>
+<h3 id="keacquirespinlockatdpclevel" class="heading-element"><span>KeAcquireSpinLockAtDpcLevel</span>
+  <a href="#keacquirespinlockatdpclevel" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><blockquote>
 <p><a href="https://www.cnblogs.com/del/archive/2010/04/15/1712467.html"target="_blank" rel="external nofollow noopener noreferrer">BT、BTS、BTR、BTC: 位测试指令</a></p>
 </blockquote>
 <p>首先介绍两个指令，一个是bt一个是bts：</p>
 <ul>
 <li>
 <p>BT(Bit Test)：位测试</p>
-<div class="highlight" id="id-31"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">;BT 把 10000001b 的第七位复制到 CF, 得知是 1
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">;BT 把 10000001b 的第七位复制到 CF, 得知是 1
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="no">dx</span><span class="p">,</span> <span class="mi">10000001</span><span class="no">b</span>
 </span></span><span class="line"><span class="cl"><span class="nf">bt</span>  <span class="no">dx</span><span class="p">,</span> <span class="mi">7</span></span></span></code></pre></div></li>
 <li>
 <p>BTS(Bit Test and Set：位测试并置位</p>
-<div class="highlight" id="id-32"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">;BTS 在执行 BT 命令的同时, 把操作数的指定位置为 1
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">;BTS 在执行 BT 命令的同时, 把操作数的指定位置为 1
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="no">dx</span><span class="p">,</span> <span class="mi">10000001</span><span class="no">b</span>
 </span></span><span class="line"><span class="cl"><span class="nf">bts</span> <span class="no">dx</span><span class="p">,</span> <span class="mi">6</span></span></span></code></pre></div></li>
 </ul>
 <p>单核的是直接retn了。</p>
 <p>多核：</p>
-<div class="highlight" id="id-33"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">text:</span><span class="err">0040</span><span class="nf">B38B</span> <span class="c1">; __stdcall KeAcquireSpinLockAtDpcLevel(x)
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">text:</span><span class="err">0040</span><span class="nf">B38B</span> <span class="c1">; __stdcall KeAcquireSpinLockAtDpcLevel(x)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B38B</span>                 <span class="no">public</span> <span class="no">_KeAcquireSpinLockAtDpcLevel@4</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B38B</span> <span class="no">_KeAcquireSpinLockAtDpcLevel@4</span> <span class="no">proc</span> <span class="no">near</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B38B</span>
@@ -1413,8 +1514,11 @@ ntoskrnl.exe（ntkrnlmp.exe）			10-10-12分页</code></pre><p>Intel的CPU，<st
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B39F</span>                 <span class="no">jz</span>      <span class="no">short</span> <span class="no">loc_40B38F</span> <span class="c1">; 跳到开头再来KeAcquireSpinLockAtDpcLevel
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B3A1</span>                 <span class="no">pause</span>                   <span class="c1">; CPU降温指令，短时间内降低CPU功率
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B3A3</span>                 <span class="no">jmp</span>     <span class="no">short</span> <span class="no">loc_40B399</span> <span class="c1">; 重复执行这几行指令，故称为自旋锁
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B3A3</span> <span class="no">_KeAcquireSpinLockAtDpcLevel@4</span> <span class="no">endp</span></span></span></code></pre></div><h3 id="思考题" class="heading-element">
-  <a href="#%e6%80%9d%e8%80%83%e9%a2%98" class="heading-mark"></a>思考题</h3><ul>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B3A3</span> <span class="no">_KeAcquireSpinLockAtDpcLevel@4</span> <span class="no">endp</span></span></span></code></pre></div><h3 id="思考题" class="heading-element"><span>思考题</span>
+  <a href="#%e6%80%9d%e8%80%83%e9%a2%98" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ul>
 <li>如何HOOK高并发的内核函数？</li>
 </ul>
 <blockquote>
@@ -1438,8 +1542,11 @@ ntoskrnl.exe（ntkrnlmp.exe）			10-10-12分页</code></pre><p>Intel的CPU，<st
 如果相等，那么把 ECX:EBX 存储到 mem64
 如果不相等，那么把 mem64 存储到 EDX:EAX</p>
 </blockquote>
-<h2 id="011内核重载" class="heading-element">
-  <a href="#011%e5%86%85%e6%a0%b8%e9%87%8d%e8%bd%bd" class="heading-mark"></a>011.内核重载</h2><ul>
+<h2 id="011内核重载" class="heading-element"><span>011.内核重载</span>
+  <a href="#011%e5%86%85%e6%a0%b8%e9%87%8d%e8%bd%bd" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><ul>
 <li>
 <p>描述：</p>
 <ul>
@@ -1485,9 +1592,9 @@ ntoskrnl.exe（ntkrnlmp.exe）			10-10-12分页</code></pre><p>Intel的CPU，<st
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" data-title="Windows内核(二)——驱动" data-hashtags="Win32"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" data-title="Windows内核(二)——驱动"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" data-title="Windows内核(二)——驱动" data-hashtags="Win32"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/2023-1-winkernel%E9%A9%B1%E5%8A%A8/" data-title="Windows内核(二)——驱动"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -1506,14 +1613,14 @@ ntoskrnl.exe（ntkrnlmp.exe）			10-10-12分页</code></pre><p>Intel的CPU，<st
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

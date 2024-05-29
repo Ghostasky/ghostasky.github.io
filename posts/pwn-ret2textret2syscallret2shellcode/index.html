@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>PWN_ret2text,ret2syscall,ret2shellcode - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>PWN_ret2text,ret2syscall,ret2shellcode - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="PWN_ret2text,ret2syscall,ret2shellcode">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2021-01-27T11:32:16+00:00" />
+<meta name="description" content="1.Ret2text 首先file和checksec一下： ida打开： 观察到有个vulnerable()函数： 还有个后门函数：get_shell() gdb打开，main处下断点后跟进，输入12345678后查看stack： 此时ebp= 0xffffd108, 将黄色与红色全部覆盖后填" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="PWN_ret2text,ret2syscall,ret2shellcode">
+<meta itemprop="description" content="1.Ret2text 首先file和checksec一下： ida打开： 观察到有个vulnerable()函数： 还有个后门函数：get_shell() gdb打开，main处下断点后跟进，输入12345678后查看stack： 此时ebp= 0xffffd108, 将黄色与红色全部覆盖后填"><meta itemprop="datePublished" content="2021-01-27T11:32:16+00:00" />
 <meta itemprop="dateModified" content="2021-01-27T11:32:16+00:00" />
-<meta itemprop="wordCount" content="725">
+<meta itemprop="wordCount" content="690">
 <meta itemprop="keywords" content="PWN," /><meta property="og:title" content="PWN_ret2text,ret2syscall,ret2shellcode" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="1.Ret2text 首先file和checksec一下： ida打开： 观察到有个vulnerable()函数： 还有个后门函数：get_shell() gdb打开，main处下断点后跟进，输入12345678后查看stack： 此时ebp= 0xffffd108, 将黄色与红色全部覆盖后填" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/pwn-ret2textret2syscallret2shellcode/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/pwn-ret2textret2syscallret2shellcode/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-01-27T11:32:16+00:00" />
 <meta property="article:modified_time" content="2021-01-27T11:32:16+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="PWN_ret2text,ret2syscall,ret2shellcode"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="1.Ret2text 首先file和checksec一下： ida打开： 观察到有个vulnerable()函数： 还有个后门函数：get_shell() gdb打开，main处下断点后跟进，输入12345678后查看stack： 此时ebp= 0xffffd108, 将黄色与红色全部覆盖后填"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/pwn-ret2textret2syscallret2shellcode/" /><link rel="prev" href="http://localhost:1313/posts/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" /><link rel="next" href="http://localhost:1313/posts/pwn-ret2libc/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/pwn-ret2textret2syscallret2shellcode/" /><link rel="prev" href="http://ghostasky.github.io/posts/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" /><link rel="next" href="http://ghostasky.github.io/posts/pwn-ret2libc/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/pwn-ret2textret2syscallret2shellcode\/"
-    },"genre": "posts","keywords": "PWN","wordcount":  725 ,
-    "url": "http:\/\/localhost:1313\/posts\/pwn-ret2textret2syscallret2shellcode\/","datePublished": "2021-01-27T11:32:16+00:00","dateModified": "2021-01-27T11:32:16+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/pwn-ret2textret2syscallret2shellcode\/"
+    },"genre": "posts","keywords": "PWN","wordcount":  690 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/pwn-ret2textret2syscallret2shellcode\/","datePublished": "2021-01-27T11:32:16+00:00","dateModified": "2021-01-27T11:32:16+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>PWN_ret2text,ret2syscall,ret2shellcode</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-01-27 11:32:16"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-01-27">2021-01-27</time></span>&nbsp;<span title="725 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 800 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 2 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-01-27 11:32:16"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-01-27">2021-01-27</time></span>&nbsp;<span title="690 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 700 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 2 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -138,8 +137,11 @@
     <li><a href="#3ret2shellcode">3.Ret2shellcode</a></li>
   </ul>
 </nav></div>
-      </div><div class="content" id="content"><h2 id="1ret2text" class="heading-element">
-  <a href="#1ret2text" class="heading-mark"></a>1.Ret2text</h2><p>首先file和checksec一下：</p>
+      </div><div class="content" id="content"><h2 id="1ret2text" class="heading-element"><span>1.Ret2text</span>
+  <a href="#1ret2text" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>首先file和checksec一下：</p>
 <p><img loading="lazy" src="/posts/pwn-ret2textret2syscallret2shellcode/1612006337251.png" alt="/posts/pwn-ret2textret2syscallret2shellcode/1612006337251.png" srcset="/posts/pwn-ret2textret2syscallret2shellcode/1612006337251.png?size=small, /posts/pwn-ret2textret2syscallret2shellcode/1612006337251.png?size=medium 1.5x, /posts/pwn-ret2textret2syscallret2shellcode/1612006337251.png?size=large 2x" data-title="/posts/pwn-ret2textret2syscallret2shellcode/1612006337251.png" style="--width: 1001px;--aspect-ratio: 1001 / 265;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>
 ida打开：</p>
 <p><img loading="lazy" src="/posts/pwn-ret2textret2syscallret2shellcode/1612006341593.png" alt="/posts/pwn-ret2textret2syscallret2shellcode/1612006341593.png" srcset="/posts/pwn-ret2textret2syscallret2shellcode/1612006341593.png?size=small, /posts/pwn-ret2textret2syscallret2shellcode/1612006341593.png?size=medium 1.5x, /posts/pwn-ret2textret2syscallret2shellcode/1612006341593.png?size=large 2x" data-title="/posts/pwn-ret2textret2syscallret2shellcode/1612006341593.png" style="--width: 771px;--aspect-ratio: 771 / 263;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>
@@ -156,8 +158,11 @@ gdb打开，main处下断点后跟进，输入12345678后查看stack：</p>
 <p><img loading="lazy" src="/posts/pwn-ret2textret2syscallret2shellcode/1612006371609.png" alt="/posts/pwn-ret2textret2syscallret2shellcode/1612006371609.png" srcset="/posts/pwn-ret2textret2syscallret2shellcode/1612006371609.png?size=small, /posts/pwn-ret2textret2syscallret2shellcode/1612006371609.png?size=medium 1.5x, /posts/pwn-ret2textret2syscallret2shellcode/1612006371609.png?size=large 2x" data-title="/posts/pwn-ret2textret2syscallret2shellcode/1612006371609.png" style="--width: 619px;--aspect-ratio: 619 / 391;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>
 getshell：</p>
 <p><img loading="lazy" src="/posts/pwn-ret2textret2syscallret2shellcode/1612006375698.png" alt="/posts/pwn-ret2textret2syscallret2shellcode/1612006375698.png" srcset="/posts/pwn-ret2textret2syscallret2shellcode/1612006375698.png?size=small, /posts/pwn-ret2textret2syscallret2shellcode/1612006375698.png?size=medium 1.5x, /posts/pwn-ret2textret2syscallret2shellcode/1612006375698.png?size=large 2x" data-title="/posts/pwn-ret2textret2syscallret2shellcode/1612006375698.png" style="--width: 1109px;--aspect-ratio: 1109 / 512;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="2ret2syscall" class="heading-element">
-  <a href="#2ret2syscall" class="heading-mark"></a>2.Ret2syscall</h2><p>首先file和checksec一下：</p>
+<h2 id="2ret2syscall" class="heading-element"><span>2.Ret2syscall</span>
+  <a href="#2ret2syscall" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>首先file和checksec一下：</p>
 <p><img loading="lazy" src="/posts/pwn-ret2textret2syscallret2shellcode/1612006456214.png" alt="/posts/pwn-ret2textret2syscallret2shellcode/1612006456214.png" srcset="/posts/pwn-ret2textret2syscallret2shellcode/1612006456214.png?size=small, /posts/pwn-ret2textret2syscallret2shellcode/1612006456214.png?size=medium 1.5x, /posts/pwn-ret2textret2syscallret2shellcode/1612006456214.png?size=large 2x" data-title="/posts/pwn-ret2textret2syscallret2shellcode/1612006456214.png" style="--width: 1162px;--aspect-ratio: 1162 / 327;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>
 这题是静态链接的，所以比较大，</p>
 <p>ida查看，有/bin/sh，但是没有system函数，</p>
@@ -177,8 +182,11 @@ exp如下：</p>
 <p><img loading="lazy" src="/posts/pwn-ret2textret2syscallret2shellcode/1612006470792.png" alt="/posts/pwn-ret2textret2syscallret2shellcode/1612006470792.png" srcset="/posts/pwn-ret2textret2syscallret2shellcode/1612006470792.png?size=small, /posts/pwn-ret2textret2syscallret2shellcode/1612006470792.png?size=medium 1.5x, /posts/pwn-ret2textret2syscallret2shellcode/1612006470792.png?size=large 2x" data-title="/posts/pwn-ret2textret2syscallret2shellcode/1612006470792.png" style="--width: 1157px;--aspect-ratio: 1157 / 608;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>
 画图来说就是：（下图并不是上面exp的图)</p>
 <p><img loading="lazy" src="/posts/pwn-ret2textret2syscallret2shellcode/1612006474606.png" alt="/posts/pwn-ret2textret2syscallret2shellcode/1612006474606.png" srcset="/posts/pwn-ret2textret2syscallret2shellcode/1612006474606.png?size=small, /posts/pwn-ret2textret2syscallret2shellcode/1612006474606.png?size=medium 1.5x, /posts/pwn-ret2textret2syscallret2shellcode/1612006474606.png?size=large 2x" data-title="/posts/pwn-ret2textret2syscallret2shellcode/1612006474606.png" style="--width: 1039px;--aspect-ratio: 1039 / 629;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="3ret2shellcode" class="heading-element">
-  <a href="#3ret2shellcode" class="heading-mark"></a>3.Ret2shellcode</h2><p>首先file和checksec一下：</p>
+<h2 id="3ret2shellcode" class="heading-element"><span>3.Ret2shellcode</span>
+  <a href="#3ret2shellcode" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>首先file和checksec一下：</p>
 <p><img loading="lazy" src="/posts/pwn-ret2textret2syscallret2shellcode/1612006531616.png" alt="/posts/pwn-ret2textret2syscallret2shellcode/1612006531616.png" srcset="/posts/pwn-ret2textret2syscallret2shellcode/1612006531616.png?size=small, /posts/pwn-ret2textret2syscallret2shellcode/1612006531616.png?size=medium 1.5x, /posts/pwn-ret2textret2syscallret2shellcode/1612006531616.png?size=large 2x" data-title="/posts/pwn-ret2textret2syscallret2shellcode/1612006531616.png" style="--width: 1155px;--aspect-ratio: 1155 / 354;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>
 发现rwx并且没有开NX保护，所以代码在堆，栈上可以执行</p>
 <p>进入IDA查看，发现这题并没有后门函数，将gets到的s拷贝到buf2.</p>
@@ -201,9 +209,9 @@ shellcraft.sh()是一段shellcode，ljust()是左对齐，不足处用a填充，
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/pwn-ret2textret2syscallret2shellcode/" data-title="PWN_ret2text,ret2syscall,ret2shellcode" data-hashtags="PWN"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/pwn-ret2textret2syscallret2shellcode/" data-hashtag="PWN"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/pwn-ret2textret2syscallret2shellcode/" data-title="PWN_ret2text,ret2syscall,ret2shellcode"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/pwn-ret2textret2syscallret2shellcode/" data-title="PWN_ret2text,ret2syscall,ret2shellcode" data-hashtags="PWN"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/pwn-ret2textret2syscallret2shellcode/" data-hashtag="PWN"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/pwn-ret2textret2syscallret2shellcode/" data-title="PWN_ret2text,ret2syscall,ret2shellcode"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -215,21 +223,21 @@ shellcraft.sh()是一段shellcode，ljust()是左对齐，不足处用a填充，
     </section>
   </div>
 
-  <div class="post-nav"><a href="/posts/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" class="post-nav-item" rel="prev" title="pip下载过慢解决办法"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>pip下载过慢解决办法</a>
+  <div class="post-nav"><a href="/posts/pip%E4%B8%8B%E8%BD%BD%E8%BF%87%E6%85%A2%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" class="post-nav-item" rel="prev" title="Pip下载过慢解决办法"><i class="fa-solid fa-angle-left fa-fw" aria-hidden="true"></i>Pip下载过慢解决办法</a>
       <a href="/posts/pwn-ret2libc/" class="post-nav-item" rel="next" title="PWN_Ret2libc">PWN_Ret2libc<i class="fa-solid fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
 </div>
 </article>
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

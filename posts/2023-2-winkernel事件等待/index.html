@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>Windows内核(六)——事件等待 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>Windows内核(六)——事件等待 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(六)——事件等待">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2023-02-23T00:00:00+00:00" />
+<meta name="description" content="[toc] 01.临界区 这个部分在驱动那一部分写了，这里就直接复制粘贴过来了 并发是指多个线程在同时执行： 单核（是分时执行，不是真正的同时） 多核（在某一个时刻，会同时有多个线程再执行） 同步则是保证在并发执行的环境中各个线程可以有序的执行 单行指令的同步 DWORD" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(六)——事件等待">
+<meta itemprop="description" content="[toc] 01.临界区 这个部分在驱动那一部分写了，这里就直接复制粘贴过来了 并发是指多个线程在同时执行： 单核（是分时执行，不是真正的同时） 多核（在某一个时刻，会同时有多个线程再执行） 同步则是保证在并发执行的环境中各个线程可以有序的执行 单行指令的同步 DWORD"><meta itemprop="datePublished" content="2023-02-23T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2023-02-23T00:00:00+00:00" />
-<meta itemprop="wordCount" content="11140">
+<meta itemprop="wordCount" content="11038">
 <meta itemprop="keywords" content="Win32," /><meta property="og:title" content="Windows内核(六)——事件等待" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[toc] 01.临界区 这个部分在驱动那一部分写了，这里就直接复制粘贴过来了 并发是指多个线程在同时执行： 单核（是分时执行，不是真正的同时） 多核（在某一个时刻，会同时有多个线程再执行） 同步则是保证在并发执行的环境中各个线程可以有序的执行 单行指令的同步 DWORD" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2023-02-23T00:00:00+00:00" />
 <meta property="article:modified_time" content="2023-02-23T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Windows内核(六)——事件等待"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[toc] 01.临界区 这个部分在驱动那一部分写了，这里就直接复制粘贴过来了 并发是指多个线程在同时执行： 单核（是分时执行，不是真正的同时） 多核（在某一个时刻，会同时有多个线程再执行） 同步则是保证在并发执行的环境中各个线程可以有序的执行 单行指令的同步 DWORD"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/" /><link rel="prev" href="http://localhost:1313/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/" /><link rel="next" href="http://localhost:1313/posts/2023-2-winkernelapc/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/" /><link rel="prev" href="http://ghostasky.github.io/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/" /><link rel="next" href="http://ghostasky.github.io/posts/2023-2-winkernelapc/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85\/"
-    },"genre": "posts","keywords": "Win32","wordcount":  11140 ,
-    "url": "http:\/\/localhost:1313\/posts\/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85\/","datePublished": "2023-02-23T00:00:00+00:00","dateModified": "2023-02-23T00:00:00+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85\/"
+    },"genre": "posts","keywords": "Win32","wordcount":  11038 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85\/","datePublished": "2023-02-23T00:00:00+00:00","dateModified": "2023-02-23T00:00:00+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>Windows内核(六)——事件等待</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-02-23 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-02-23">2023-02-23</time></span>&nbsp;<span title="11140 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 11200 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 23 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2023-02-23 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2023-02-23">2023-02-23</time></span>&nbsp;<span title="11038 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 11100 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 23 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -182,8 +181,11 @@
   </ul>
 </nav></div>
       </div><div class="content" id="content"><p>[toc]</p>
-<h2 id="01临界区" class="heading-element">
-  <a href="#01%e4%b8%b4%e7%95%8c%e5%8c%ba" class="heading-mark"></a>01.临界区</h2><blockquote>
+<h2 id="01临界区" class="heading-element"><span>01.临界区</span>
+  <a href="#01%e4%b8%b4%e7%95%8c%e5%8c%ba" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><blockquote>
 <p>这个部分在驱动那一部分写了，这里就直接复制粘贴过来了</p>
 </blockquote>
 <ol>
@@ -195,18 +197,21 @@
 </li>
 <li>同步则是保证在并发执行的环境中各个线程可以有序的执行</li>
 </ol>
-<h3 id="单行指令的同步" class="heading-element">
-  <a href="#%e5%8d%95%e8%a1%8c%e6%8c%87%e4%bb%a4%e7%9a%84%e5%90%8c%e6%ad%a5" class="heading-mark"></a>单行指令的同步</h3><div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">DWORD</span> <span class="n">dwVal</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>	<span class="c1">//全局变量
+<h3 id="单行指令的同步" class="heading-element"><span>单行指令的同步</span>
+  <a href="#%e5%8d%95%e8%a1%8c%e6%8c%87%e4%bb%a4%e7%9a%84%e5%90%8c%e6%ad%a5" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">DWORD</span> <span class="n">dwVal</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>	<span class="c1">//全局变量
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">....</span>
 </span></span><span class="line"><span class="cl"><span class="p">....</span>    
 </span></span><span class="line"><span class="cl"><span class="c1">//某个线程中
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">dwVal</span><span class="o">++</span><span class="p">;</span>		<span class="c1">//这行代码是否安全？
 </span></span></span></code></pre></div><p>实际上是<strong>不安全</strong>的，</p>
-<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="mi">0x12345678</span><span class="p">]</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="mi">0x12345678</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nf">add</span> <span class="no">eax</span><span class="p">,</span> <span class="mi">1</span>
 </span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="p">[</span><span class="mi">0x12345678</span><span class="p">],</span> <span class="no">eax</span></span></span></code></pre></div><p>程序<strong>在执行dwVal++时</strong>，<strong>需要按</strong>照顺序<strong>执行3条汇编指令</strong>，才能实现这条语句的功能。</p>
 <p>现在我们来考虑一种情况，线程A和线程B均要进行dwVal++这条指令，理想状态下，这两个线程执行完后，该全局变量的值会增加2。但是<strong>如果在线程A执行完第二条指令后</strong>，<strong>发生了线程切换</strong>，情况就会变的不一样了。</p>
-<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">//线程A
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">//线程A
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="mi">0x12345678</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nf">add</span> <span class="no">eax</span><span class="p">,</span> <span class="mi">1</span>
 </span></span><span class="line"><span class="cl">
@@ -219,18 +224,24 @@
 </span></span><span class="line"><span class="cl"><span class="c1">//发生线程切换
 </span></span></span><span class="line"><span class="cl"><span class="c1">//线程A
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="p">[</span><span class="mi">0x12345678</span><span class="p">],</span> <span class="no">eax</span></span></span></code></pre></div><p>那单行指令安全吗？</p>
-<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">inc</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span>	<span class="err">//一行汇编指令，安全吗?</span></span></span></code></pre></div><p>这条汇编指令仅有一行，看上去不会出现上述的情况。即使线程发生切换了，也不会造成指令的重复执行。的确，在<strong>单核</strong>的情况下，这条指令是<strong>安全</strong>的，但是<strong>多核</strong>的情况下，还是有可能发生，不同线程同时执行这条指令的情况，所以这条指令并<strong>不安全</strong>。那如何才能在多核的情况下，依旧保证线程间的同步呢？那就需要用到下面介绍的这条指令了。</p>
-<h4 id="lock指令" class="heading-element">
-  <a href="#lock%e6%8c%87%e4%bb%a4" class="heading-mark"></a>Lock指令</h4><p>只需要增加一个lock指令，就能让<strong>单条指令</strong>在多核的情况下做到同步，</p>
-<div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="na">lock</span> <span class="nf">inc</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span></span></span></code></pre></div><p><strong>lock指令可以锁定当前指令执行时线程所访问的内存</strong>，上述代码执行时，会对0x12345678地址处的值进行修改，<strong>有了lock指令</strong>的限制，此时<strong>其它线程</strong>是<strong>不能访问或修改0x12345678地址处的值</strong>的，只有在这条指令执行完后，其余线程才可以对此地址的值进行访问或者修改。这样就避免了多核情况下，不同线程同时修改此地址处的值的情况。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nf">inc</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span>	<span class="err">//一行汇编指令，安全吗?</span></span></span></code></pre></div><p>这条汇编指令仅有一行，看上去不会出现上述的情况。即使线程发生切换了，也不会造成指令的重复执行。的确，在<strong>单核</strong>的情况下，这条指令是<strong>安全</strong>的，但是<strong>多核</strong>的情况下，还是有可能发生，不同线程同时执行这条指令的情况，所以这条指令并<strong>不安全</strong>。那如何才能在多核的情况下，依旧保证线程间的同步呢？那就需要用到下面介绍的这条指令了。</p>
+<h4 id="lock指令" class="heading-element"><span>Lock指令</span>
+  <a href="#lock%e6%8c%87%e4%bb%a4" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>只需要增加一个lock指令，就能让<strong>单条指令</strong>在多核的情况下做到同步，</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="na">lock</span> <span class="nf">inc</span> <span class="no">dword</span> <span class="no">ptr</span> <span class="no">ds</span><span class="p">:[</span><span class="mi">0x12345678</span><span class="p">]</span></span></span></code></pre></div><p><strong>lock指令可以锁定当前指令执行时线程所访问的内存</strong>，上述代码执行时，会对0x12345678地址处的值进行修改，<strong>有了lock指令</strong>的限制，此时<strong>其它线程</strong>是<strong>不能访问或修改0x12345678地址处的值</strong>的，只有在这条指令执行完后，其余线程才可以对此地址的值进行访问或者修改。这样就避免了多核情况下，不同线程同时修改此地址处的值的情况。</p>
 <p>像上面这样通过Lock指令进行限制，从而<strong>不可被中断的操作</strong>叫做<strong>原子操作</strong>。Windows提供了一部分API（主要位于Kernel32.dll和Ntdll.dll）供用户使用从而保证在多核情况下的线程同步：</p>
-<div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">//原子操作相关的API：
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">//原子操作相关的API：
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">InterlockedIncrement</span>			<span class="n">InterlockedExchangeAdd</span>
 </span></span><span class="line"><span class="cl"><span class="n">InterlockedDecrement</span>			<span class="n">InterlockedFlushSList</span>		
 </span></span><span class="line"><span class="cl"><span class="n">InterlockedExchange</span>			<span class="n">InterlockedPopEntrySList</span>
-</span></span><span class="line"><span class="cl"><span class="n">InterlockedCompareExchange</span>		<span class="n">InterlockedPushEntrySList</span></span></span></code></pre></div><h4 id="interlockedincrement" class="heading-element">
-  <a href="#interlockedincrement" class="heading-mark"></a>InterlockedIncrement</h4><p>挑一个来分析，该API在kernel32.dll中</p>
-<div class="highlight" id="id-7"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809806</span> <span class="c1">; LONG __stdcall InterlockedIncrement(volatile LONG *lpAddend)
+</span></span><span class="line"><span class="cl"><span class="n">InterlockedCompareExchange</span>		<span class="n">InterlockedPushEntrySList</span></span></span></code></pre></div><h4 id="interlockedincrement" class="heading-element"><span>InterlockedIncrement</span>
+  <a href="#interlockedincrement" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>挑一个来分析，该API在kernel32.dll中</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809806</span> <span class="c1">; LONG __stdcall InterlockedIncrement(volatile LONG *lpAddend)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809806</span>                 <span class="no">public</span> <span class="no">InterlockedIncrement</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809806</span> <span class="no">InterlockedIncrement</span> <span class="no">proc</span> <span class="no">near</span>          <span class="c1">; CODE XREF: CreatePipe+57↓p
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809806</span>                                         <span class="c1">; sub_7C82CBB2+41↓p ...
@@ -249,10 +260,16 @@
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C80980F</span>                                         <span class="c1">; [ecx] += eax;
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809813</span>                 <span class="no">inc</span>     <span class="no">eax</span>             <span class="c1">; eax自增1，此时eax和[ecx]的值相同，eax可以起到返回值的作用（尽管已经完成对[ecx]值的修改）
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809814</span>                 <span class="no">retn</span>    <span class="mi">4</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809814</span> <span class="no">InterlockedIncrement</span> <span class="no">endp</span></span></span></code></pre></div><h3 id="多行指令的同步" class="heading-element">
-  <a href="#%e5%a4%9a%e8%a1%8c%e6%8c%87%e4%bb%a4%e7%9a%84%e5%90%8c%e6%ad%a5" class="heading-mark"></a>多行指令的同步</h3><h4 id="临界区" class="heading-element">
-  <a href="#%e4%b8%b4%e7%95%8c%e5%8c%ba" class="heading-mark"></a>临界区</h4><p>可以设置一个临界区：一次只允许一个线程进入直到离开，从而保证线程的同步（这里的临界区指的是广义的临界区，各个操作系统根据临界区的思想都有各自的实现，后面也会学习到Windows提供的临界区实现）参考如下代码：</p>
-<div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">DWORD</span> <span class="n">dwFlag</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>		<span class="c1">//实现临界区的方式就是加锁
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C809814</span> <span class="no">InterlockedIncrement</span> <span class="no">endp</span></span></span></code></pre></div><h3 id="多行指令的同步" class="heading-element"><span>多行指令的同步</span>
+  <a href="#%e5%a4%9a%e8%a1%8c%e6%8c%87%e4%bb%a4%e7%9a%84%e5%90%8c%e6%ad%a5" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="临界区" class="heading-element"><span>临界区</span>
+  <a href="#%e4%b8%b4%e7%95%8c%e5%8c%ba" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>可以设置一个临界区：一次只允许一个线程进入直到离开，从而保证线程的同步（这里的临界区指的是广义的临界区，各个操作系统根据临界区的思想都有各自的实现，后面也会学习到Windows提供的临界区实现）参考如下代码：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">DWORD</span> <span class="n">dwFlag</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>		<span class="c1">//实现临界区的方式就是加锁
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>						<span class="c1">//锁：全局变量  进去加一 出去减一
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span><span class="p">(</span><span class="n">dwFlag</span>  <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>		<span class="c1">//进入临界区	
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span>	
@@ -263,8 +280,11 @@
 </span></span><span class="line"><span class="cl">		
 </span></span><span class="line"><span class="cl">	<span class="n">dwFlag</span>   <span class="o">=</span> <span class="mi">0</span>		<span class="c1">//离开临界区
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span></span></span></code></pre></div><p>仔细观察一遍这个代码，其实是有问题的，考虑一种情况，在进入临界区后，如果dwFlag = 1这条指令还没有执行，此时发生了线程切换，这时，切换后的新线程也可以进入临界区，这样临界区的作用就失效了。</p>
-<h4 id="自己实现临界区" class="heading-element">
-  <a href="#%e8%87%aa%e5%b7%b1%e5%ae%9e%e7%8e%b0%e4%b8%b4%e7%95%8c%e5%8c%ba" class="heading-mark"></a>自己实现临界区</h4><div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">//定义全局变量
+<h4 id="自己实现临界区" class="heading-element"><span>自己实现临界区</span>
+  <a href="#%e8%87%aa%e5%b7%b1%e5%ae%9e%e7%8e%b0%e4%b8%b4%e7%95%8c%e5%8c%ba" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">//定义全局变量
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">Flag</span> <span class="err">=</span> <span class="mi">0</span><span class="c1">;
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>
 </span></span><span class="line"><span class="cl"><span class="c1">//进入临界区
@@ -284,8 +304,11 @@
 </span></span><span class="line"><span class="cl">	
 </span></span><span class="line"><span class="cl"><span class="c1">//离开临界区
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="na">lock</span> <span class="nf">dec</span> <span class="p">[</span><span class="no">Flag</span><span class="p">]</span></span></span></code></pre></div><p>这份伪代码提供了一个新的思路，在进入临界区之前，先判断锁的值，若达到进入临界区的条件，则<strong>先修改锁的值</strong>，<strong>再进入临界区</strong>；<strong>若条件不符合</strong>，则调用sleep()函数，进行<strong>线程等待</strong>。一段时间后，在跳回进入临界区的地方重新判断。在<strong>线程退出临界区</strong>后，<strong>再</strong>通过原子操作<strong>还原锁的值</strong>。</p>
-<h2 id="02自旋锁" class="heading-element">
-  <a href="#02%e8%87%aa%e6%97%8b%e9%94%81" class="heading-mark"></a>02.自旋锁</h2><blockquote>
+<h2 id="02自旋锁" class="heading-element"><span>02.自旋锁</span>
+  <a href="#02%e8%87%aa%e6%97%8b%e9%94%81" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><blockquote>
 <p><a href="https://cataloc.gitee.io/blog/2020/05/09/%E5%A4%9A%E6%A0%B8%E5%90%8C%E6%AD%A5%E4%B9%8B%E8%87%AA%E6%97%8B%E9%94%81/"target="_blank" rel="external nofollow noopener noreferrer">多核同步之自旋锁</a></p>
 <p><a href="https://blog.csdn.net/Kwansy/article/details/109995196"target="_blank" rel="external nofollow noopener noreferrer">自旋锁 ， cmpxchg8b 指令</a></p>
 <p><a href="https://blog.csdn.net/qq_41988448/article/details/103585673"target="_blank" rel="external nofollow noopener noreferrer">多核同步&amp;内核重载</a></p>
@@ -305,26 +328,29 @@ ntoskrnl.exe（ntkrnlmp.exe）			10-10-12分页</code></pre><p>Intel的CPU，<st
 <p>临界区就是外面的人过来看一眼发现没位子，就回家睡觉了，睡醒了再回来看看有没有位子，重复这样的步骤；</p>
 <p>自旋锁就是外面人一看没位置，他就在原地打转，一有位子马上就进去了。</p>
 </blockquote>
-<h3 id="keacquirespinlockatdpclevel" class="heading-element">
-  <a href="#keacquirespinlockatdpclevel" class="heading-mark"></a>KeAcquireSpinLockAtDpcLevel</h3><blockquote>
+<h3 id="keacquirespinlockatdpclevel" class="heading-element"><span>KeAcquireSpinLockAtDpcLevel</span>
+  <a href="#keacquirespinlockatdpclevel" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><blockquote>
 <p><a href="https://www.cnblogs.com/del/archive/2010/04/15/1712467.html"target="_blank" rel="external nofollow noopener noreferrer">BT、BTS、BTR、BTC: 位测试指令</a></p>
 </blockquote>
 <p>首先介绍两个指令，一个是bt一个是bts：</p>
 <ul>
 <li>
 <p>BT(Bit Test)：位测试</p>
-<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">;BT 把 10000001b 的第七位复制到 CF, 得知是 1
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">;BT 把 10000001b 的第七位复制到 CF, 得知是 1
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="no">dx</span><span class="p">,</span> <span class="mi">10000001</span><span class="no">b</span>
 </span></span><span class="line"><span class="cl"><span class="nf">bt</span>  <span class="no">dx</span><span class="p">,</span> <span class="mi">7</span></span></span></code></pre></div></li>
 <li>
 <p>BTS(Bit Test and Set：位测试并置位</p>
-<div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">;BTS 在执行 BT 命令的同时, 把操作数的指定位置为 1
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="c1">;BTS 在执行 BT 命令的同时, 把操作数的指定位置为 1
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nf">mov</span> <span class="no">dx</span><span class="p">,</span> <span class="mi">10000001</span><span class="no">b</span>
 </span></span><span class="line"><span class="cl"><span class="nf">bts</span> <span class="no">dx</span><span class="p">,</span> <span class="mi">6</span></span></span></code></pre></div></li>
 </ul>
 <p>单核的是直接retn了。</p>
 <p>多核：</p>
-<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">text:</span><span class="err">0040</span><span class="nf">B38B</span> <span class="c1">; __stdcall KeAcquireSpinLockAtDpcLevel(x)
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">text:</span><span class="err">0040</span><span class="nf">B38B</span> <span class="c1">; __stdcall KeAcquireSpinLockAtDpcLevel(x)
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B38B</span>                 <span class="no">public</span> <span class="no">_KeAcquireSpinLockAtDpcLevel@4</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B38B</span> <span class="no">_KeAcquireSpinLockAtDpcLevel@4</span> <span class="no">proc</span> <span class="no">near</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B38B</span>
@@ -350,8 +376,11 @@ ntoskrnl.exe（ntkrnlmp.exe）			10-10-12分页</code></pre><p>Intel的CPU，<st
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B39F</span>                 <span class="no">jz</span>      <span class="no">short</span> <span class="no">loc_40B38F</span> <span class="c1">; 跳到开头再来KeAcquireSpinLockAtDpcLevel
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B3A1</span>                 <span class="no">pause</span>                   <span class="c1">; CPU降温指令，短时间内降低CPU功率
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B3A3</span>                 <span class="no">jmp</span>     <span class="no">short</span> <span class="no">loc_40B399</span> <span class="c1">; 重复执行这几行指令，故称为自旋锁
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B3A3</span> <span class="no">_KeAcquireSpinLockAtDpcLevel@4</span> <span class="no">endp</span></span></span></code></pre></div><h3 id="思考题" class="heading-element">
-  <a href="#%e6%80%9d%e8%80%83%e9%a2%98" class="heading-mark"></a>思考题</h3><ul>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040</span><span class="nf">B3A3</span> <span class="no">_KeAcquireSpinLockAtDpcLevel@4</span> <span class="no">endp</span></span></span></code></pre></div><h3 id="思考题" class="heading-element"><span>思考题</span>
+  <a href="#%e6%80%9d%e8%80%83%e9%a2%98" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ul>
 <li>如何HOOK高并发的内核函数？</li>
 </ul>
 <blockquote>
@@ -375,26 +404,38 @@ ntoskrnl.exe（ntkrnlmp.exe）			10-10-12分页</code></pre><p>Intel的CPU，<st
 如果相等，那么把 ECX:EBX 存储到 mem64
 如果不相等，那么把 mem64 存储到 EDX:EAX</p>
 </blockquote>
-<h2 id="03线程等待与唤醒" class="heading-element">
-  <a href="#03%e7%ba%bf%e7%a8%8b%e7%ad%89%e5%be%85%e4%b8%8e%e5%94%a4%e9%86%92" class="heading-mark"></a>03.线程等待与唤醒</h2><p>上两节中无论是自己实现的临界区还是win自旋锁都会让当前线程进入等待状态，一个是sleep实现，一个是让当前的CPU”空转”(pause)实现，但都有局限性：</p>
+<h2 id="03线程等待与唤醒" class="heading-element"><span>03.线程等待与唤醒</span>
+  <a href="#03%e7%ba%bf%e7%a8%8b%e7%ad%89%e5%be%85%e4%b8%8e%e5%94%a4%e9%86%92" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>上两节中无论是自己实现的临界区还是win自旋锁都会让当前线程进入等待状态，一个是sleep实现，一个是让当前的CPU”空转”(pause)实现，但都有局限性：</p>
 <ol>
 <li>sleep：时间如何确定？</li>
 <li>pause：只有等待时间很短的情况下才有意义，否则对CPU资源是种浪费。而且自旋锁只能在多核的环境下才有意义</li>
 </ol>
-<h3 id="等待与唤醒机制" class="heading-element">
-  <a href="#%e7%ad%89%e5%be%85%e4%b8%8e%e5%94%a4%e9%86%92%e6%9c%ba%e5%88%b6" class="heading-mark"></a>等待与唤醒机制</h3><p>在Windows中，一个线程可以通过等待一个或者多个可等待对象，从而进入等待状态，另一个线程可以在某些时刻唤醒等待这些对象的其他线程</p>
+<h3 id="等待与唤醒机制" class="heading-element"><span>等待与唤醒机制</span>
+  <a href="#%e7%ad%89%e5%be%85%e4%b8%8e%e5%94%a4%e9%86%92%e6%9c%ba%e5%88%b6" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>在Windows中，一个线程可以通过等待一个或者多个可等待对象，从而进入等待状态，另一个线程可以在某些时刻唤醒等待这些对象的其他线程</p>
 <p><img loading="lazy" src="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230220171234183.png" alt="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230220171234183.png" srcset="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230220171234183.png?size=small, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230220171234183.png?size=medium 1.5x, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230220171234183.png?size=large 2x" data-title="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230220171234183.png" style="--width: 542px;--aspect-ratio: 542 / 217;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h4 id="可等待对象" class="heading-element">
-  <a href="#%e5%8f%af%e7%ad%89%e5%be%85%e5%af%b9%e8%b1%a1" class="heading-mark"></a>可等待对象</h4><p>结构体中包含<code>_DISPATCHER_HEADER</code>，都为可等待对象</p>
+<h4 id="可等待对象" class="heading-element"><span>可等待对象</span>
+  <a href="#%e5%8f%af%e7%ad%89%e5%be%85%e5%af%b9%e8%b1%a1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>结构体中包含<code>_DISPATCHER_HEADER</code>，都为可等待对象</p>
 <pre tabindex="0"><code>dt _KPROCESS		进程
 dt _KTHREAD			线程
 dt _KTIMER			定时器
 dt _KSEMAPHORE		信号量
 dt _KEVENT			事件
 dt _KMUTANT			互斥体
-dt _FILE_OBJECT		文件</code></pre><h4 id="可等待对象的差异" class="heading-element">
-  <a href="#%e5%8f%af%e7%ad%89%e5%be%85%e5%af%b9%e8%b1%a1%e7%9a%84%e5%b7%ae%e5%bc%82" class="heading-mark"></a>可等待对象的差异</h4><p>其差异如下，在NtWaitForSingleObject如果不是可等待对象，其会插入一个_DISPATCH_HEADER结构体，使其变为可等待对象。</p>
-<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">WaitForSingleObject</span><span class="p">(</span><span class="mi">3</span><span class="err">环</span><span class="p">)</span> <span class="o">-&gt;</span>
+dt _FILE_OBJECT		文件</code></pre><h4 id="可等待对象的差异" class="heading-element"><span>可等待对象的差异</span>
+  <a href="#%e5%8f%af%e7%ad%89%e5%be%85%e5%af%b9%e8%b1%a1%e7%9a%84%e5%b7%ae%e5%bc%82" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>其差异如下，在NtWaitForSingleObject如果不是可等待对象，其会插入一个_DISPATCH_HEADER结构体，使其变为可等待对象。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">WaitForSingleObject</span><span class="p">(</span><span class="mi">3</span><span class="err">环</span><span class="p">)</span> <span class="o">-&gt;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="nf">NtWaitForSingleObject</span><span class="p">(</span><span class="err">内核</span><span class="p">)</span><span class="o">-&gt;</span>
 </span></span><span class="line"><span class="cl">	<span class="err">通过</span><span class="mi">3</span><span class="err">环用户提供的句柄，找到等待对象的内核地址。</span>
@@ -402,14 +443,20 @@ dt _FILE_OBJECT		文件</code></pre><h4 id="可等待对象的差异" class="hea
 </span></span><span class="line"><span class="cl">	<span class="err">如果不是以</span> <span class="n">_DISPATCHER_HEADER</span> <span class="err">开头的对象</span><span class="p">,</span><span class="err">则找到在其中嵌入的</span> <span class="n">_DISPATCHER_HEADER</span> <span class="err">对象</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="nf">KeWaitForSingleObject</span><span class="p">(</span><span class="err">内核</span><span class="p">)</span> <span class="c1">//核心功能
-</span></span></span></code></pre></div><h3 id="等待网" class="heading-element">
-  <a href="#%e7%ad%89%e5%be%85%e7%bd%91" class="heading-mark"></a>等待网</h3><p>先介绍简单的</p>
-<h4 id="一个线程等待一个内核对象" class="heading-element">
-  <a href="#%e4%b8%80%e4%b8%aa%e7%ba%bf%e7%a8%8b%e7%ad%89%e5%be%85%e4%b8%80%e4%b8%aa%e5%86%85%e6%a0%b8%e5%af%b9%e8%b1%a1" class="heading-mark"></a>一个线程等待一个内核对象</h4><blockquote>
+</span></span></span></code></pre></div><h3 id="等待网" class="heading-element"><span>等待网</span>
+  <a href="#%e7%ad%89%e5%be%85%e7%bd%91" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>先介绍简单的</p>
+<h4 id="一个线程等待一个内核对象" class="heading-element"><span>一个线程等待一个内核对象</span>
+  <a href="#%e4%b8%80%e4%b8%aa%e7%ba%bf%e7%a8%8b%e7%ad%89%e5%be%85%e4%b8%80%e4%b8%aa%e5%86%85%e6%a0%b8%e5%af%b9%e8%b1%a1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><blockquote>
 <p>这里会讲等待块的内容，</p>
 </blockquote>
 <p>示例代码：</p>
-<div class="highlight" id="id-16"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="n">HANDLE</span> <span class="n">hEvent</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
@@ -537,7 +584,7 @@ nt!_KWAIT_BLOCK
 <ul>
 <li>
 <p>看一下是不是事件：</p>
-<div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _OBJECT_HEADER 0x85fd1468-18
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _OBJECT_HEADER 0x85fd1468-18
 </span></span><span class="line"><span class="cl">nt!_OBJECT_HEADER
 </span></span><span class="line"><span class="cl">   +0x000 PointerCount     : 0n2
 </span></span><span class="line"><span class="cl">   +0x004 HandleCount      : 0n1
@@ -575,7 +622,7 @@ nt!_KWAIT_BLOCK
 </li>
 <li>
 <p><code>WaitListEntry</code>这个成员，需要看一下被等待对象的<code>Head</code>成员</p>
-<div class="highlight" id="id-22"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _KEVENT 0x85fd1468
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _KEVENT 0x85fd1468
 </span></span><span class="line"><span class="cl">nt!_KEVENT
 </span></span><span class="line"><span class="cl">   +0x000 Header           : _DISPATCHER_HEADER
 </span></span><span class="line"><span class="cl">kd&gt; dt _DISPATCHER_HEADER 0x85fd1468
@@ -594,11 +641,14 @@ nt!_KWAIT_BLOCK
 </li>
 </ul>
 <p><img loading="lazy" src="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211162824199-327227111.png" alt="img" srcset="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211162824199-327227111.png?size=small, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211162824199-327227111.png?size=medium 1.5x, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211162824199-327227111.png?size=large 2x" data-title="img" style="--width: 856px;--aspect-ratio: 856 / 377;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h4 id="一个线程等待多个内核对象" class="heading-element">
-  <a href="#%e4%b8%80%e4%b8%aa%e7%ba%bf%e7%a8%8b%e7%ad%89%e5%be%85%e5%a4%9a%e4%b8%aa%e5%86%85%e6%a0%b8%e5%af%b9%e8%b1%a1" class="heading-mark"></a>一个线程等待多个内核对象</h4><p>这样的话，上面的图就变成了这样：</p>
+<h4 id="一个线程等待多个内核对象" class="heading-element"><span>一个线程等待多个内核对象</span>
+  <a href="#%e4%b8%80%e4%b8%aa%e7%ba%bf%e7%a8%8b%e7%ad%89%e5%be%85%e5%a4%9a%e4%b8%aa%e5%86%85%e6%a0%b8%e5%af%b9%e8%b1%a1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>这样的话，上面的图就变成了这样：</p>
 <p><img loading="lazy" src="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211162831246-1280864920.png" alt="img" srcset="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211162831246-1280864920.png?size=small, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211162831246-1280864920.png?size=medium 1.5x, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211162831246-1280864920.png?size=large 2x" data-title="img" style="--width: 843px;--aspect-ratio: 843 / 563;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>示例代码：</p>
-<div class="highlight" id="id-23"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="n">HANDLE</span> <span class="n">hEvent</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
@@ -622,7 +672,7 @@ nt!_KWAIT_BLOCK
 </span></span><span class="line"><span class="cl">	<span class="nf">getchar</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>wingdb：</p>
-<div class="highlight" id="id-24"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _KTHREAD 86149c68
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _KTHREAD 86149c68
 </span></span><span class="line"><span class="cl">nt!_KTHREAD
 </span></span><span class="line"><span class="cl">   ...
 </span></span><span class="line"><span class="cl">   +0x05c WaitBlockList    : 0x86149cd8 _KWAIT_BLOCK
@@ -643,28 +693,40 @@ nt!_KWAIT_BLOCK
 </span></span><span class="line"><span class="cl">   +0x00c Object           : 0x85feeff0 Void
 </span></span><span class="line"><span class="cl">   +0x010 NextWaitBlock    : 0x86149cd8 _KWAIT_BLOCK
 </span></span><span class="line"><span class="cl">   +0x014 WaitKey          : <span class="m">1</span>
-</span></span><span class="line"><span class="cl">   +0x016 WaitType         : <span class="m">1</span></span></span></code></pre></div><h4 id="等待网-1" class="heading-element">
-  <a href="#%e7%ad%89%e5%be%85%e7%bd%91-1" class="heading-mark"></a>等待网</h4><p>一个一个线程交错起来，有的被等待对象同时被多个线程等待，就会形成错综复杂的网络，也就是所谓的等待网：</p>
+</span></span><span class="line"><span class="cl">   +0x016 WaitType         : <span class="m">1</span></span></span></code></pre></div><h4 id="等待网-1" class="heading-element"><span>等待网</span>
+  <a href="#%e7%ad%89%e5%be%85%e7%bd%91-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>一个一个线程交错起来，有的被等待对象同时被多个线程等待，就会形成错综复杂的网络，也就是所谓的等待网：</p>
 <p><img loading="lazy" src="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211162838959-1627623022.png" alt="img" srcset="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211162838959-1627623022.png?size=small, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211162838959-1627623022.png?size=medium 1.5x, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211162838959-1627623022.png?size=large 2x" data-title="img" style="--width: 865px;--aspect-ratio: 865 / 573;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="总结" class="heading-element">
-  <a href="#%e6%80%bb%e7%bb%93" class="heading-mark"></a>总结</h3><ol>
+<h3 id="总结" class="heading-element"><span>总结</span>
+  <a href="#%e6%80%bb%e7%bb%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>等待中的线程，一定在等待链表中(<code>KiWaitListHead</code>)，同时也一定在这张网上(<code>KTHREAD +5C</code>的位置不为空)</li>
 <li>线程通过调用<code>WaitForSingleObject</code>/<code>WaitForMultipleObjects</code>函数将自己挂到这张网上</li>
 <li>线程什么时候会再次执行取决于其他线程何时调用相关函数，等待对象不同调用的函数也不同</li>
 </ol>
-<h2 id="04waitforsingleobject函数分析" class="heading-element">
-  <a href="#04waitforsingleobject%e5%87%bd%e6%95%b0%e5%88%86%e6%9e%90" class="heading-mark"></a>04.WaitForSingleObject函数分析</h2><div class="highlight" id="id-25"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">WaitForSingleObject</span><span class="o">-&gt;</span>
+<h2 id="04waitforsingleobject函数分析" class="heading-element"><span>04.WaitForSingleObject函数分析</span>
+  <a href="#04waitforsingleobject%e5%87%bd%e6%95%b0%e5%88%86%e6%9e%90" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">WaitForSingleObject</span><span class="o">-&gt;</span>
 </span></span><span class="line"><span class="cl"><span class="n">WaitForSingleObjectEx</span><span class="o">-&gt;</span>
 </span></span><span class="line"><span class="cl"><span class="err">进入内核</span><span class="o">-&gt;</span>
 </span></span><span class="line"><span class="cl"><span class="n">NtWaitForSingleObject</span><span class="o">-&gt;</span>
-</span></span><span class="line"><span class="cl"><span class="n">KeWaitForSingleObject</span></span></span></code></pre></div><h3 id="ntwaitforsingleobject" class="heading-element">
-  <a href="#ntwaitforsingleobject" class="heading-mark"></a>NtWaitForSingleObject</h3><p>函数原型：</p>
-<div class="highlight" id="id-26"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">NTSTATUS</span> <span class="kr">__stdcall</span> <span class="nf">NtWaitForSingleObject</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl"><span class="n">KeWaitForSingleObject</span></span></span></code></pre></div><h3 id="ntwaitforsingleobject" class="heading-element"><span>NtWaitForSingleObject</span>
+  <a href="#ntwaitforsingleobject" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>函数原型：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">NTSTATUS</span> <span class="kr">__stdcall</span> <span class="nf">NtWaitForSingleObject</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">    <span class="n">HANDLE</span> <span class="n">Handle</span><span class="p">,</span> <span class="c1">//用户层传递的等待对象的句柄
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">BOOLEAN</span> <span class="n">Alertable</span><span class="p">,</span> <span class="c1">//KTHREAD结构体的Alertable属性。如果为1，则在插入用户APC时，该线程将被唤醒。注意这里的唤醒只是唤醒该线程执行APC，而不是真正的唤醒。因为如果当前的线程在等待网上，执行完用户APC后，仍然要进入等待状态。
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">PLARGE_INTEGER</span> <span class="n">Timeout</span><span class="c1">//Timeout就是超时时间，就算没等待到符合条件到了指定事件也会被唤醒。
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span></span></span></code></pre></div><p>再说下<code>DISPATCHER_HEADER</code>这个结构：</p>
-<div class="highlight" id="id-27"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _DISPATCHER_HEADER
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dt _DISPATCHER_HEADER
 </span></span><span class="line"><span class="cl">ntdll!_DISPATCHER_HEADER
 </span></span><span class="line"><span class="cl">   +0x000 Type             : UChar
 </span></span><span class="line"><span class="cl">   +0x001 Absolute         : UChar
@@ -672,14 +734,23 @@ nt!_KWAIT_BLOCK
 </span></span><span class="line"><span class="cl">   +0x003 Inserted         : UChar
 </span></span><span class="line"><span class="cl">   +0x004 SignalState      : Int4B
 </span></span><span class="line"><span class="cl">   +0x008 WaitListHead     : _LIST_ENTRY</span></span></code></pre></div><p><code>Type</code>是类型，每一个可以被等待的对象的类型是不一样的。具体值需要通过内核初始化代码可以逆向出。不同的类型，<code>WaitForSingleObject</code>处理方式是不一样的。<code>SignalState</code>指示有没有信号，如果有信号则值大于0。</p>
-<h4 id="实现" class="heading-element">
-  <a href="#%e5%ae%9e%e7%8e%b0" class="heading-mark"></a>实现</h4><ol>
+<h4 id="实现" class="heading-element"><span>实现</span>
+  <a href="#%e5%ae%9e%e7%8e%b0" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><ol>
 <li>调用<code>ObReferenceObjectByHandle</code>函数，通过对象句柄找到等待对象结构体地址。</li>
 <li>调用<code>KeWaitForSingleObject</code>函数，进入关键循环。</li>
 </ol>
-<h3 id="kewaitforsingleobject" class="heading-element">
-  <a href="#kewaitforsingleobject" class="heading-mark"></a>KeWaitForSingleObject</h3><h4 id="上半部分" class="heading-element">
-  <a href="#%e4%b8%8a%e5%8d%8a%e9%83%a8%e5%88%86" class="heading-mark"></a>上半部分</h4><ol>
+<h3 id="kewaitforsingleobject" class="heading-element"><span>KeWaitForSingleObject</span>
+  <a href="#kewaitforsingleobject" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="上半部分" class="heading-element"><span>上半部分</span>
+  <a href="#%e4%b8%8a%e5%8d%8a%e9%83%a8%e5%88%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><ol>
 <li>
 <p>准备等待块，当等待对象少于四个时，并不为等待对象分配新的空间，而是向 <code>_KTHREAD(+70)</code> 位置的等待块赋值，_KTHREAD(+5C) 指向第一个等待块的位置</p>
 <p>注意：<strong>无论使用与否，<code>_KTHREAD(+70)</code>的第四个等待块被定时器占据，如果用的话，将会把定时器与第一个等待块相关联</strong></p>
@@ -695,11 +766,14 @@ nt!_KWAIT_BLOCK
 <p>进入关键循环</p>
 </li>
 </ol>
-<h4 id="关键循环" class="heading-element">
-  <a href="#%e5%85%b3%e9%94%ae%e5%be%aa%e7%8e%af" class="heading-mark"></a>关键循环</h4><p>示例图：</p>
+<h4 id="关键循环" class="heading-element"><span>关键循环</span>
+  <a href="#%e5%85%b3%e9%94%ae%e5%be%aa%e7%8e%af" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>示例图：</p>
 <p><img loading="lazy" src="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211175941247-1806950584.png" alt="img" srcset="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211175941247-1806950584.png?size=small, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211175941247-1806950584.png?size=medium 1.5x, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/2520882-20220211175941247-1806950584.png?size=large 2x" data-title="img" style="--width: 1286px;--aspect-ratio: 1286 / 949;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>伪代码：</p>
-<div class="highlight" id="id-28"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span><span class="c1">//每次线程被其他线程唤醒，都要进入这个循环
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span><span class="c1">//每次线程被其他线程唤醒，都要进入这个循环
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="k">if</span><span class="p">(</span><span class="err">符合激活条件</span><span class="p">)</span><span class="c1">//1、超时   2、等待对象SignalState&gt;0 
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="p">{</span>
@@ -726,8 +800,11 @@ nt!_KWAIT_BLOCK
 <li>当线程将自己挂入等待队列后，需要等待另一个线程将自己唤醒（设置等待对象信号量&gt;0），当其它线程将自己唤醒后，再沿着等待网找是谁唤醒了自己，找到了之后将自己从等待链表(<code>KiWaitListHead</code>)中摘出，但并未从等待网中摘出</li>
 <li>线程从哪里切换就从哪里复活</li>
 </ol>
-<h3 id="总结-1" class="heading-element">
-  <a href="#%e6%80%bb%e7%bb%93-1" class="heading-mark"></a>总结</h3><ol>
+<h3 id="总结-1" class="heading-element"><span>总结</span>
+  <a href="#%e6%80%bb%e7%bb%93-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>
 <p>不同的等待对象，用不同的方法来修改 <code>_DISPATCHER_HEADER-&gt;SignalState</code></p>
 </li>
@@ -745,9 +822,15 @@ nt!_KWAIT_BLOCK
 <p>不同对象调用API修改信号个数只在细节上有差异，本质上都是一样的</p>
 </li>
 </ol>
-<h2 id="05事件" class="heading-element">
-  <a href="#05%e4%ba%8b%e4%bb%b6" class="heading-mark"></a>05.事件</h2><h3 id="回顾" class="heading-element">
-  <a href="#%e5%9b%9e%e9%a1%be" class="heading-mark"></a>回顾</h3><ol>
+<h2 id="05事件" class="heading-element"><span>05.事件</span>
+  <a href="#05%e4%ba%8b%e4%bb%b6" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="回顾" class="heading-element"><span>回顾</span>
+  <a href="#%e5%9b%9e%e9%a1%be" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><ol>
 <li>线程在进入临界区之前会调用<code>WaitForSingleObject</code>或者<code>WaitForMultipleObjects</code></li>
 <li>此时如果有信号，线程会从函数中退出并进入临界区；如果没有信号那么线程将自己挂入等待链表，然后将自己挂入等待网，最后切换线程</li>
 <li>其它线程在适当的时候，调用方法修改被等待对象的<code>SingleState</code>，设置为有信号（不同的等待对象，会调用不同的函数），并将等待该对象的其它线程从等待链表中摘掉，这样，当前线程便会在<code>WaitForSingleObject</code>或者<code>WaitForMultipleObjects</code>恢复执行（在哪切换就在哪开始执行），如果符合唤醒条件，此时会修改<code>SignalState</code>的值，并将自己从等待网上摘下来，此时的线程才是真正的唤醒</li>
@@ -758,8 +841,11 @@ nt!_KWAIT_BLOCK
 </ol>
 </li>
 </ol>
-<h3 id="createevent参数介绍" class="heading-element">
-  <a href="#createevent%e5%8f%82%e6%95%b0%e4%bb%8b%e7%bb%8d" class="heading-mark"></a>CreateEvent参数介绍</h3><p>SetEvent对应的内核函数：<code>KeSetEvent</code></p>
+<h3 id="createevent参数介绍" class="heading-element"><span>CreateEvent参数介绍</span>
+  <a href="#createevent%e5%8f%82%e6%95%b0%e4%bb%8b%e7%bb%8d" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>SetEvent对应的内核函数：<code>KeSetEvent</code></p>
 <ol>
 <li>
 <p>修改信号值<code>SignalState</code>为1</p>
@@ -778,13 +864,16 @@ nt!_KWAIT_BLOCK
 <pre tabindex="0"><code>kd&gt; dt _KEVENT
 ntdll!_KEVENT
    +0x000 Header           : _DISPATCHER_HEADER</code></pre><p>就一个必须的<code>_DISPATCHER_HEADER</code>，通常用<code>CreateEvent</code>函数来进行创建使用这个内核对象，函数原型：</p>
-<div class="highlight" id="id-30"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">HANDLE</span> <span class="n">WINAPI</span> <span class="nf">CreateEventW</span><span class="p">(</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">HANDLE</span> <span class="n">WINAPI</span> <span class="nf">CreateEventW</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">    <span class="n">LPSECURITY_ATTRIBUTES</span> <span class="n">lpEventAttributes</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">    <span class="n">BOOL</span> <span class="n">bManualReset</span><span class="p">,</span><span class="c1">//布尔型，如果为True，则为通知类型对象；反之则为普通的事件同步对象。这个参数影响_DISPATCHER_HEADER的Type值，如果为通知类型对象，它的值为0，否则为1
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">BOOL</span> <span class="n">bInitialState</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">    <span class="n">LPCWSTR</span> <span class="n">lpName</span>
-</span></span><span class="line"><span class="cl">    <span class="p">);</span></span></span></code></pre></div><h4 id="bmanualreset" class="heading-element">
-  <a href="#bmanualreset" class="heading-mark"></a>bManualReset</h4><ol>
+</span></span><span class="line"><span class="cl">    <span class="p">);</span></span></span></code></pre></div><h4 id="bmanualreset" class="heading-element"><span>bManualReset</span>
+  <a href="#bmanualreset" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><ol>
 <li>当<strong>CreateEvent</strong>第二个参数为<strong>TRUE</strong>，系统将事件对象的<strong>Type</strong>设置成<strong>0</strong>，此时对象为通知类型类型</li>
 <li>当<strong>CreateEvent</strong>第二个参数为<strong>FALSE</strong>，系统将事件对象的<strong>Type</strong>设置成<strong>1</strong>，此时对象为事件同步对象</li>
 <li>当SetEvent函数将信号值（<strong>SignalState</strong>）设置为1时，如果对象<strong>Type</strong>为<strong>0</strong>，唤醒所有等待该状态的线程；如果对象<strong>Type</strong>为<strong>1</strong>，从链表头找到第一个并唤醒</li>
@@ -797,7 +886,7 @@ ntdll!_DISPATCHER_HEADER
    +0x003 Inserted         : UChar
    +0x004 SignalState      : Int4B
    +0x008 WaitListHead     : _LIST_ENTRY</code></pre><p>示例代码：</p>
-<div class="highlight" id="id-32"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;stdlib.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;stdio.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="n">HANDLE</span> <span class="n">hEvent</span><span class="p">;</span>
@@ -829,63 +918,96 @@ ntdll!_DISPATCHER_HEADER
 <p><img loading="lazy" src="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221104041091.png" alt="image-20230221104041091" srcset="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221104041091.png?size=small, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221104041091.png?size=medium 1.5x, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221104041091.png?size=large 2x" data-title="image-20230221104041091" style="--width: 259px;--aspect-ratio: 259 / 127;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>将第二个参数改为False，也就是同步类型对象的时候，只有线程1执行了：</p>
 <p><img loading="lazy" src="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221104359682.png" alt="image-20230221104359682" srcset="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221104359682.png?size=small, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221104359682.png?size=medium 1.5x, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221104359682.png?size=large 2x" data-title="image-20230221104359682" style="--width: 261px;--aspect-ratio: 261 / 133;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h4 id="binitialstate" class="heading-element">
-  <a href="#binitialstate" class="heading-mark"></a>bInitialState</h4><p>是否有信号。这个参数设置<code>_DISPATCHER_HEADER</code>的<code>SignalState</code>初始值的，<code>TRUE</code>就是1，反之就是0。将上面的原始代码的第三个参数改为<code>TRUE</code>，并注释掉<code>SetEvent</code>函数：</p>
+<h4 id="binitialstate" class="heading-element"><span>bInitialState</span>
+  <a href="#binitialstate" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>是否有信号。这个参数设置<code>_DISPATCHER_HEADER</code>的<code>SignalState</code>初始值的，<code>TRUE</code>就是1，反之就是0。将上面的原始代码的第三个参数改为<code>TRUE</code>，并注释掉<code>SetEvent</code>函数：</p>
 <p><img loading="lazy" src="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221104635043.png" alt="image-20230221104635043" srcset="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221104635043.png?size=small, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221104635043.png?size=medium 1.5x, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221104635043.png?size=large 2x" data-title="image-20230221104635043" style="--width: 289px;--aspect-ratio: 289 / 128;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h3 id="kewaitforsingleobject-1" class="heading-element">
-  <a href="#kewaitforsingleobject-1" class="heading-mark"></a>KeWaitForSingleObject</h3><p><img loading="lazy" src="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221111107246.png" alt="image-20230221111107246" srcset="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221111107246.png?size=small, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221111107246.png?size=medium 1.5x, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221111107246.png?size=large 2x" data-title="image-20230221111107246" style="--width: 1317px;--aspect-ratio: 1317 / 356;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
-<h2 id="06信号量" class="heading-element">
-  <a href="#06%e4%bf%a1%e5%8f%b7%e9%87%8f" class="heading-mark"></a>06.信号量</h2><h3 id="回顾-1" class="heading-element">
-  <a href="#%e5%9b%9e%e9%a1%be-1" class="heading-mark"></a>回顾</h3><p>线程在进入临界区之前会通过调用<code>WaitForSingleObject</code>或者<code>WaitForMultipleObjects</code>来判断当前的事件对象是否有信号(SignalState&gt;0),只有当事件对象有信号时，才可以进入临界区(只允许一个线程进入直到退出的一段代码，不单指用<code>EnterCriticalSection</code>() 和 <code>LeaveCriticalSection</code>() 而形成的临界区)。</p>
+<h3 id="kewaitforsingleobject-1" class="heading-element"><span>KeWaitForSingleObject</span>
+  <a href="#kewaitforsingleobject-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p><img loading="lazy" src="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221111107246.png" alt="image-20230221111107246" srcset="/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221111107246.png?size=small, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221111107246.png?size=medium 1.5x, /posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/image-20230221111107246.png?size=large 2x" data-title="image-20230221111107246" style="--width: 1317px;--aspect-ratio: 1317 / 356;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<h2 id="06信号量" class="heading-element"><span>06.信号量</span>
+  <a href="#06%e4%bf%a1%e5%8f%b7%e9%87%8f" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="回顾-1" class="heading-element"><span>回顾</span>
+  <a href="#%e5%9b%9e%e9%a1%be-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>线程在进入临界区之前会通过调用<code>WaitForSingleObject</code>或者<code>WaitForMultipleObjects</code>来判断当前的事件对象是否有信号(SignalState&gt;0),只有当事件对象有信号时，才可以进入临界区(只允许一个线程进入直到退出的一段代码，不单指用<code>EnterCriticalSection</code>() 和 <code>LeaveCriticalSection</code>() 而形成的临界区)。</p>
 <p>通过我们对EVENT对象相关函数的分析，我们发现，EVENT对象的SignalState值只有2种可能：</p>
 <p>1：初始化时  或者调用  <code>SetEvent</code>
 0：<code>WaitForSingleObject</code>、<code>WaitForMultipleObjects</code>、<code>ResetEvent</code></p>
-<h3 id="信号量" class="heading-element">
-  <a href="#%e4%bf%a1%e5%8f%b7%e9%87%8f" class="heading-mark"></a>信号量</h3><p><strong>描述</strong>：</p>
+<h3 id="信号量" class="heading-element"><span>信号量</span>
+  <a href="#%e4%bf%a1%e5%8f%b7%e9%87%8f" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p><strong>描述</strong>：</p>
 <ol>
 <li>在<strong>事件</strong>中，当一个线程进入临界区时，其它所有事件都无法进入临界区</li>
 <li><strong>信号量</strong>允许多个线程进入临界区</li>
 </ol>
 <p><strong>优点</strong>：举个例子，在生产者与消费者的问题中，若生产者只有三份，那么开五个消费者线程是没有意义的，信号量的存在正是为了解决这种问题</p>
-<h3 id="createsemaphore" class="heading-element">
-  <a href="#createsemaphore" class="heading-mark"></a>CreateSemaphore</h3><p>信号量内核结构体：</p>
+<h3 id="createsemaphore" class="heading-element"><span>CreateSemaphore</span>
+  <a href="#createsemaphore" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>信号量内核结构体：</p>
 <pre tabindex="0"><code>kd&gt; dt _KSEMAPHORE
 ntdll!_KSEMAPHORE
    +0x000 Header           : _DISPATCHER_HEADER
    +0x010 Limit            : Int4B</code></pre><p>函数原型</p>
-<div class="highlight" id="id-34"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">HANDLE</span> <span class="n">WINAPI</span> <span class="nf">CreateSemaphoreW</span><span class="p">(</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">HANDLE</span> <span class="n">WINAPI</span> <span class="nf">CreateSemaphoreW</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">    <span class="n">LPSECURITY_ATTRIBUTES</span> <span class="n">lpSemaphoreAttributes</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">    <span class="n">LONG</span> <span class="n">lInitialCount</span><span class="p">,</span><span class="c1">//这个参数会影响_DISPATCHER_HEADER的SignalState的值。它不会像事件只设置0或者1，它可以设置更大的数，这个就是实现指定数目线程执行的关键所在。
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">LONG</span> <span class="n">lMaximumCount</span><span class="p">,</span><span class="c1">//信号量内核结构体的Limit部分
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">LPCWSTR</span> <span class="n">lpName</span>
-</span></span><span class="line"><span class="cl">    <span class="p">);</span></span></span></code></pre></div><h4 id="调用流程" class="heading-element">
-  <a href="#%e8%b0%83%e7%94%a8%e6%b5%81%e7%a8%8b" class="heading-mark"></a>调用流程</h4><div class="highlight" id="id-35"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">ReleaseSemaphore</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">);</span></span></span></code></pre></div><h4 id="调用流程" class="heading-element"><span>调用流程</span>
+  <a href="#%e8%b0%83%e7%94%a8%e6%b5%81%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">ReleaseSemaphore</span> <span class="o">-&gt;</span>
 </span></span><span class="line"><span class="cl"><span class="n">NtReleaseSemaphore</span> <span class="o">-&gt;</span>
 </span></span><span class="line"><span class="cl"><span class="n">KeReleaseSemaphore</span></span></span></code></pre></div><ol>
 <li>设置SignalState = SignalState  + N(参数)</li>
 <li>通过<code>WaitListHead</code>找到所有线程，并从等待链表中摘掉（不从等待网上摘除，说了好多遍了）。</li>
 </ol>
-<h2 id="07互斥体" class="heading-element">
-  <a href="#07%e4%ba%92%e6%96%a5%e4%bd%93" class="heading-mark"></a>07.互斥体</h2><h3 id="为什么有互斥体" class="heading-element">
-  <a href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e6%9c%89%e4%ba%92%e6%96%a5%e4%bd%93" class="heading-mark"></a>为什么有互斥体</h3><p>互斥体(MUTANT)与事件(EVENT)和信号量(SEMAPHORE)一样，都可以用来进行线程的同步控制几个对象都是内核对象，这就意味着，通过这些对象可以进行跨进程的线程同步控制,比如：</p>
+<h2 id="07互斥体" class="heading-element"><span>07.互斥体</span>
+  <a href="#07%e4%ba%92%e6%96%a5%e4%bd%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="为什么有互斥体" class="heading-element"><span>为什么有互斥体</span>
+  <a href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e6%9c%89%e4%ba%92%e6%96%a5%e4%bd%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>互斥体(MUTANT)与事件(EVENT)和信号量(SEMAPHORE)一样，都可以用来进行线程的同步控制几个对象都是内核对象，这就意味着，通过这些对象可以进行跨进程的线程同步控制,比如：</p>
 <pre tabindex="0"><code>A进程中的X线程
 					等待对象Z
 B进程中的Y线程</code></pre><p>假设有A进程中的X线程和B进程中的Y线程，它们都在等待内核对象Z。如果B进程的Y线程还没有来得及调用修改<code>SignalState</code>的函数，那么等待对象Z将被遗弃，这也就意味着X线程将永远等下去，这种情况下事件和信号量无法解决，互斥体可以解决。</p>
 <p>还有一点：重入，或者说死锁</p>
 <p>当构造了一个临界区一，等待的对象是A，又在临界区内部构造了一个临界区二，等待对象为A、B、C三个，当临界区一执行完自己的功能后，如果等待的对象为事件或者信号量，那么就必须调用相关API将对象设置为有信号，若进入临界区二前未调用相关API，那么临界区二将永远进入等待状态，这种情况称为死锁。
 当一个对象需要重复进入临界区时，若A对象为互斥体，就不会出现死锁。</p>
-<h3 id="互斥体" class="heading-element">
-  <a href="#%e4%ba%92%e6%96%a5%e4%bd%93" class="heading-mark"></a>互斥体</h3><p>互斥体内核结构：</p>
-<div class="highlight" id="id-37"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KMUTANT</span>
+<h3 id="互斥体" class="heading-element"><span>互斥体</span>
+  <a href="#%e4%ba%92%e6%96%a5%e4%bd%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>互斥体内核结构：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dt</span> <span class="n">_KMUTANT</span>
 </span></span><span class="line"><span class="cl"><span class="n">nt</span><span class="o">!</span><span class="n">_KMUTANT</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x000</span> <span class="nl">Header</span>           <span class="p">:</span> <span class="n">_DISPATCHER_HEADER</span>
 </span></span><span class="line"><span class="cl">   <span class="o">+</span><span class="mh">0x010</span> <span class="nl">MutantListEntry</span>  <span class="p">:</span> <span class="n">_LIST_ENTRY</span><span class="c1">//拥有互斥体线程 (KTHREAD+0x010 MutantListHead)，是个链表头，圈着当前线程所有的互斥体
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="o">+</span><span class="mh">0x018</span> <span class="nl">OwnerThread</span>      <span class="p">:</span> <span class="n">Ptr32</span> <span class="n">_KTHREAD</span><span class="c1">//正在拥有互斥体的线程
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="o">+</span><span class="mh">0x01c</span> <span class="nl">Abandoned</span>        <span class="p">:</span> <span class="n">UChar</span><span class="c1">//是否已经被放弃不用
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>   <span class="o">+</span><span class="mh">0x01d</span> <span class="nl">ApcDisable</span>       <span class="p">:</span> <span class="n">UChar</span><span class="c1">//是否禁用内核APC
-</span></span></span></code></pre></div><h4 id="创建互斥体" class="heading-element">
-  <a href="#%e5%88%9b%e5%bb%ba%e4%ba%92%e6%96%a5%e4%bd%93" class="heading-mark"></a>创建互斥体</h4><p><code>CreateMutex</code>函数原型：</p>
-<div class="highlight" id="id-38"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">HANDLE</span> <span class="nf">CreateMutex</span><span class="p">(</span>
+</span></span></span></code></pre></div><h4 id="创建互斥体" class="heading-element"><span>创建互斥体</span>
+  <a href="#%e5%88%9b%e5%bb%ba%e4%ba%92%e6%96%a5%e4%bd%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p><code>CreateMutex</code>函数原型：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">HANDLE</span> <span class="nf">CreateMutex</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl"><span class="n">LPSECURITY_ATTRIBUTE</span> <span class="n">SlpMutexAttributes</span><span class="p">,</span> <span class="c1">// 指向安全属性的指针
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">BOOL</span> <span class="n">bInitialOwner</span><span class="p">,</span> 	<span class="o">//</span> <span class="err">初始化互斥对象的所有者</span><span class="p">(</span><span class="err">是否是该线程</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">LPCTSTR</span> <span class="n">lpName</span> 			<span class="c1">// 指向互斥对象名的指针
@@ -894,15 +1016,18 @@ B进程中的Y线程</code></pre><p>假设有A进程中的X线程和B进程中�
 <p><code>CreateMutex</code> -&gt; <code>NtCreateMutant</code>(内核函数) -&gt; <code>KeInitializeMutant</code>(内核函数)</p>
 </blockquote>
 <p>初始化MUTANT结构体：</p>
-<div class="highlight" id="id-39"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">MUTANT</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">Type</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">MUTANT</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">Type</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="n">MUTANT</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">SignalState</span><span class="o">=</span><span class="n">bInitialOwner</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="mi">1</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="n">MUTANT</span><span class="p">.</span><span class="n">OwnerThread</span><span class="o">=</span><span class="n">bInitialOwner</span> <span class="o">?</span> <span class="err">当前线程</span> <span class="o">:</span> <span class="nb">NULL</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="n">MUTANT</span><span class="p">.</span><span class="n">Abandoned</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="n">MUTANT</span><span class="p">.</span><span class="n">ApcDisable</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="n">bInitialOwner</span><span class="o">==</span><span class="n">TRUE</span>  <span class="err">将当前互斥体挂入到当前线程的互斥体链表</span>
-</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="n">KTHREAD</span><span class="o">+</span><span class="mh">0x010</span> <span class="n">MutantListHead</span><span class="p">)</span></span></span></code></pre></div><h4 id="kewaitformutexobject" class="heading-element">
-  <a href="#kewaitformutexobject" class="heading-mark"></a>KeWaitForMutexObject</h4><div class="highlight" id="id-40"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004054</span><span class="nf">D2</span> <span class="no">loc_4054D2</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KeWaitForSingleObject(x,x,x,x,x)+3C1C8↓j
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="n">KTHREAD</span><span class="o">+</span><span class="mh">0x010</span> <span class="n">MutantListHead</span><span class="p">)</span></span></span></code></pre></div><h4 id="kewaitformutexobject" class="heading-element"><span>KeWaitForMutexObject</span>
+  <a href="#kewaitformutexobject" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">004054</span><span class="nf">D2</span> <span class="no">loc_4054D2</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KeWaitForSingleObject(x,x,x,x,x)+3C1C8↓j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004054</span><span class="nf">D2</span>                 <span class="no">cmp</span>     <span class="no">byte</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">ebx</span><span class="err">+</span><span class="no">_DISPATCHER_HEADER.Type</span><span class="p">],</span> <span class="mi">2</span> <span class="c1">; 判断等待的对象类型是否是互斥体
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004054</span><span class="nf">D5</span>                 <span class="no">jnz</span>     <span class="no">loc_40265F</span>      <span class="c1">; 不是则跳转
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">004054</span><span class="nf">DB</span>                 <span class="no">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">ebx</span><span class="err">+</span><span class="no">_DISPATCHER_HEADER.SignalState</span><span class="p">]</span>
@@ -941,9 +1066,12 @@ B进程中的Y线程</code></pre><p>假设有A进程中的X线程和B进程中�
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040264</span><span class="nf">D</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">eax</span><span class="p">],</span> <span class="no">edx</span>      <span class="c1">; 这几行是挂载链表的操作
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040264</span><span class="nf">F</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">eax</span><span class="err">+</span><span class="mi">4</span><span class="p">],</span> <span class="no">ecx</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00402652</span>                 <span class="nf">mov</span>     <span class="p">[</span><span class="no">edx</span><span class="err">+</span><span class="mi">4</span><span class="p">],</span> <span class="no">eax</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00402655</span>                 <span class="nf">mov</span>     <span class="p">[</span><span class="no">ecx</span><span class="p">],</span> <span class="no">eax</span></span></span></code></pre></div><h4 id="释放互斥体" class="heading-element">
-  <a href="#%e9%87%8a%e6%94%be%e4%ba%92%e6%96%a5%e4%bd%93" class="heading-mark"></a>释放互斥体</h4><p>函数原型：</p>
-<div class="highlight" id="id-41"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="n">WINAPI</span> <span class="nf">ReleaseMutex</span><span class="p">(</span><span class="n">HANDLE</span> <span class="n">hMutex</span><span class="p">);</span></span></span></code></pre></div><p>调用过程：</p>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00402655</span>                 <span class="nf">mov</span>     <span class="p">[</span><span class="no">ecx</span><span class="p">],</span> <span class="no">eax</span></span></span></code></pre></div><h4 id="释放互斥体" class="heading-element"><span>释放互斥体</span>
+  <a href="#%e9%87%8a%e6%94%be%e4%ba%92%e6%96%a5%e4%bd%93" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>函数原型：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BOOL</span> <span class="n">WINAPI</span> <span class="nf">ReleaseMutex</span><span class="p">(</span><span class="n">HANDLE</span> <span class="n">hMutex</span><span class="p">);</span></span></span></code></pre></div><p>调用过程：</p>
 <blockquote>
 <p><code>ReleaseMutex</code> -&gt; <code>NtReleaseMutant</code> -&gt; <code>KeReleaseMutant</code></p>
 </blockquote>
@@ -952,13 +1080,16 @@ B进程中的Y线程</code></pre><p>假设有A进程中的X线程和B进程中�
 <p>MUTANT.Header.SignalState++;</p>
 </blockquote>
 <p>如果SignalState=1（即退出最外圈临界区后），说明其他进程可以使用了，将该互斥体从线程链表中移除</p>
-<h4 id="解决遗弃问题" class="heading-element">
-  <a href="#%e8%a7%a3%e5%86%b3%e9%81%97%e5%bc%83%e9%97%ae%e9%a2%98" class="heading-mark"></a>解决遗弃问题</h4><p><strong>描述</strong>：</p>
+<h4 id="解决遗弃问题" class="heading-element"><span>解决遗弃问题</span>
+  <a href="#%e8%a7%a3%e5%86%b3%e9%81%97%e5%bc%83%e9%97%ae%e9%a2%98" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p><strong>描述</strong>：</p>
 <p>当一个进程非正常“死亡时”，系统会调用内核函数<code>MmUnloadSystemImage</code>处理后事
 内核函数<code>MmUnloadSystemImage</code>会调用<code>KeReleaseMutant(X, Y, Abandon, Z)</code>，第三个参数用来判断该互斥体是否被丢弃，正常释放时值为false，有且只有互斥体有这个待遇</p>
 <p><strong>KeReleaseMutant函数判断：</strong></p>
 <p>伪代码：</p>
-<div class="highlight" id="id-42"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span> <span class="n">Abandoned</span> <span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span> <span class="n">Abandoned</span> <span class="p">)</span>
 </span></span><span class="line"><span class="cl">  <span class="p">{</span>
 </span></span><span class="line"><span class="cl">      <span class="c1">//将其置为符合其他线程激活条件的状态
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Mutant</span><span class="o">-&gt;</span><span class="n">Header</span><span class="p">.</span><span class="n">SignalState</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
@@ -976,8 +1107,11 @@ B进程中的Y线程</code></pre><p>假设有A进程中的X线程和B进程中�
 </span></span><span class="line"><span class="cl">    <span class="c1">//从当前线程互斥体链表中将当前互斥体移除
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>     <span class="p">...</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">  <span class="p">}</span></span></span></code></pre></div><h4 id="apcdisable" class="heading-element">
-  <a href="#apcdisable" class="heading-mark"></a>ApcDisable</h4><ol>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span></span></span></code></pre></div><h4 id="apcdisable" class="heading-element"><span>ApcDisable</span>
+  <a href="#apcdisable" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><ol>
 <li><strong>用户层</strong>：<strong>Mutant</strong>
 对应内核函数：<code>NtCreateMutant</code>
 ApcDisable=0</li>
@@ -986,7 +1120,7 @@ ApcDisable=0</li>
 ApcDisable=1</li>
 </ol>
 <p>若在<strong>三环</strong>创建互斥体（Mutant），内核APC仍然可以使用；若通过<strong>零环</strong>创建互斥体（Mutex），那么当前内核APC是被禁止的</p>
-<div class="highlight" id="id-43"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040261</span><span class="nf">E</span> <span class="no">loc_40261E</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KeWaitForSingleObject(x,x,x,x,x)+E0↓j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0040261</span><span class="nf">E</span> <span class="no">loc_40261E</span><span class="p">:</span>                             <span class="c1">; CODE XREF: KeWaitForSingleObject(x,x,x,x,x)+E0↓j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040261</span><span class="nf">E</span>                                         <span class="c1">; KeWaitForSingleObject(x,x,x,x,x)+E9↓j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0040261</span><span class="nf">E</span>                 <span class="no">cmp</span>     <span class="no">eax</span><span class="p">,</span> <span class="mi">80000000</span><span class="no">h</span>  <span class="c1">; 最多进入次数0x80000000
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00402623</span>                 <span class="nf">jz</span>      <span class="no">loc_44AB42</span>
@@ -1015,9 +1149,9 @@ ApcDisable=1</li>
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/" data-title="Windows内核(六)——事件等待" data-hashtags="Win32"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/" data-title="Windows内核(六)——事件等待"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/" data-title="Windows内核(六)——事件等待" data-hashtags="Win32"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/" data-hashtag="Win32"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/2023-2-winkernel%E4%BA%8B%E4%BB%B6%E7%AD%89%E5%BE%85/" data-title="Windows内核(六)——事件等待"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -1036,14 +1170,14 @@ ApcDisable=1</li>
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

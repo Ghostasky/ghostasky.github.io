@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head>
     
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
     <meta name="robots" content="noodp" />
-    <title>BypassAVDynamics[译] - Ghostasky&#39;s Blog</title><meta name="author" content="">
+    <title>BypassAVDynamics[译] - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="" /><meta name="keywords" content='免杀' /><meta itemprop="name" content="BypassAVDynamics[译]">
-<meta itemprop="description" content=""><meta itemprop="datePublished" content="2022-07-02T00:00:00+00:00" />
+<meta name="description" content="本文译的是《BypassAVDynamics》，也不能算译文，主要写自己读完之后学到的东西 好久之前的文章了，vt应该查杀挺多的，没测试 need read： PE注入 这个应该写过，win32那里&hellip; [toc] 简介 绕过AV的两大步骤： 恶意代码的隐藏，" /><meta name="keywords" content='免杀' /><meta itemprop="name" content="BypassAVDynamics[译]">
+<meta itemprop="description" content="本文译的是《BypassAVDynamics》，也不能算译文，主要写自己读完之后学到的东西 好久之前的文章了，vt应该查杀挺多的，没测试 need read： PE注入 这个应该写过，win32那里&hellip; [toc] 简介 绕过AV的两大步骤： 恶意代码的隐藏，"><meta itemprop="datePublished" content="2022-07-02T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-07-02T00:00:00+00:00" />
-<meta itemprop="wordCount" content="8336">
+<meta itemprop="wordCount" content="8301">
 <meta itemprop="keywords" content="免杀," /><meta property="og:title" content="BypassAVDynamics[译]" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="本文译的是《BypassAVDynamics》，也不能算译文，主要写自己读完之后学到的东西 好久之前的文章了，vt应该查杀挺多的，没测试 need read： PE注入 这个应该写过，win32那里&hellip; [toc] 简介 绕过AV的两大步骤： 恶意代码的隐藏，" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://localhost:1313/posts/2022-6-29-bypassavdynamics/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="http://ghostasky.github.io/posts/2022-6-29-bypassavdynamics/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-07-02T00:00:00+00:00" />
 <meta property="article:modified_time" content="2022-07-02T00:00:00+00:00" />
 <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="BypassAVDynamics[译]"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="本文译的是《BypassAVDynamics》，也不能算译文，主要写自己读完之后学到的东西 好久之前的文章了，vt应该查杀挺多的，没测试 need read： PE注入 这个应该写过，win32那里&hellip; [toc] 简介 绕过AV的两大步骤： 恶意代码的隐藏，"/>
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://localhost:1313/posts/2022-6-29-bypassavdynamics/" /><link rel="prev" href="http://localhost:1313/posts/%E9%87%8D%E6%8B%BEwin32/" /><link rel="next" href="http://localhost:1313/posts/6.s081/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://ghostasky.github.io/posts/2022-6-29-bypassavdynamics/" /><link rel="prev" href="http://ghostasky.github.io/posts/%E9%87%8D%E6%8B%BEwin32/" /><link rel="next" href="http://ghostasky.github.io/posts/6.s081/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="/lib/fontawesome-free/all.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
   {
@@ -32,20 +32,20 @@
     "inLanguage": "zh-CN",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "http:\/\/localhost:1313\/posts\/2022-6-29-bypassavdynamics\/"
-    },"genre": "posts","keywords": "免杀","wordcount":  8336 ,
-    "url": "http:\/\/localhost:1313\/posts\/2022-6-29-bypassavdynamics\/","datePublished": "2022-07-02T00:00:00+00:00","dateModified": "2022-07-02T00:00:00+00:00","publisher": {
+      "@id": "http:\/\/ghostasky.github.io\/posts\/2022-6-29-bypassavdynamics\/"
+    },"genre": "posts","keywords": "免杀","wordcount":  8301 ,
+    "url": "http:\/\/ghostasky.github.io\/posts\/2022-6-29-bypassavdynamics\/","datePublished": "2022-07-02T00:00:00+00:00","dateModified": "2022-07-02T00:00:00+00:00","publisher": {
       "@type": "Organization",
       "name": ""},"author": {
         "@type": "Person",
-        "name": "作者"
+        "name": "Ghostasky"
       },"description": ""
   }
   </script></head>
-  <body data-header-desktop="sticky" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
+  <body data-header-desktop="auto" data-header-mobile="auto"><script>(window.localStorage?.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('data-theme', 'dark');</script><div class="wrapper" data-page-style="normal"><header class="desktop animate__faster" id="header-desktop">
   <div class="header-wrapper">
     <div class="header-title">
-      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+      <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
     <nav>
       <ul class="menu"><li class="menu-item">
               <a
@@ -80,7 +80,7 @@
   <div class="header-container">
     <div class="header-wrapper">
       <div class="header-title">
-        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="/images/fixit.png" data-title="/images/fixit.png" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="header-title-text">Ghostasky&#39;s Blog</span></a><span class="header-subtitle"></span></div>
+        <a href="/" title="Ghostasky&#39;s Blog"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky&#39;s Blog" data-title="Ghostasky&#39;s Blog" width="26" height="26" class="logo" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/><span class="typeit"><template> Ghostasky&#39;s Blog</template></span></a><span class="header-subtitle">未语之痕</span></div>
       <div class="menu-toggle" id="menu-toggle-mobile">
         <span></span><span></span><span></span>
       </div>
@@ -124,8 +124,7 @@
   <article class="page single">
     <div class="header"><h1 class="single-title animate__animated animate__flipInX"><span>BypassAVDynamics[译]</span>
       </h1></div><div class="post-meta">
-      <div class="post-meta-line"><span class="post-author"><span class="author"><i class="fa-solid fa-user-circle" aria-hidden="true"></i>
-      Anonymous</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2022-07-02 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2022-07-02">2022-07-02</time></span>&nbsp;<span title="8336 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 8400 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 17 分钟</span>&nbsp;</div>
+      <div class="post-meta-line"><span class="post-author"><span class="author"><img loading="lazy" src="/images/fixit.png" alt="Ghostasky" data-title="Ghostasky" width="20" height="20" class="avatar" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/>&nbsp;Ghostasky</span></span><span class="post-included-in">&nbsp;收录于 <a href="/categories/technology/" class="post-category" title="分类 - Technology"><i class="fa-regular fa-folder fa-fw" aria-hidden="true"></i> Technology</a></span></div><div class="post-meta-line"><span title="发布于 2022-07-02 00:00:00"><i class="fa-solid fa-calendar-days fa-fw me-1" aria-hidden="true"></i><time datetime="2022-07-02">2022-07-02</time></span>&nbsp;<span title="8301 字"><i class="fa-solid fa-pencil-alt fa-fw me-1" aria-hidden="true"></i>约 8400 字</span>&nbsp;<span><i class="fa-regular fa-clock fa-fw me-1" aria-hidden="true"></i>预计阅读 17 分钟</span>&nbsp;</div>
     </div><div class="details toc" id="toc-static" data-kept="false">
         <div class="details-summary toc-title">
           <span>目录</span>
@@ -184,48 +183,75 @@
 <p>这个应该写过，win32那里&hellip;</p>
 </blockquote>
 <p>[toc]</p>
-<h2 id="简介" class="heading-element">
-  <a href="#%e7%ae%80%e4%bb%8b" class="heading-mark"></a>简介</h2><p>绕过AV的两大步骤：</p>
+<h2 id="简介" class="heading-element"><span>简介</span>
+  <a href="#%e7%ae%80%e4%bb%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>绕过AV的两大步骤：</p>
 <ul>
 <li>恶意代码的隐藏，通常使用加密完成</li>
 <li>对解密存根进行编码，使其不会被检测为病毒，也不会被病毒绕过沙箱</li>
 </ul>
 <p>本文主要是第二种，欺骗绕过沙箱。</p>
-<h2 id="免杀原理" class="heading-element">
-  <a href="#%e5%85%8d%e6%9d%80%e5%8e%9f%e7%90%86" class="heading-mark"></a>免杀原理</h2><h3 id="静态分析" class="heading-element">
-  <a href="#%e9%9d%99%e6%80%81%e5%88%86%e6%9e%90" class="heading-mark"></a>静态分析</h3><p>静态分析基于黑名单的方法，当AV分析师得到一个恶意样本，会提取一个签名，或者说特征码，特征码是基于特殊的代码和数据。特征码通常是使用可执行文件的第一个执行字节来构造的。</p>
+<h2 id="免杀原理" class="heading-element"><span>免杀原理</span>
+  <a href="#%e5%85%8d%e6%9d%80%e5%8e%9f%e7%90%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="静态分析" class="heading-element"><span>静态分析</span>
+  <a href="#%e9%9d%99%e6%80%81%e5%88%86%e6%9e%90" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>静态分析基于黑名单的方法，当AV分析师得到一个恶意样本，会提取一个签名，或者说特征码，特征码是基于特殊的代码和数据。特征码通常是使用可执行文件的第一个执行字节来构造的。</p>
 <p>AV拥有包含数百万个签名的数据库，并将扫描后的代码与该数据库进行匹配比较。</p>
 <p>第一代AV使用上述方法，现在仍在使用，同时结合了启发式与动态分析。</p>
 <p>YARA这款工具可以用于创建规则来分类和识别恶意软件。这些规则被上传到AV和逆向工具中。YARA 可以在 <a href="https://www.77169.net/go?url=http://plusvic.github.io/yara/"target="_blank" rel="external nofollow noopener noreferrer">http://plusvic.github.io/yara/</a>找到。</p>
 <p>基于这种的分析方法不能够检测新的恶意软件。所以想要绕过基于特征码的分析，可以构建一个新的代码或者做一些小的修改，</p>
-<h3 id="静态启发式分析" class="heading-element">
-  <a href="#%e9%9d%99%e6%80%81%e5%90%af%e5%8f%91%e5%bc%8f%e5%88%86%e6%9e%90" class="heading-mark"></a>静态启发式分析</h3><p>在这种情况下，AV 将检查代码中已知存在于恶意软件中的模式。 有很多可能的规则，这取决于供应商。 这些规则通常没有描述（我想避免它们太容易被绕过）所以并不总是容易理解为什么 AV 认为软件是恶意的。 启发式分析的主要资产是它可以用来检测新的不在签名数据库中的恶意软件。 主要缺点是它会产生误报。</p>
+<h3 id="静态启发式分析" class="heading-element"><span>静态启发式分析</span>
+  <a href="#%e9%9d%99%e6%80%81%e5%90%af%e5%8f%91%e5%bc%8f%e5%88%86%e6%9e%90" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>在这种情况下，AV 将检查代码中已知存在于恶意软件中的模式。 有很多可能的规则，这取决于供应商。 这些规则通常没有描述（我想避免它们太容易被绕过）所以并不总是容易理解为什么 AV 认为软件是恶意的。 启发式分析的主要资产是它可以用来检测新的不在签名数据库中的恶意软件。 主要缺点是它会产生误报。</p>
 <p>一个例子:函数<a href="https://docs.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-callnexthookex?redirectedfrom=MSDN"target="_blank" rel="external nofollow noopener noreferrer">CallNextHookEx</a>一般被用户态的键盘记录器使用。一些杀软认为这个函数的用法是一个威胁，如果这个函数的名字在可执行文件中被检测到，将发出一个关于这个软件启发式的警告。</p>
 <p>一个例子：一段代码打开“explorer.exe”进程，尝试写一些代码到其虚拟内存空间，这也被考虑为恶意的行为。</p>
 <p>最容易的绕过启发式分析的方法是，确保所有的恶意代码是隐藏的。对于这个，编写解密的代码是最常用的方法。如果在解密之前，没有触发警告，如果这个解密Stub在解密完没有产生一些一般被认为恶意的行为，那么这个恶意软件不会被检测出来。</p>
 <p><a href="https://blog.sevagas.com/?Code-segment-encryption"target="_blank" rel="external nofollow noopener noreferrer">https://blog.sevagas.com/?Code-segment-encryption</a></p>
 <p><a href="https://blog.sevagas.com/Hide-meterpreter-shellcode-in-executable"target="_blank" rel="external nofollow noopener noreferrer">https://blog.sevagas.com/Hide-meterpreter-shellcode-in-executable</a></p>
-<h3 id="动态分析" class="heading-element">
-  <a href="#%e5%8a%a8%e6%80%81%e5%88%86%e6%9e%90" class="heading-mark"></a>动态分析</h3><p>如今大部分AV都是用动态的方法，当一个可执行文件被扫描，他将会在虚拟的环境中运行一小段时间。将此与签名验证和启发式分析相结合，可以检测未知恶意软件，即使是那些依赖加密的恶意软件。实际上，代码是在 AV 沙箱中自行解密的； 然后，对“新代码”的分析可能会引发一些可疑行为。如果使用加密/解密stub来隐藏恶意软件，倘若他们跳过解密阶段，大部分的AV会检测到它。</p>
+<h3 id="动态分析" class="heading-element"><span>动态分析</span>
+  <a href="#%e5%8a%a8%e6%80%81%e5%88%86%e6%9e%90" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>如今大部分AV都是用动态的方法，当一个可执行文件被扫描，他将会在虚拟的环境中运行一小段时间。将此与签名验证和启发式分析相结合，可以检测未知恶意软件，即使是那些依赖加密的恶意软件。实际上，代码是在 AV 沙箱中自行解密的； 然后，对“新代码”的分析可能会引发一些可疑行为。如果使用加密/解密stub来隐藏恶意软件，倘若他们跳过解密阶段，大部分的AV会检测到它。</p>
 <p>也就意味着，绕过动态分析依赖两个方面：</p>
 <ul>
 <li>具有不可检测的自解密机制（如启发式机制）</li>
 <li>阻止AV执行解密stub</li>
 </ul>
-<h3 id="杀软的局限性" class="heading-element">
-  <a href="#%e6%9d%80%e8%bd%af%e7%9a%84%e5%b1%80%e9%99%90%e6%80%a7" class="heading-mark"></a>杀软的局限性</h3><p>三个主要的局限性：</p>
+<h3 id="杀软的局限性" class="heading-element"><span>杀软的局限性</span>
+  <a href="#%e6%9d%80%e8%bd%af%e7%9a%84%e5%b1%80%e9%99%90%e6%80%a7" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>三个主要的局限性：</p>
 <ul>
 <li>扫描必须快</li>
 <li>环境是模拟的，因此不知道机器和恶意软件环境的特殊性</li>
 <li>仿真/沙盒系统有一些可以被恶意软件检测出来的差异性</li>
 </ul>
-<h2 id="代码段加密" class="heading-element">
-  <a href="#%e4%bb%a3%e7%a0%81%e6%ae%b5%e5%8a%a0%e5%af%86" class="heading-mark"></a>代码段加密</h2><h3 id="介绍" class="heading-element">
-  <a href="#%e4%bb%8b%e7%bb%8d" class="heading-mark"></a>介绍</h3><blockquote>
+<h2 id="代码段加密" class="heading-element"><span>代码段加密</span>
+  <a href="#%e4%bb%a3%e7%a0%81%e6%ae%b5%e5%8a%a0%e5%af%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="介绍" class="heading-element"><span>介绍</span>
+  <a href="#%e4%bb%8b%e7%bb%8d" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><blockquote>
 <p><a href="https://blog.sevagas.com/?Code-segment-encryption"target="_blank" rel="external nofollow noopener noreferrer">https://blog.sevagas.com/?Code-segment-encryption</a></p>
 </blockquote>
-<h3 id="原理" class="heading-element">
-  <a href="#%e5%8e%9f%e7%90%86" class="heading-mark"></a>原理</h3><p>PE的经典构成：</p>
+<h3 id="原理" class="heading-element"><span>原理</span>
+  <a href="#%e5%8e%9f%e7%90%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>PE的经典构成：</p>
 <pre tabindex="0"><code>======================
 	PE Headers
 ======================
@@ -277,14 +303,23 @@
 <li>.code段将被加密</li>
 <li>.stub用于解密.code段</li>
 </ul>
-<h4 id="工具" class="heading-element">
-  <a href="#%e5%b7%a5%e5%85%b7" class="heading-mark"></a>工具</h4><p>dumpbin，使用这个可以查看pe的东西</p>
-<h3 id="调整目标软件" class="heading-element">
-  <a href="#%e8%b0%83%e6%95%b4%e7%9b%ae%e6%a0%87%e8%bd%af%e4%bb%b6" class="heading-mark"></a>调整目标软件</h3><h4 id="创建code段" class="heading-element">
-  <a href="#%e5%88%9b%e5%bb%bacode%e6%ae%b5" class="heading-mark"></a>创建.code段</h4><p>创建新段使用：<code>#pragma section</code></p>
+<h4 id="工具" class="heading-element"><span>工具</span>
+  <a href="#%e5%b7%a5%e5%85%b7" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>dumpbin，使用这个可以查看pe的东西</p>
+<h3 id="调整目标软件" class="heading-element"><span>调整目标软件</span>
+  <a href="#%e8%b0%83%e6%95%b4%e7%9b%ae%e6%a0%87%e8%bd%af%e4%bb%b6" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="创建code段" class="heading-element"><span>创建.code段</span>
+  <a href="#%e5%88%9b%e5%bb%bacode%e6%ae%b5" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>创建新段使用：<code>#pragma section</code></p>
 <p>创建code段</p>
 <p>在示例中，希望将可执行代码放入.code段中</p>
-<div class="highlight" id="id-3"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/* Your system includes */</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/* Your system includes */</span>
 </span></span><span class="line"><span class="cl"><span class="cp">##include &lt;windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span> 
 </span></span><span class="line"><span class="cl"><span class="cm">/* Declare .code as a read/write/execute segment */</span>
@@ -292,9 +327,12 @@
 </span></span></span><span class="line"><span class="cl"><span class="cp">##pragma comment(linker,&#34;/SECTION:.code,ERW&#34;)
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span> 
 </span></span><span class="line"><span class="cl"><span class="cm">/* .code 段开始（下面所有生成的可执行代码都将进入 .code 段）*/</span>
-</span></span><span class="line"><span class="cl"><span class="cp">##pragma code_seg(&#34;.code&#34;)</span></span></span></code></pre></div><h4 id="创建解密stub" class="heading-element">
-  <a href="#%e5%88%9b%e5%bb%ba%e8%a7%a3%e5%af%86stub" class="heading-mark"></a>创建解密stub</h4><p>为什么我们需要一个 .stub 段，因为我们不加密所有代码？好吧，我们需要加密器能够修补目标自解密例程，并且我们想要修补的代码将更容易在 .stub 部分中找到。本文的变体也可用于将所有段合并为一个（.code）。所以有 .stub 部分更通用。</p>
-<div class="highlight" id="id-4"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="cp">##pragma code_seg(&#34;.code&#34;)</span></span></span></code></pre></div><h4 id="创建解密stub" class="heading-element"><span>创建解密stub</span>
+  <a href="#%e5%88%9b%e5%bb%ba%e8%a7%a3%e5%af%86stub" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>为什么我们需要一个 .stub 段，因为我们不加密所有代码？好吧，我们需要加密器能够修补目标自解密例程，并且我们想要修补的代码将更容易在 .stub 部分中找到。本文的变体也可用于将所有段合并为一个（.code）。所以有 .stub 部分更通用。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"> 
 </span></span><span class="line"><span class="cl"><span class="c1">// .stub SECTION
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">##pragma section(&#34;.stub&#34;, execute, read, write)
 </span></span></span><span class="line"><span class="cl"><span class="cp">##pragma code_seg(&#34;.stub&#34;)
@@ -333,21 +371,30 @@
 </span></span><span class="line"><span class="cl">	<span class="nf">decryptCodeSection</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">	<span class="nf">realmain</span><span class="p">();</span> <span class="cm">/* Call decrypted program entry point */</span>
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="编译链接选项" class="heading-element">
-  <a href="#%e7%bc%96%e8%af%91%e9%93%be%e6%8e%a5%e9%80%89%e9%a1%b9" class="heading-mark"></a>编译链接选项</h4><p>因为目标会自我修改自己，所以我们必须避免使用安全 cookie（用于堆栈验证）。为此，我们需要删除安全检查。因此，下一个编译选项是强制性的：</p>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="编译链接选项" class="heading-element"><span>编译链接选项</span>
+  <a href="#%e7%bc%96%e8%af%91%e9%93%be%e6%8e%a5%e9%80%89%e9%a1%b9" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>因为目标会自我修改自己，所以我们必须避免使用安全 cookie（用于堆栈验证）。为此，我们需要删除安全检查。因此，下一个编译选项是强制性的：</p>
 <pre tabindex="0"><code>/GS-  -&gt; Disable functions stack verification relying on secure cookies</code></pre><p>另一个选项几乎是强制性的，静态包含运行时库。如果目标中未包含 Microsoft 运行时库，则此代码将起作用，但您将面临可移植性问题。
 使用接下来的两个运行时库选项之一。</p>
-<div class="highlight" id="id-6"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="o">/</span><span class="n">MTD</span> <span class="o">-&gt;</span> <span class="k">for</span> <span class="n">debug</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="o">/</span><span class="n">MTD</span> <span class="o">-&gt;</span> <span class="k">for</span> <span class="n">debug</span>
 </span></span><span class="line"><span class="cl"><span class="o">/</span><span class="n">MT</span>  <span class="o">-&gt;</span> <span class="k">for</span> <span class="n">release</span></span></span></code></pre></div><p>为了避免复杂化，我们希望修复地址并删除数据执行预防。为此，我们必须使用链接器的下一个选项。</p>
 <pre tabindex="0"><code>/DYNAMICBASE:NO
 /FIXED
-/NXCOMPAT:NO</code></pre><h3 id="构建加密器" class="heading-element">
-  <a href="#%e6%9e%84%e5%bb%ba%e5%8a%a0%e5%af%86%e5%99%a8" class="heading-mark"></a>构建加密器</h3><h4 id="获取需要的信息" class="heading-element">
-  <a href="#%e8%8e%b7%e5%8f%96%e9%9c%80%e8%a6%81%e7%9a%84%e4%bf%a1%e6%81%af" class="heading-mark"></a>获取需要的信息</h4><p>加密器的作用是加密目标程序的 .code 段以及修补 .stub 段，以便目标在启动时能够自解密。
+/NXCOMPAT:NO</code></pre><h3 id="构建加密器" class="heading-element"><span>构建加密器</span>
+  <a href="#%e6%9e%84%e5%bb%ba%e5%8a%a0%e5%af%86%e5%99%a8" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><h4 id="获取需要的信息" class="heading-element"><span>获取需要的信息</span>
+  <a href="#%e8%8e%b7%e5%8f%96%e9%9c%80%e8%a6%81%e7%9a%84%e4%bf%a1%e6%81%af" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>加密器的作用是加密目标程序的 .code 段以及修补 .stub 段，以便目标在启动时能够自解密。
 为此，密码器将浏览上一节中生成的二进制文件，并找到 .code 和 .stub 段的地址和大小。我们需要文件偏移量（修改二进制目标）和虚拟内存地址（向目标程序指示他应该在运行时解密的段在哪里）。</p>
 <p>首先，需要使用 CreateFileMapping 和 MapViewOfFile 将文件映射到内存中。我没有对此代码进行任何功能修改。它可以在书中或在互联网上找到。
 完成此操作后，我们解析映射文件以获取节标题信息。</p>
-<div class="highlight" id="id-8"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/**
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/**
 </span></span></span><span class="line"><span class="cl"><span class="cm"> * Get information of .code and .stub segments
 </span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
 </span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">getSegmentsInfo</span><span class="p">(</span><span class="n">LPVOID</span> <span class="n">baseAddress</span><span class="p">,</span> <span class="n">SEGMENT_INFO_PTR</span> <span class="n">codeSegmentInfo</span><span class="p">,</span> <span class="n">SEGMENT_INFO_PTR</span> <span class="n">stubSegmentInfo</span><span class="p">)</span>
@@ -396,7 +443,7 @@
 <li>文件段大小</li>
 <li>段的虚拟内存偏移量</li>
 </ul>
-<div class="highlight" id="id-9"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/**
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/**
 </span></span></span><span class="line"><span class="cl"><span class="cm"> * Look for sectionName segment in mapped file
 </span></span></span><span class="line"><span class="cl"><span class="cm"> * addrInfo will be filled with the segment information
 </span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
@@ -423,8 +470,11 @@
 </span></span><span class="line"><span class="cl">        <span class="n">section</span> <span class="o">=</span> <span class="n">section</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="加密目标段" class="heading-element">
-  <a href="#%e5%8a%a0%e5%af%86%e7%9b%ae%e6%a0%87%e6%ae%b5" class="heading-mark"></a>加密目标段</h3><p>现在我们有了二进制文件中 .code 段的大小和位置，我们可以打开文件并加密想要的字节。
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="加密目标段" class="heading-element"><span>加密目标段</span>
+  <a href="#%e5%8a%a0%e5%af%86%e7%9b%ae%e6%a0%87%e6%ae%b5" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>现在我们有了二进制文件中 .code 段的大小和位置，我们可以打开文件并加密想要的字节。
 该代码并未真正优化，但对于调试目的非常实用。在这个函数中，我们：</p>
 <ul>
 <li>打开二进制目标文件</li>
@@ -434,7 +484,7 @@
 <li>写入加密缓冲区代替明文 .code 段</li>
 <li>关闭文件并离开</li>
 </ul>
-<div class="highlight" id="id-10"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/**
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/**
 </span></span></span><span class="line"><span class="cl"><span class="cm"> * Encrypt .code segment bytes in the given file 
 </span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
 </span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">cipherBytes</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">SEGMENT_INFO_PTR</span> <span class="n">addrInfo</span><span class="p">)</span>
@@ -509,8 +559,11 @@
 </span></span><span class="line"><span class="cl">	<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Successfully ciphered %d bytes</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span><span class="n">nbytes</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">	<span class="nf">fclose</span><span class="p">(</span><span class="n">fptr</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">	<span class="k">return</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="补丁stub部分" class="heading-element">
-  <a href="#%e8%a1%a5%e4%b8%81stub%e9%83%a8%e5%88%86" class="heading-mark"></a>补丁.stub部分</h4><p>加密 .code 部分后，我们需要修补 .stub 部分，以便目标可以自行解密。在这个函数中，我们：</p>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="补丁stub部分" class="heading-element"><span>补丁.stub部分</span>
+  <a href="#%e8%a1%a5%e4%b8%81stub%e9%83%a8%e5%88%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>加密 .code 部分后，我们需要修补 .stub 部分，以便目标可以自行解密。在这个函数中，我们：</p>
 <ul>
 <li>打开二进制目标文件</li>
 <li>寻找 .stub 段</li>
@@ -520,7 +573,7 @@
 <li>写补丁缓冲区代替 .stub 段</li>
 <li>关闭文件并离开</li>
 </ul>
-<div class="highlight" id="id-11"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/**
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/**
 </span></span></span><span class="line"><span class="cl"><span class="cm"> * Patch the filepath file (the .stub segment)
 </span></span></span><span class="line"><span class="cl"><span class="cm"> * Here we replace CODE_BASE_ADDRESS and CODE_SIZE by newBaseAddr and newSegSize
 </span></span></span><span class="line"><span class="cl"><span class="cm"> * newBaseAddr is the Virtual memory base address of .code segment in target file
@@ -602,8 +655,11 @@
 </span></span><span class="line"><span class="cl">	<span class="nf">fclose</span><span class="p">(</span><span class="n">fptr</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"> 
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="main部分" class="heading-element">
-  <a href="#main%e9%83%a8%e5%88%86" class="heading-mark"></a>main部分</h4><div class="highlight" id="id-12"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/** 
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="main部分" class="heading-element"><span>main部分</span>
+  <a href="#main%e9%83%a8%e5%88%86" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/** 
 </span></span></span><span class="line"><span class="cl"><span class="cm"> * Cryptor entry point 
 </span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
 </span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
@@ -661,16 +717,25 @@
 </span></span><span class="line"><span class="cl">	<span class="nf">patchStub</span><span class="p">(</span><span class="n">fileName</span><span class="p">,</span><span class="o">&amp;</span><span class="n">stubSegmentInfo</span><span class="p">,</span><span class="n">codeSegmentInfo</span><span class="p">.</span><span class="n">moduleBase</span><span class="o">+</span><span class="n">codeSegmentInfo</span><span class="p">.</span><span class="n">memorySegmentOffset</span><span class="p">,</span><span class="n">codeSegmentInfo</span><span class="p">.</span><span class="n">fileSegmentSize</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"> 
 </span></span><span class="line"><span class="cl">	<span class="k">return</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h2 id="测试" class="heading-element">
-  <a href="#%e6%b5%8b%e8%af%95" class="heading-mark"></a>测试</h2><h3 id="virustotal" class="heading-element">
-  <a href="#virustotal" class="heading-mark"></a>VirusTotal</h3><p>VirusTotal（<a href="https://www.77169.net/go?url=https://www.virustotal.com"target="_blank" rel="external nofollow noopener noreferrer">https://www.virustotal.com</a>）是针对多个AV的在线扫描的参考平台。</p>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h2 id="测试" class="heading-element"><span>测试</span>
+  <a href="#%e6%b5%8b%e8%af%95" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="virustotal" class="heading-element"><span>VirusTotal</span>
+  <a href="#virustotal" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>VirusTotal（<a href="https://www.77169.net/go?url=https://www.virustotal.com"target="_blank" rel="external nofollow noopener noreferrer">https://www.virustotal.com</a>）是针对多个AV的在线扫描的参考平台。</p>
 <blockquote>
 <p>众所周知，如果你想要一个未被检测到的恶意软件来保留FUD特性，你应该永远不会发送到VirusTotal</p>
 </blockquote>
 <p>FUD(Fully undetectable),完全不被检测</p>
-<h3 id="加密的恶意软件" class="heading-element">
-  <a href="#%e5%8a%a0%e5%af%86%e7%9a%84%e6%81%b6%e6%84%8f%e8%bd%af%e4%bb%b6" class="heading-mark"></a>加密的恶意软件</h3><p>这里的完整代码：https://blog.sevagas.com/Hide-meterpreter-shellcode-in-executable</p>
-<div class="highlight" id="id-13"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"> 
+<h3 id="加密的恶意软件" class="heading-element"><span>加密的恶意软件</span>
+  <a href="#%e5%8a%a0%e5%af%86%e7%9a%84%e6%81%b6%e6%84%8f%e8%bd%af%e4%bb%b6" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>这里的完整代码：https://blog.sevagas.com/Hide-meterpreter-shellcode-in-executable</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"> 
 </span></span><span class="line"><span class="cl"><span class="cp">##include &lt;Windows.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span> 
 </span></span><span class="line"><span class="cl"><span class="cm">/* Declare new sections to store encrypted code and shellcode data */</span>
@@ -788,13 +853,22 @@
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl"> 
-</span></span></code></pre></div><h2 id="复杂的方法" class="heading-element">
-  <a href="#%e5%a4%8d%e6%9d%82%e7%9a%84%e6%96%b9%e6%b3%95" class="heading-mark"></a>复杂的方法</h2><h3 id="代码注入方法" class="heading-element">
-  <a href="#%e4%bb%a3%e7%a0%81%e6%b3%a8%e5%85%a5%e6%96%b9%e6%b3%95" class="heading-mark"></a>代码注入方法</h3><p>代码注入指在另一个进程内运行代码。这个一般通过DLL注入来实现，但也有其他可能存在的方法，甚至可能直接注入完整的exe： <a href="https://blog.sevagas.com/?PE-injection-explained"target="_blank" rel="external nofollow noopener noreferrer">https://blog.sevagas.com/?PE-injection-explained</a></p>
+</span></span></code></pre></div><h2 id="复杂的方法" class="heading-element"><span>复杂的方法</span>
+  <a href="#%e5%a4%8d%e6%9d%82%e7%9a%84%e6%96%b9%e6%b3%95" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="代码注入方法" class="heading-element"><span>代码注入方法</span>
+  <a href="#%e4%bb%a3%e7%a0%81%e6%b3%a8%e5%85%a5%e6%96%b9%e6%b3%95" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>代码注入指在另一个进程内运行代码。这个一般通过DLL注入来实现，但也有其他可能存在的方法，甚至可能直接注入完整的exe： <a href="https://blog.sevagas.com/?PE-injection-explained"target="_blank" rel="external nofollow noopener noreferrer">https://blog.sevagas.com/?PE-injection-explained</a></p>
 <p>虽然代码注入是一个恶意软件隐形的好办法，大量其中的代码也是可能通过启发式分析识别的</p>
 <p>这就是为什么代码注入一般不用于绕过AV，而是使用后用来隐藏和获取特权（例如注入进浏览器的代码和浏览器一样有相同的访问防火墙的权限。</p>
-<h3 id="runpe方法" class="heading-element">
-  <a href="#runpe%e6%96%b9%e6%b3%95" class="heading-mark"></a>RunPE方法</h3><p>这个方法是通过替换掉进程空间的代码从而在目标进程中运行我们想要运行的代码，和代码注入不同的是，在代码注入中你是在远程进程开辟的空间中执行代码；但是在RunPE这个技术中，你使用你想要执行的代码替换掉了远程进程的代码。</p>
+<h3 id="runpe方法" class="heading-element"><span>RunPE方法</span>
+  <a href="#runpe%e6%96%b9%e6%b3%95" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>这个方法是通过替换掉进程空间的代码从而在目标进程中运行我们想要运行的代码，和代码注入不同的是，在代码注入中你是在远程进程开辟的空间中执行代码；但是在RunPE这个技术中，你使用你想要执行的代码替换掉了远程进程的代码。</p>
 <p>一个小例子：</p>
 <p>恶意代码被加壳或者加密了，被插入到一个专门加载它的二进制代码中。当加载器执行，它将执行：</p>
 <ul>
@@ -804,12 +878,21 @@
 </ul>
 <p>当进程被DEP(数据执行保护)保护的时候，替换一个进程的内存不是很有可能的。</p>
 <p>正如代码注入的方法一样，但是因为这篇文章的主题不是这方面的，所以没有给充分的代码。</p>
-<h2 id="简单有效的方法" class="heading-element">
-  <a href="#%e7%ae%80%e5%8d%95%e6%9c%89%e6%95%88%e7%9a%84%e6%96%b9%e6%b3%95" class="heading-mark"></a>简单有效的方法</h2><h3 id="offer-you-have-to-refuse-方法" class="heading-element">
-  <a href="#offer-you-have-to-refuse-%e6%96%b9%e6%b3%95" class="heading-mark"></a>Offer you have to refuse 方法</h3><p>AV扫描器主要的限制是需要在每个文件上花费大量的时间。在一个常规的系统扫描中，AV必须要分析成百上千的文件。它不能够花费过多的时间和力量在个别的文件上（这就可以在AV上导致一个拒绝服务攻击）。最简单绕过AV的方法是仅仅在代码解密之前，消耗掉AV足够的时间。一个简单的Sleep不能够实现这个技巧，AV模拟器已经适应了这个。无论如何有大量的方法可以实现取得时间。这个被叫做“Offer you have to refuse ”，因为它强行让AV去检查一些代码，这个会消耗掉AV大量的资源，因此我们确信在解密代码被执行之前AV会放弃这个检查。</p>
-<h4 id="例子1分配填充100m内存" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%901%e5%88%86%e9%85%8d%e5%a1%ab%e5%85%85100m%e5%86%85%e5%ad%98" class="heading-mark"></a>例子1：分配填充100M内存</h4><p>在下面的代码中，大部分的AV会在malloc的过程中仅仅停止，关于分配指针的条件验证甚至没有必要。</p>
-<div class="highlight" id="id-14"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##define TOO_MUCH_MEM 100000000
+<h2 id="简单有效的方法" class="heading-element"><span>简单有效的方法</span>
+  <a href="#%e7%ae%80%e5%8d%95%e6%9c%89%e6%95%88%e7%9a%84%e6%96%b9%e6%b3%95" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><h3 id="offer-you-have-to-refuse-方法" class="heading-element"><span>Offer you have to refuse 方法</span>
+  <a href="#offer-you-have-to-refuse-%e6%96%b9%e6%b3%95" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>AV扫描器主要的限制是需要在每个文件上花费大量的时间。在一个常规的系统扫描中，AV必须要分析成百上千的文件。它不能够花费过多的时间和力量在个别的文件上（这就可以在AV上导致一个拒绝服务攻击）。最简单绕过AV的方法是仅仅在代码解密之前，消耗掉AV足够的时间。一个简单的Sleep不能够实现这个技巧，AV模拟器已经适应了这个。无论如何有大量的方法可以实现取得时间。这个被叫做“Offer you have to refuse ”，因为它强行让AV去检查一些代码，这个会消耗掉AV大量的资源，因此我们确信在解密代码被执行之前AV会放弃这个检查。</p>
+<h4 id="例子1分配填充100m内存" class="heading-element"><span>例子1：分配填充100M内存</span>
+  <a href="#%e4%be%8b%e5%ad%901%e5%88%86%e9%85%8d%e5%a1%ab%e5%85%85100m%e5%86%85%e5%ad%98" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>在下面的代码中，大部分的AV会在malloc的过程中仅仅停止，关于分配指针的条件验证甚至没有必要。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##define TOO_MUCH_MEM 100000000
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="o">*</span><span class="n">memdmp</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
@@ -823,9 +906,12 @@
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>当时的VT：0/55</p>
-<h4 id="例子2成百上千的递增" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%902%e6%88%90%e7%99%be%e4%b8%8a%e5%8d%83%e7%9a%84%e9%80%92%e5%a2%9e" class="heading-mark"></a>例子2：成百上千的递增</h4><p>使用for循环去每次递增1，达到100万次。这个足以绕过杀软，而且对于现代CPU是可行的。一个人在运行这段代码不会检测到任何的异常。</p>
-<div class="highlight" id="id-15"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##define MAX_OP 100000000
+<h4 id="例子2成百上千的递增" class="heading-element"><span>例子2：成百上千的递增</span>
+  <a href="#%e4%be%8b%e5%ad%902%e6%88%90%e7%99%be%e4%b8%8a%e5%8d%83%e7%9a%84%e9%80%92%e5%a2%9e" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>使用for循环去每次递增1，达到100万次。这个足以绕过杀软，而且对于现代CPU是可行的。一个人在运行这段代码不会检测到任何的异常。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##define MAX_OP 100000000
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">cpt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
@@ -840,11 +926,17 @@
 </span></span><span class="line"><span class="cl">        <span class="nf">startShellCode</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="the-i-shouldnt-be-able-to-do-that-method" class="heading-element">
-  <a href="#the-i-shouldnt-be-able-to-do-that-method" class="heading-mark"></a>The “I shouldn’t be able to do that!” method</h3><p>由于在一个仿真的系统里被推出，或许会有一些错误发生，代码或许在正常权限下不会运行。一般来说，在所有权限下，代码都将运行。这个能够被用来猜出这个代码是否在被分析。</p>
-<h4 id="例子1打开系统进程" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%901%e6%89%93%e5%bc%80%e7%b3%bb%e7%bb%9f%e8%bf%9b%e7%a8%8b" class="heading-mark"></a>例子1：打开系统进程</h4><p>代码会尝试打开一般是拥有所有权限的4号系统进程。如果这个代码没有运行在系统MIC和ring0下，这个将会失败（OpenProcess会返回 00 ）。在这个VirusTotal中，你会看到这个不是FUD方法，而是绕过一些对这个特殊问题脆弱的杀软。</p>
-<div class="highlight" id="id-16"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="the-i-shouldnt-be-able-to-do-that-method" class="heading-element"><span>The “I shouldn’t be able to do that!” method</span>
+  <a href="#the-i-shouldnt-be-able-to-do-that-method" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>由于在一个仿真的系统里被推出，或许会有一些错误发生，代码或许在正常权限下不会运行。一般来说，在所有权限下，代码都将运行。这个能够被用来猜出这个代码是否在被分析。</p>
+<h4 id="例子1打开系统进程" class="heading-element"><span>例子1：打开系统进程</span>
+  <a href="#%e4%be%8b%e5%ad%901%e6%89%93%e5%bc%80%e7%b3%bb%e7%bb%9f%e8%bf%9b%e7%a8%8b" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>代码会尝试打开一般是拥有所有权限的4号系统进程。如果这个代码没有运行在系统MIC和ring0下，这个将会失败（OpenProcess会返回 00 ）。在这个VirusTotal中，你会看到这个不是FUD方法，而是绕过一些对这个特殊问题脆弱的杀软。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">HANDLE</span> <span class="n">file</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="n">HANDLE</span> <span class="n">proc</span><span class="p">;</span>
@@ -855,12 +947,15 @@
 </span></span><span class="line"><span class="cl">        <span class="nf">startShellCode</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="尝试打开一个不存在的url" class="heading-element">
-  <a href="#%e5%b0%9d%e8%af%95%e6%89%93%e5%bc%80%e4%b8%80%e4%b8%aa%e4%b8%8d%e5%ad%98%e5%9c%a8%e7%9a%84url" class="heading-mark"></a>尝试打开一个不存在的URL</h4><p>一种通常用来让代码自我意识到沙箱的方法是在互联网上下载一个特定的文件，并将其哈希与代码知道的哈希进行比较。</p>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="尝试打开一个不存在的url" class="heading-element"><span>尝试打开一个不存在的URL</span>
+  <a href="#%e5%b0%9d%e8%af%95%e6%89%93%e5%bc%80%e4%b8%80%e4%b8%aa%e4%b8%8d%e5%ad%98%e5%9c%a8%e7%9a%84url" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>一种通常用来让代码自我意识到沙箱的方法是在互联网上下载一个特定的文件，并将其哈希与代码知道的哈希进行比较。</p>
 <p>为什么这个有效呢？这是因为沙箱环境不给潜在的恶意代码访问互联网的权限。当一个被沙箱分析的文件访问互联网，沙箱只会发送其自身成的文件。因此代码可以通过比较这个文件和其所期望的文件进来判断是否处于沙箱之中。</p>
 <p>这个方法有一点问题，首先，如果你没有互联网的访问权限这个就没有效。其次，如果<a href="https://www.77169.net/downloads"target="_blank" rel="external nofollow noopener noreferrer">下载</a>的文件改变或者被移除了，代码也不会有效。</p>
 <p>另一个没有这些问题的方法是做这个相反的！尝试访问不存在的web域。在真实的世界里，这个会失败。在AV中，因为AV会使用其模拟的页面，这个方法是有效的。</p>
-<div class="highlight" id="id-17"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;Wininet.h&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;Wininet.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##pragma comment(lib, &#34;Wininet.lib&#34;)
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
@@ -882,11 +977,17 @@
 </span></span><span class="line"><span class="cl">        <span class="nf">InternetCloseHandle</span><span class="p">(</span><span class="n">httpopen</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">        <span class="nf">InternetCloseHandle</span><span class="p">(</span><span class="n">openurl</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="the-knowing-your-enemy-method" class="heading-element">
-  <a href="#the-knowing-your-enemy-method" class="heading-mark"></a>The “Knowing your enemy” method</h3><p>如果某些人知道了一些目标机器上的一些信息，绕过杀软会变得相当的容易。把代码解密机制链接到你知道目标计算机上的一些信息（或者工作组）。</p>
-<h4 id="例子1依赖于本地用户名的操作" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%901%e4%be%9d%e8%b5%96%e4%ba%8e%e6%9c%ac%e5%9c%b0%e7%94%a8%e6%88%b7%e5%90%8d%e7%9a%84%e6%93%8d%e4%bd%9c" class="heading-mark"></a>例子1：依赖于本地用户名的操作</h4><p>如果系统上某人的用户名已知，则可以根据该用户名请求操作。例如，我们可以尝试在用户帐户文件中写入和读取这些文件。在下面的代码中，我们在用户桌面上创建一个文件，我们在其中编写一些字符，然后只有打开文件并读取字符，我们才能启动解密方案。</p>
-<div class="highlight" id="id-18"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##define FILE_PATH &#34;C:\\Users\\bob\\Desktop\\tmp.file&#34;
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="the-knowing-your-enemy-method" class="heading-element"><span>The “Knowing your enemy” method</span>
+  <a href="#the-knowing-your-enemy-method" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>如果某些人知道了一些目标机器上的一些信息，绕过杀软会变得相当的容易。把代码解密机制链接到你知道目标计算机上的一些信息（或者工作组）。</p>
+<h4 id="例子1依赖于本地用户名的操作" class="heading-element"><span>例子1：依赖于本地用户名的操作</span>
+  <a href="#%e4%be%8b%e5%ad%901%e4%be%9d%e8%b5%96%e4%ba%8e%e6%9c%ac%e5%9c%b0%e7%94%a8%e6%88%b7%e5%90%8d%e7%9a%84%e6%93%8d%e4%bd%9c" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>如果系统上某人的用户名已知，则可以根据该用户名请求操作。例如，我们可以尝试在用户帐户文件中写入和读取这些文件。在下面的代码中，我们在用户桌面上创建一个文件，我们在其中编写一些字符，然后只有打开文件并读取字符，我们才能启动解密方案。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##define FILE_PATH &#34;C:\\Users\\bob\\Desktop\\tmp.file&#34;
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">HANDLE</span> <span class="n">file</span><span class="p">;</span>
@@ -917,13 +1018,19 @@
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="nf">DeleteFile</span><span class="p">(</span><span class="n">FILE_PATH</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="the-wtf-is-that-method" class="heading-element">
-  <a href="#the-wtf-is-that-method" class="heading-mark"></a>The “WTF is that?” method</h3><p>这节是关于win api的东西</p>
-<h4 id="例子1what-the-fuck-is-numa" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%901what-the-fuck-is-numa" class="heading-mark"></a>例子1：What the fuck is NUMA?</h4><p>NUMA代表Non Uniform Memory Access（非一致内存访问）。它是一个在多系统中配置内存管理的方法。它链接到在 Kernel32.dll 中声明的一整套函数</p>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="the-wtf-is-that-method" class="heading-element"><span>The “WTF is that?” method</span>
+  <a href="#the-wtf-is-that-method" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>这节是关于win api的东西</p>
+<h4 id="例子1what-the-fuck-is-numa" class="heading-element"><span>例子1：What the fuck is NUMA?</span>
+  <a href="#%e4%be%8b%e5%ad%901what-the-fuck-is-numa" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>NUMA代表Non Uniform Memory Access（非一致内存访问）。它是一个在多系统中配置内存管理的方法。它链接到在 Kernel32.dll 中声明的一整套函数</p>
 <p>更多信息：https://docs.microsoft.com/zh-cn/windows/win32/procthread/numa-support?redirectedfrom=MSDN</p>
 <p>下面的代码在物理环境中有效，av环境中失效</p>
-<div class="highlight" id="id-19"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">LPVOID</span> <span class="n">mem</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="n">mem</span> <span class="o">=</span> <span class="nf">VirtualAllocExNuma</span><span class="p">(</span><span class="nf">GetCurrentProcess</span><span class="p">(),</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">MEM_RESERVE</span> <span class="o">|</span> <span class="n">MEM_COMMIT</span><span class="p">,</span> <span class="n">PAGE_EXECUTE_READWRITE</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
@@ -933,10 +1040,13 @@
 </span></span><span class="line"><span class="cl">        <span class="nf">startShellCode</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="例子2what-the-fuck-are-fls" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%902what-the-fuck-are-fls" class="heading-mark"></a>例子2：What the fuck are FLS?</h4><p>FLS是Fiber Local Storage(纤程本地存储），被用来操纵与纤程相关的数据。纤程是一整套运行在线程里的可执行组件。参考这里：https://docs.microsoft.com/zh-cn/windows/win32/procthread/fibers?redirectedfrom=MSDN</p>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="例子2what-the-fuck-are-fls" class="heading-element"><span>例子2：What the fuck are FLS?</span>
+  <a href="#%e4%be%8b%e5%ad%902what-the-fuck-are-fls" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>FLS是Fiber Local Storage(纤程本地存储），被用来操纵与纤程相关的数据。纤程是一整套运行在线程里的可执行组件。参考这里：https://docs.microsoft.com/zh-cn/windows/win32/procthread/fibers?redirectedfrom=MSDN</p>
 <p>在一些av环境中，对于FlsAlloc函数总是返回FLS_OUT_OF_INDEXES</p>
-<div class="highlight" id="id-20"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">DWORD</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">FlsAlloc</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">!=</span> <span class="n">FLS_OUT_OF_INDEXES</span><span class="p">)</span>
@@ -945,11 +1055,17 @@
 </span></span><span class="line"><span class="cl">        <span class="nf">startShellCode</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="the-checking-the-environment-method" class="heading-element">
-  <a href="#the-checking-the-environment-method" class="heading-mark"></a>The “Checking the environment” method</h3><p>如果AV依赖于一个沙盒/仿真环境，一般其环境与真实的环境是不一样的。有大量的方法做这种检查。下面描述了其中两种方法：</p>
-<h4 id="例子1检查进程内存" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%901%e6%a3%80%e6%9f%a5%e8%bf%9b%e7%a8%8b%e5%86%85%e5%ad%98" class="heading-mark"></a>例子1：检查进程内存</h4><p>使用Sysinternals工具，当一个AV扫描一个进程的时候，会改变它的内存。AV会为进程开辟内存，仿真的代码进程API也会返回与我们预期不同的值。在这种情况下，我在当前进程使用GetProcessMemoryInfo。如果当前工作设置大于3500000 bytes，我认为这个代码运行在一个AV环境中，如果不是，那么这个代码就解密并运行。</p>
-<div class="highlight" id="id-21"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">##include &lt;Psapi.h&gt;
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="the-checking-the-environment-method" class="heading-element"><span>The “Checking the environment” method</span>
+  <a href="#the-checking-the-environment-method" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>如果AV依赖于一个沙盒/仿真环境，一般其环境与真实的环境是不一样的。有大量的方法做这种检查。下面描述了其中两种方法：</p>
+<h4 id="例子1检查进程内存" class="heading-element"><span>例子1：检查进程内存</span>
+  <a href="#%e4%be%8b%e5%ad%901%e6%a3%80%e6%9f%a5%e8%bf%9b%e7%a8%8b%e5%86%85%e5%ad%98" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>使用Sysinternals工具，当一个AV扫描一个进程的时候，会改变它的内存。AV会为进程开辟内存，仿真的代码进程API也会返回与我们预期不同的值。在这种情况下，我在当前进程使用GetProcessMemoryInfo。如果当前工作设置大于3500000 bytes，我认为这个代码运行在一个AV环境中，如果不是，那么这个代码就解密并运行。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">##include &lt;Psapi.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##pragma comment(lib, &#34;Psapi.lib&#34;)
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
@@ -961,9 +1077,12 @@
 </span></span><span class="line"><span class="cl">        <span class="n">startShellCode</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="例子2-time-distortion" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%902-time-distortion" class="heading-mark"></a>例子2： Time distortion</h4><p>我们知道Sleep函数是被AV仿真了。做这个是为了阻止使用一个简单的Sleep调用就绕过扫描时间限制。这个问题是，是否在这个模拟的Sleep方式中存在缺陷？</p>
-<div class="highlight" id="id-22"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;time.h&gt;
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="例子2-time-distortion" class="heading-element"><span>例子2： Time distortion</span>
+  <a href="#%e4%be%8b%e5%ad%902-time-distortion" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>我们知道Sleep函数是被AV仿真了。做这个是为了阻止使用一个简单的Sleep调用就绕过扫描时间限制。这个问题是，是否在这个模拟的Sleep方式中存在缺陷？</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;time.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##pragma comment(lib, &#34;winmm.lib&#34;)
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
@@ -978,9 +1097,12 @@
 </span></span><span class="line"><span class="cl">        <span class="nf">startShellCode</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="例子3what-is-my-name" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%903what-is-my-name" class="heading-mark"></a>例子3：What is my name?</h4><p>直接看代码都能懂</p>
-<div class="highlight" id="id-23"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="例子3what-is-my-name" class="heading-element"><span>例子3：What is my name?</span>
+  <a href="#%e4%be%8b%e5%ad%903what-is-my-name" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>直接看代码都能懂</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="nf">strstr</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&#34;test.exe&#34;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">    <span class="p">{</span>
@@ -988,11 +1110,17 @@
 </span></span><span class="line"><span class="cl">        <span class="nf">startShellCode</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="the-i-call-myself-method" class="heading-element">
-  <a href="#the-i-call-myself-method" class="heading-mark"></a>The “I call myself” method</h3><p>这是环境检查方法的一个变体。AV只有在以某种方式调用时才会触发代码</p>
-<h4 id="例子1i-am-my-own-father" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%901i-am-my-own-father" class="heading-mark"></a>例子1：I am my own father</h4><p>在这个例子中，如果它的父进程也是test.exe的话，可执行文件（test.exe）才会进入解密的分支。当代码被安装，它会获取其父进程的ID，如果其父进程不是test.exe，它会调用test.exe然后停止。被调用的进程也有一个叫test.xee的父进程并且进入解密部分。</p>
-<div class="highlight" id="id-24"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;TlHelp32.h&gt;
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h3 id="the-i-call-myself-method" class="heading-element"><span>The “I call myself” method</span>
+  <a href="#the-i-call-myself-method" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h3><p>这是环境检查方法的一个变体。AV只有在以某种方式调用时才会触发代码</p>
+<h4 id="例子1i-am-my-own-father" class="heading-element"><span>例子1：I am my own father</span>
+  <a href="#%e4%be%8b%e5%ad%901i-am-my-own-father" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>在这个例子中，如果它的父进程也是test.exe的话，可执行文件（test.exe）才会进入解密的分支。当代码被安装，它会获取其父进程的ID，如果其父进程不是test.exe，它会调用test.exe然后停止。被调用的进程也有一个叫test.xee的父进程并且进入解密部分。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##include &lt;TlHelp32.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##include &lt;Psapi.h&gt;
 </span></span></span><span class="line"><span class="cl"><span class="cp">##pragma comment(lib, &#34;Psapi.lib&#34;)
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
@@ -1046,9 +1174,12 @@
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="nf">CloseHandle</span><span class="p">(</span><span class="n">h</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="例子2first-open-a-mutex" class="heading-element">
-  <a href="#%e4%be%8b%e5%ad%902first-open-a-mutex" class="heading-mark"></a>例子2：First open a mutex</h4><p>在这个例子中，只有当一个确定的互斥量对象已经存在于系统中，代码（test.exe)才会开始解密代码。这个技巧是这样，当这个对象不存在，代码会创建并调用其自己一个新的实例。在父进程结束之前，子进程会尝试创建一个互斥量，会进入这个ERROR_ALREADY_EXIST代码分支。</p>
-<div class="highlight" id="id-25"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h4 id="例子2first-open-a-mutex" class="heading-element"><span>例子2：First open a mutex</span>
+  <a href="#%e4%be%8b%e5%ad%902first-open-a-mutex" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h4><p>在这个例子中，只有当一个确定的互斥量对象已经存在于系统中，代码（test.exe)才会开始解密代码。这个技巧是这样，当这个对象不存在，代码会创建并调用其自己一个新的实例。在父进程结束之前，子进程会尝试创建一个互斥量，会进入这个ERROR_ALREADY_EXIST代码分支。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">HANDLE</span> <span class="n">mutex</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="n">mutex</span> <span class="o">=</span> <span class="nf">CreateMutex</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">TRUE</span><span class="p">,</span> <span class="s">&#34;muuuu&#34;</span><span class="p">);</span>
@@ -1063,8 +1194,11 @@
 </span></span><span class="line"><span class="cl">        <span class="nf">Sleep</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h2 id="结论" class="heading-element">
-  <a href="#%e7%bb%93%e8%ae%ba" class="heading-mark"></a>结论</h2><p>以上例子说明，若是能够利用杀软的弱点，绕过他们是很容易的。仅仅需要一些关于windows系统的知识和杀软工作的机制。但是，我并不是说杀软是没用的。杀软在检测已经存在于特征数据库种的恶意代码是非常有用的。同时，杀软对于系统恢复也是很有用的。我想说的是，杀软可以容易被新的病毒戏弄，尤其是对于有目的的攻击。</p>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><h2 id="结论" class="heading-element"><span>结论</span>
+  <a href="#%e7%bb%93%e8%ae%ba" class="heading-mark">
+    <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
+  </a>
+</h2><p>以上例子说明，若是能够利用杀软的弱点，绕过他们是很容易的。仅仅需要一些关于windows系统的知识和杀软工作的机制。但是，我并不是说杀软是没用的。杀软在检测已经存在于特征数据库种的恶意代码是非常有用的。同时，杀软对于系统恢复也是很有用的。我想说的是，杀软可以容易被新的病毒戏弄，尤其是对于有目的的攻击。</p>
 <p>自定义的恶意软件经常作为APT攻击的一部分，杀软可能对于它们的攻击显的没有用。这并不意味着丢失了一切！对于杀软有选择的方案：加固系统、设置应用程序白名单机制、基于主机的入侵防御系统IPS等。这些解决方案有其长度和短处。</p>
 <p>如果我给一些谦虚的建议来抵抗恶意软件，我想说：</p>
 <ol>
@@ -1084,9 +1218,9 @@
           </div></div><div class="post-info-line">
         <div class="post-info-md"></div>
         <div class="post-info-share">
-          <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="http://localhost:1313/posts/2022-6-29-bypassavdynamics/" data-title="BypassAVDynamics[译]" data-hashtags="免杀"><i class="fa-brands fa-twitter fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://localhost:1313/posts/2022-6-29-bypassavdynamics/" data-hashtag="免杀"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
-  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://localhost:1313/posts/2022-6-29-bypassavdynamics/" data-title="BypassAVDynamics[译]"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
+          <span><a href="javascript:void(0);" title="分享到 X" data-sharer="twitter" data-url="http://ghostasky.github.io/posts/2022-6-29-bypassavdynamics/" data-title="BypassAVDynamics[译]" data-hashtags="免杀"><i class="fa-brands fa-x-twitter fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="http://ghostasky.github.io/posts/2022-6-29-bypassavdynamics/" data-hashtag="免杀"><i class="fa-brands fa-facebook-square fa-fw" aria-hidden="true"></i></a>
+  <a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="http://ghostasky.github.io/posts/2022-6-29-bypassavdynamics/" data-title="BypassAVDynamics[译]"><i class="fa-brands fa-weibo fa-fw" aria-hidden="true"></i></a>
   </span>
         </div>
       </div></div>
@@ -1105,14 +1239,14 @@
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.2"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
-              <a href="/"></a></span></div></div>
+              <a href="/">Ghostasky</a></span></div></div>
   </footer></div><div class="widgets"><div class="fixed-buttons animate__faster d-none"><div class="fixed-button back-to-top" role="button" aria-label="回到顶部"><i class="fa-solid fa-arrow-up fa-fw" aria-hidden="true"></i><span class="variant-numeric d-none">0%</span>
         </div></div><div id="mask"></div><noscript>
-    <div class="noscript-warning">FixIt 主题在启用 JavaScript 的情况下效果最佳。</div>
+    <div class="noscript-warning">该网站在启用 JavaScript 的情况下效果最佳。</div>
   </noscript>
 </div><link rel="preload" href="/lib/katex/katex.min.css" as="style" onload="this.removeAttribute('onload');this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script src="/js/theme.min.js" defer></script></body>
+    <noscript><link rel="stylesheet" href="/lib/katex/katex.min.css"></noscript><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script src="/lib/sharer/sharer.min.js" async defer></script><script src="/lib/typeit/index.umd.js" defer></script><script src="/lib/katex/katex.min.js" defer></script><script src="/lib/katex/auto-render.min.js" defer></script><script src="/lib/katex/copy-tex.min.js" defer></script><script src="/lib/katex/mhchem.min.js" defer></script><script src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script>window.config={"code":{"copyTitle":"复制到剪贴板","editLockTitle":"锁定可编辑代码块","editUnLockTitle":"解锁可编辑代码块","editable":true,"maxShownLines":10},"comment":{"enable":false},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验。"},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":true,"left":"\\begin{equation}","right":"\\end{equation}"},{"display":true,"left":"\\begin{equation*}","right":"\\end{equation*}"},{"display":true,"left":"\\begin{align}","right":"\\end{align}"},{"display":true,"left":"\\begin{align*}","right":"\\end{align*}"},{"display":true,"left":"\\begin{alignat}","right":"\\end{alignat}"},{"display":true,"left":"\\begin{alignat*}","right":"\\end{alignat*}"},{"display":true,"left":"\\begin{gather}","right":"\\end{gather}"},{"display":true,"left":"\\begin{CD}","right":"\\end{CD}"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"typeit":{"cursorChar":"|","cursorSpeed":1000,"duration":-1,"loop":false,"speed":100},"version":"v0.3.8-RC"};</script><script src="/js/theme.min.js" defer></script></body>
 </html>

