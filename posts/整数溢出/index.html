@@ -7,18 +7,26 @@
     <meta name="robots" content="noodp" />
     <title>整数溢出 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="[TOC] 整数溢出介绍 C语言中整数的分类及各自的大小范围： 类型 字节 范围 short int 2byte(word) 0~32767(0~0x7fff) -32768~-1(0x8000~0xffff) unsigned short int 2byte(word) 0~65535(0~0xffff) int 4byte(word) 0~2147483647(0~0x7fffffff) -2147483648~-1(0x80000000~0xffffffff) unsigned int 4byte(word) 0~4294967295(0~0xffffffff) long 8byte(word) 正: 0~0x7fffffffffffffff 负: 0x8000000000000000~0xffffffffffffffff unsigned long 8byte(word) 0~0xffffffffffffffff 正是因为这些类型的大小范围的限制导致整数溢出。 整数溢出原理 整数溢出的异常有3种： 溢出 只有有符号数才会发生溢出。 溢出标志" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="整数溢出">
-<meta itemprop="description" content="[TOC] 整数溢出介绍 C语言中整数的分类及各自的大小范围： 类型 字节 范围 short int 2byte(word) 0~32767(0~0x7fff) -32768~-1(0x8000~0xffff) unsigned short int 2byte(word) 0~65535(0~0xffff) int 4byte(word) 0~2147483647(0~0x7fffffff) -2147483648~-1(0x80000000~0xffffffff) unsigned int 4byte(word) 0~4294967295(0~0xffffffff) long 8byte(word) 正: 0~0x7fffffffffffffff 负: 0x8000000000000000~0xffffffffffffffff unsigned long 8byte(word) 0~0xffffffffffffffff 正是因为这些类型的大小范围的限制导致整数溢出。 整数溢出原理 整数溢出的异常有3种： 溢出 只有有符号数才会发生溢出。 溢出标志"><meta itemprop="datePublished" content="2021-03-03T11:17:41+00:00" />
-<meta itemprop="dateModified" content="2021-03-03T11:17:41+00:00" />
-<meta itemprop="wordCount" content="1595">
-<meta itemprop="keywords" content="PWN," /><meta property="og:title" content="整数溢出" />
-<meta property="og:description" content="[TOC] 整数溢出介绍 C语言中整数的分类及各自的大小范围： 类型 字节 范围 short int 2byte(word) 0~32767(0~0x7fff) -32768~-1(0x8000~0xffff) unsigned short int 2byte(word) 0~65535(0~0xffff) int 4byte(word) 0~2147483647(0~0x7fffffff) -2147483648~-1(0x80000000~0xffffffff) unsigned int 4byte(word) 0~4294967295(0~0xffffffff) long 8byte(word) 正: 0~0x7fffffffffffffff 负: 0x8000000000000000~0xffffffffffffffff unsigned long 8byte(word) 0~0xffffffffffffffff 正是因为这些类型的大小范围的限制导致整数溢出。 整数溢出原理 整数溢出的异常有3种： 溢出 只有有符号数才会发生溢出。 溢出标志" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://ghostasky.github.io/posts/%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-03-03T11:17:41+00:00" />
-<meta property="article:modified_time" content="2021-03-03T11:17:41+00:00" />
-<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="整数溢出"/>
-<meta name="twitter:description" content="[TOC] 整数溢出介绍 C语言中整数的分类及各自的大小范围： 类型 字节 范围 short int 2byte(word) 0~32767(0~0x7fff) -32768~-1(0x8000~0xffff) unsigned short int 2byte(word) 0~65535(0~0xffff) int 4byte(word) 0~2147483647(0~0x7fffffff) -2147483648~-1(0x80000000~0xffffffff) unsigned int 4byte(word) 0~4294967295(0~0xffffffff) long 8byte(word) 正: 0~0x7fffffffffffffff 负: 0x8000000000000000~0xffffffffffffffff unsigned long 8byte(word) 0~0xffffffffffffffff 正是因为这些类型的大小范围的限制导致整数溢出。 整数溢出原理 整数溢出的异常有3种： 溢出 只有有符号数才会发生溢出。 溢出标志"/>
+<meta name="description" content="[TOC] 整数溢出介绍 C语言中整数的分类及各自的大小范围： 类型 字节 范围 short int 2byte(word) 0~32767(0~0x7fff) -32768~-1(0x8000~0xffff) unsigned short int 2byte(word) 0~65535(0~0xffff) int 4byte(word) 0~2147483647(0~0x7fffffff) -2147483648~-1(0x80000000~0xffffffff) unsigned int 4byte(word) 0~4294967295(0~0xffffffff) long 8byte(word) 正: 0~0x7fffffffffffffff 负: 0x8000000000000000~0xffffffffffffffff unsigned long 8byte(word) 0~0xffffffffffffffff 正是因为这些类型的大小范围的限制导致整数溢出。 整数溢出原理 整数溢出的异常有3种： 溢出 只有有符号数才会发生溢出。 溢出标志" /><meta name="keywords" content='PWN' />
+  <meta itemprop="name" content="整数溢出">
+  <meta itemprop="description" content="[TOC] 整数溢出介绍 C语言中整数的分类及各自的大小范围： 类型 字节 范围 short int 2byte(word) 0~32767(0~0x7fff) -32768~-1(0x8000~0xffff) unsigned short int 2byte(word) 0~65535(0~0xffff) int 4byte(word) 0~2147483647(0~0x7fffffff) -2147483648~-1(0x80000000~0xffffffff) unsigned int 4byte(word) 0~4294967295(0~0xffffffff) long 8byte(word) 正: 0~0x7fffffffffffffff 负: 0x8000000000000000~0xffffffffffffffff unsigned long 8byte(word) 0~0xffffffffffffffff 正是因为这些类型的大小范围的限制导致整数溢出。 整数溢出原理 整数溢出的异常有3种： 溢出 只有有符号数才会发生溢出。 溢出标志">
+  <meta itemprop="datePublished" content="2021-03-03T11:17:41+00:00">
+  <meta itemprop="dateModified" content="2021-03-03T11:17:41+00:00">
+  <meta itemprop="wordCount" content="1595">
+  <meta itemprop="keywords" content="PWN"><meta property="og:url" content="http://ghostasky.github.io/posts/%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA/">
+  <meta property="og:site_name" content="Ghostasky&#39;s Blog">
+  <meta property="og:title" content="整数溢出">
+  <meta property="og:description" content="[TOC] 整数溢出介绍 C语言中整数的分类及各自的大小范围： 类型 字节 范围 short int 2byte(word) 0~32767(0~0x7fff) -32768~-1(0x8000~0xffff) unsigned short int 2byte(word) 0~65535(0~0xffff) int 4byte(word) 0~2147483647(0~0x7fffffff) -2147483648~-1(0x80000000~0xffffffff) unsigned int 4byte(word) 0~4294967295(0~0xffffffff) long 8byte(word) 正: 0~0x7fffffffffffffff 负: 0x8000000000000000~0xffffffffffffffff unsigned long 8byte(word) 0~0xffffffffffffffff 正是因为这些类型的大小范围的限制导致整数溢出。 整数溢出原理 整数溢出的异常有3种： 溢出 只有有符号数才会发生溢出。 溢出标志">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2021-03-03T11:17:41+00:00">
+    <meta property="article:modified_time" content="2021-03-03T11:17:41+00:00">
+    <meta property="article:tag" content="PWN">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="整数溢出">
+  <meta name="twitter:description" content="[TOC] 整数溢出介绍 C语言中整数的分类及各自的大小范围： 类型 字节 范围 short int 2byte(word) 0~32767(0~0x7fff) -32768~-1(0x8000~0xffff) unsigned short int 2byte(word) 0~65535(0~0xffff) int 4byte(word) 0~2147483647(0~0x7fffffff) -2147483648~-1(0x80000000~0xffffffff) unsigned int 4byte(word) 0~4294967295(0~0xffffffff) long 8byte(word) 正: 0~0x7fffffffffffffff 负: 0x8000000000000000~0xffffffffffffffff unsigned long 8byte(word) 0~0xffffffffffffffff 正是因为这些类型的大小范围的限制导致整数溢出。 整数溢出原理 整数溢出的异常有3种： 溢出 只有有符号数才会发生溢出。 溢出标志">
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -442,7 +450,7 @@ $
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.126.2"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
               <a href="/">Ghostasky</a></span></div></div>

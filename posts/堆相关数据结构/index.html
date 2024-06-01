@@ -7,18 +7,25 @@
     <meta name="robots" content="noodp" />
     <title>堆概述及其相关数据结构 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="[TOC] 堆利用 目前堆的实现有很多种，具体如下： dlmalloc – General purpose allocator ptmalloc2 – glibc jemalloc – FreeBSD and Firefox tcmalloc – Google libumem – Solaris 接下来主要以glibc中堆的实现为主进行介绍。 堆概述 内存分配后的系统调用 在我们动态申请和释放内存时，无论是malloc还是free函数，都不是真正与系统交互的函数" /><meta name="keywords" content='' /><meta itemprop="name" content="堆概述及其相关数据结构">
-<meta itemprop="description" content="[TOC] 堆利用 目前堆的实现有很多种，具体如下： dlmalloc – General purpose allocator ptmalloc2 – glibc jemalloc – FreeBSD and Firefox tcmalloc – Google libumem – Solaris 接下来主要以glibc中堆的实现为主进行介绍。 堆概述 内存分配后的系统调用 在我们动态申请和释放内存时，无论是malloc还是free函数，都不是真正与系统交互的函数"><meta itemprop="datePublished" content="2021-03-03T22:18:17+00:00" />
-<meta itemprop="dateModified" content="2021-03-03T22:18:17+00:00" />
-<meta itemprop="wordCount" content="5944">
-<meta itemprop="keywords" content="[PWN]," /><meta property="og:title" content="堆概述及其相关数据结构" />
-<meta property="og:description" content="[TOC] 堆利用 目前堆的实现有很多种，具体如下： dlmalloc – General purpose allocator ptmalloc2 – glibc jemalloc – FreeBSD and Firefox tcmalloc – Google libumem – Solaris 接下来主要以glibc中堆的实现为主进行介绍。 堆概述 内存分配后的系统调用 在我们动态申请和释放内存时，无论是malloc还是free函数，都不是真正与系统交互的函数" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://ghostasky.github.io/posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-03-03T22:18:17+00:00" />
-<meta property="article:modified_time" content="2021-03-03T22:18:17+00:00" />
-<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="堆概述及其相关数据结构"/>
-<meta name="twitter:description" content="[TOC] 堆利用 目前堆的实现有很多种，具体如下： dlmalloc – General purpose allocator ptmalloc2 – glibc jemalloc – FreeBSD and Firefox tcmalloc – Google libumem – Solaris 接下来主要以glibc中堆的实现为主进行介绍。 堆概述 内存分配后的系统调用 在我们动态申请和释放内存时，无论是malloc还是free函数，都不是真正与系统交互的函数"/>
+<meta name="description" content="[TOC] 堆利用 目前堆的实现有很多种，具体如下： dlmalloc – General purpose allocator ptmalloc2 – glibc jemalloc – FreeBSD and Firefox tcmalloc – Google libumem – Solaris 接下来主要以glibc中堆的实现为主进行介绍。 堆概述 内存分配后的系统调用 在我们动态申请和释放内存时，无论是malloc还是free函数，都不是真正与系统交互的函数" /><meta name="keywords" content='' />
+  <meta itemprop="name" content="堆概述及其相关数据结构">
+  <meta itemprop="description" content="[TOC] 堆利用 目前堆的实现有很多种，具体如下： dlmalloc – General purpose allocator ptmalloc2 – glibc jemalloc – FreeBSD and Firefox tcmalloc – Google libumem – Solaris 接下来主要以glibc中堆的实现为主进行介绍。 堆概述 内存分配后的系统调用 在我们动态申请和释放内存时，无论是malloc还是free函数，都不是真正与系统交互的函数">
+  <meta itemprop="datePublished" content="2021-03-03T22:18:17+00:00">
+  <meta itemprop="dateModified" content="2021-03-03T22:18:17+00:00">
+  <meta itemprop="wordCount" content="5944">
+  <meta itemprop="keywords" content="Technology"><meta property="og:url" content="http://ghostasky.github.io/posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+  <meta property="og:site_name" content="Ghostasky&#39;s Blog">
+  <meta property="og:title" content="堆概述及其相关数据结构">
+  <meta property="og:description" content="[TOC] 堆利用 目前堆的实现有很多种，具体如下： dlmalloc – General purpose allocator ptmalloc2 – glibc jemalloc – FreeBSD and Firefox tcmalloc – Google libumem – Solaris 接下来主要以glibc中堆的实现为主进行介绍。 堆概述 内存分配后的系统调用 在我们动态申请和释放内存时，无论是malloc还是free函数，都不是真正与系统交互的函数">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2021-03-03T22:18:17+00:00">
+    <meta property="article:modified_time" content="2021-03-03T22:18:17+00:00">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="堆概述及其相关数据结构">
+  <meta name="twitter:description" content="[TOC] 堆利用 目前堆的实现有很多种，具体如下： dlmalloc – General purpose allocator ptmalloc2 – glibc jemalloc – FreeBSD and Firefox tcmalloc – Google libumem – Solaris 接下来主要以glibc中堆的实现为主进行介绍。 堆概述 内存分配后的系统调用 在我们动态申请和释放内存时，无论是malloc还是free函数，都不是真正与系统交互的函数">
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -171,7 +178,7 @@
 </h3><p>在我们动态申请和释放内存时，无论是malloc还是free函数，都不是真正与系统交互的函数</p>
 <p>这些函数的背后系统调用主要是(s)brk和mmap、munmap函数</p>
 <p>如下图：</p>
-<p><img loading="lazy" src="/posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781158558.png" alt="/posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781158558.png" srcset="/posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781158558.png?size=small, /posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781158558.png?size=medium 1.5x, /posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781158558.png?size=large 2x" data-title="/posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781158558.png" style="--width: 480px;--aspect-ratio: 480 / 237;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p><img loading="lazy" src="1614781158558.png" alt="1614781158558.png" srcset="1614781158558.png?size=small, 1614781158558.png?size=medium 1.5x, 1614781158558.png?size=large 2x" data-title="1614781158558.png" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <h4 id="sbrk" class="heading-element"><span>(s)brk</span>
   <a href="#sbrk" class="heading-mark">
     <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
@@ -461,7 +468,7 @@ chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 <p>数组中<strong>bin 1为unsorted bin</strong>；<strong>bin 2到63为small bin</strong>；<strong>bin 64到126为large bin</strong></p>
 <p>具体的实现中，ptmalloc采用分箱式的方法对空闲的chunk进行管理。</p>
 <p>首先，他会根据空闲chunk的大小及使用状态将chunk初步分为4类：fast bins，small bins，large bins，unsorted bin。每一类中仍有更详细的划分。相似大小的chunk会使用双向链表链接起来。也就是说，在每一类bin的内部仍有多个互不相关的链表来保存不同大小的chunk.
-<img loading="lazy" src="/posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781245754.png" alt="/posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781245754.png" srcset="/posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781245754.png?size=small, /posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781245754.png?size=medium 1.5x, /posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781245754.png?size=large 2x" data-title="/posts/%E5%A0%86%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/1614781245754.png" style="--width: 451px;--aspect-ratio: 451 / 411;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<img loading="lazy" src="1614781245754.png" alt="1614781245754.png" srcset="1614781245754.png?size=small, 1614781245754.png?size=medium 1.5x, 1614781245754.png?size=large 2x" data-title="1614781245754.png" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>对于 small bins，large bins，unsorted bin 来说，ptmalloc 将它们维护在同一个数组中。这些 bin 对应的数据结构在 malloc_state 中，如下：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">##define NBINS 128
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="cm">/* Normal bins packed as described above */</span>
@@ -666,7 +673,7 @@ For 64 bit systems:
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.126.2"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
               <a href="/">Ghostasky</a></span></div></div>

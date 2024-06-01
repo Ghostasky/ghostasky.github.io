@@ -7,18 +7,26 @@
     <meta name="robots" content="noodp" />
     <title>Windows内核(五)——句柄表 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="[toc] 01.句柄表 当一个进程创建或者打开一个内核对象时，将获得一个句柄，通过这个句柄可以访问对应的内核对象 句柄表存储在零环，一个进程使用了几个句柄，在该进程的句柄表中就会存储几个句柄 所有的句柄所对应的内核对象，都包含在**_OBJECT_HEA" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(五)——句柄表">
-<meta itemprop="description" content="[toc] 01.句柄表 当一个进程创建或者打开一个内核对象时，将获得一个句柄，通过这个句柄可以访问对应的内核对象 句柄表存储在零环，一个进程使用了几个句柄，在该进程的句柄表中就会存储几个句柄 所有的句柄所对应的内核对象，都包含在**_OBJECT_HEA"><meta itemprop="datePublished" content="2023-02-19T00:00:00+00:00" />
-<meta itemprop="dateModified" content="2023-02-19T00:00:00+00:00" />
-<meta itemprop="wordCount" content="3916">
-<meta itemprop="keywords" content="Win32," /><meta property="og:title" content="Windows内核(五)——句柄表" />
-<meta property="og:description" content="[toc] 01.句柄表 当一个进程创建或者打开一个内核对象时，将获得一个句柄，通过这个句柄可以访问对应的内核对象 句柄表存储在零环，一个进程使用了几个句柄，在该进程的句柄表中就会存储几个句柄 所有的句柄所对应的内核对象，都包含在**_OBJECT_HEA" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://ghostasky.github.io/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2023-02-19T00:00:00+00:00" />
-<meta property="article:modified_time" content="2023-02-19T00:00:00+00:00" />
-<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Windows内核(五)——句柄表"/>
-<meta name="twitter:description" content="[toc] 01.句柄表 当一个进程创建或者打开一个内核对象时，将获得一个句柄，通过这个句柄可以访问对应的内核对象 句柄表存储在零环，一个进程使用了几个句柄，在该进程的句柄表中就会存储几个句柄 所有的句柄所对应的内核对象，都包含在**_OBJECT_HEA"/>
+<meta name="description" content="[toc] 01.句柄表 当一个进程创建或者打开一个内核对象时，将获得一个句柄，通过这个句柄可以访问对应的内核对象 句柄表存储在零环，一个进程使用了几个句柄，在该进程的句柄表中就会存储几个句柄 所有的句柄所对应的内核对象，都包含在**_OBJECT_HEA" /><meta name="keywords" content='Win32' />
+  <meta itemprop="name" content="Windows内核(五)——句柄表">
+  <meta itemprop="description" content="[toc] 01.句柄表 当一个进程创建或者打开一个内核对象时，将获得一个句柄，通过这个句柄可以访问对应的内核对象 句柄表存储在零环，一个进程使用了几个句柄，在该进程的句柄表中就会存储几个句柄 所有的句柄所对应的内核对象，都包含在**_OBJECT_HEA">
+  <meta itemprop="datePublished" content="2023-02-19T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2023-02-19T00:00:00+00:00">
+  <meta itemprop="wordCount" content="3916">
+  <meta itemprop="keywords" content="Win32"><meta property="og:url" content="http://ghostasky.github.io/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/">
+  <meta property="og:site_name" content="Ghostasky&#39;s Blog">
+  <meta property="og:title" content="Windows内核(五)——句柄表">
+  <meta property="og:description" content="[toc] 01.句柄表 当一个进程创建或者打开一个内核对象时，将获得一个句柄，通过这个句柄可以访问对应的内核对象 句柄表存储在零环，一个进程使用了几个句柄，在该进程的句柄表中就会存储几个句柄 所有的句柄所对应的内核对象，都包含在**_OBJECT_HEA">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2023-02-19T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-02-19T00:00:00+00:00">
+    <meta property="article:tag" content="Win32">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Windows内核(五)——句柄表">
+  <meta name="twitter:description" content="[toc] 01.句柄表 当一个进程创建或者打开一个内核对象时，将获得一个句柄，通过这个句柄可以访问对应的内核对象 句柄表存储在零环，一个进程使用了几个句柄，在该进程的句柄表中就会存储几个句柄 所有的句柄所对应的内核对象，都包含在**_OBJECT_HEA">
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -211,7 +219,7 @@
 </span></span><span class="line"><span class="cl">	<span class="nf">getchar</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p>运行结果：</p>
-<p><img loading="lazy" src="/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219172158354.png" alt="image-20230219172158354" srcset="/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219172158354.png?size=small, /posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219172158354.png?size=medium 1.5x, /posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219172158354.png?size=large 2x" data-title="image-20230219172158354" style="--width: 657px;--aspect-ratio: 657 / 412;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p><img loading="lazy" src="image-20230219172158354.png" alt="image-20230219172158354" srcset="image-20230219172158354.png?size=small, image-20230219172158354.png?size=medium 1.5x, image-20230219172158354.png?size=large 2x" data-title="image-20230219172158354" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; !process <span class="m">0</span> <span class="m">0</span>
 </span></span><span class="line"><span class="cl">...
 </span></span><span class="line"><span class="cl">Failed to get VadRoot
@@ -271,7 +279,7 @@
 </span></span><span class="line"><span class="cl">   +0x03c HandleCount      : Int4B
 </span></span><span class="line"><span class="cl">   +0x040 Flags            : Uint4B
 </span></span><span class="line"><span class="cl">   +0x040 StrictFIFO       : Pos 0, <span class="m">1</span> Bit</span></span></code></pre></div><p><code>TableCode</code>就是的句柄表，结构如下：</p>
-<p><img loading="lazy" src="/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/2520882-20220119172827300-822756739.png" alt="img" srcset="/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/2520882-20220119172827300-822756739.png?size=small, /posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/2520882-20220119172827300-822756739.png?size=medium 1.5x, /posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/2520882-20220119172827300-822756739.png?size=large 2x" data-title="img" style="--width: 757px;--aspect-ratio: 757 / 49;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p><img loading="lazy" src="2520882-20220119172827300-822756739.png" alt="img" srcset="2520882-20220119172827300-822756739.png?size=small, 2520882-20220119172827300-822756739.png?size=medium 1.5x, 2520882-20220119172827300-822756739.png?size=large 2x" data-title="img" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <ol>
 <li>
 <p>这一块共计两个字节，高位字节是给<code>SetHandleInformation</code>这个函数用的，比如写成如下形式，那么这个位置将被写入<code>0x02</code></p>
@@ -384,13 +392,13 @@
 <li>若打开句柄数量超过1024 * 512个，TableCode低两位的值就会置为2，此时，句柄表变为三级句柄表，第一级为地址，第二级也为地址，第三级才是句柄，<code>handle_max = 1024 * 1024 * 512</code></li>
 <li>全局句柄表存储了所有 <code>EPROCESS</code> 和 <code>ETHREAD</code>。和进程的句柄表不同，全局句柄表项低32位指向的就是内核对象，而非 <code>OBJECT_HEADER</code>.</li>
 </ol>
-<p><img loading="lazy" src="/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219180656748.png" alt="image-20230219180656748" srcset="/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219180656748.png?size=small, /posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219180656748.png?size=medium 1.5x, /posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219180656748.png?size=large 2x" data-title="image-20230219180656748" style="--width: 677px;--aspect-ratio: 677 / 423;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p><img loading="lazy" src="image-20230219180656748.png" alt="image-20230219180656748" srcset="image-20230219180656748.png?size=small, image-20230219180656748.png?size=medium 1.5x, image-20230219180656748.png?size=large 2x" data-title="image-20230219180656748" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <h4 id="在windbg中查看全局句柄表" class="heading-element"><span>在WinDbg中查看全局句柄表</span>
   <a href="#%e5%9c%a8windbg%e4%b8%ad%e6%9f%a5%e7%9c%8b%e5%85%a8%e5%b1%80%e5%8f%a5%e6%9f%84%e8%a1%a8" class="heading-mark">
     <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
   </a>
 </h4><p>这里还是使用计算器举例：</p>
-<p><img loading="lazy" src="/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219181053778.png" alt="image-20230219181053778" srcset="/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219181053778.png?size=small, /posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219181053778.png?size=medium 1.5x, /posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219181053778.png?size=large 2x" data-title="image-20230219181053778" style="--width: 529px;--aspect-ratio: 529 / 413;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p><img loading="lazy" src="image-20230219181053778.png" alt="image-20230219181053778" srcset="image-20230219181053778.png?size=small, image-20230219181053778.png?size=medium 1.5x, image-20230219181053778.png?size=large 2x" data-title="image-20230219181053778" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p><strong>index = 1900 / 4 = 0x1DB</strong></p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">kd&gt; dd PspCidTable
 </span></span><span class="line"><span class="cl">805649c0  e1003c58 <span class="m">00000002</span> <span class="m">00000000</span> <span class="m">00000000</span>
@@ -749,7 +757,7 @@
 </span></span><span class="line"><span class="cl"><span class="n">ULONG</span> <span class="nf">GetHandleFromTable</span><span class="p">(</span><span class="n">ULONG</span> <span class="n">TableCode</span><span class="p">,</span> <span class="n">ULONG</span> <span class="n">Handle</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><img loading="lazy" src="/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219184646960.png" alt="image-20230219184646960" srcset="/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219184646960.png?size=small, /posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219184646960.png?size=medium 1.5x, /posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219184646960.png?size=large 2x" data-title="image-20230219184646960" style="--width: 505px;--aspect-ratio: 505 / 589;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div><p><img loading="lazy" src="image-20230219184646960.png" alt="image-20230219184646960" srcset="image-20230219184646960.png?size=small, image-20230219184646960.png?size=medium 1.5x, image-20230219184646960.png?size=large 2x" data-title="image-20230219184646960" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>找全局句柄表也可以这么写：</p>
 <p>KPCR有一个成员，<strong>KdVersionBlock</strong>。这个成员非常奇妙，在他指向地址（+0x80）位置处有一个地址，这个地址指向的就是PspCidTable。</p>
 <p>(当线程运行在R0下时, FS指向的段是GDT中的0x30段.该段的长度也为4K,基地址为0xFFDFF000.该地址指向系统的处理器控制区域（KPCR）)</p>
@@ -762,7 +770,7 @@
 </span></span><span class="line"><span class="cl">		<span class="n">mov</span> <span class="n">PspCidTable</span><span class="p">,</span> <span class="n">eax</span>
 </span></span><span class="line"><span class="cl">		<span class="n">mov</span> <span class="n">eax</span><span class="p">,</span> <span class="p">[</span><span class="n">eax</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl">		<span class="n">mov</span> <span class="n">TableCode</span><span class="p">,</span> <span class="n">eax</span>
-</span></span><span class="line"><span class="cl">	<span class="p">}</span></span></span></code></pre></div><p><img loading="lazy" src="/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219190424244.png" alt="image-20230219190424244" srcset="/posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219190424244.png?size=small, /posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219190424244.png?size=medium 1.5x, /posts/2023-2-winkernel%E5%8F%A5%E6%9F%84%E8%A1%A8/image-20230219190424244.png?size=large 2x" data-title="image-20230219190424244" style="--width: 712px;--aspect-ratio: 712 / 828;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span></span></span></code></pre></div><p><img loading="lazy" src="image-20230219190424244.png" alt="image-20230219190424244" srcset="image-20230219190424244.png?size=small, image-20230219190424244.png?size=medium 1.5x, image-20230219190424244.png?size=large 2x" data-title="image-20230219190424244" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>Ref：</p>
 <blockquote>
 <p><a href="https://drunkmars.top/2021/03/13/readme/"target="_blank" rel="external nofollow noopener noreferrer">https://drunkmars.top/2021/03/13/readme/</a></p>
@@ -801,7 +809,7 @@
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.126.2"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
               <a href="/">Ghostasky</a></span></div></div>

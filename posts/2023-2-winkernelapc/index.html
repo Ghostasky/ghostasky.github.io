@@ -7,18 +7,26 @@
     <meta name="robots" content="noodp" />
     <title>Windows内核(七)——APC机制 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="[toc] 01.APC的本质 线程是不能被“杀掉”、“挂起”、“恢复”的，线程在执行的时候自己占据着CPU，别人不能控制它 举个极端的例子：如果不调用API，屏蔽中断，并保证代码不出现异常，线程将永久占用CPU 所以说线程如果想“死”，一定是自己执行代码" /><meta name="keywords" content='Win32' /><meta itemprop="name" content="Windows内核(七)——APC机制">
-<meta itemprop="description" content="[toc] 01.APC的本质 线程是不能被“杀掉”、“挂起”、“恢复”的，线程在执行的时候自己占据着CPU，别人不能控制它 举个极端的例子：如果不调用API，屏蔽中断，并保证代码不出现异常，线程将永久占用CPU 所以说线程如果想“死”，一定是自己执行代码"><meta itemprop="datePublished" content="2023-02-26T00:00:00+00:00" />
-<meta itemprop="dateModified" content="2023-02-26T00:00:00+00:00" />
-<meta itemprop="wordCount" content="9964">
-<meta itemprop="keywords" content="Win32," /><meta property="og:title" content="Windows内核(七)——APC机制" />
-<meta property="og:description" content="[toc] 01.APC的本质 线程是不能被“杀掉”、“挂起”、“恢复”的，线程在执行的时候自己占据着CPU，别人不能控制它 举个极端的例子：如果不调用API，屏蔽中断，并保证代码不出现异常，线程将永久占用CPU 所以说线程如果想“死”，一定是自己执行代码" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://ghostasky.github.io/posts/2023-2-winkernelapc/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2023-02-26T00:00:00+00:00" />
-<meta property="article:modified_time" content="2023-02-26T00:00:00+00:00" />
-<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Windows内核(七)——APC机制"/>
-<meta name="twitter:description" content="[toc] 01.APC的本质 线程是不能被“杀掉”、“挂起”、“恢复”的，线程在执行的时候自己占据着CPU，别人不能控制它 举个极端的例子：如果不调用API，屏蔽中断，并保证代码不出现异常，线程将永久占用CPU 所以说线程如果想“死”，一定是自己执行代码"/>
+<meta name="description" content="[toc] 01.APC的本质 线程是不能被“杀掉”、“挂起”、“恢复”的，线程在执行的时候自己占据着CPU，别人不能控制它 举个极端的例子：如果不调用API，屏蔽中断，并保证代码不出现异常，线程将永久占用CPU 所以说线程如果想“死”，一定是自己执行代码" /><meta name="keywords" content='Win32' />
+  <meta itemprop="name" content="Windows内核(七)——APC机制">
+  <meta itemprop="description" content="[toc] 01.APC的本质 线程是不能被“杀掉”、“挂起”、“恢复”的，线程在执行的时候自己占据着CPU，别人不能控制它 举个极端的例子：如果不调用API，屏蔽中断，并保证代码不出现异常，线程将永久占用CPU 所以说线程如果想“死”，一定是自己执行代码">
+  <meta itemprop="datePublished" content="2023-02-26T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2023-02-26T00:00:00+00:00">
+  <meta itemprop="wordCount" content="9964">
+  <meta itemprop="keywords" content="Win32"><meta property="og:url" content="http://ghostasky.github.io/posts/2023-2-winkernelapc/">
+  <meta property="og:site_name" content="Ghostasky&#39;s Blog">
+  <meta property="og:title" content="Windows内核(七)——APC机制">
+  <meta property="og:description" content="[toc] 01.APC的本质 线程是不能被“杀掉”、“挂起”、“恢复”的，线程在执行的时候自己占据着CPU，别人不能控制它 举个极端的例子：如果不调用API，屏蔽中断，并保证代码不出现异常，线程将永久占用CPU 所以说线程如果想“死”，一定是自己执行代码">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2023-02-26T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-02-26T00:00:00+00:00">
+    <meta property="article:tag" content="Win32">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Windows内核(七)——APC机制">
+  <meta name="twitter:description" content="[toc] 01.APC的本质 线程是不能被“杀掉”、“挂起”、“恢复”的，线程在执行的时候自己占据着CPU，别人不能控制它 举个极端的例子：如果不调用API，屏蔽中断，并保证代码不出现异常，线程将永久占用CPU 所以说线程如果想“死”，一定是自己执行代码">
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -985,7 +993,7 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">00410689</span>                 <span class="nf">call</span>    <span class="no">__SEH_epilog</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0041068</span><span class="nf">E</span>                 <span class="no">retn</span>    <span class="mi">18</span><span class="no">h</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">0041068</span><span class="nf">E</span> <span class="c1">; } // starts at 410555
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041068</span><span class="nf">E</span> <span class="no">_KiInitializeUserApc@24</span> <span class="no">endp</span></span></span></code></pre></div><p><img loading="lazy" src="/posts/2023-2-winkernelapc/image-20230224142512175.png" alt="image-20230224142512175" srcset="/posts/2023-2-winkernelapc/image-20230224142512175.png?size=small, /posts/2023-2-winkernelapc/image-20230224142512175.png?size=medium 1.5x, /posts/2023-2-winkernelapc/image-20230224142512175.png?size=large 2x" data-title="image-20230224142512175" style="--width: 736px;--aspect-ratio: 736 / 463;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">.text:</span><span class="err">0041068</span><span class="nf">E</span> <span class="no">_KiInitializeUserApc@24</span> <span class="no">endp</span></span></span></code></pre></div><p><img loading="lazy" src="image-20230224142512175.png" alt="image-20230224142512175" srcset="image-20230224142512175.png?size=small, image-20230224142512175.png?size=medium 1.5x, image-20230224142512175.png?size=large 2x" data-title="image-20230224142512175" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <h3 id="kiuserapcdispatcher" class="heading-element"><span>KiUserApcDispatcher</span>
   <a href="#kiuserapcdispatcher" class="heading-mark">
     <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
@@ -1017,7 +1025,7 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92D04A</span>                 <span class="no">call</span>    <span class="no">dword</span> <span class="no">ptr</span> <span class="p">[</span><span class="no">edx</span><span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92D04C</span>                 <span class="no">retn</span>    <span class="mi">8</span>
 </span></span><span class="line"><span class="cl"><span class="nl">.text:</span><span class="err">7</span><span class="nf">C92D04C</span> <span class="no">_ZwContinue@8</span>   <span class="no">endp</span></span></span></code></pre></div><p>以上可以用一张图表示：</p>
-<p><img loading="lazy" src="/posts/2023-2-winkernelapc/1827556-20191103170141163-71115727.png" alt="img" srcset="/posts/2023-2-winkernelapc/1827556-20191103170141163-71115727.png?size=small, /posts/2023-2-winkernelapc/1827556-20191103170141163-71115727.png?size=medium 1.5x, /posts/2023-2-winkernelapc/1827556-20191103170141163-71115727.png?size=large 2x" data-title="img" style="--width: 1464px;--aspect-ratio: 1464 / 707;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p><img loading="lazy" src="1827556-20191103170141163-71115727.png" alt="img" srcset="1827556-20191103170141163-71115727.png?size=small, 1827556-20191103170141163-71115727.png?size=medium 1.5x, 1827556-20191103170141163-71115727.png?size=large 2x" data-title="img" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <h3 id="总结-1" class="heading-element"><span>总结</span>
   <a href="#%e6%80%bb%e7%bb%93-1" class="heading-mark">
     <svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg>
@@ -1058,7 +1066,7 @@ SavedApcState	A进程相关的APC函数</code></pre><h3 id="apcstateindex" class
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.126.2"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
               <a href="/">Ghostasky</a></span></div></div>

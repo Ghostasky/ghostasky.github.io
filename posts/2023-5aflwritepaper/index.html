@@ -7,18 +7,26 @@
     <meta name="robots" content="noodp" />
     <title>【译】AFL白皮书 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="[toc] AFL 翻译 afl-fuzz 技术 白皮书 本文档快速概述了American Fuzzy Lop的核心内容。 请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅historical_notes.txt。 historical_notes: 这篇文档主要谈论了AFL（American Fuzzy L" /><meta name="keywords" content='RE' /><meta itemprop="name" content="【译】AFL白皮书">
-<meta itemprop="description" content="[toc] AFL 翻译 afl-fuzz 技术 白皮书 本文档快速概述了American Fuzzy Lop的核心内容。 请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅historical_notes.txt。 historical_notes: 这篇文档主要谈论了AFL（American Fuzzy L"><meta itemprop="datePublished" content="2023-05-16T00:00:00+00:00" />
-<meta itemprop="dateModified" content="2023-05-16T00:00:00+00:00" />
-<meta itemprop="wordCount" content="15404">
-<meta itemprop="keywords" content="RE," /><meta property="og:title" content="【译】AFL白皮书" />
-<meta property="og:description" content="[toc] AFL 翻译 afl-fuzz 技术 白皮书 本文档快速概述了American Fuzzy Lop的核心内容。 请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅historical_notes.txt。 historical_notes: 这篇文档主要谈论了AFL（American Fuzzy L" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://ghostasky.github.io/posts/2023-5aflwritepaper/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2023-05-16T00:00:00+00:00" />
-<meta property="article:modified_time" content="2023-05-16T00:00:00+00:00" />
-<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="【译】AFL白皮书"/>
-<meta name="twitter:description" content="[toc] AFL 翻译 afl-fuzz 技术 白皮书 本文档快速概述了American Fuzzy Lop的核心内容。 请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅historical_notes.txt。 historical_notes: 这篇文档主要谈论了AFL（American Fuzzy L"/>
+<meta name="description" content="[toc] AFL 翻译 afl-fuzz 技术 白皮书 本文档快速概述了American Fuzzy Lop的核心内容。 请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅historical_notes.txt。 historical_notes: 这篇文档主要谈论了AFL（American Fuzzy L" /><meta name="keywords" content='RE' />
+  <meta itemprop="name" content="【译】AFL白皮书">
+  <meta itemprop="description" content="[toc] AFL 翻译 afl-fuzz 技术 白皮书 本文档快速概述了American Fuzzy Lop的核心内容。 请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅historical_notes.txt。 historical_notes: 这篇文档主要谈论了AFL（American Fuzzy L">
+  <meta itemprop="datePublished" content="2023-05-16T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2023-05-16T00:00:00+00:00">
+  <meta itemprop="wordCount" content="15404">
+  <meta itemprop="keywords" content="RE"><meta property="og:url" content="http://ghostasky.github.io/posts/2023-5aflwritepaper/">
+  <meta property="og:site_name" content="Ghostasky&#39;s Blog">
+  <meta property="og:title" content="【译】AFL白皮书">
+  <meta property="og:description" content="[toc] AFL 翻译 afl-fuzz 技术 白皮书 本文档快速概述了American Fuzzy Lop的核心内容。 请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅historical_notes.txt。 historical_notes: 这篇文档主要谈论了AFL（American Fuzzy L">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2023-05-16T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-05-16T00:00:00+00:00">
+    <meta property="article:tag" content="RE">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="【译】AFL白皮书">
+  <meta name="twitter:description" content="[toc] AFL 翻译 afl-fuzz 技术 白皮书 本文档快速概述了American Fuzzy Lop的核心内容。 请参阅README获取一般指导手册；有关AFL背后动机和设计目标的讨论，请参阅historical_notes.txt。 historical_notes: 这篇文档主要谈论了AFL（American Fuzzy L">
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -263,7 +271,7 @@
   </a>
 </h2><p>产生了新的程序状态转换的变异测试用例会被添加到输入队列中，并用作新一轮次 fuzzing 的起点。这些用例是已有测试用例的补充，但并不替换掉已有测试用例。</p>
 <p>与更贪心的遗传算法相比，这种方法允许AFL逐步探索底层数据格式的各种不相交且可能相互不兼容的特征，如下图所示：</p>
-<p><img loading="lazy" src="/posts/2023-5aflwritepaper/afl_gzip.png" alt="img" srcset="/posts/2023-5aflwritepaper/afl_gzip.png?size=small, /posts/2023-5aflwritepaper/afl_gzip.png?size=medium 1.5x, /posts/2023-5aflwritepaper/afl_gzip.png?size=large 2x" data-title="img" style="--width: 2600px;--aspect-ratio: 2600 / 2150;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+<p><img loading="lazy" src="afl_gzip.png" alt="img" srcset="afl_gzip.png?size=small, afl_gzip.png?size=medium 1.5x, afl_gzip.png?size=large 2x" data-title="img" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>还有一些对于此算法实践的结果讨论：</p>
 <ul>
 <li><a href="http://lcamtuf.blogspot.com/2014/11/pulling-jpegs-out-of-thin-air.html"target="_blank" rel="external nofollow noopener noreferrer">http://lcamtuf.blogspot.com/2014/11/pulling-jpegs-out-of-thin-air.html</a></li>
@@ -728,7 +736,7 @@ instrumented runs 可以翻译成插桩运行，也可以认为是有指导、�
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.126.2"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
               <a href="/">Ghostasky</a></span></div></div>

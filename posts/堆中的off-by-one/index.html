@@ -7,18 +7,26 @@
     <meta name="robots" content="noodp" />
     <title>堆中的off-by-One - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="[TOC] 介绍 off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。 漏洞原理 这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常" /><meta name="keywords" content='PWN' /><meta itemprop="name" content="堆中的off-by-one">
-<meta itemprop="description" content="[TOC] 介绍 off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。 漏洞原理 这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常"><meta itemprop="datePublished" content="2021-03-21T02:29:42+00:00" />
-<meta itemprop="dateModified" content="2021-03-21T02:29:42+00:00" />
-<meta itemprop="wordCount" content="5126">
-<meta itemprop="keywords" content="PWN," /><meta property="og:title" content="堆中的off-by-one" />
-<meta property="og:description" content="[TOC] 介绍 off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。 漏洞原理 这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://ghostasky.github.io/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-03-21T02:29:42+00:00" />
-<meta property="article:modified_time" content="2021-03-21T02:29:42+00:00" />
-<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="堆中的off-by-one"/>
-<meta name="twitter:description" content="[TOC] 介绍 off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。 漏洞原理 这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常"/>
+<meta name="description" content="[TOC] 介绍 off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。 漏洞原理 这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常" /><meta name="keywords" content='PWN' />
+  <meta itemprop="name" content="堆中的off-by-one">
+  <meta itemprop="description" content="[TOC] 介绍 off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。 漏洞原理 这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常">
+  <meta itemprop="datePublished" content="2021-03-21T02:29:42+00:00">
+  <meta itemprop="dateModified" content="2021-03-21T02:29:42+00:00">
+  <meta itemprop="wordCount" content="5126">
+  <meta itemprop="keywords" content="PWN"><meta property="og:url" content="http://ghostasky.github.io/posts/%E5%A0%86%E4%B8%AD%E7%9A%84off-by-one/">
+  <meta property="og:site_name" content="Ghostasky&#39;s Blog">
+  <meta property="og:title" content="堆中的off-by-one">
+  <meta property="og:description" content="[TOC] 介绍 off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。 漏洞原理 这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2021-03-21T02:29:42+00:00">
+    <meta property="article:modified_time" content="2021-03-21T02:29:42+00:00">
+    <meta property="article:tag" content="PWN">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="堆中的off-by-one">
+  <meta name="twitter:description" content="[TOC] 介绍 off-by-one是一种特殊的溢出漏洞，off-by-one指程序向缓冲区写入时，写入的字节数超过了这个缓冲区本身所申请的字节数，并且只越界了一个字节。 漏洞原理 这种漏洞的产生往往与边界严重不严格和字符串操作有关，其中边界验证不严通常">
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -672,7 +680,7 @@ edit(1, payload)
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.126.2"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
               <a href="/">Ghostasky</a></span></div></div>

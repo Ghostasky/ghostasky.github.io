@@ -7,18 +7,22 @@
     <meta name="robots" content="noodp" />
     <title>SSTI Payload记录 - Ghostasky&#39;s Blog</title><meta name="author" content="Ghostasky">
 <meta name="author-link" content="">
-<meta name="description" content="[toc] 1.PHP中的ssti Twig框架 {{}}:输出 {# 注释 #}:注释 {% %}：逻辑运算 循环： {% for word in words %} {{ word }} {% endfor %}测试用payload: {{2*2**3}} = 16 {# 这里要注意的是，#要写成%23，不然会被浏览器当成锚点 #} {{2*2**3}}{%23%20注释不" /><meta name="keywords" content='WEB' /><meta itemprop="name" content="SSTI payload记录">
-<meta itemprop="description" content="[toc] 1.PHP中的ssti Twig框架 {{}}:输出 {# 注释 #}:注释 {% %}：逻辑运算 循环： {% for word in words %} {{ word }} {% endfor %}测试用payload: {{2*2**3}} = 16 {# 这里要注意的是，#要写成%23，不然会被浏览器当成锚点 #} {{2*2**3}}{%23%20注释不">
+<meta name="description" content="[toc] 1.PHP中的ssti Twig框架 {{}}:输出 {# 注释 #}:注释 {% %}：逻辑运算 循环： {% for word in words %} {{ word }} {% endfor %}测试用payload: {{2*2**3}} = 16 {# 这里要注意的是，#要写成%23，不然会被浏览器当成锚点 #} {{2*2**3}}{%23%20注释不" /><meta name="keywords" content='WEB' />
+  <meta itemprop="name" content="SSTI payload记录">
+  <meta itemprop="description" content="[toc] 1.PHP中的ssti Twig框架 {{}}:输出 {# 注释 #}:注释 {% %}：逻辑运算 循环： {% for word in words %} {{ word }} {% endfor %}测试用payload: {{2*2**3}} = 16 {# 这里要注意的是，#要写成%23，不然会被浏览器当成锚点 #} {{2*2**3}}{%23%20注释不">
+  <meta itemprop="wordCount" content="2208">
+  <meta itemprop="keywords" content="WEB"><meta property="og:url" content="http://ghostasky.github.io/posts/ssti/">
+  <meta property="og:site_name" content="Ghostasky&#39;s Blog">
+  <meta property="og:title" content="SSTI payload记录">
+  <meta property="og:description" content="[toc] 1.PHP中的ssti Twig框架 {{}}:输出 {# 注释 #}:注释 {% %}：逻辑运算 循环： {% for word in words %} {{ word }} {% endfor %}测试用payload: {{2*2**3}} = 16 {# 这里要注意的是，#要写成%23，不然会被浏览器当成锚点 #} {{2*2**3}}{%23%20注释不">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:tag" content="WEB">
 
-<meta itemprop="wordCount" content="2208">
-<meta itemprop="keywords" content="WEB," /><meta property="og:title" content="SSTI payload记录" />
-<meta property="og:description" content="[toc] 1.PHP中的ssti Twig框架 {{}}:输出 {# 注释 #}:注释 {% %}：逻辑运算 循环： {% for word in words %} {{ word }} {% endfor %}测试用payload: {{2*2**3}} = 16 {# 这里要注意的是，#要写成%23，不然会被浏览器当成锚点 #} {{2*2**3}}{%23%20注释不" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://ghostasky.github.io/posts/ssti/" /><meta property="article:section" content="posts" />
-
-
-<meta name="twitter:card" content="summary"/><meta name="twitter:title" content="SSTI payload记录"/>
-<meta name="twitter:description" content="[toc] 1.PHP中的ssti Twig框架 {{}}:输出 {# 注释 #}:注释 {% %}：逻辑运算 循环： {% for word in words %} {{ word }} {% endfor %}测试用payload: {{2*2**3}} = 16 {# 这里要注意的是，#要写成%23，不然会被浏览器当成锚点 #} {{2*2**3}}{%23%20注释不"/>
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="SSTI payload记录">
+  <meta name="twitter:description" content="[toc] 1.PHP中的ssti Twig框架 {{}}:输出 {# 注释 #}:注释 {% %}：逻辑运算 循环： {% for word in words %} {{ word }} {% endfor %}测试用payload: {{2*2**3}} = 16 {# 这里要注意的是，#要写成%23，不然会被浏览器当成锚点 #} {{2*2**3}}{%23%20注释不">
 <meta name="application-name" content="FixIt">
 <meta name="apple-mobile-web-app-title" content="FixIt"><meta name="theme-color" data-light="#f8f8f8" data-dark="#252627" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -169,7 +173,7 @@
     </li>
   </ul>
 </nav></div>
-      </div><div class="content" id="content"><p><img loading="lazy" src="/posts/ssti/1344396-20200911174631687-758048107.png" alt="img" srcset="/posts/ssti/1344396-20200911174631687-758048107.png?size=small, /posts/ssti/1344396-20200911174631687-758048107.png?size=medium 1.5x, /posts/ssti/1344396-20200911174631687-758048107.png?size=large 2x" data-title="img" style="--width: 732px;--aspect-ratio: 732 / 835;background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
+      </div><div class="content" id="content"><p><img loading="lazy" src="1344396-20200911174631687-758048107.png" alt="img" srcset="1344396-20200911174631687-758048107.png?size=small, 1344396-20200911174631687-758048107.png?size=medium 1.5x, 1344396-20200911174631687-758048107.png?size=large 2x" data-title="img" style="background: url(/images/loading.min.svg) no-repeat center;" onload="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}this.dataset.lazyloaded='';" onerror="this.title=this.dataset.title;for(const i of ['style', 'data-title','onerror','onload']){this.removeAttribute(i);}"/></p>
 <p>[toc]</p>
 <h2 id="1php中的ssti" class="heading-element"><span>1.PHP中的ssti</span>
   <a href="#1php%e4%b8%ad%e7%9a%84ssti" class="heading-mark">
@@ -495,7 +499,7 @@ ${7*7} = ${7*7}
 
   <aside class="toc" id="toc-auto" aria-label="目录"><h2 class="toc-title">目录&nbsp;<i class="toc-icon fa-solid fa-angle-down fa-fw" aria-hidden="true"></i></h2>
       <div class="toc-content" id="toc-content-auto"></div></aside></main><footer class="footer">
-    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.124.1"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
+    <div class="footer-container"><div class="footer-line powered">由 <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreferrer" title="Hugo 0.126.2"><img class="hugo-icon" src="/images/hugo.min.svg" alt="Hugo logo" /> Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/hugo-fixit/FixIt" target="_blank" rel="external" title="FixIt v0.3.8-RC"><img class="fixit-icon" src="/images/fixit.min.svg" alt="FixIt logo" /> FixIt</a>
         </div><div class="footer-line copyright" itemscope itemtype="http://schema.org/CreativeWork"><i class="fa-regular fa-copyright fa-fw" aria-hidden="true"></i>
             <span itemprop="copyrightYear">2024</span><span class="author" itemprop="copyrightHolder">
               <a href="/">Ghostasky</a></span></div></div>
